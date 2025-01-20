@@ -1,15 +1,16 @@
-require('dotenv').config();
-
 const fs = require('fs');
 const csvParser = require('csv-parser');
 const mysql = require('mysql2');
 
+// load the .env.test file
+require('dotenv').config({path: '.env.test'});
+
 // Database connection
 const db = mysql.createConnection({
-  host: process.env.test.DB_HOST,
-  user: process.env.test.DB_USER,
-  password: process.env.test.DB_PASSWORD,
-  database: process.env.test.DB_NAME,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME, 
 });
 
 // Connect to the database
@@ -41,6 +42,10 @@ db.connect(err => {
   const insertAttendance = (attendance) => {
     const { email, checkInDate, organizationID, eventID } = attendance;
   
+      // Set value for AttendanceStatusID as attended
+    //const attendanceStatusID = 1;
+    const attendanceStatus = 'Attended';
+
     return new Promise((resolve, reject) => {
       // Retrieve MemberID using email
       const getMemberQuery = `SELECT MemberID FROM Members WHERE Email = ? AND OrganizationID = ?`;
@@ -50,10 +55,10 @@ db.connect(err => {
         if (rows.length > 0) {
           const memberId = rows[0].MemberID;
           const query = `
-            INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceSource, OrganizationID)
-            VALUES (?, ?, ?, 'CSV Import', ?)
+            INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, AttendanceSource, OrganizationID)
+            VALUES (?, ?, ?, ?, 'CSV Import', ?)
           `;
-          db.query(query, [memberId, eventID, checkInDate, organizationID], (err) => {
+          db.query(query, [memberId, eventID, checkInDate, attendanceStatus, organizationID], (err) => {
             if (err) return reject(err);
             console.log(`Attendance inserted for MemberID ${memberId}`);
             resolve();

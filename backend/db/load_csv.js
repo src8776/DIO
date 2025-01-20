@@ -117,5 +117,5 @@ db.connect(err => {
       });
   };
   
-  // Run the script with the CSV file path
+  // the CSV file path
   processCsv('');

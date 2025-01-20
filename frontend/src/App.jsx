@@ -2,6 +2,8 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+// import DataTable from './components/DataTable'
+// import AdminDashPage from './pages/AdminDashboard/AdminDashPage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -31,5 +33,11 @@ function App() {
     </>
   )
 }
+
+// using this temporarily to display the page/component i'm working on
+// -- Lenny
+// const App = () => {
+//   return <AdminDashPage />;
+// }
 
 export default App

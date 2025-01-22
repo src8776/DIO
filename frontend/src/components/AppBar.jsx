@@ -10,8 +10,8 @@ import CloseIcon from '@mui/icons-material/Close';
 
 export default function ButtonAppBar() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <Box>
+      <AppBar position="static" elevation={1}>
         <Toolbar>
           {/* <IconButton
             size="large"
@@ -22,7 +22,7 @@ export default function ButtonAppBar() {
           >
             <MenuIcon />
           </IconButton> */}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
             RIT | Diversity Initiatives Office
           </Typography>
           {/* TODO: Make this close the dashboard */}

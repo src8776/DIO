@@ -15,7 +15,13 @@ const theme = createTheme ({
             light: '#D0D3D4',
             dark: '#A2AAAD',
             contrastText: '#000000'
-        }
+        },
+        gray: {
+            main: "#D0D3D4",
+            light: '#A2AAAD',
+            dark: '#7C878E',
+            contrastText: '#000000'
+        },
     },
     typography: {
         h1: {

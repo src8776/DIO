@@ -214,7 +214,9 @@ function EnhancedTableToolbar(props) {
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
+        
+        // TODO: Implement filter functionality
+        <Tooltip title="Filter Table">
           <IconButton>
             <FilterListIcon />
           </IconButton>

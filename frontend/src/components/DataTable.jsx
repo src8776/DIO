@@ -241,10 +241,6 @@ export default function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchQuery, setSearchQuery] = React.useState('');
 
-
-
-
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -317,9 +313,9 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%' }}>
-        <EnhancedTableToolbar 
+        <EnhancedTableToolbar
           numSelected={selected.length}
-          handleSearchChange={handleSearchChange} 
+          handleSearchChange={handleSearchChange}
         />
         <TableContainer>
           <Table

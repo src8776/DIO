@@ -30,15 +30,14 @@ function AdminDash() {
                             position: 'relative'
                         }}
                     >
-                        {/* TODO: Make this close the dashboard */}
+                        {/* TODO: Make this close the dashboard
                         <Button 
                             variant='contained'
                             color='gray'
                             disableElevation
                             startIcon={<CloseIcon/>}>
-                            
                             close
-                        </Button>
+                        </Button> */}
                         <Typography
                             variant="h5"
                             sx={{

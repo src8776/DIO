@@ -8,21 +8,17 @@ import AppBar from './components/AppBar'
 
 
 const App = () => {
-  return (
-    <>
-      <AppBar />
-      {/* <Container sx={{
-         width: { xs: 1, md: 900}
-         }}> */}
-        <Routes>
-          <Route path="/" element= { <LandingPage/> }/>
-          <Route path="/admin" element = { <AdminDash/> }/>
-          <Route path="/acctSetup" element = { <AcctSetup/> }/>
-        </Routes>
-      {/* </Container> */}
-    </>
+    return (
+        <>
+            <AppBar />
+            <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/admin" element={<AdminDash />} />
+                <Route path="/acctSetup" element={<AcctSetup />} />
+            </Routes>
+        </>
 
-  )
+    )
 }
 
 export default App

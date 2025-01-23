@@ -30,7 +30,6 @@ const theme = createTheme ({
         MuiButton: {
           styleOverrides: {
             root: {
-              textTransform: 'none',
               fontWeight: 600,
             },
             contained: {

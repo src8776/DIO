@@ -35,13 +35,23 @@ const darkTheme = createTheme({
             contained: {
               backgroundColor: '#F76902',
               color: '#ffffff',
+              '&:hover': {
+                backgroundColor: '#e65d00',
+              },
             },
             outlined: {
               borderColor: '#F76902',
               color: '#F76902',
+              '&:hover': {
+                borderColor: '#e65d00',
+                backgroundColor: '#fff4e6',
+              },
             },
             text: {
               color: '#F76902',
+              '&:hover': {
+                backgroundColor: '#fff4e6',
+              },
             },
           },
         },

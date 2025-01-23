@@ -31,18 +31,17 @@ export default function InputFileUpload() {
       const formData = new FormData();
       formData.append('file', file);
       console.log("going to upload file");
-      // TODO: invoke backend to upload file
-      // fetch('https://your-upload-endpoint.com/upload', {
-      //   method: 'POST',
-      //   body: formData,
-      // })
-      // .then(response => response.json())
-      // .then(data => {
-      //   console.log('File uploaded successfully', data);
-      // })
-      // .catch(error => {
-      //   console.error('Error uploading file:', error);
-      // });
+      fetch('http://localhost:3001/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('File uploaded successfully', data);
+      })
+      .catch(error => {
+        console.error('Error uploading file:', error);
+      });
     } else {
       alert('Please select a file first.');
     }

@@ -21,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 
 
@@ -207,12 +208,13 @@ function EnhancedTableToolbar(props) {
         variant="outlined"
         size="small"
         onChange={handleSearchChange}
-        sx={{ marginLeft: 'auto' }}
+        sx={{ marginLeft: 'auto', m: 2}}
       />
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        // TODO: Implement report functionality
+        <Tooltip title="Generate Report">
           <IconButton>
-            <DeleteIcon />
+            <EditNoteIcon />
           </IconButton>
         </Tooltip>
       ) : (
@@ -240,10 +242,6 @@ export default function EnhancedTable() {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchQuery, setSearchQuery] = React.useState('');
-
-
-
-
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -317,9 +315,9 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%' }}>
-        <EnhancedTableToolbar 
+        <EnhancedTableToolbar
           numSelected={selected.length}
-          handleSearchChange={handleSearchChange} 
+          handleSearchChange={handleSearchChange}
         />
         <TableContainer>
           <Table

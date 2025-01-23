@@ -1,4 +1,4 @@
-import { Box, Button, Container, IconButton, Paper, Typography } from '@mui/material'
+import { Box, Container, Paper, Typography } from '@mui/material'
 import React from 'react'
 import DataTable from '../../components/DataTable'
 import AppBar from '../../components/AppBar'
@@ -10,13 +10,9 @@ import AddMemberButton from '../../components/AddMemberButton'
 function AdminDash() {
     return (
         <Container>
-          <Paper 
-            elevation={1}
-            sx={{ 
-              
-             }}
-          >
-            <AppBar></AppBar>
+          <Paper elevation={1}>
+            <AppBar/>
+
             {/* this box contains all dashboard content */}
             <Box
               sx={{
@@ -32,23 +28,29 @@ function AdminDash() {
               {/* TODO: Make this box display the info of whichever organization module you came from (WiC : COMS) */}
               <Box>
                 <Typography
-                    variant="h5"
-                    sx={{ textAlign: "left", display: "inline"}}
+                  variant="h5"
+                  sx={{ 
+                    textAlign: "left", 
+                    display: "inline"
+                  }}
                 >
-                    Member Database - 
-                    <Typography
-                      sx={{ textAlign: "left", display: "inline", ml: 1}}
-                    >
-                    Computing Organization for Multicultural Students
-                    </Typography>
-                    <Typography 
-                      variant="body2"
-                      sx={{ color: "black" }}
-                    >
-                      This is a short piece of text about the organization..
-                    </Typography>
+                  Member Database - 
                 </Typography>
-
+                <Typography
+                  sx={{ 
+                    textAlign: "left", 
+                    display: "inline", 
+                    ml: 1
+                  }}
+                >
+                  Computing Organization for Multicultural Students
+                </Typography>
+                <Typography 
+                  variant="body2"
+                  sx={{ color: "black" }}
+                >
+                  This is a short piece of text about the organization..
+                </Typography>
               </Box>
 
               {/* this box contains the 3 user action buttons (import, generate, add) */}
@@ -82,8 +84,7 @@ function AdminDash() {
             </Box>
           </Paper>
         </Container>
-    );
-    
+    );   
 }
 
 export default AdminDash;

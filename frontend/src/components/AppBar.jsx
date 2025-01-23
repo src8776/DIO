@@ -5,27 +5,26 @@ import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-
+import Brightness4 from '@mui/icons-material/Brightness4';
+import Brightness7 from '@mui/icons-material/Brightness7';
+import { Toolbar, Typography, IconButton } from '@mui/material';
 
 const drawerWidth = 240;
 
-//This is where you add links to the nav bar
+// Links for the navigation bar
 const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Admin Dashboard', path: '/admin' },
     { name: 'Account Setup', path: '/acctSetup' }
 ];
 
-export default function DrawerAppBar() {
+//toggleTheme and mode defined in App.jsx
+export default function DrawerAppBar({ toggleTheme, mode }) {
     const [mobileOpen, setMobileOpen] = React.useState(false);
 
     const handleDrawerToggle = () => {
@@ -73,12 +72,16 @@ export default function DrawerAppBar() {
                     >
                         RIT | Diversity Initiatives Office
                     </Typography>
-                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 2 }}>
                         {navItems.map((item) => (
                             <Button key={item.name} component={Link} to={item.path} sx={{ color: '#fff' }}>
                                 {item.name}
                             </Button>
                         ))}
+                        {/*Toggle button for light/dark mode*/}
+                        <IconButton color="inherit" onClick={toggleTheme}>
+                            {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+                        </IconButton>
                     </Box>
                 </Toolbar>
             </AppBar>
@@ -104,4 +107,3 @@ export default function DrawerAppBar() {
         </Box>
     );
 }
-

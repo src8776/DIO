@@ -1,0 +1,74 @@
+import { createTheme } from '@mui/material/styles';
+
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
+        primary: {
+          main: '#F76902',
+        },
+        secondary: {
+          main: '#90caf9', // Default secondary for contrast
+        },
+        background: {
+          default: '#121212',
+          paper: '#1e1e1e',
+        },
+        text: {
+          primary: '#ffffff',
+          secondary: '#b0b0b0',
+        },
+      },
+      components: {
+        MuiAppBar: {
+          styleOverrides: {
+            root: {
+              backgroundColor: '#F76902',
+              color: '#ffffff',
+            },
+          },
+        },
+        MuiButton: {
+          styleOverrides: {
+            root: {
+              fontWeight: 600,
+            },
+            contained: {
+              backgroundColor: '#F76902',
+              color: '#ffffff',
+            },
+            outlined: {
+              borderColor: '#F76902',
+              color: '#F76902',
+            },
+            text: {
+              color: '#F76902',
+            },
+          },
+        },
+        MuiPaper: {
+          styleOverrides: {
+            //changes go here
+          },
+        },
+        MuiTypography: {
+          styleOverrides: {
+            h1: {
+              fontSize: '2.25rem',
+              fontWeight: 600,
+              color: '#ffffff',
+            },
+            h2: {
+              fontSize: '2rem',
+              fontWeight: 500,
+              color: '#ffffff',
+            },
+            body1: {
+              fontSize: '1rem',
+              color: '#b0b0b0',
+            },
+          },
+        },
+      },
+});
+
+export default darkTheme;

@@ -25,8 +25,9 @@ import { visuallyHidden } from '@mui/utils';
 
 
 
-function createData(status, name, duration, academicYear, attendanceRecord) {
+function createData(id, status, name, duration, academicYear, attendanceRecord) {
   return {
+    id,
     status,
     name,
     duration,
@@ -37,19 +38,19 @@ function createData(status, name, duration, academicYear, attendanceRecord) {
 
 // this is where we will instead be pulling data from the database and populating the array
 const rows = [
-  createData('Active', 'John Doe', '2 years', 'Third', 67, 4.3),
-  createData('Active', 'Fred Flintstone', '2 years', 25.0, 51, 4.9),
-  createData('Active', 'Big Ed', '1 year', 16.0, 24, 6.0),
-  createData('Inactive', 'Sally Smith', '1 month', 6.0, 24, 4.0),
-  createData('Active', 'Olivia Carter', '2 months', 16.0, 49, 3.9),
-  createData('Active', 'Liam Bennett', '2 years', 3.2, 87, 6.5),
-  createData('Active', 'Sophia Hughes', 237, 9.0, 37, 4.3),
-  createData('Active', 'Noah Rivera', '2 years', 0.0, 94, 0.0),
-  createData('Active', 'Isabella Foster', '2 years', 26.0, 65, 7.0),
-  createData('Inactive', 'Elijah Ramirez', '2 years', 0.2, 98, 0.0),
-  createData('Active', 'Ava Jenkins', '2 years', 0, 81, 2.0),
-  createData('Active', 'Lucas Brooks', '2 years', 19.0, 9, 37.0),
-  createData('Active', 'Mia Sullivan', '2 years', 18.0, 63, 4.0),
+  createData(1, 'Active', 'John Doe', '2 years', 'Third', 67),
+  createData(2, 'Active', 'Fred Flintstone', '2 years', 'Third', 51),
+  createData(3, 'Active', 'Big Ed', '1 year', 'Second', 24),
+  createData(4, 'Inactive', 'Sally Smith', '1 month', 'First', 24),
+  createData(5, 'Active', 'Olivia Carter', '2 months', 'First', 49),
+  createData(6, 'Active', 'Liam Bennett', '2 years', 'Third', 87),
+  createData(7, 'Active', 'Sophia Hughes', '1 year', 'Third', 37),
+  createData(8, 'Active', 'Noah Rivera', '2 years', 'Third', 94),
+  createData(9, 'Active', 'Isabella Foster', '2 years', 'Third', 65),
+  createData(10, 'Inactive', 'Elijah Ramirez', '2 years', 'Third', 98),
+  createData(11, 'Active', 'Ava Jenkins', '1 years', 'Third', 81),
+  createData(12, 'Active', 'Lucas Brooks', '2 years', 'Third', 9),
+  createData(13, 'Active', 'Mia Sullivan', '3 years', 'Third', 63),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -77,19 +78,19 @@ const headCells = [
   },
   {
     id: 'name',
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: 'Name',
   },
   {
     id: 'duration',
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: 'Duration',
   },
   {
     id: 'academicYear',
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: 'Academic Year',
   },
@@ -133,6 +134,7 @@ function EnhancedTableHead(props) {
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
+            sx={{ fontWeight: 'bold' }}
             key={headCell.id}
             // align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
@@ -183,7 +185,7 @@ function EnhancedTableToolbar(props) {
     >
       {numSelected > 0 ? (
         <Typography
-          sx={{ flex: '1 1 100%' }}
+          sx={{ flex: '1 1 100%', fontWeight: 'bold' }}
           color="inherit"
           variant="subtitle1"
           component="div"
@@ -214,7 +216,9 @@ function EnhancedTableToolbar(props) {
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
+
+        // TODO: Implement filter functionality
+        <Tooltip title="Filter Table">
           <IconButton>
             <FilterListIcon />
           </IconButton>
@@ -312,7 +316,7 @@ export default function EnhancedTable() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ width: '100%' }}>
         <EnhancedTableToolbar 
           numSelected={selected.length}
           handleSearchChange={handleSearchChange} 

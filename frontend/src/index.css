@@ -1,4 +1,4 @@
-:root {
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -65,4 +65,13 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+} */
+
+
+/* 
+Forces the scroll bar to always show
+@Lenn added this to prevent annoying page shifts when it appears / disappears
+*/
+html {
+  overflow-y: scroll;
 }

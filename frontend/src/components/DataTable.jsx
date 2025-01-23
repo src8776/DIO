@@ -21,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 
 
@@ -207,12 +208,13 @@ function EnhancedTableToolbar(props) {
         variant="outlined"
         size="small"
         onChange={handleSearchChange}
-        sx={{ marginLeft: 'auto' }}
+        sx={{ marginLeft: 'auto', m: 2}}
       />
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        // TODO: Implement report functionality
+        <Tooltip title="Generate Report">
           <IconButton>
-            <DeleteIcon />
+            <EditNoteIcon />
           </IconButton>
         </Tooltip>
       ) : (

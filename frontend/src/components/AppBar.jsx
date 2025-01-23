@@ -47,6 +47,11 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                         </ListItemButton>
                     </ListItem>
                 ))}
+                <ListItem sx={{position:'fixed', bottom:'0'}}>
+                    <IconButton color="inherit" onClick={toggleTheme}>
+                        {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+                    </IconButton>
+                </ListItem>
             </List>
         </Box>
     );

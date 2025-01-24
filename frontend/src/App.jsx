@@ -6,6 +6,7 @@ import AppBar from './components/AppBar';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AdminDash from './pages/AdminDashboard/AdminDashPage';
 import AcctSetup from './pages/AccountSetup/AccountSetupPage';
+import AddMember from './pages/AddMember/AddMemberPage';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
 
@@ -25,6 +26,7 @@ const App = () => {
             <Route path="/" element={<LandingPage />} />
             <Route path="/admin" element={<AdminDash />} />
             <Route path="/acctSetup" element={<AcctSetup />} />
+            <Route path="/addMember" element={<AddMember />} />
         </Routes>
     </ThemeProvider>
   );

@@ -20,7 +20,9 @@ const drawerWidth = 240;
 const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Admin Dashboard', path: '/admin' },
-    { name: 'Account Setup', path: '/acctSetup' }
+    { name: 'Account Setup', path: '/acctSetup' },
+    { name: 'Add New Member', path: '/addMember'}
+
 ];
 
 //toggleTheme and mode defined in App.jsx

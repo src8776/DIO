@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import DataTable from '../../components/DataTable';
 import FileUploadButton from '../../components/FileUploadButton';
 import GenerateReportButton from '../../components/GenerateReportButton';
-import AddMemberButton from '../../components/AddMemberButton';
+import AddMemberModal from '../../components/AddMemberModal';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';
 
@@ -22,30 +22,48 @@ function AdminDash() {
             gap: 2,
           }}
         >
-          {/* Close Button */}
-          <Button
-            sx={{ width: 'fit-content' }}
-            component={Link}
-            to="/"
-            variant="contained"
-            disableElevation
-            startIcon={<CloseIcon />}
-          >
-            Close
-          </Button>
-
-          {/* Organization Flavor Text */}
+          
+          {/* Header: Organization Flavor Text & Close Button */}
           {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
-          <Box sx={{ position: 'relative' }}>
-            <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
-              Member Database -
-            </Typography>
-            <Typography sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-              Computing Organization for Multicultural Students
-            </Typography>
-            <Typography variant="body2">
-              This is a short piece of text about the organization.
-            </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
+            {/* Flavor Text */}
+            <Box sx={{ display: 'flex', flexDirection: 'column'}}>
+              <Box>
+                <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
+                  Member Database -
+                </Typography>
+                <Typography variant='body' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+                  Computing Organization for Multicultural Students
+                </Typography>
+              </Box>
+              <Typography variant='body2'>
+                This is a short piece of text about the organization.
+              </Typography>
+            </Box>
+
+            {/* Close Button */}
+            <Button
+              sx={{
+                width: 'fit-content',
+                height: 'fit-content',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 1,
+              }}
+              component={Link}
+              to="/"
+              variant="contained"
+              disableElevation
+            >
+              <CloseIcon sx={{ margin: 0, }}/>
+              <Box
+                component="span"
+                sx={{ display: { xs: 'none', sm: 'block' } }}
+              >
+                Close
+              </Box>
+            </Button>
           </Box>
 
           {/* User Action Buttons */}
@@ -64,7 +82,7 @@ function AdminDash() {
               <FileUploadButton />
               <GenerateReportButton />
             </Box>
-            <AddMemberButton />
+              <AddMemberModal />
             </Box>
 
           {/* Data Table */}

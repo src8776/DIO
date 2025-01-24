@@ -2,8 +2,9 @@ const fs = require('fs');
 const csvParser = require('csv-parser');
 const mysql = require('mysql2');
 
-// load the .env.test file
-require('dotenv').config({path: '.env.test'});
+// load the .env file
+// rename the "dotenv" to ".env" and update the parameters for your local machine's database
+require('dotenv').config({path: '.env'});
 
 // Database connection
 const db = mysql.createConnection({
@@ -20,7 +21,7 @@ db.connect(err => {
       return;
     }
     console.log('Connected to the database');
-  });
+});
   
   // Insert data into the Members table
   const insertMember = (member) => {
@@ -116,11 +117,20 @@ db.connect(err => {
             console.error('Error inserting attendance:', err);
           }
         }
+
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error('Error removing file:', err);
+          } else {
+            console.log('File removed successfully');
+          }
+        });
   
         // Close the database connection
-        db.end();
+        // CONNECTION WILL BE FOREVER OPEN!!!
+        // db.end();
       });
   };
   
   // the CSV file path
-  processCsv('');
+  module.exports = { processCsv };

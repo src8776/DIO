@@ -33,6 +33,7 @@ export default function InputFileUpload() {
       const formData = new FormData();
       formData.append('csv_file', file);
       console.log("going to upload file");
+      // TODO: figure out how to unhardcode this line below
       fetch('http://localhost:3001/upload', {
         method: 'POST',
         body: formData,

@@ -46,7 +46,9 @@ function AddMember() {
         </Box>
         {/* Save Button */}
         {/* TODO: Make this save the field inputs as a new member in the database */}
-        {/* TODO: Form validation */}
+        {/* TODO: Form validation: 
+                  make sure no duplicates get added, 
+                  valid rit email, etc. */}
         <Button
           variant='contained'>
           Save

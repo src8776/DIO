@@ -6,11 +6,12 @@ function AccountSetup() {
     return (
         <Container
             sx={{
-                alignContent: 'center'
+                dispay: 'block',
+                margin: 'auto',
             }}
         >
             <Typography variant='h3'>
-                One Last Step to Get You Started!
+                Account Setup
             </Typography>
         </Container>
     )

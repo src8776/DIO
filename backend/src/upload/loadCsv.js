@@ -1,6 +1,6 @@
 const fs = require('fs');
 const csvParser = require('csv-parser');
-const db = require('./config/db');
+const db = require('../config/db');
 
 // load the .env file
 // rename the "dotenv" to ".env" and update the parameters for your local machine's database

@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require('cors');
-const { upload, handleFileUpload } = require('./handleFileUpload');
+const { upload, handleFileUpload } = require('./upload/handleFileUpload');
 
 const app = express();
 app.use(cors());

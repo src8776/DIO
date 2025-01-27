@@ -21,6 +21,7 @@ const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Admin Dashboard', path: '/admin' },
     { name: 'Account Setup', path: '/acctSetup' },
+    { name: 'Member Details', path: '/memberDetails' },
     // { name: 'Add New Member', path: '/addMember'}
 
 ];

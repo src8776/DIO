@@ -1,27 +1,10 @@
 const fs = require('fs');
 const csvParser = require('csv-parser');
-const mysql = require('mysql2');
+const db = require('../config/db');
 
 // load the .env file
 // rename the "dotenv" to ".env" and update the parameters for your local machine's database
 require('dotenv').config({path: '.env'});
-
-// Database connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME, 
-});
-
-// Connect to the database
-db.connect(err => {
-    if (err) {
-      console.error('Error connecting to the database:', err);
-      return;
-    }
-    console.log('Connected to the database');
-});
   
   // Format date to MYSQL date format
   const formatDateToMySQL = (dateString) => {

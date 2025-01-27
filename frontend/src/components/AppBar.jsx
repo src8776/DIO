@@ -21,7 +21,7 @@ const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Admin Dashboard', path: '/admin' },
     { name: 'Account Setup', path: '/acctSetup' },
-    { name: 'Add New Member', path: '/addMember'}
+    // { name: 'Add New Member', path: '/addMember'}
 
 ];
 
@@ -36,7 +36,9 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
             <Typography variant="h6" sx={{ my: 2 }}>
-                RIT | DIO
+                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    RIT | DIO
+                </Link>
             </Typography>
             <Divider />
             <List>
@@ -68,7 +70,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
+                        sx={{ mr: 2, display: { md: 'none' } }}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -77,9 +79,11 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                         component="div"
                         sx={{ flexGrow: 1 }}
                     >
-                        RIT | Diversity Initiatives Office
+                        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                            RIT | Diversity Initiatives Office
+                        </Link>
                     </Typography>
-                    <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
                         {navItems.map((item) => (
                             <Button key={item.name} component={Link} to={item.path} sx={{ color: '#fff' }}>
                                 {item.name}
@@ -92,7 +96,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                     </Box>
                 </Toolbar>
             </AppBar>
-            <nav>
+            <Box component="nav">
                 <Drawer
                     variant="temporary"
                     open={mobileOpen}
@@ -101,14 +105,14 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                         keepMounted: true, // Better open performance on mobile.
                     }}
                     sx={{
-                        display: { xs: 'block', sm: 'none' },
+                        display: { xs: 'block', md: 'none' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
                     }}
                 >
                     {drawer}
                 </Drawer>
-            </nav>
-            <Box component="main" sx={{ p: 3 }}>
+            </Box>
+            <Box component="main" sx={{ p: 0 }}>
                 <Toolbar />
             </Box>
         </Box>

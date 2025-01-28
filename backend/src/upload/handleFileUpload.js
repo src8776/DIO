@@ -23,10 +23,15 @@ const handleFileUpload = (req, res) => {
     if (req.file) {
         const filePath = req.file.path;
         console.log("filepath is " + filePath);
-        csvProcessor.processCsv(filePath);
-        res.json({ message: 'File uploaded successfully', file: req.file });
+        try {
+            csvProcessor.processCsv(filePath);
+        } catch(err) {
+            console.error("failed to process CSV file", err.message);
+            res.status(500).json({ success: false, message: "Failed to proccess the CSV file", file: req.file });
+        };
+        res.json({ success: true, message: 'File uploaded successfully', file: req.file });
     } else {
-        res.status(400).json({ error: 'No file uploaded' });
+        res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 };
 

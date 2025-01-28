@@ -1,10 +1,6 @@
 const fs = require('fs');
 const csvParser = require('csv-parser');
 const db = require('../config/db');
-
-// load the .env file
-// rename the "dotenv" to ".env" and update the parameters for your local machine's database
-require('dotenv').config({path: '.env'});
   
   // Format date to MYSQL date format
   const formatDateToMySQL = (dateString) => {
@@ -109,7 +105,7 @@ const insertOrganizationMember = (orgMember) => {
           return;
         }      
       
-          const email = row['Email'];
+      const email = row['Email'];
       const username = email.split('@')[0]; // Extract username from email
 
       const member = {
@@ -147,6 +143,7 @@ const insertOrganizationMember = (orgMember) => {
             });
           } catch (err) {
             console.error('Error inserting member or organization members:', err);
+            throw err;
           }
         }
   
@@ -156,6 +153,7 @@ const insertOrganizationMember = (orgMember) => {
             await insertAttendance(attendance);
           } catch (err) {
             console.error('Error inserting attendance:', err);
+            throw err;
           }
         }
 

@@ -3,6 +3,8 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState } from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -18,13 +20,15 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function InputFileUpload() {
   const [file, setFile] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleFileChange = (event) => {
-    console.log(event.target.files);
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
     handleUpload(selectedFile);
-    // IF WANT TO UPLOAD THE SAME FILE IN SAME DIRECTORY TWICE, UNCOMMENT
+    // Uncomment the next line to allow uploading the same file twice
     // event.target.value = '';
   };
 
@@ -32,39 +36,62 @@ export default function InputFileUpload() {
     if (file) {
       const formData = new FormData();
       formData.append('csv_file', file);
-      console.log("going to upload file");
-      // TODO: figure out how to unhardcode this line below
       fetch('http://localhost:3001/api/upload', {
         method: 'POST',
         body: formData,
       })
       .then(response => response.json())
       .then(data => {
-        console.log('File uploaded successfully', data);
+        console.log(data);
+        setAlertMessage('Successfully uploaded file: ' + data.file.originalname);
+        setAlertSeverity('success');
+        setOpenSnackbar(true);
       })
       .catch(error => {
-        console.error('Error uploading file:', error);
+        console.log(error);
+        setAlertMessage('Failed to upload file: ' + error.file.originalname);
+        setAlertSeverity('error');
+        setOpenSnackbar(true);
       });
     } else {
-      alert('Please select a file first.');
+        setAlertMessage('You must select a file');
+        setAlertSeverity('error');
+        setOpenSnackbar(true);
     }
   };
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
-    <Button
-      component="label"
-      color="gray"
-      role={undefined}
-      variant="contained"
-      tabIndex={-1}
-      startIcon={<CloudUploadIcon />}
-    >
-      Import Attendance Data
-      <VisuallyHiddenInput
-        type="file"
-        accept=".csv"
-        onChange={handleFileChange}
-      />
+    <>
+      <Button
+        component="label"
+        color="gray"
+        role={undefined}
+        variant="contained"
+        tabIndex={-1}
+        startIcon={<CloudUploadIcon />}
+      >
+        Import Attendance Data
+        <VisuallyHiddenInput
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+        />
       </Button>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={openSnackbar}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled" >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }
+ 

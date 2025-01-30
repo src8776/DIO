@@ -3,7 +3,10 @@ import { Box, Button, Modal } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddMemberPage from '../pages/AddMember/AddMemberPage';
 
-
+// TODO: Implement handleSave function to save member data to database 
+// TODO: display success message
+// TODO: display error message if member already exists
+// OPTIONAL TODO: display member details modal if member already exists
 
 export default function AddMemberModal() {
   const [open, setOpen] = React.useState(false);

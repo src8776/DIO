@@ -3,6 +3,11 @@ import { Box, Button, Modal } from "@mui/material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import GenerateReportPage from '../pages/GenerateReport/GenerateReportPage';
 
+
+// TODO: Plug handleGenerateReport function into backend
+// TODO: Display report preview to user
+// TODO: Implement PDF download of report feature
+
 export default function GenerateReport() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);

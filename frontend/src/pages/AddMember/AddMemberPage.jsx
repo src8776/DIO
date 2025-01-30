@@ -53,11 +53,7 @@ function AddMemberPage({ memberData, handleChange, handleSave }) {
             onChange={handleChange}
           />
         </Box>
-        {/* Save Button */}
-        {/* TODO: Make this save the field inputs as a new member in the database */}
-        {/* TODO: Form validation: 
-                  make sure no duplicates get added, 
-                  valid rit email, etc. */}
+
         <Button
           variant='contained'
           onClick={handleSave}

@@ -32,6 +32,8 @@ export default function GenerateReport() {
   const handleGenerateReport = () => {
     console.log("Generating report with filters:", filters);
     // TODO: Implement report generation logic
+    //       if start date is null, set to first day of semester
+    //       if end date is null, set to today
     handleClose();
   };
 

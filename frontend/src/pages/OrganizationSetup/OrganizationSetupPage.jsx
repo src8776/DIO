@@ -45,7 +45,7 @@ function OrganizationSetup() {
 
                     <Paper elevation={1}>
                         <Table>
-                            <TableHead sx={{ backgroundColor: '#f0f0f0' }}>
+                            <TableHead>
                                 <TableRow>
                                     <TableCell>Event Type</TableCell>
                                     <TableCell>Point Value</TableCell>
@@ -138,11 +138,11 @@ function OrganizationSetup() {
                     </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    {/* <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                         <Button variant="contained" startIcon={<CloseIcon />} component={Link} to="/">
                             Close
                         </Button>
-                    </Box>
+                    </Box> */}
                     <Paper elevation={1}>
                         <Table>
                             <TableHead sx={{ backgroundColor: '#f0f0f0' }}>

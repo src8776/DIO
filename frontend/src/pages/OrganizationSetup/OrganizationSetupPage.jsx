@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';
+import NavColumn from '../../components/NavColumn';
 
 
 
@@ -14,27 +15,26 @@ import { Link } from 'react-router-dom';
 // TODO: implement "save changes" buttons to update values in database
 // TODO: user feedback "changes saved successfully"
 
+
 function OrganizationSetup() {
 
     return (
-        <Container sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-            p: 2,
-        }}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row'} }}>
-                <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
-                    Organization Setup -
-                </Typography>
-                <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-                    Computing Organization for Multicultural Students
-                </Typography>
+        <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+            {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                <NavColumn pageTitle="Organization Setup" />
             </Box>
             {/* Modifier Tables */}
-            <Box component="form" sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row'}, gap: 4 }}>
+            <Box component="form" sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+                        <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
+                            Organization Setup -
+                        </Typography>
+                        <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+                            COMS
+                        </Typography>
+                    </Box>
                     <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                         <Button variant="contained" startIcon={<AddIcon />}>
                             Add Event

@@ -7,11 +7,19 @@ import GenerateReportButton from '../../components/GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';
+import NavColumn from '../../components/NavColumn';
+
+// TODO: Make database flavor text dynamic based on selected organization module (WiC or COMS)
 
 function AdminDash() {
 
   return (
-    <Container sx={{p:2}}>
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+      {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
+      <Box sx={{ display: {xs: 'none', md: 'block'}}}>
+        <NavColumn pageTitle="Member Database" />
+      </Box>
+
       <Paper elevation={1}>
         {/* Dashboard Content */}
         <Box
@@ -22,18 +30,18 @@ function AdminDash() {
             gap: 2,
           }}
         >
-          
+
           {/* Header: Organization Flavor Text & Close Button */}
           {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
             {/* Flavor Text */}
-            <Box sx={{ display: 'flex', flexDirection: 'row'}}>
-                <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
-                  Member Database -
-                </Typography>
-                <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-                  Computing Organization for Multicultural Students
-                </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
+                Member Database -
+              </Typography>
+              <Typography variant='h7' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+                Computing Organization for Multicultural Students
+              </Typography>
             </Box>
 
             {/* Close Button */}
@@ -51,7 +59,7 @@ function AdminDash() {
               variant="contained"
               disableElevation
             >
-              <CloseIcon/>
+              <CloseIcon />
               <Box
                 component="span"
                 sx={{ display: { xs: 'none', sm: 'block' } }}
@@ -77,8 +85,8 @@ function AdminDash() {
               <FileUploadButton />
               <GenerateReportButton />
             </Box>
-              <AddMemberModal />
-            </Box>
+            <AddMemberModal />
+          </Box>
 
           {/* Data Table */}
           <Paper elevation={1}>

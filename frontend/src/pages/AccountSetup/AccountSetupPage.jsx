@@ -12,6 +12,8 @@ import NavColumn from '../../components/NavColumn';
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
 // TODO: Allow user to return to this page to update their profile information
+// TODO: Load existing profile information if it exists
+// TODO: Change 'complete profile' button to 'save changes' button if user is updating profile information
 
 export default function AccountSetup() {
 

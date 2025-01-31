@@ -56,7 +56,7 @@ function LandingPage() {
                 Computing Organization of Multicultural Students
               </Typography>
               <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-                Make this one Member
+                Member
               </Typography>
             </CardContent>
             <CardActions>
@@ -89,7 +89,7 @@ function LandingPage() {
                 Women in Computing
               </Typography>
               <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-                Make this one admin
+                Admin
               </Typography>
             </CardContent>
             <CardActions>

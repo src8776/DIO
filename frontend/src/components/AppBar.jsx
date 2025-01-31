@@ -20,9 +20,9 @@ const drawerWidth = 240;
 const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Admin Dashboard', path: '/admin' },
-    { name: 'Account Setup', path: '/acctSetup' },
-    { name: 'Member Details', path: '/memberDetails' },
-    { name: 'Organization Setup', path: '/organizationSetup' },
+    // { name: 'Account Setup', path: '/acctSetup' },
+    // { name: 'Member Details', path: '/memberDetails' },
+    // { name: 'Organization Setup', path: '/organizationSetup' },
     // { name: 'Add New Member', path: '/addMember'}
 
 ];

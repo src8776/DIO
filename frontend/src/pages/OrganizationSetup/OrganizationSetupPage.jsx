@@ -14,6 +14,8 @@ import NavColumn from '../../components/NavColumn';
 // TODO: Add default values for all fields
 // TODO: implement "save changes" buttons to update values in database
 // TODO: user feedback "changes saved successfully"
+// TODO: Make this work with dark mode
+// TODO: Formatting
 
 
 function OrganizationSetup() {

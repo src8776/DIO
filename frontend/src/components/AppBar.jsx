@@ -14,14 +14,18 @@ import Brightness4 from '@mui/icons-material/Brightness4';
 import Brightness7 from '@mui/icons-material/Brightness7';
 import { Toolbar, Typography, IconButton } from '@mui/material';
 
+// TODO: Add NavColumn links to this component in mobile view (hamburger menu)
+// TODO: Hide NavColumn links if user is not admin
+
 const drawerWidth = 240;
 
 // Links for the navigation bar
 const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Admin Dashboard', path: '/admin' },
-    { name: 'Account Setup', path: '/acctSetup' },
-    { name: 'Member Details', path: '/memberDetails' },
+    // { name: 'Account Setup', path: '/acctSetup' },
+    // { name: 'Member Details', path: '/memberDetails' },
+    // { name: 'Organization Setup', path: '/organizationSetup' },
     // { name: 'Add New Member', path: '/addMember'}
 
 ];

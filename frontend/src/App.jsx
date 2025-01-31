@@ -6,8 +6,9 @@ import AppBar from './components/AppBar';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AdminDash from './pages/AdminDashboard/AdminDashPage';
 import AcctSetup from './pages/AccountSetup/AccountSetupPage';
-import OrgSetup from './pages/OrganizationSetup/OrganizationSetupPage.jsx'
-import MemberDetailsModal from './components/MemberDetailsModal.jsx'
+import OrgSetup from './pages/OrganizationSetup/OrganizationSetupPage.jsx';
+import OfficersList from './pages/OfficersList/OfficersPage.jsx';
+import MemberDetailsModal from './components/MemberDetailsModal.jsx';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
 
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/acctSetup" element={<AcctSetup />} />
             <Route path="/memberDetails" element={<MemberDetailsModal />} />
             <Route path="/organizationSetup" element={<OrgSetup />} />
+            <Route path="/officersList" element={<OfficersList />} />
         </Routes>
     </ThemeProvider>
   );

@@ -15,7 +15,7 @@ const NavColumn = ({ pageTitle }) => {
         <ListItem component={Link} to="/admin" button>
           <ListItemText primary="Member Database" />
         </ListItem>
-        <ListItem component={Link} to="/admin" button>
+        <ListItem component={Link} to="/officersList" button>
           <ListItemText primary="Officers" />
         </ListItem>
         <ListItem component={Link} to="/organizationSetup" button>

@@ -6,6 +6,7 @@ import AppBar from './components/AppBar';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AdminDash from './pages/AdminDashboard/AdminDashPage';
 import AcctSetup from './pages/AccountSetup/AccountSetupPage';
+import OrgSetup from './pages/OrganizationSetup/OrganizationSetupPage.jsx'
 import MemberDetailsModal from './components/MemberDetailsModal.jsx'
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
@@ -42,6 +43,7 @@ const App = () => {
             <Route path="/admin" element={<AdminDash />} />
             <Route path="/acctSetup" element={<AcctSetup />} />
             <Route path="/memberDetails" element={<MemberDetailsModal />} />
+            <Route path="/organizationSetup" element={<OrgSetup />} />
         </Routes>
     </ThemeProvider>
   );

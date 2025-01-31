@@ -53,7 +53,6 @@ export default function InputFileUpload() {
   return (
     <Button
       component="label"
-      color="gray"
       role={undefined}
       variant="contained"
       tabIndex={-1}

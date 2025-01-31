@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 function AdminDash() {
 
   return (
-    <Container>
+    <Container sx={{p:2}}>
       <Paper elevation={1}>
         {/* Dashboard Content */}
         <Box
@@ -27,18 +27,13 @@ function AdminDash() {
           {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
             {/* Flavor Text */}
-            <Box sx={{ display: 'flex', flexDirection: 'column'}}>
-              <Box>
+            <Box sx={{ display: 'flex', flexDirection: 'row'}}>
                 <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
                   Member Database -
                 </Typography>
-                <Typography variant='body' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+                <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
                   Computing Organization for Multicultural Students
                 </Typography>
-              </Box>
-              <Typography variant='body2'>
-                This is a short piece of text about the organization.
-              </Typography>
             </Box>
 
             {/* Close Button */}

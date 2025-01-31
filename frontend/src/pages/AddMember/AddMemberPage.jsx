@@ -14,11 +14,11 @@ const style = {
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
-  width: { xs: '90%', sm: '500px', md: '600px' }, 
+  width: { xs: '90%', sm: '500px', md: '600px' },
   maxWidth: '100%',
 };
 
-function AddMember() {
+function AddMemberPage({ memberData, handleChange, handleSave }) {
 
   return (
     <Container >
@@ -27,30 +27,37 @@ function AddMember() {
           New Member Form
         </Typography>
         {/* Form Elements */}
-        <Box component={"form"} sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2}}>
-            <TextField
-              required
-              id="outlined-required"
-              label="First Name"
-            /> 
-            <TextField
-              required
-              id="outlined-required"
-              label="Last Name"
-            />
-            <TextField
-              required
-              id="outlined-required"
-              label="Email"
-            />
+        <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+          <TextField
+            required
+            id="outlined-required"
+            label="First Name"
+            name="firstName"
+            value={memberData.firstName}
+            onChange={handleChange}
+          />
+          <TextField
+            required
+            id="outlined-required"
+            label="Last Name"
+            name="lastName"
+            value={memberData.lastName}
+            onChange={handleChange}
+          />
+          <TextField
+            required
+            id="outlined-required"
+            label="Email"
+            name="email"
+            value={memberData.email}
+            onChange={handleChange}
+          />
         </Box>
-        {/* Save Button */}
-        {/* TODO: Make this save the field inputs as a new member in the database */}
-        {/* TODO: Form validation: 
-                  make sure no duplicates get added, 
-                  valid rit email, etc. */}
+
         <Button
-          variant='contained'>
+          variant='contained'
+          onClick={handleSave}
+        >
           Save
         </Button>
       </Paper>
@@ -58,4 +65,4 @@ function AddMember() {
   );
 }
 
-export default AddMember;
+export default AddMemberPage;

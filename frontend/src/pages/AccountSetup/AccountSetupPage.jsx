@@ -5,6 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import NavColumn from '../../components/NavColumn';
 
+// TODO: Make sure NavColumn is only displayed if user is an Admin
 // TODO: Add API calls to get user's name and email
 // TODO: Add API calls to get major data
 // TODO: Add API calls to save profile information to database

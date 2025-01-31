@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from "@mui/material";
 import NavColumn from '../../components/NavColumn';
+import MemberDetailsModal from '../../components/MemberDetailsModal';
 
+
+// TODO: pull admin list from database to display here
+// TODO: add ability to add/remove admins
 
 const users = [
     { name: "John Doe", email: "john@example.com" },
@@ -38,7 +42,7 @@ function OfficersList() {
                                 <TableRow key={index}>
                                     <TableCell>{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell><MemberDetailsModal/></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

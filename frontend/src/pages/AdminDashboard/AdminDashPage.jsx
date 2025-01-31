@@ -51,7 +51,7 @@ function AdminDash() {
               variant="contained"
               disableElevation
             >
-              <CloseIcon sx={{ margin: 0, }}/>
+              <CloseIcon/>
               <Box
                 component="span"
                 sx={{ display: { xs: 'none', sm: 'block' } }}

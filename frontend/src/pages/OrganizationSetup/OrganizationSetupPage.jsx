@@ -3,10 +3,16 @@ import { Box, Container, InputLabel, MenuItem, FormControl, Paper, Select, TextF
 import { Table, TableHead, TableRow, TableCell } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+import { Link } from 'react-router-dom';
+
 
 
 
 // TODO: Form validation (only accept numbers for point values/percentages)
+// TODO: Add default values for all fields
+// TODO: implement "save changes" buttons to update values in database
+// TODO: user feedback "changes saved successfully"
 
 function OrganizationSetup() {
 
@@ -16,9 +22,9 @@ function OrganizationSetup() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: 2,
-            p: 2
+            p: 2,
         }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row'} }}>
                 <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
                     Organization Setup -
                 </Typography>
@@ -27,7 +33,7 @@ function OrganizationSetup() {
                 </Typography>
             </Box>
             {/* Modifier Tables */}
-            <Box component="form" sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+            <Box component="form" sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row'}, gap: 4 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                         <Button variant="contained" startIcon={<AddIcon />}>
@@ -49,7 +55,42 @@ function OrganizationSetup() {
                             </TableRow>
                             <TableRow>
                                 <TableCell></TableCell>
-
+                                {/* First Cell (Points) */}
+                                <TableCell sx={{ width: "150px" }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>point(s)</Typography>
+                                    </Box>
+                                </TableCell>
+                                {/* Second Cell (Per Meeting) */}
+                                <TableCell sx={{ width: "200px" }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <Typography>per meeting</Typography>
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell></TableCell>
+                                {/* First Cell (Points) */}
+                                <TableCell sx={{ width: "150px" }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>point(s)</Typography>
+                                    </Box>
+                                </TableCell>
+                                {/* Second Cell (Per Meeting) */}
+                                <TableCell sx={{ width: "200px" }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>% attended</Typography>
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow sx={{ borderBottom: "2px solid #000" }}>
+                                <TableCell >Volunteering</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell></TableCell>
                                 {/* First Cell (Points) */}
                                 <TableCell sx={{ width: "150px" }}>
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -57,12 +98,32 @@ function OrganizationSetup() {
                                         <Typography>points</Typography>
                                     </Box>
                                 </TableCell>
-
                                 {/* Second Cell (Per Meeting) */}
                                 <TableCell sx={{ width: "200px" }}>
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                         <TextField sx={{ width: "50px" }} />
-                                        <Typography>per meeting</Typography>
+                                        <Typography>-</Typography>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>hours</Typography>
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell></TableCell>
+                                {/* First Cell (Points) */}
+                                <TableCell sx={{ width: "150px" }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>points</Typography>
+                                    </Box>
+                                </TableCell>
+                                {/* Second Cell (Per Meeting) */}
+                                <TableCell sx={{ width: "200px" }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>-</Typography>
+                                        <TextField sx={{ width: "50px" }} />
+                                        <Typography>hours</Typography>
                                     </Box>
                                 </TableCell>
                             </TableRow>
@@ -75,6 +136,11 @@ function OrganizationSetup() {
                     </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <Button variant="contained" startIcon={<CloseIcon />} component={Link} to="/">
+                            Close
+                        </Button>
+                    </Box>
                     <Paper elevation={1}>
                         <Table>
                             <TableHead sx={{ backgroundColor: '#f0f0f0' }}>

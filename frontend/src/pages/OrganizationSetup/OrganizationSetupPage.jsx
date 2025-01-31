@@ -145,7 +145,7 @@ function OrganizationSetup() {
                     </Box> */}
                     <Paper elevation={1}>
                         <Table>
-                            <TableHead sx={{ backgroundColor: '#f0f0f0' }}>
+                            <TableHead>
                                 <TableRow>
                                     <TableCell>Active Membership Requirements</TableCell>
                                 </TableRow>

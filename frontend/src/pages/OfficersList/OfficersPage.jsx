@@ -17,7 +17,7 @@ function OfficersList() {
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <NavColumn pageTitle="Member Database" />
+                <NavColumn pageTitle="Officers" />
             </Box>
             <Paper sx={{ p: 2 }}>
                 <Typography variant="h5" gutterBottom>

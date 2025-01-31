@@ -46,7 +46,7 @@ export default function AccountSetup() {
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>
         <NavColumn pageTitle="Account Setup" />
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flex: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', gap: 2, flex: 1 }}>
         <Typography variant='h5' >
           Account Setup
         </Typography>
@@ -148,9 +148,11 @@ export default function AccountSetup() {
         </Paper>
 
         {/* TODO: Make this button save profile information to database */}
-        <Button variant='contained'>
-          Complete Profile
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "end" }}>
+          <Button variant='contained'>
+            Complete Profile
+          </Button>
+        </Box>
       </Box>
     </Container>
   );

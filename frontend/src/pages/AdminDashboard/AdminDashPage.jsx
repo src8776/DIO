@@ -16,7 +16,7 @@ function AdminDash() {
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
       {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-      <Box sx={{ display: {xs: 'none', md: 'block'}}}>
+      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
         <NavColumn pageTitle="Member Database" />
       </Box>
 
@@ -35,14 +35,15 @@ function AdminDash() {
           {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
             {/* Flavor Text */}
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
                 Member Database -
               </Typography>
-              <Typography variant='h7' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+              <Typography variant="h7" sx={{ textAlign: 'left', display: 'inline', ml: 1, verticalAlign: 'middle' }}>
                 Computing Organization for Multicultural Students
               </Typography>
             </Box>
+
 
             {/* Close Button */}
             <Button

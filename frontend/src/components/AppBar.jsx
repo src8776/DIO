@@ -21,8 +21,8 @@ const drawerWidth = 240;
 
 // Links for the navigation bar
 const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Admin Dashboard', path: '/admin' },
+    // { name: 'Home', path: '/' },
+    // { name: 'Admin Dashboard', path: '/admin' },
     // { name: 'Account Setup', path: '/acctSetup' },
     // { name: 'Member Details', path: '/memberDetails' },
     // { name: 'Organization Setup', path: '/organizationSetup' },

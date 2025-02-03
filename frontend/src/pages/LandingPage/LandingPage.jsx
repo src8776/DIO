@@ -7,6 +7,11 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import { CardMedia } from "@mui/material";
 import { Link } from 'react-router-dom';
+import AccountOverViewModal from '../../components/AccountOverviewModal';
+
+// TODO: Role based access control
+// TODO: active/inactive status should dynamically update based on user status
+// TODO: fetch 
 
 function LandingPage() {
     return (
@@ -69,12 +74,20 @@ function LandingPage() {
                         <Typography variant="h5">
                             Women in Computing
                         </Typography>
-                        <Typography sx={{ color: "text.secondary" }}>
-                            Member
-                        </Typography>
+                        <Box sx={{display: 'flex', flexDirection: 'row', g:2}}>
+                            <Typography sx={{ color: "text.secondary" }}>
+                                Member 
+                            </Typography>
+                            {/* TODO: Make this say active/inactive based on member status */}
+                            <Typography sx={{ fontWeight: 'bold', color: "green", ml: .5 }}>
+                                - Active
+                            </Typography>
+
+                        </Box>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "space-between" }}>
-                        <Button>View Info</Button>
+                        {/* <Button>View Info</Button> */}
+                        <AccountOverViewModal />
                     </CardActions>
                 </Card>
             </Box>

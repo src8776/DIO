@@ -45,7 +45,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                     RIT | DIO
                 </Link>
             </Typography>
-            <Divider />
+            <Divider/>
             <List>
                 {navItems.map((item) => (
                     <ListItem key={item.name} disablePadding>

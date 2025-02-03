@@ -49,16 +49,17 @@ export default function AccountSetup() {
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>
         <NavColumn pageTitle="Account Setup" />
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'left', gap: 2, flex: 1 }}>
+
+      <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
         <Typography variant='h5' >
-          Account Setup
+          Account Settings
         </Typography>
         <Paper elevation={1} sx={{ minWidth: '100%', }}>
           <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 2 }}>
               {/* TODO: Get user's name */}
               <Typography variant='h6'>
-                First Name: John Doe
+                Name: John Doe
               </Typography>
               {/* TODO: Get user's email */}
               <Typography variant='h6'>
@@ -156,7 +157,7 @@ export default function AccountSetup() {
             Complete Profile
           </Button>
         </Box>
-      </Box>
+      </Paper>
     </Container>
   );
 }

@@ -22,7 +22,7 @@ const NavColumn = ({ pageTitle }) => {
           <ListItemText primary="Organization Setup" />
         </ListItem>
         <ListItem component={Link} to="/acctSetup" button>
-          <ListItemText primary="Account Setup" />
+          <ListItemText primary="Account Settings" />
         </ListItem>
       </List>
     </Box>

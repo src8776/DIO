@@ -21,8 +21,8 @@ const drawerWidth = 240;
 
 // Links for the navigation bar
 const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Admin Dashboard', path: '/admin' },
+    // { name: 'Home', path: '/' },
+    // { name: 'Admin Dashboard', path: '/admin' },
     // { name: 'Account Setup', path: '/acctSetup' },
     // { name: 'Member Details', path: '/memberDetails' },
     // { name: 'Organization Setup', path: '/organizationSetup' },
@@ -45,7 +45,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                     RIT | DIO
                 </Link>
             </Typography>
-            <Divider />
+            <Divider/>
             <List>
                 {navItems.map((item) => (
                     <ListItem key={item.name} disablePadding>

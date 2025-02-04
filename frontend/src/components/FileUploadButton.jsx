@@ -3,6 +3,8 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState } from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -18,52 +20,93 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function InputFileUpload() {
   const [file, setFile] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const showAlert = (message, severity) => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
   const handleFileChange = (event) => {
-    console.log(event.target.files);
     const selectedFile = event.target.files[0];
+    if(!selectedFile) {
+      showAlert('You must select a file', 'error');
+      return;
+    }
+
+    if (selectedFile.type !== "text/csv" && !selectedFile.name.endsWith(".csv")) {
+      showAlert("Invalid file type. Only CSV files are allowed.", 'error');
+      setFile(null);
+      return;
+    }
+
+    if(selectedFile.size > 2*1024*1024) {
+      showAlert("File size exceeds maximum 2MB", 'error');
+      setFile(null);
+      return;
+    }
+
     setFile(selectedFile);
     handleUpload(selectedFile);
-    // IF WANT TO UPLOAD THE SAME FILE IN SAME DIRECTORY TWICE, UNCOMMENT
+    // Uncomment the next line to allow uploading the same file twice
     // event.target.value = '';
   };
 
   const handleUpload = (file) => {
-    if (file) {
+
       const formData = new FormData();
       formData.append('csv_file', file);
-      console.log("going to upload file");
-      // TODO: figure out how to unhardcode this line below
+      //TODO: unhardcode the below line
       fetch('http://localhost:3001/api/upload', {
         method: 'POST',
         body: formData,
       })
       .then(response => response.json())
       .then(data => {
-        console.log('File uploaded successfully', data);
+        console.log(data);
+        showAlert('Successfully uploaded file: ' + data.file.originalname, 'success');
       })
       .catch(error => {
-        console.error('Error uploading file:', error);
+        console.log(error);
+        showAlert('Failed to upload file: ' + error.file.originalname, 'error');
       });
-    } else {
-      alert('Please select a file first.');
-    }
+    
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
   return (
-    <Button
-      component="label"
-      role={undefined}
-      variant="contained"
-      tabIndex={-1}
-      startIcon={<CloudUploadIcon />}
-    >
-      Import Attendance Data
-      <VisuallyHiddenInput
-        type="file"
-        accept=".csv"
-        onChange={handleFileChange}
-      />
+    <>
+      <Button
+        component="label"
+        color="gray"
+        role={undefined}
+        variant="contained"
+        tabIndex={-1}
+        startIcon={<CloudUploadIcon />}
+      >
+        Import Attendance Data
+        <VisuallyHiddenInput
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+        />
       </Button>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={openSnackbar}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled" >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }

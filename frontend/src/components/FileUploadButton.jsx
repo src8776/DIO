@@ -67,7 +67,12 @@ export default function InputFileUpload() {
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        showAlert('Successfully uploaded file: ' + data.file.originalname, 'success');
+        if (!data.success) {
+          const msg = "Failed to upload file: " + data.file.originalname + " due to " + data.error;
+          showAlert(msg, 'error');
+        } else {
+          showAlert('Successfully uploaded file: ' + data.file.originalname, 'success');
+        }
       })
       .catch(error => {
         console.log(error);
@@ -100,7 +105,7 @@ export default function InputFileUpload() {
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={openSnackbar}
-        autoHideDuration={5000}
+        autoHideDuration={60000}
         onClose={handleCloseSnackbar}
       >
         <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled" >

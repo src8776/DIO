@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import DataTable from '../../components/DataTable';
-import FileUploadButton from '../../components/FileUploadButton';
 import GenerateReportButton from '../../components/GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
 import UploadFileModal from '../../components/UploadFileModal';

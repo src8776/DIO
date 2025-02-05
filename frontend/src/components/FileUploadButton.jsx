@@ -18,7 +18,8 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-export default function InputFileUpload() {
+export default function InputFileUpload({eventType}) {
+  const selectedEventType = eventType;
   const [file, setFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
@@ -95,7 +96,7 @@ export default function InputFileUpload() {
         tabIndex={-1}
         startIcon={<CloudUploadIcon />}
       >
-        Import Attendance Data
+        Import Attendance File
         <VisuallyHiddenInput
           type="file"
           accept=".csv"

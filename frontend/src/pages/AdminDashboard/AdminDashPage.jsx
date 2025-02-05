@@ -1,13 +1,13 @@
 import React from 'react';
-import { Box, Container, Paper, Typography } from '@mui/material';
-import Button from '@mui/material/Button';
+import { Box, Button, Container, Paper, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 import DataTable from '../../components/DataTable';
 import FileUploadButton from '../../components/FileUploadButton';
 import GenerateReportButton from '../../components/GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
-import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';
+import UploadFileModal from '../../components/UploadFileModal';
 import NavColumn from '../../components/NavColumn';
+import CloseIcon from '@mui/icons-material/Close';
 
 // TODO: Make database flavor text dynamic based on selected organization module (WiC or COMS)
 
@@ -83,7 +83,7 @@ function AdminDash() {
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-              <FileUploadButton />
+              <UploadFileModal/>
               <GenerateReportButton />
             </Box>
             <AddMemberModal />

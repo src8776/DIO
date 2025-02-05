@@ -27,9 +27,9 @@ const style = {
     maxWidth: '100%',
 };
 
-function ImportDataPage() {
+export default function ImportDataPage() {
     const [eventType, setEventType] = React.useState('');
-    const [eventDate, setEventDate] = React.useState(dayjs());
+    const [eventDate, setEventDate] = React.useState(dayjs()); // eventDate defaults to today's date
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
 
@@ -207,5 +207,3 @@ function ImportDataPage() {
         </Container>
     );
 }
-
-export default ImportDataPage;

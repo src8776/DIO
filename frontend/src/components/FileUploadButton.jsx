@@ -81,7 +81,7 @@ export default function InputFileUpload({eventType}) {
       })
       .catch(error => {
         console.log(error);
-        showAlert('Failed to upload file: ' + error.file.originalname, 'error');
+        showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
       });
     
   };

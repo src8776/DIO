@@ -107,7 +107,7 @@ const AccountOverview = ({ memberData }) => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
                             <WorkspacePremiumIcon />
                             <Typography variant="h5">
-                                Rewards
+                                Awards
                             </Typography>
                         </Box>
                         <Box

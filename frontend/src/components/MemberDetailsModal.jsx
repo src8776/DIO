@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Box, IconButton, Modal } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import MemberDetailsPage from '../pages/IndividualData/MemberDetailsPage';
+import MemberDetailsPage from '../pages/MemberDetails/MemberDetailsPage';
 
 // TODO: Add MemberDetailsModal to each row in DataTable
 // TODO: Grab member data from backend to display in modal

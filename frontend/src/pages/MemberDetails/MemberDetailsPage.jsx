@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 
-// TODO: Option to delete attendance records from the attendance history table here
+// TODO: Option to delete attendance records from the attendance history table here if they are an admin
 //       - user feedback for deleting records ('this action cannot be undone', 'deleted successfully', etc.)? 
 
 const style = {

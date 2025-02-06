@@ -4,6 +4,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import GenerateReportPage from '../pages/GenerateReport/GenerateReportPage';
 
 
+// TODO: MVP Product - report shows list of all active members for the semester and for the year. 
 // TODO: Plug handleGenerateReport function into backend
 // TODO: Display report preview to user
 // TODO: Implement PDF download of report feature

@@ -20,6 +20,9 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log("API URL IS: " + API_BASE_URL);
+
 export default function InputFileUpload({eventType}) {
   const selectedEventType = eventType;
   const [file, setFile] = useState(null);
@@ -62,8 +65,7 @@ export default function InputFileUpload({eventType}) {
 
       const formData = new FormData();
       formData.append('csv_file', file);
-      //TODO: unhardcode the below line
-      fetch('http://localhost:3001/api/upload', {
+      fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       })
@@ -79,7 +81,7 @@ export default function InputFileUpload({eventType}) {
       })
       .catch(error => {
         console.log(error);
-        showAlert('Failed to upload file: ' + error.file.originalname, 'error');
+        showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
       });
     
   };

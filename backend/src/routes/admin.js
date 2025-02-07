@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./config/db.js');
+const db = require('../config/db.js');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const router = express.Router();
+router.use(cors());
+router.use(express.json());
 
 // endpoint to fetch data for the table
-app.get('/datatable', async (req, res) => {
+router.get('/datatable', async (req, res) => {
     try {
         const query = `
             SELECT
@@ -40,3 +40,5 @@ app.get('/datatable', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+module.exports = router;

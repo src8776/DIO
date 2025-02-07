@@ -24,36 +24,6 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 
-
-
-function createData(id, status, name, duration, academicYear, attendanceRecord) {
-  return {
-    id,
-    status,
-    name,
-    duration,
-    academicYear,
-    attendanceRecord
-  };
-}
-
-// this is where we will instead be pulling data from the database and populating the array
-const rows = [
-  createData(1, 'Active', 'John Doe', '2 years', 'Third', 67),
-  createData(2, 'Active', 'Fred Flintstone', '2 years', 'Third', 51),
-  createData(3, 'Active', 'Big Ed', '1 year', 'Second', 24),
-  createData(4, 'Inactive', 'Sally Smith', '1 month', 'First', 24),
-  createData(5, 'Active', 'Olivia Carter', '2 months', 'First', 49),
-  createData(6, 'Active', 'Liam Bennett', '2 years', 'Third', 87),
-  createData(7, 'Active', 'Sophia Hughes', '1 year', 'Third', 37),
-  createData(8, 'Active', 'Noah Rivera', '2 years', 'Third', 94),
-  createData(9, 'Active', 'Isabella Foster', '2 years', 'Third', 65),
-  createData(10, 'Inactive', 'Elijah Ramirez', '2 years', 'Third', 98),
-  createData(11, 'Active', 'Ava Jenkins', '1 years', 'Third', 81),
-  createData(12, 'Active', 'Lucas Brooks', '2 years', 'Third', 9),
-  createData(13, 'Active', 'Mia Sullivan', '3 years', 'Third', 63),
-];
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -105,7 +75,7 @@ const headCells = [
 
 function EnhancedTableHead(props) {
   // state for search bar
-  const [searchQuery, setSearchQuery] = React.useState('')
+  const [searchQuery, setSearchQuery] = React.useState('');
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   }
@@ -242,6 +212,16 @@ export default function EnhancedTable() {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [rows, setRows] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('/admin/datatable')
+      .then((response) => response.json())
+      .then((data) => setRows(data))
+      .catch((error) => console.error('Error fetching data: ', error));
+
+    console.log(rows);
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -326,14 +306,7 @@ export default function EnhancedTable() {
             aria-labelledby="tableTitle"
             size={dense ? 'small' : 'medium'}
           >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={filteredRows.length}
-            />
+            
             <TableBody>
               {visibleRows.map((row, index) => {
                 const isItemSelected = selected.includes(row.id);

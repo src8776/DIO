@@ -9,16 +9,22 @@ const db = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
-  
-  // Connect to the database
-  db.getConnection((err, connection) => {
-      if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-      }
-      console.log('Connected to the database');
-      connection.release();
-  });
+
+// Connect to the database
+(async () => {
+  try {
+    const connection = await db.getConnection();
+    console.log('✅ Connected to the database');
+    
+    // Run a simple test query
+    const [rows] = await connection.query('SHOW TABLES');
+    console.log('✅ Test query result:', rows);
+    
+    connection.release();
+} catch (err) {
+    console.error('❌ Database connection error:', err);
+}
+})();
 
 module.exports = db;
 

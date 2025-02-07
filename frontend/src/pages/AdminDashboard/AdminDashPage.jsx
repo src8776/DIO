@@ -8,6 +8,8 @@ import UploadFileModal from '../../components/UploadFileModal';
 import NavColumn from '../../components/NavColumn';
 import CloseIcon from '@mui/icons-material/Close';
 
+import SimpleTable from '../../components/DataTable_SIMPLE';
+
 // TODO: Make admin dashboard responsive based on selected organization module (WiC or COMS)
 
 function AdminDash({ }) {
@@ -82,7 +84,9 @@ function AdminDash({ }) {
 
           {/* Data Table */}
           <Paper elevation={1}>
-            <DataTable />
+            {/* <DataTable /> */}
+
+            <SimpleTable/>
           </Paper>
         </Box>
       </Paper>

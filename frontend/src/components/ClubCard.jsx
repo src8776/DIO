@@ -1,11 +1,14 @@
 import React from "react";
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Modal, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
-import AccountOverViewModal from '../components/AccountOverviewModal'
+import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
 
-// TODO: We will want to pass the user's data into this component
+// TODO: In this component we care about the user's role and status (active/inactive)
 
-export default function ClubCard({ clubAbbr }) {
+export default function ClubCard({ userObj, clubAbbr }) {
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     // store club data up here for maintainability
     // this could also eventually be stored in the database??? 
@@ -42,7 +45,7 @@ export default function ClubCard({ clubAbbr }) {
                 <Typography variant="h5">
                     {clubInfo.title}
                 </Typography>
-                <Box sx={{display: 'flex'}}>
+                <Box sx={{ display: 'flex' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
                     <Typography sx={{ color: "text.secondary" }}>
                         Admin
@@ -54,7 +57,14 @@ export default function ClubCard({ clubAbbr }) {
                 </Box>
             </CardContent>
             <CardActions sx={{ justifyContent: "space-between" }}>
-                <AccountOverViewModal />
+                <Button onClick={handleOpen} aria-label="account overview">
+                    View Info
+                </Button>
+                <Modal open={open} onClose={handleClose}>
+                    <Box >
+                        <AccountOverview userObj={userObj} />
+                    </Box>
+                </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}
                 <Button component={Link} to="/admin" variant="contained">
                     Admin Dashboard

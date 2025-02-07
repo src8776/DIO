@@ -9,6 +9,7 @@ import ClubCard from '../../components/ClubCard';
 function LandingPage() {
 
     // this will be the object containing the user's information
+    // in this component we only care about grabbing which club(s) they are a member of 
     const [userObj, setUserObj] = useState();
 
     return (
@@ -23,10 +24,10 @@ function LandingPage() {
                 {/* TODO: Only show the card that the user is a member of */}
 
                 {/* COMS Card */}
-                <ClubCard clubAbbr={'COMS'}/>
+                <ClubCard userObj={userObj} clubAbbr={'COMS'}/>
 
                 {/* WiC Card */}
-                <ClubCard clubAbbr={'WiC'}/>
+                <ClubCard userObj={userObj} clubAbbr={'WiC'}/>
             </Box>
         </Container>
     );

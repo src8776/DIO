@@ -306,7 +306,14 @@ export default function EnhancedTable() {
             aria-labelledby="tableTitle"
             size={dense ? 'small' : 'medium'}
           >
-            
+            <EnhancedTableHead
+              numSelected={selected.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              rowCount={filteredRows.length}
+            />
             <TableBody>
               {visibleRows.map((row, index) => {
                 const isItemSelected = selected.includes(row.id);

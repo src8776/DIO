@@ -39,8 +39,8 @@ function AdminDash({ }) {
             {/* Close Button */}
             <Button
               sx={{
-                // width: 'fit-content',
-                // height: 'fit-content',
+                width: 'fit-content',
+                height: 'fit-content',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',

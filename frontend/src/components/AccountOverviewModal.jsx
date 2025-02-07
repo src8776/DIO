@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Box, Button, IconButton, Modal } from '@mui/material';
+import { Box, Button, Modal } from '@mui/material';
 import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
 
-// TODO: Add MemberDetailsModal to each row in DataTable
 // TODO: Grab member data from backend to display in modal
 
 const mockMemberData = {
@@ -56,9 +55,7 @@ export default function AccountOverViewModal() {
       </Button>
       <Modal open={open} onClose={handleClose}>
         <Box >
-          <AccountOverview
-            memberData={mockMemberData}
-          />
+          <AccountOverview memberData={mockMemberData}/>
         </Box>
       </Modal>
     </>

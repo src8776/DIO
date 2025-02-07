@@ -1,13 +1,10 @@
 const express = require('express');
-const cors = require('cors');
-const db = require('./config/db.js');
+const db = require('../config/db');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const router = express.Router();
 
-// endpoint to fetch data for the table
-app.get('/datatable', async (req, res) => {
+router.get('/datatable', async (req, res) => {
+    console.log('Received request at /admin/datatable');
     try {
         const query = `
             SELECT
@@ -32,11 +29,13 @@ app.get('/datatable', async (req, res) => {
                 Members.MemberID,
                 Members.DisplayName,
                 Members.IsActive;
-            `;
-        const [rows] = await db.query(query); // use query constant above
+        `;
+        const [rows] = await db.query(query);
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+module.exports = router;

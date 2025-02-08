@@ -13,6 +13,10 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 
 
+// TODO: add Recent Update column to sort by
+// TODO: switch sort to Recent Update descending after file upload
+
+
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
         return -1;

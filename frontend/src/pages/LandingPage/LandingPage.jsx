@@ -28,6 +28,7 @@ function LandingPage() {
 
                 {/* WiC Card */}
                 <ClubCard userObj={userObj} clubAbbr={'WiC'}/>
+                
             </Box>
         </Container>
     );

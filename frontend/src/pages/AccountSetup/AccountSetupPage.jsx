@@ -16,10 +16,12 @@ import dayjs from 'dayjs';
 // TODO: Change 'complete profile' button to 'save changes' button if user is updating profile information
 
 const fetchUserProfileData = async () => {
-  // Replace with actual API call
+  const response = await fetch('/api/test-shibboleth', { method: 'GET', credentials: 'include' });
+  const data = await response.json();
+
   return {
-    firstName: 'John',
-    email: 'jd9217@rit.edu',
+    firstName: data.uid || 'Guest',
+    email: data.mail || 'guest-email@example.com',
     studentYear: 'junior',
     graduationDate: '2025-05-01',
     major: 'computer_science',
@@ -27,7 +29,6 @@ const fetchUserProfileData = async () => {
     pantSize: '32'
   };
 };
-
 const fetchMajorData = async () => {
   // Replace with actual API call
   return [

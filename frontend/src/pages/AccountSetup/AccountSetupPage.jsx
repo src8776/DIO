@@ -101,7 +101,6 @@ export default function AccountSetup() {
       shirtSize,
       pantSize
     });
-
   };
 
   return (

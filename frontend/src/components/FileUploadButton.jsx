@@ -63,8 +63,19 @@ export default function InputFileUpload({eventType}) {
 
   const handleUpload = (file) => {
 
+    if(!file) { // I know this is not needed but just for testing and troubleshooting
+      showAlert('You must select a file', 'error');
+      return;
+    }
+    if(!selectedEventType) { // I know this is not needed but just for testing and troubleshooting
+      showAlert('You must select an event type', 'error');
+      return
+    }
       const formData = new FormData();
       formData.append('csv_file', file);
+      
+      formData.append('eventType', selectedEventType); // send event type to backend
+      
       fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         body: formData,

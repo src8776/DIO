@@ -10,6 +10,7 @@ import { Remove } from '@mui/icons-material';
 // TODO: populate menuItems from database
 // TODO: error handling, make sure all fields are filled out when trying to import data
 // TODO: Set up the upload volunteer hours button to add the volunteer hours to the appropriate member accounts
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const style = {
     display: 'flex',
@@ -56,11 +57,46 @@ export default function ImportDataPage() {
         setSelectedMembers(selectedMembers.filter(member => member.id !== memberId));
     };
 
-    const logMembers = () => {
-        console.log('Volunteer Hours Log:');
-        selectedMembers.forEach(member => {
-            console.log(`Member: ${member.name}, Date Volunteered: ${member.date}, Hours Volunteered: ${member.hours}`);
-        });
+    const logMembers = async () => {
+        // console.log('Volunteer Hours Log:');
+        // console.log(`Event Type: ${eventType}`);
+        // selectedMembers.forEach(member => {
+        //     console.log(`Member: ${member.name}, Date Volunteered: ${member.date}, Hours Volunteered: ${member.hours}`);
+        // });
+        if (!eventType || !eventDate || !volunteerHours || selectedMembers.length === 0) {
+            console.error('fields are missing');
+            return;
+        }
+
+        const formattedDate = eventDate.format('YYYY-MM-DD'); // format for MySQL
+
+        const payload = {
+            eventType,
+            eventDate: formattedDate,
+            volunteerHours,
+            members: selectedMembers.map(member => ({memberID: member.id, memberName: member.name})),
+        };
+
+        console.log('Uploading volunter hours:', payload);
+        try {
+            const response = await fetch(`${API_BASE_URL}/upload-volunteer-hours`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                console.log('Volunteer hours uploaded successfully');
+            } else {
+                console.error('Failed to upload volunteer hours:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // const data = await response.json();
+            // console.log('Volunteer hours uploaded successfully:', data);
+        }
     };
 
 

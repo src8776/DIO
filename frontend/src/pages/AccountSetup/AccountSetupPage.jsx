@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Container, InputLabel, MenuItem, FormControl, Paper, Select, Typography, Button } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import NavColumn from '../../components/NavColumn';
-
+import dayjs from 'dayjs';
 // TODO: Make sure NavColumn is only displayed if user is an Admin
 // TODO: Add API calls to get user's name and email
 // TODO: Add API calls to get major data
@@ -15,32 +15,93 @@ import NavColumn from '../../components/NavColumn';
 // TODO: Load existing profile information if it exists
 // TODO: Change 'complete profile' button to 'save changes' button if user is updating profile information
 
+const fetchUserProfileData = async () => {
+  // Replace with actual API call
+  return {
+    firstName: 'John',
+    email: 'jd9217@rit.edu',
+    studentYear: 'junior',
+    graduationDate: '2025-05-01',
+    major: 'computer_science',
+    shirtSize: 'M',
+    pantSize: '32'
+  };
+};
+
+const fetchMajorData = async () => {
+  // Replace with actual API call
+  return [
+    { id: 'computer_science', name: 'Computer Science' },
+    { id: 'information_technology', name: 'Information Technology' },
+    { id: 'software_engineering', name: 'Software Engineering' },
+    { id: 'cybersecurity', name: 'Cybersecurity' },
+    { id: 'data_science', name: 'Data Science' }
+  ];
+};
+
+const saveProfileData = async (data) => {
+  // Replace with actual API call to save data
+  console.log('Saving profile data:', data);
+};
+
 export default function AccountSetup() {
 
-  const [studentYear, setStudentYear] = React.useState('');
-  const [graduationDate, setGraduationDate] = React.useState(null);
-  const [major, setMajor] = React.useState('');
-  const [shirtSize, setShirtSize] = React.useState('');
-  const [pantSize, setPantSize] = React.useState('');
+  const [studentYear, setStudentYear] = useState('');
+  const [graduationDate, setGraduationDate] = useState(null);
+  const [major, setMajor] = useState('');
+  const [shirtSize, setShirtSize] = useState('');
+  const [pantSize, setPantSize] = useState('');
+  const [majors, setMajors] = useState([]);
+  const [firstName, setFirstName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
 
-  const handleStudentYearChange = (event) => {
-    setStudentYear(event.target.value);
-  };
+  useEffect(() => {
+    const loadUserData = async () => {
+      const profileData = await fetchUserProfileData();
+      setFirstName(profileData.firstName);
+      setEmail(profileData.email);
+      setStudentYear(profileData.studentYear);
+      setGraduationDate(profileData.graduationDate);
+      setMajor(profileData.major);
+      setShirtSize(profileData.shirtSize);
+      setPantSize(profileData.pantSize);
+    };
 
-  const handleDateChange = (newDate) => {
-    setGraduationDate(newDate);
-  };
+    const loadMajors = async () => {
+      const majorList = await fetchMajorData();
+      setMajors(majorList);
+    };
 
-  const handleMajorChange = (event) => {
-    setMajor(event.target.value);
-  };
+    loadUserData();
+    loadMajors();
+  }, []);
 
-  const handleShirtSizeChange = (event) => {
-    setShirtSize(event.target.value);
-  };
+  //when something changes, check if fields are filled, if so make true; if not, false
+  useEffect(() => {
+    if (studentYear && graduationDate && major && shirtSize && pantSize) {
+      setIsProfileComplete(true);
+    } else {
+      setIsProfileComplete(false);
+    }
+  }, [studentYear, graduationDate, major, shirtSize, pantSize]); //react watches these for changes
 
-  const handlePantSizeChange = (event) => {
-    setPantSize(event.target.value);
+  //when submitting, check if all fields are filled
+  const handleSubmit = async () => {
+    if (isProfileComplete) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    //calls saveProfileData function to save data; waits for this to finish
+    await saveProfileData({
+      studentYear,
+      graduationDate,
+      major,
+      shirtSize,
+      pantSize
+    });
+
   };
 
   return (
@@ -59,11 +120,11 @@ export default function AccountSetup() {
             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 2 }}>
               {/* TODO: Get user's name */}
               <Typography variant='h6'>
-                Name: John Doe
+                Name: {firstName}
               </Typography>
               {/* TODO: Get user's email */}
               <Typography variant='h6'>
-                Email: jd9217@rit.edu
+                Email: {email}
               </Typography>
             </Box>
             <Box component={'form'} sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
@@ -75,7 +136,7 @@ export default function AccountSetup() {
                   id="student-year-select"
                   value={studentYear}
                   label="Student Year"
-                  onChange={handleStudentYearChange}
+                  onChange={(e) => setStudentYear(e.target.value)}
                 >
                   <MenuItem value={'freshman'}>Freshman</MenuItem>
                   <MenuItem value={'sophomore'}>Sophomore</MenuItem>
@@ -87,8 +148,11 @@ export default function AccountSetup() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Graduation Date"
-                  value={graduationDate}
-                  onChange={handleDateChange}
+                  value={graduationDate ? dayjs(graduationDate) : null}
+                  onChange={(newDate) => {
+                    //console.log("Selected Date:", newDate); // for debugging
+                    setGraduationDate(newDate); 
+                  }}
                   sx={{ flex: 1 }}
                 />
               </LocalizationProvider>
@@ -101,14 +165,13 @@ export default function AccountSetup() {
                 id="major-select"
                 value={major}
                 label="Major"
-                onChange={handleMajorChange}
+                onChange={(e) => setMajor(e.target.value)}
               >
-                {/* TODO: Replace hardcoded values with API data */}
-                <MenuItem value={'computer_science'}>Computer Science</MenuItem>
-                <MenuItem value={'information_technology'}>Information Technology</MenuItem>
-                <MenuItem value={'software_engineering'}>Software Engineering</MenuItem>
-                <MenuItem value={'cybersecurity'}>Cybersecurity</MenuItem>
-                <MenuItem value={'data_science'}>Data Science</MenuItem>
+                {majors.map((majorItem) => (
+                  <MenuItem key={majorItem.id} value={majorItem.id}>
+                    {majorItem.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             <Box component={'form'} sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
@@ -120,7 +183,7 @@ export default function AccountSetup() {
                   id="shirt-size-select"
                   value={shirtSize}
                   label="Shirt Size"
-                  onChange={handleShirtSizeChange}
+                  onChange={(e) => setShirtSize(e.target.value)}
                 >
                   <MenuItem value={'S'}>S</MenuItem>
                   <MenuItem value={'M'}>M</MenuItem>
@@ -137,7 +200,7 @@ export default function AccountSetup() {
                   id="pant-size-select"
                   value={pantSize}
                   label="Pant Size"
-                  onChange={handlePantSizeChange}
+                  onChange={(e) => setPantSize(e.target.value)}
                 >
                   <MenuItem value={'28'}>28</MenuItem>
                   <MenuItem value={'30'}>30</MenuItem>
@@ -154,7 +217,7 @@ export default function AccountSetup() {
         {/* TODO: Make this button save profile information to database */}
         <Box sx={{ display: "flex", justifyContent: "end" }}>
           <Button variant='contained'>
-            Complete Profile
+            {isProfileComplete ? 'Save Changes' : 'Complete Profile'}
           </Button>
         </Box>
       </Paper>

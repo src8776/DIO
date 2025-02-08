@@ -1,7 +1,19 @@
 const fs = require('fs');
+const crypto = require('crypto'); // For generating unique file hashes
 const csvParser = require('csv-parser');
 const db = require('../config/db');
 require('dotenv').config({ path: '.env' });
+
+// Calculate the hash of a file and check if it already exists in db
+const generateFileHash = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256');
+    const stream = fs.createReadStream(filePath);
+    stream.on('data', (data) => hash.update(data));
+    stream.on('end', () => resolve(hash.digest('hex')));
+    stream.on('error', reject);
+  });
+};
 
 const formatDateToMySQL = (dateString) => {
   if (!dateString) return null;
@@ -10,24 +22,63 @@ const formatDateToMySQL = (dateString) => {
   return date.toISOString().slice(0, 19).replace('T', ' ');
 };
 
-const processCsv = async (filePath) => {
+const getOrCreateEvent = async (eventType, eventDate) => {
+  const formattedDate = formatDateToMySQL(eventDate);
+  const organizationID = 1;
+  
+  // check ifg event already exists in db
+  const [existingEvent] = await db.query(
+    'SELECT EventID FROM Events WHERE OrganizationID = ? AND EventType = ? AND EventDate = ?',
+    [organizationID, eventType, formattedDate]
+  ); 
+
+  if (existingEvent.length > 0) {
+    console.log('Event already exists in the database');
+    return existingEvent[0].EventID; // Return existing event ID
+  }
+
+  // if not found, insert new event into db
+  const [eventResult] = await db.query(
+    'INSERT INTO Events (OrganizationID, EventType, EventDate) VALUES (?, ?, ?)',
+    [organizationID, eventType, formattedDate]
+  );
+
+  return eventResult.insertId; // Return new event ID
+};
+
+const processCsv = async (filePath, eventType) => {
   const members = [];
   const attendanceRecords = [];
-  const organizationID = 1;
-  const eventID = 1;
+  const organizationID = 1; // hardcored for now
   const defaultRole = 'Member';
   const defaultRoleID = 2;
+
+  try {
+    const fileHash = await generateFileHash(filePath);
+    const [existingFile] = await db.query('SELECT * FROM UploadedFiles WHERE FileHash = ?', [fileHash]);
+
+    if (existingFile.length > 0) {
+      console.log('File already exists in the database');
+      console.warn('File already processed: $(filePath)');
+      fs.unlink(filePath, (err) => {
+        if (err) console.error('Error removing duplicate file:', err);
+        else console.log('File removed successfully');
+      });
+      return
+    }
 
   return new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
       .pipe(csvParser())
-      .on('data', (row) => {
+      .on('data', async (row) => {
         if (!row['Email'] || !row['Checked-In Date']) {
           console.warn('Skipping row due to missing Email or Checked-In Date:', row);
           return;
         }
         const email = row['Email'];
         const username = email.split('@')[0];
+        const checkInDate = formatDateToMySQL(row['Checked-In Date']);
+        const eventID = await getOrCreateEvent(eventType, checkInDate);
 
         members.push({
           username,
@@ -43,7 +94,6 @@ const processCsv = async (filePath) => {
         attendanceRecords.push({
           email,
           checkInDate: formatDateToMySQL(row['Checked-In Date']),
-          eventID,
           organizationID,
         });
       })
@@ -52,6 +102,14 @@ const processCsv = async (filePath) => {
         const connection = await db.getConnection();
         try {
           await connection.beginTransaction();
+
+          // Insert the selected eventType into the database
+          const eventDate = attendanceRecords[0].checkInDate;
+          const eventID = await getOrCreateEvent(eventType, eventDate);
+
+          // Save the file upload to prevent duplicate processing or records
+          await connection.query('INSERT INTO UploadedFiles (FileName, FileHash) VALUES (?, ?)', [filePath, fileHash]);
+
           for (const member of members) {
             const [memberResult] = await connection.query(
               `INSERT INTO Members (UserName, FirstName, LastName, Email, DisplayName, Major, GraduationYear, AcademicYear)
@@ -94,7 +152,7 @@ const processCsv = async (filePath) => {
                 `INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, AttendanceSource, OrganizationID)
                 VALUES (?, ?, ?, ?, 'CSV Import', ?)
                 ON DUPLICATE KEY UPDATE AttendanceStatus = VALUES(AttendanceStatus)`,
-                [memberId, attendance.eventID, attendance.checkInDate, 'Attended', attendance.organizationID]
+                [memberId, eventID, attendance.checkInDate, 'Attended', attendance.organizationID]
               );
             } else {
               console.warn(`No member found with email: ${attendance.email}`);
@@ -117,6 +175,10 @@ const processCsv = async (filePath) => {
         resolve();
       });
   });
+  } catch (error) {
+    console.error('Error processing CSV file:', error);
+    throw error;
+  }
 };
 
 module.exports = { processCsv };

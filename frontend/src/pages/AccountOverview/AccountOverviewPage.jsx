@@ -9,17 +9,15 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Button,
     Box,
 } from "@mui/material";
-import Grid from '@mui/material/Grid2';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 
-// TODO: Option to delete attendance records from the attendance history table here
-//       - user feedback for deleting records ('this action cannot be undone', 'deleted successfully', etc.)? 
+// TODO: This is where we want all of the user's information.
 
+// TODO: Normalize this style for modals and house it somewhere else
 const style = {
     display: 'flex',
     flexDirection: 'column',
@@ -36,19 +34,42 @@ const style = {
     maxWidth: '100%'
 };
 
-const AccountOverview = ({ memberData }) => {
-    const {
-        MemberID,
-        UserName,
-        FirstName,
-        LastName,
-        Email,
-        Major,
-        IsActive,
-        GraduationYear,
-        AcademicYear,
-        AttendanceHistory,
-    } = memberData || {};
+const mockMemberData = {
+    MemberID: 12345,
+    UserName: "lse3284",
+    FirstName: "Liam",
+    LastName: "Edwards",
+    Email: "lse3284@example.com",
+    Major: "Computer Science",
+    IsActive: true,
+    GraduationYear: 2025,
+    AcademicYear: "Senior",
+    AttendanceHistory: [
+        { date: "2025-01-20", event: "General Meeting" },
+        { date: "2025-01-15", event: "Workshop" },
+        { date: "2025-01-12", event: "General Meeting" },
+        { date: "2025-01-10", event: "Volunteer" },
+        { date: "2025-01-08", event: "Club Fair" },
+        { date: "2025-01-06", event: "General Meeting" },
+        { date: "2024-12-20", event: "Volunteer" },
+        { date: "2024-12-15", event: "Holiday Celebration" },
+        { date: "2024-12-10", event: "General Meeting" },
+        { date: "2024-11-25", event: "Workshop" },
+        { date: "2024-11-20", event: "Club Fair" },
+        { date: "2024-11-15", event: "Volunteer" },
+        { date: "2024-11-10", event: "General Meeting" },
+        { date: "2024-10-30", event: "Halloween Social" },
+        { date: "2024-10-25", event: "General Meeting" },
+        { date: "2024-10-20", event: "Volunteer" },
+        { date: "2024-10-15", event: "Club Fair" },
+        { date: "2024-10-10", event: "Workshop" },
+        { date: "2024-09-25", event: "General Meeting" },
+        { date: "2024-09-20", event: "Volunteer" },
+        { date: "2024-09-15", event: "Club Orientation" },
+    ],
+};
+
+const AccountOverview = ({ userObj }) => {
 
     return (
         <Container>
@@ -154,8 +175,8 @@ const AccountOverview = ({ memberData }) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {AttendanceHistory && AttendanceHistory.length > 0 ? (
-                                        AttendanceHistory.map((record, index) => (
+                                    {mockMemberData.AttendanceHistory && mockMemberData.AttendanceHistory.length > 0 ? (
+                                        mockMemberData.AttendanceHistory.map((record, index) => (
                                             <TableRow key={index}>
                                                 <TableCell>{record.date}</TableCell>
                                                 <TableCell>{record.event}</TableCell>

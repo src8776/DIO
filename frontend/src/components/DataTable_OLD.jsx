@@ -1,17 +1,58 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
-import {
-    Box, Checkbox, IconButton, Table, TableBody,
-    TableCell, TableContainer, TableHead,
-    TablePagination, TableRow, TableSortLabel,
-    Toolbar, Tooltip, Typography,
-    TextField, Paper
-} from '@mui/material';
+import Box from '@mui/material/Box'; //
+import Table from '@mui/material/Table'; //
+import TableBody from '@mui/material/TableBody'; //
+import TableCell from '@mui/material/TableCell'; //
+import TableContainer from '@mui/material/TableContainer'; //
+import TableHead from '@mui/material/TableHead'; //
+import TablePagination from '@mui/material/TablePagination'; //
+import TableRow from '@mui/material/TableRow'; //
+import TableSortLabel from '@mui/material/TableSortLabel'; //
+import TextField from '@mui/material/TextField'; //
+import Toolbar from '@mui/material/Toolbar'; //
+import Typography from '@mui/material/Typography'; //
+import Paper from '@mui/material/Paper'; //
+import Checkbox from '@mui/material/Checkbox'; //
+import IconButton from '@mui/material/IconButton'; //
+import Tooltip from '@mui/material/Tooltip'; //
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 
+
+
+function createData(id, status, name, duration, academicYear, attendanceRecord) {
+    return {
+        id,
+        status,
+        name,
+        duration,
+        academicYear,
+        attendanceRecord
+    };
+}
+
+// this is where we will instead be pulling data from the database and populating the array
+const rows = [
+    createData(1, 'Active', 'John Doe', '2 years', 'Third', 67),
+    createData(2, 'Active', 'Fred Flintstone', '2 years', 'Third', 51),
+    createData(3, 'Active', 'Big Ed', '1 year', 'Second', 24),
+    createData(4, 'Inactive', 'Sally Smith', '1 month', 'First', 24),
+    createData(5, 'Active', 'Olivia Carter', '2 months', 'First', 49),
+    createData(6, 'Active', 'Liam Bennett', '2 years', 'Third', 87),
+    createData(7, 'Active', 'Sophia Hughes', '1 year', 'Third', 37),
+    createData(8, 'Active', 'Noah Rivera', '2 years', 'Third', 94),
+    createData(9, 'Active', 'Isabella Foster', '2 years', 'Third', 65),
+    createData(10, 'Inactive', 'Elijah Ramirez', '2 years', 'Third', 98),
+    createData(11, 'Active', 'Ava Jenkins', '1 years', 'Third', 81),
+    createData(12, 'Active', 'Lucas Brooks', '2 years', 'Third', 9),
+    createData(13, 'Active', 'Mia Sullivan', '3 years', 'Third', 63),
+];
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -31,25 +72,31 @@ function getComparator(order, orderBy) {
 
 const headCells = [
     {
-        id: 'MemberID',
-        numeric: true,
-        disablePadding: true,
-        label: 'MemberID',
-    },
-    {
-        id: 'Status',
+        id: 'status',
         numeric: false,
         disablePadding: true,
         label: 'Status',
     },
     {
-        id: 'DisplayName',
+        id: 'name',
         numeric: false,
         disablePadding: false,
         label: 'Name',
     },
     {
-        id: 'AttendanceRecord',
+        id: 'duration',
+        numeric: false,
+        disablePadding: false,
+        label: 'Duration',
+    },
+    {
+        id: 'academicYear',
+        numeric: false,
+        disablePadding: false,
+        label: 'Academic Year',
+    },
+    {
+        id: 'attendanceRecord',
         numeric: true,
         disablePadding: false,
         label: 'Attendance Record',
@@ -57,15 +104,17 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-    const {
-        onSelectAllClick,
-        order,
-        orderBy,
-        numSelected,
-        rowCount,
-        onRequestSort
-    } = props;
+    // state for search bar
+    const [searchQuery, setSearchQuery] = React.useState('')
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    }
+    const filteredRows = rows.filter((row) =>
+        row.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
+    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
+        props;
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
     };
@@ -79,13 +128,16 @@ function EnhancedTableHead(props) {
                         indeterminate={numSelected > 0 && numSelected < rowCount}
                         checked={rowCount > 0 && numSelected === rowCount}
                         onChange={onSelectAllClick}
-                        inputProps={{ 'aria-label': 'select all members' }}
+                        inputProps={{
+                            'aria-label': 'select all desserts',
+                        }}
                     />
                 </TableCell>
                 {headCells.map((headCell) => (
                     <TableCell
                         sx={{ fontWeight: 'bold' }}
                         key={headCell.id}
+                        // align={headCell.numeric ? 'right' : 'left'}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
                         sortDirection={orderBy === headCell.id ? order : false}
                     >
@@ -160,7 +212,7 @@ function EnhancedTableToolbar(props) {
             />
             {numSelected > 0 ? (
                 // TODO: Implement report functionality
-                <Tooltip title="Generate Report on Selected">
+                <Tooltip title="Generate Report">
                     <IconButton>
                         <EditNoteIcon />
                     </IconButton>
@@ -182,39 +234,14 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
-export default function DataTable() {
+export default function EnhancedTable() {
     const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('DisplayName');
+    const [orderBy, setOrderBy] = React.useState('calories');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
+    const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [searchQuery, setSearchQuery] = React.useState('');
-    const [rows, setRows] = React.useState([]);
-
-    //Get member data
-    // TODO: Fix this so it does not query the database on every page refresh
-    React.useEffect(() => {
-        fetch('http://localhost:3001/admin/datatable')
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('Fetched data:', data);
-                if (Array.isArray(data)) {
-                    setRows(data);
-                } else {
-                    console.error('Error: Expected array but got:', data);
-                    setRows([]);
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setRows([]); // Ensure rows is always an array
-            });
-    }, []);
-
-    console.log('Rows state:', rows); // Check if rows is defined
-
-    // Prevent crashes if rows is undefined
-    if (!Array.isArray(rows)) return <Typography>Error: Data is not an array</Typography>;
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -226,26 +253,27 @@ export default function DataTable() {
         setSearchQuery(event.target.value);
     };
 
+    // Filter rows based on the search query
     const filteredRows = rows.filter((row) =>
-        row.DisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        row.Status.toLowerCase().includes(searchQuery.toLowerCase())
+        row.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        row.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.MemberID);
+            const newSelected = rows.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
         setSelected([]);
     };
 
-    const handleClick = (event, MemberID) => {
-        const selectedIndex = selected.indexOf(MemberID);
+    const handleClick = (event, id) => {
+        const selectedIndex = selected.indexOf(id);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, MemberID);
+            newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -266,6 +294,10 @@ export default function DataTable() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
+    };
+
+    const handleChangeDense = (event) => {
+        setDense(event.target.checked);
     };
 
     // Avoid a layout jump when reaching the last page with empty rows.
@@ -292,6 +324,7 @@ export default function DataTable() {
                         stickyHeader
                         sx={{ minWidth: 750 }}
                         aria-labelledby="tableTitle"
+                        size={dense ? 'small' : 'medium'}
                     >
                         <EnhancedTableHead
                             numSelected={selected.length}
@@ -303,17 +336,17 @@ export default function DataTable() {
                         />
                         <TableBody>
                             {visibleRows.map((row, index) => {
-                                const isItemSelected = selected.includes(row.MemberID);
+                                const isItemSelected = selected.includes(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) => handleClick(event, row.MemberID)}
+                                        onClick={(event) => handleClick(event, row.id)}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
-                                        key={row.MemberID}
+                                        key={row.id}
                                         selected={isItemSelected}
                                         sx={{ cursor: 'pointer' }}
                                     >
@@ -326,27 +359,28 @@ export default function DataTable() {
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell align="left">{row.MemberID}</TableCell>
                                         <TableCell
                                             component="th"
                                             id={labelId}
                                             scope="row"
                                             padding="none"
                                             sx={{
-                                                color: row.Status === 'Inactive' ? 'red' : 'green',
+                                                color: row.status === 'Inactive' ? 'red' : 'green',
                                             }}
                                         >
-                                            {row.Status}
+                                            {row.status}
                                         </TableCell>
-                                        <TableCell align="left">{row.DisplayName}</TableCell>
-                                        <TableCell align="left">{row.AttendanceRecord} meetings</TableCell>
+                                        <TableCell align="left">{row.name}</TableCell>
+                                        <TableCell align="left">{row.duration}</TableCell>
+                                        <TableCell align="left">{row.academicYear}</TableCell>
+                                        <TableCell align="left">{row.attendanceRecord} meetings</TableCell>
                                     </TableRow>
                                 );
                             })}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{
-                                        height: 53 * emptyRows,
+                                        height: (dense ? 33 : 53) * emptyRows,
                                     }}
                                 >
                                     <TableCell colSpan={6} />
@@ -365,6 +399,10 @@ export default function DataTable() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
+            {/* <FormControlLabel
+        control={<Switch checked={dense} onChange={handleChangeDense} />}
+        label="Dense padding"
+      /> */}
         </Box>
     );
 }

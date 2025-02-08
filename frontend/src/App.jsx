@@ -35,6 +35,9 @@ const App = () => {
     };
   }, []);
 
+  // TODO: Protect all paths (except for "/").
+  // Only to be accessible by ADMIN USERS 
+
   return (
     <ThemeProvider theme={mode === 'light' ? lightTheme : darkTheme}>
       <CssBaseline />

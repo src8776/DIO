@@ -5,6 +5,11 @@ const { upload, handleFileUpload } = require('./upload/handleFileUpload');
 const app = express();
 app.use(cors());
 
+//add admin route
+const adminRoutes = require('./routes/admin.js');
+app.use('/admin', adminRoutes); 
+
+
 // For health check
 app.get('/api/health', (req, res) => {
     res.status(200).send('SERVER UP');

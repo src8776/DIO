@@ -24,7 +24,7 @@ function OrganizationSetup() {
     const handleClose = () => setOpen(false);
 
     // need to grab the organization rules from database
-    const [config, setConfig] = React.useState([]);
+    const [clubRules, setClubRules] = React.useState([]);
 
 
     return (
@@ -59,85 +59,9 @@ function OrganizationSetup() {
                                     </TableRow>
                                 </TableHead>
                                 {/* loop through organization config */}
-                                <TableRow sx={{ borderBottom: "2px solid lightgray" }}>
-                                    <TableCell>General Meeting</TableCell>
-                                    <TableCell/>
-                                    <TableCell/>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    {/* First Cell (Points) */}
-                                    <TableCell sx={{ width: "150px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField size="small" sx={{ width: "50px" }} />
-                                            <Typography>point(s)</Typography>
-                                        </Box>
-                                    </TableCell>
-                                    {/* Second Cell (Per Meeting) */}
-                                    <TableCell sx={{ width: "200px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <Typography>per meeting</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    {/* First Cell (Points) */}
-                                    <TableCell sx={{ width: "150px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>point(s)</Typography>
-                                        </Box>
-                                    </TableCell>
-                                    {/* Second Cell (Per Meeting) */}
-                                    <TableCell sx={{ width: "200px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>% attended</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow sx={{ borderBottom: "2px solid #000" }}>
-                                    <TableCell >Volunteering</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    {/* First Cell (Points) */}
-                                    <TableCell sx={{ width: "150px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>points</Typography>
-                                        </Box>
-                                    </TableCell>
-                                    {/* Second Cell (Per Meeting) */}
-                                    <TableCell sx={{ width: "200px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>-</Typography>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>hours</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    {/* First Cell (Points) */}
-                                    <TableCell sx={{ width: "150px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>points</Typography>
-                                        </Box>
-                                    </TableCell>
-                                    {/* Second Cell (Per Meeting) */}
-                                    <TableCell sx={{ width: "200px" }}>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>-</Typography>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>hours</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
+                                {clubRules.map((clubRule, index) => (
+                                    <EventItem key={index} clubRule={clubRule}/>
+                                ))}
                             </Table>
                         </Paper>
                         {/* button box */}
@@ -150,6 +74,12 @@ function OrganizationSetup() {
                             </Button>
                         </Box>
                     </Box>
+
+
+
+
+
+                    
                     {/* Second form */}
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {/* <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

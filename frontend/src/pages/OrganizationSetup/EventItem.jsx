@@ -4,24 +4,24 @@ import EventRule from './EventRule';
 
 
 export default function EventItem({
-    eventType
+    clubRule
 }) {
-
     return (
         <Container>
-            {/* // event title  */}
+            {/* Event title (e.g., General Meeting) */}
             <TableRow sx={{ borderBottom: "2px solid lightgray" }}>
-                <TableCell>{eventType}</TableCell>
-                <TableCell/>
-                <TableCell/>
+                <TableCell>{clubRule.eventType}</TableCell>
+                <TableCell />
+                <TableCell />
             </TableRow>
 
-            {/* // track type  */}
-            <TableRow>
-                <TableCell/> 
-                {/* loop through list of rules per event type */}
-                <EventRule/>
-            </TableRow>
+            {/* Track type and event rules */}
+            {ClubRule.eventRules.map((rule, index) => (
+                <TableRow key={index}>
+                    <TableCell /> 
+                    <EventRule {...rule} />
+                </TableRow>
+            ))}
         </Container>
     );
 }

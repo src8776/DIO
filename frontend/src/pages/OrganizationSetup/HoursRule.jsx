@@ -11,12 +11,12 @@ export default function EventRule({
             <TableCell sx={{ width: "200px" }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {/* Lower Bound */}
-                    <TextField size="small" defaultValue={hours} sx={{ width: "50px" }} />
+                    <TextField size="small" defaultValue={hours.lower} sx={{ width: "50px" }} />
 
                     <Typography>-</Typography>
 
                     {/* Upper Bound */}
-                    <TextField size="small" defaultValue={hours} sx={{ width: "50px" }} />
+                    <TextField size="small" defaultValue={hours.upper} sx={{ width: "50px" }} />
                     <Typography>hours</Typography>
                 </Box>
             </TableCell>

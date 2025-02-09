@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { Box, Container, InputLabel, MenuItem, FormControl, Modal, Paper, Select, TextField, Typography, Button, IconButton } from '@mui/material';
+import {
+    Box, Container, InputLabel, MenuItem,
+    FormControl, Modal, Paper, Select, TextField,
+    Typography, Button, IconButton, List, ListItem,
+    ListItemText, ListSubheader,
+    ListItemButton
+} from '@mui/material';
 import { Table, TableBody, TableHead, TableRow, TableCell } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
@@ -8,6 +14,7 @@ import { Link } from 'react-router-dom';
 import NavColumn from '../../components/NavColumn';
 import AddRuleModal from '../../components/AddRuleModal';
 import EventItem from './EventItem';
+import ActiveModal from './ActiveModal';
 
 
 
@@ -20,23 +27,227 @@ import EventItem from './EventItem';
 // TODO: Formatting
 
 
-const orgRules = [
-    {
-        EventType: "General Meeting",
-        EventRules: [
-            { RuleID: 1, TrackType: "Points", MinRequirement: 0.0, PointsPer: 1, Hours: null },
-            { RuleID: 2, TrackType: "Points", MinRequirement: 0.5, PointsPer: 1, Hours: null },
-            { RuleID: 3, TrackType: "Points", MinRequirement: 0.75, PointsPer: 2, Hours: null },
-            { RuleID: 4, TrackType: "Participation", MinRequirement: 0.5, PointsPer: null, Hours: null },
-        ]
-    },
-    {
-        EventType: "Social Event",
-        EventRules: [
-            { RuleID: 5, TrackType: "Participation", MinRequirement: 0.1, PointsPer: null, Hours: null },
-        ]
-    }
-];
+const orgRules = {
+    "organizations": [
+        {
+            "name": "COMS",
+            "activeMembershipRequirement": {
+                "type": "points",
+                "value": 18
+            },
+            "eventTypes": [
+                {
+                    "name": "General Meetings / Saturday Workshops",
+                    "rules": [
+                        {
+                            "id": "coms_general_attendance",
+                            "description": "1 point per general meeting/saturday workshop attended",
+                            "points": 1,
+                            "criteria": "per attendance"
+                        },
+                        {
+                            "id": "coms_general_bonus_50",
+                            "description": "Extra 1 point if attended at least 50% of general meetings",
+                            "points": 1,
+                            "threshold": 50,
+                            "type": "percentage_bonus"
+                        },
+                        {
+                            "id": "coms_general_bonus_75",
+                            "description": "Extra 2 points if attended at least 75% of general meetings",
+                            "points": 2,
+                            "threshold": 75,
+                            "type": "percentage_bonus"
+                        },
+                        {
+                            "id": "coms_general_bonus_100",
+                            "description": "Extra 3 points if attended 100% of general meetings",
+                            "points": 3,
+                            "threshold": 100,
+                            "type": "percentage_bonus"
+                        }
+                    ]
+                },
+                {
+                    "name": "Committee Meetings",
+                    "rules": [
+                        {
+                            "id": "coms_committee_attendance",
+                            "description": "1 point per committee meeting attended",
+                            "points": 1,
+                            "criteria": "per attendance"
+                        },
+                        {
+                            "id": "coms_committee_bonus_50",
+                            "description": "Extra 2 points if attended at least 50% of committee meetings",
+                            "points": 2,
+                            "threshold": 50,
+                            "type": "percentage_bonus"
+                        },
+                        {
+                            "id": "coms_committee_bonus_100",
+                            "description": "Extra 3 points if attended 100% of committee meetings",
+                            "points": 3,
+                            "threshold": 100,
+                            "type": "percentage_bonus"
+                        }
+                    ]
+                },
+                {
+                    "name": "Volunteer",
+                    "rules": [
+                        {
+                            "id": "coms_volunteer_1_3",
+                            "description": "1 point for volunteering between 1 and 3 hours",
+                            "points": 1,
+                            "minHours": 1,
+                            "maxHours": 3
+                        },
+                        {
+                            "id": "coms_volunteer_3_6",
+                            "description": "2 points for volunteering between 3 and 6 hours",
+                            "points": 2,
+                            "minHours": 3,
+                            "maxHours": 6
+                        },
+                        {
+                            "id": "coms_volunteer_6_9",
+                            "description": "3 points for volunteering between 6 and 9 hours",
+                            "points": 3,
+                            "minHours": 6,
+                            "maxHours": 9
+                        },
+                        {
+                            "id": "coms_volunteer_9_plus",
+                            "description": "4 points for volunteering 9 or more hours",
+                            "points": 4,
+                            "minHours": 9
+                        }
+                    ]
+                },
+                {
+                    "name": "Mentorship Program",
+                    "maxPoints": 9,
+                    "rules": [
+                        {
+                            "id": "coms_mentorship_participation",
+                            "description": "3 points for participating as a mentor or mentee",
+                            "points": 3
+                        },
+                        {
+                            "id": "coms_mentorship_meeting",
+                            "description": "1 point per mentor/mentee meeting",
+                            "points": 1,
+                            "criteria": "per meeting"
+                        }
+                    ]
+                },
+                {
+                    "name": "Town Hall Meetings",
+                    "rules": [
+                        {
+                            "id": "coms_townhall",
+                            "description": "2 points per town hall meeting attended",
+                            "points": 2,
+                            "criteria": "per attendance"
+                        }
+                    ]
+                },
+                {
+                    "name": "Helping COMS",
+                    "rules": [
+                        {
+                            "id": "coms_helping",
+                            "description": "1 point per instance of helping COMS",
+                            "points": 1,
+                            "criteria": "per instance"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "WiC",
+            "activeMembershipRequirement": {
+                "type": "criteria",
+                "rules": [
+                    {
+                        "id": "wic_general_meetings",
+                        "description": "Attend at least half of the general meetings",
+                        "threshold": 50,
+                        "eventType": "General Meetings"
+                    },
+                    {
+                        "id": "wic_committee_meetings",
+                        "description": "Attend at least half of one specific committee's meetings",
+                        "threshold": 50,
+                        "eventType": "Committee Meetings",
+                        "note": "Only one committee is required"
+                    },
+                    {
+                        "id": "wic_social_event",
+                        "description": "Attend at least one social event",
+                        "minOccurrences": 1,
+                        "eventType": "Social Events"
+                    },
+                    {
+                        "id": "wic_volunteer_event",
+                        "description": "Volunteer for at least one volunteer event",
+                        "minOccurrences": 1,
+                        "eventType": "Volunteer Events"
+                    }
+                ]
+            },
+            "eventTypes": [
+                {
+                    "name": "General Meetings",
+                    "rules": [
+                        {
+                            "id": "wic_general_attendance",
+                            "description": "Must attend at least 50% of general meetings",
+                            "threshold": 50,
+                            "criteria": "percentage"
+                        }
+                    ]
+                },
+                {
+                    "name": "Committee Meetings",
+                    "rules": [
+                        {
+                            "id": "wic_committee_attendance",
+                            "description": "Must attend at least 50% of one specific committee's meetings",
+                            "threshold": 50,
+                            "criteria": "percentage",
+                            "note": "one specific committee"
+                        }
+                    ]
+                },
+                {
+                    "name": "Social Events",
+                    "rules": [
+                        {
+                            "id": "wic_social",
+                            "description": "Must attend at least one social event",
+                            "minOccurrences": 1
+                        }
+                    ]
+                },
+                {
+                    "name": "Volunteer Events",
+                    "rules": [
+                        {
+                            "id": "wic_volunteer",
+                            "description": "Must volunteer for at least one event",
+                            "minOccurrences": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+
+const COMSRules = orgRules.organizations[0];
 
 
 
@@ -49,6 +260,14 @@ export default function OrganizationSetup() {
     // const [orgRules, setOrgRules] = React.useState([]);
 
 
+    {/* loop through organization config */ }
+    {/* {orgRules.map((event, index) => (
+                                        <EventItem
+                                            key={`event-${index}`}
+                                            eventType={event.EventType}
+                                            eventRules={event.EventRules}
+                                        />
+                                    ))} */}
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
@@ -67,68 +286,35 @@ export default function OrganizationSetup() {
                     </Typography>
                 </Box>
 
-                {/* FORM CONTAINER */}
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-                    {/* First form */}
-                    <Box sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', gap: 1 }}>
-                        <Paper elevation={1}>
-                            <Table>
-                                <TableHead sx={{ borderBottom: "2px solid #000" }}>
-                                    <TableRow>
-                                        <TableCell sx={{ fontWeight: 'bold' }}>Event Type</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}>Point Value</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}>Rate</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {/* loop through organization config */}
-                                    {orgRules.map((event, index) => (
-                                        <EventItem
-                                            key={`event-${index}`}
-                                            eventType={event.EventType}
-                                            eventRules={event.EventRules}
-                                        />
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </Paper>
-                        {/* button box */}
-                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                            <AddRuleModal />
-
-                            <Button variant="contained" startIcon={<SaveIcon />}>
-                                Save Changes
-                            </Button>
+                {/* RULES CONTAINER */}
+                <List
+                    sx={{ width: '100%', maxWidth: 360, bgcolor: 'background', border: 'solid 1px', borderRadius: 2 }}
+                    component="nav"
+                    aria-labelledby="nested-list-header"
+                    subheader={
+                        <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 1px' }}>Organization Rules</Typography>
+                    }
+                >
+                    {/* First list item is always the organization 'active' rule */}
+                    <ListItemButton onClick={handleOpen}>
+                        <ListItemText primary={"'Active' requirements"} />
+                    </ListItemButton>
+                    <Modal open={open} onClose={handleClose}>
+                        <Box>
+                            <ActiveModal rule={COMSRules.activeMembershipRequirement.value}/>
                         </Box>
-                    </Box>
-
-                    {/* Second form */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <Paper elevation={1}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Active Membership Requirements</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableRow>
-                                    <TableCell>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            <Typography>A member must have</Typography>
-                                            <TextField sx={{ width: "50px" }} />
-                                            <Typography>points to achieve 'active' status.</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            </Table>
-                        </Paper>
-                        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                            <Button variant="contained" startIcon={<SaveIcon />}>
-                                Save Changes
-                            </Button>
+                    </Modal>
+                    <ListItemButton onClick={handleOpen}>
+                        <ListItemText primary={"'Active' requirements"} />
+                    </ListItemButton>
+                    <Modal open={open} onClose={handleClose}>
+                        <Box>
+                            <ActiveModal rule={COMSRules.activeMembershipRequirement.value}/>
                         </Box>
-                    </Box>
-                </Box>
+                    </Modal>
+                    
+                </List>
+
             </Paper>
 
         </Container>

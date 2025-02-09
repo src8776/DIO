@@ -27,7 +27,7 @@ const getOrCreateEvent = async (eventType, eventDate) => {
   const organizationID = 1;
   
   // check ifg event already exists in db
-  const [existingEvent] = await db.query(
+  const [existingEvent = []] = await db.query(
     'SELECT EventID FROM Events WHERE OrganizationID = ? AND EventType = ? AND EventDate = ?',
     [organizationID, eventType, formattedDate]
   ); 
@@ -55,10 +55,10 @@ const processCsv = async (filePath, eventType) => {
 
   try {
     const fileHash = await generateFileHash(filePath);
-    const [existingFile] = await db.query('SELECT * FROM UploadedFiles WHERE FileHash = ?', [fileHash]);
+    const [existingFile = []] = await db.query('SELECT * FROM UploadedFiles WHERE FileHash = ?', [fileHash]);
 
     if (existingFile.length > 0) {
-      console.log('File already exists in the database');
+      console.log('File already processed:', filePath); // for troubleshooting
       console.warn('File already processed: $(filePath)');
       fs.unlink(filePath, (err) => {
         if (err) console.error('Error removing duplicate file:', err);
@@ -75,10 +75,10 @@ const processCsv = async (filePath, eventType) => {
           console.warn('Skipping row due to missing Email or Checked-In Date:', row);
           return;
         }
+
         const email = row['Email'];
         const username = email.split('@')[0];
         const checkInDate = formatDateToMySQL(row['Checked-In Date']);
-        const eventID = await getOrCreateEvent(eventType, checkInDate);
 
         members.push({
           username,
@@ -93,21 +93,27 @@ const processCsv = async (filePath, eventType) => {
 
         attendanceRecords.push({
           email,
-          checkInDate: formatDateToMySQL(row['Checked-In Date']),
+          checkInDate,
           organizationID,
         });
       })
       .on('end', async () => {
         console.log('CSV file successfully processed');
+        
+        if (attendanceRecords.length === 0) {
+          console.warn('No attendance records found, skipping processing.');
+          return resolve();
+        }
+
         const connection = await db.getConnection();
         try {
           await connection.beginTransaction();
 
-          // Insert the selected eventType into the database
+          // Insert the selected eventType only once
           const eventDate = attendanceRecords[0].checkInDate;
           const eventID = await getOrCreateEvent(eventType, eventDate);
 
-          // Save the file upload to prevent duplicate processing or records
+          // Save the file upload to prevent duplicates
           await connection.query('INSERT INTO UploadedFiles (FileName, FileHash) VALUES (?, ?)', [filePath, fileHash]);
 
           for (const member of members) {
@@ -132,7 +138,9 @@ const processCsv = async (filePath, eventType) => {
                 member.academicYear,
               ]
             );
-            const memberID = memberResult.insertId || memberResult.affectedRows;
+
+            const memberID = memberResult.insertId || ( await connection.query('SELECT MemberID FROM Members WHERE Email = ?', [member.email]) )[0][0]?.MemberID;
+            
             await connection.query(
               `INSERT INTO OrganizationMembers (OrganizationID, MemberID, Role, RoleID)
               VALUES (?, ?, ?, ?)

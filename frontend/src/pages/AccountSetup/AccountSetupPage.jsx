@@ -5,16 +5,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import NavColumn from '../../components/NavColumn';
 import dayjs from 'dayjs';
+
 // TODO: Make sure NavColumn is only displayed if user is an Admin
-// TODO: Add API calls to get user's name and email
-// TODO: Add API calls to get major data
-// TODO: Add API calls to save profile information to database
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
 // TODO: Allow user to return to this page to update their profile information
 // TODO: Load existing profile information if it exists
-// TODO: Change 'complete profile' button to 'save changes' button if user is updating profile information
 
+
+//Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
   try {
     const response = await fetch('http://localhost:3001/api/user/profile');
@@ -26,6 +25,7 @@ const fetchUserProfileData = async () => {
   }
 };
 
+//Fetch selectable majors from the majors api defined in userRoutes
 const fetchMajorData = async () => {
   try {
     const response = await fetch('http://localhost:3001/api/user/majors');
@@ -37,6 +37,7 @@ const fetchMajorData = async () => {
   }
 };
 
+//Pushes profile data to backend to save using the profile api
 const saveProfileData = async (data) => {
   const response = await fetch('http://localhost:3001/api/user/profile', {
     method: 'POST',
@@ -95,7 +96,7 @@ export default function AccountSetup() {
       alert('Please fill in all required fields');
       return;
     }
-    
+
     //calls saveProfileData function to save data; waits for this to finish
     await saveProfileData({
       studentYear,
@@ -114,26 +115,21 @@ export default function AccountSetup() {
       </Box>
 
       <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
-        <Typography variant='h5' >
-          Account Settings
-        </Typography>
+        <Typography variant='h5' >Account Settings</Typography>
+
         <Paper elevation={1} sx={{ minWidth: '100%', }}>
-          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 2 }}>
-              <Typography variant='h6'>
-                Name: {firstName}
-              </Typography>
-              <Typography variant='h6'>
-                Email: {email}
-              </Typography>
+          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 2 }}>
+              <Typography variant='h6'>Name: {firstName}</Typography>
+              <Typography variant='h6'>Email: {email}</Typography>
             </Box>
-            <Box component={'form'} sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            
+            <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="student-year-select-label">Student Year</InputLabel>
                 <Select
                   required
                   labelId="student-year-select-label"
-                  id="student-year-select"
                   value={studentYear}
                   label="Student Year"
                   onChange={(e) => setStudentYear(e.target.value)}
@@ -145,24 +141,22 @@ export default function AccountSetup() {
                   <MenuItem value={'super_senior'}>Super Senior</MenuItem>
                 </Select>
               </FormControl>
+              
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Graduation Date"
                   value={graduationDate ? dayjs(graduationDate) : null}
-                  onChange={(newDate) => {
-                    //console.log("Selected Date:", newDate); // for debugging
-                    setGraduationDate(newDate); 
-                  }}
+                  onChange={(newDate) => {setGraduationDate(newDate)}}
                   sx={{ flex: 1 }}
                 />
               </LocalizationProvider>
             </Box>
+
             <FormControl fullWidth>
               <InputLabel id="major-select-label">Major</InputLabel>
               <Select
                 required
                 labelId="major-select-label"
-                id="major-select"
                 value={major}
                 label="Major"
                 onChange={(e) => setMajor(e.target.value)}
@@ -174,13 +168,13 @@ export default function AccountSetup() {
                 ))}
               </Select>
             </FormControl>
-            <Box component={'form'} sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="shirt-size-select-label">Shirt Size</InputLabel>
                 <Select
                   required
                   labelId="shirt-size-select-label"
-                  id="shirt-size-select"
                   value={shirtSize}
                   label="Shirt Size"
                   onChange={(e) => setShirtSize(e.target.value)}
@@ -192,12 +186,12 @@ export default function AccountSetup() {
                   <MenuItem value={'XXL'}>XXL</MenuItem>
                 </Select>
               </FormControl>
+
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="pant-size-select-label">Pant Size</InputLabel>
                 <Select
                   required
                   labelId="pant-size-select-label"
-                  id="pant-size-select"
                   value={pantSize}
                   label="Pant Size"
                   onChange={(e) => setPantSize(e.target.value)}

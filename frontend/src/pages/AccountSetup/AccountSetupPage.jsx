@@ -16,27 +16,26 @@ import dayjs from 'dayjs';
 // TODO: Change 'complete profile' button to 'save changes' button if user is updating profile information
 
 const fetchUserProfileData = async () => {
-  // Replace with actual API call
-  return {
-    firstName: 'John',
-    email: 'jd9217@rit.edu',
-    studentYear: 'junior',
-    graduationDate: '2025-05-01',
-    major: 'computer_science',
-    shirtSize: 'M',
-    pantSize: '32'
-  };
+  try {
+    const response = await fetch('http://localhost:3001/api/user/profile');
+    if (!response.ok) throw new Error('Failed to fetch user profile');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
 };
 
+
 const fetchMajorData = async () => {
-  // Replace with actual API call
-  return [
-    { id: 'computer_science', name: 'Computer Science' },
-    { id: 'information_technology', name: 'Information Technology' },
-    { id: 'software_engineering', name: 'Software Engineering' },
-    { id: 'cybersecurity', name: 'Cybersecurity' },
-    { id: 'data_science', name: 'Data Science' }
-  ];
+  try {
+    const response = await fetch('http://localhost:3001/api/user/majors');
+    if (!response.ok) throw new Error('Failed to fetch majors');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching majors:', error);
+    return [];
+  }
 };
 
 const saveProfileData = async (data) => {
@@ -88,7 +87,7 @@ export default function AccountSetup() {
 
   //when submitting, check if all fields are filled
   const handleSubmit = async () => {
-    if (isProfileComplete) {
+    if (!isProfileComplete) {
       alert('Please fill in all required fields');
       return;
     }

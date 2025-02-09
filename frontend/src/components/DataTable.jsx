@@ -194,7 +194,7 @@ export default function DataTable() {
     //Get member data
     // TODO: Fix this so it does not query the database on every page refresh
     React.useEffect(() => {
-        fetch('http://localhost:3001/admin/datatable')
+        fetch('http://localhost:3001/api/admin/datatable')
             .then((response) => response.json())
             .then((data) => {
                 console.log('Fetched data:', data);

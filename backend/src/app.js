@@ -7,7 +7,7 @@ app.use(cors());
 
 //add admin route
 const adminRoutes = require('./routes/admin.js');
-app.use('/admin', adminRoutes); 
+app.use('/api/admin', adminRoutes); 
 
 
 // For health check

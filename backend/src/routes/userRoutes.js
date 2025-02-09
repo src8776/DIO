@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+//TODO: get data from database
 const userProfile = {
   firstName: 'John',
   email: 'jd9217@rit.edu',
@@ -11,6 +12,7 @@ const userProfile = {
   pantSize: '32'
 };
 
+//TODO: get data from database
 const majors = [
   { id: 'computer_science', name: 'Computer Science' },
   { id: 'information_technology', name: 'Information Technology' },
@@ -23,6 +25,16 @@ const majors = [
 router.get('/profile', (req, res) => {
   res.json(userProfile);
 });
+
+//profile saving
+router.post('/profile', (req, res) => {
+    const updatedProfile = req.body;
+    
+    //TODO: save to database
+    console.log("Received profile update:", updatedProfile);
+  
+    res.status(200).json({ message: "Profile updated successfully" });
+  });
 
 // major route
 router.get('/majors', (req, res) => {

@@ -26,7 +26,6 @@ const fetchUserProfileData = async () => {
   }
 };
 
-
 const fetchMajorData = async () => {
   try {
     const response = await fetch('http://localhost:3001/api/user/majors');
@@ -39,12 +38,17 @@ const fetchMajorData = async () => {
 };
 
 const saveProfileData = async (data) => {
-  // Replace with actual API call to save data
-  console.log('Saving profile data:', data);
+  const response = await fetch('http://localhost:3001/api/user/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+  console.log(result.message);
 };
 
 export default function AccountSetup() {
-
   const [studentYear, setStudentYear] = useState('');
   const [graduationDate, setGraduationDate] = useState(null);
   const [major, setMajor] = useState('');
@@ -91,7 +95,7 @@ export default function AccountSetup() {
       alert('Please fill in all required fields');
       return;
     }
-
+    
     //calls saveProfileData function to save data; waits for this to finish
     await saveProfileData({
       studentYear,
@@ -116,11 +120,9 @@ export default function AccountSetup() {
         <Paper elevation={1} sx={{ minWidth: '100%', }}>
           <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: 2 }}>
-              {/* TODO: Get user's name */}
               <Typography variant='h6'>
                 Name: {firstName}
               </Typography>
-              {/* TODO: Get user's email */}
               <Typography variant='h6'>
                 Email: {email}
               </Typography>
@@ -212,9 +214,8 @@ export default function AccountSetup() {
           </Box>
         </Paper>
 
-        {/* TODO: Make this button save profile information to database */}
         <Box sx={{ display: "flex", justifyContent: "end" }}>
-          <Button variant='contained'>
+          <Button variant='contained' onClick={handleSubmit}>
             {isProfileComplete ? 'Save Changes' : 'Complete Profile'}
           </Button>
         </Box>

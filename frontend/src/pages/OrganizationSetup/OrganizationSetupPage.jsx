@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { Box, Container, InputLabel, MenuItem, FormControl, Modal, Paper, Select, TextField, Typography, Button, IconButton } from '@mui/material';
-import { Table, TableHead, TableRow, TableCell } from '@mui/material';
+import { Table, TableBody, TableHead, TableRow, TableCell } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';
 import NavColumn from '../../components/NavColumn';
+import AddRuleModal from '../../components/AddRuleModal';
+import EventItem from './EventItem';
 
 
 
@@ -18,13 +20,33 @@ import NavColumn from '../../components/NavColumn';
 // TODO: Formatting
 
 
-function OrganizationSetup() {
+const orgRules = [
+    {
+        EventType: "General Meeting",
+        EventRules: [
+            { RuleID: 1, TrackType: "Points", MinRequirement: 0.0, PointsPer: 1, Hours: null },
+            { RuleID: 2, TrackType: "Points", MinRequirement: 0.5, PointsPer: 1, Hours: null },
+            { RuleID: 3, TrackType: "Points", MinRequirement: 0.75, PointsPer: 2, Hours: null },
+            { RuleID: 4, TrackType: "Participation", MinRequirement: 0.5, PointsPer: null, Hours: null },
+        ]
+    },
+    {
+        EventType: "Social Event",
+        EventRules: [
+            { RuleID: 5, TrackType: "Participation", MinRequirement: 0.1, PointsPer: null, Hours: null },
+        ]
+    }
+];
+
+
+
+export default function OrganizationSetup() {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     // need to grab the organization rules from database
-    const [clubRules, setClubRules] = React.useState([]);
+    // const [orgRules, setOrgRules] = React.useState([]);
 
 
     return (
@@ -58,35 +80,30 @@ function OrganizationSetup() {
                                         <TableCell sx={{ fontWeight: 'bold' }}>Rate</TableCell>
                                     </TableRow>
                                 </TableHead>
-                                {/* loop through organization config */}
-                                {clubRules.map((clubRule, index) => (
-                                    <EventItem key={index} clubRule={clubRule}/>
-                                ))}
+                                <TableBody>
+                                    {/* loop through organization config */}
+                                    {orgRules.map((event, index) => (
+                                        <EventItem
+                                            key={`event-${index}`}
+                                            eventType={event.EventType}
+                                            eventRules={event.EventRules}
+                                        />
+                                    ))}
+                                </TableBody>
                             </Table>
                         </Paper>
                         {/* button box */}
                         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                            <Button variant="contained" startIcon={<AddIcon />}>
-                                Add Event
-                            </Button>
+                            <AddRuleModal />
+
                             <Button variant="contained" startIcon={<SaveIcon />}>
                                 Save Changes
                             </Button>
                         </Box>
                     </Box>
 
-
-
-
-
-                    
                     {/* Second form */}
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        {/* <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                        <Button variant="contained" startIcon={<CloseIcon />} component={Link} to="/">
-                            Close
-                        </Button>
-                    </Box> */}
                         <Paper elevation={1}>
                             <Table>
                                 <TableHead>
@@ -117,5 +134,3 @@ function OrganizationSetup() {
         </Container>
     );
 }
-
-export default OrganizationSetup;

@@ -5,33 +5,34 @@ import HoursRule from './HoursRule';
 
 
 
-export default function EventRule({ rule }) {
+export default function EventRule({
+    RuleID, TrackType, MinRequirement, PointsPer, Hours
+}) {
 
-    return rule.trackType === 'participation' ? (
+    return TrackType === "Participation" ? (
         // If it is a WiC event, we just care about % of events attended
-        <Container>
-            <TableCell sx={{ width: "150px" }}>
-                <Box>
-                    <Typography>At Least</Typography>
-                </Box>
+        <>
+            <TableCell >
+                <Typography>At least</Typography>
             </TableCell>
-            <PercentRule minRequirements={rule.minRequirements} />
-        </Container>
+            <PercentRule minRequirements={MinRequirement} />
+        </>
     ) : (
         // COMS wants points per different thresholds
-        <Container>
-            <TableCell sx={{ width: "150px" }}>
+
+        <>
+            <TableCell>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <TextField defaultValue={rule.pointsPer} size="small" sx={{ width: "50px" }} />
-                    <Typography>point{rule.pointsPer !== 1 ? 's' : ''}</Typography>
+                    <TextField defaultValue={PointsPer} size="small" sx={{ width: "50px" }} />
+                    <Typography>point{PointsPer !== 1 ? 's' : ''}</Typography>
                 </Box>
             </TableCell>
 
-            {rule.hours ? (
-                <HoursRule hours={rule.hours}/>
-            ): (
-                <PercentRule minRequirements={rule.minRequirements}/>
+            {Hours ? (
+                <HoursRule hours={Hours} />
+            ) : (
+                <PercentRule minRequirements={MinRequirement} />
             )}
-        </Container>
+        </>
     );
 }

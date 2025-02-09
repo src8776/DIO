@@ -15,6 +15,7 @@ import NavColumn from '../../components/NavColumn';
 import AddRuleModal from '../../components/AddRuleModal';
 import EventItem from './EventItem';
 import ActiveModal from './ActiveModal';
+import RuleListItem from './RuleListItem';
 
 
 
@@ -23,7 +24,6 @@ import ActiveModal from './ActiveModal';
 // TODO: Add default values for all fields
 // TODO: implement "save changes" buttons to update values in database
 // TODO: user feedback "changes saved successfully"
-// TODO: Make this work with dark mode
 // TODO: Formatting
 
 
@@ -154,7 +154,7 @@ const orgRules = {
                     ]
                 },
                 {
-                    "name": "Helping COMS",
+                    "name": "Misc. Events",
                     "rules": [
                         {
                             "id": "coms_helping",
@@ -248,6 +248,7 @@ const orgRules = {
 };
 
 const COMSRules = orgRules.organizations[0];
+const WiCRules = orgRules.organizations[1];
 
 
 
@@ -260,14 +261,7 @@ export default function OrganizationSetup() {
     // const [orgRules, setOrgRules] = React.useState([]);
 
 
-    {/* loop through organization config */ }
-    {/* {orgRules.map((event, index) => (
-                                        <EventItem
-                                            key={`event-${index}`}
-                                            eventType={event.EventType}
-                                            eventRules={event.EventRules}
-                                        />
-                                    ))} */}
+
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
@@ -287,36 +281,36 @@ export default function OrganizationSetup() {
                 </Box>
 
                 {/* RULES CONTAINER */}
+                <Paper>
+
                 <List
-                    sx={{ width: '100%', maxWidth: 360, bgcolor: 'background', border: 'solid 1px', borderRadius: 2 }}
+                    
                     component="nav"
                     aria-labelledby="nested-list-header"
                     subheader={
-                        <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 1px' }}>Organization Rules</Typography>
+                        <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Organization Rules</Typography>
                     }
                 >
                     {/* First list item is always the organization 'active' rule */}
-                    <ListItemButton onClick={handleOpen}>
+                    <ListItemButton onClick={handleOpen} sx={{ borderBottom: 'solid 1px'}}>
                         <ListItemText primary={"'Active' requirements"} />
                     </ListItemButton>
                     <Modal open={open} onClose={handleClose}>
                         <Box>
-                            <ActiveModal rule={COMSRules.activeMembershipRequirement.value}/>
+                            <ActiveModal org={orgRules.organizations[0].name} rule={COMSRules.activeMembershipRequirement.value} />
                         </Box>
                     </Modal>
-                    <ListItemButton onClick={handleOpen}>
-                        <ListItemText primary={"'Active' requirements"} />
-                    </ListItemButton>
-                    <Modal open={open} onClose={handleClose}>
-                        <Box>
-                            <ActiveModal rule={COMSRules.activeMembershipRequirement.value}/>
-                        </Box>
-                    </Modal>
-                    
+
+                    {COMSRules.eventTypes.map((eventObj, index) => (
+                        <RuleListItem
+                            key={`rule-${index}`}
+                            {...eventObj}
+                        />
+                    ))}
+
                 </List>
-
+                </Paper>
             </Paper>
-
         </Container>
     );
 }

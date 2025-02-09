@@ -18,7 +18,7 @@ const style = {
 };
 
 
-export default function ActiveModal({rule}) {
+export default function ActiveModal({org, rule}) {
 
     return (
         <Container >
@@ -30,12 +30,12 @@ export default function ActiveModal({rule}) {
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
                     <Table>
                         <TableHead>
-                            <TableCell>Rule</TableCell>
-                            <TableCell>Points</TableCell>
+                            <TableCell><strong>Rule</strong></TableCell>
+                            <TableCell><strong>{org == "WiC" ? 'Criteria' : 'Points'}</strong></TableCell>
                         </TableHead>
                         <TableBody>
-                            <TableCell>To Achieve 'active' status, earn:</TableCell>
-                            <TableCell>{rule} points</TableCell>
+                            <TableCell>To Achieve 'active' status:</TableCell>
+                            <TableCell>{org == "WiC" ? 'Meet all criteria' : `earn ${rule} points`} </TableCell>
                         </TableBody>
                     </Table>
                 </Box>

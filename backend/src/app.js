@@ -9,6 +9,9 @@ app.use(cors());
 const adminRoutes = require('./routes/admin.js');
 app.use('/admin', adminRoutes); 
 
+// Add OrganizationRules route
+const organizationRulesRoutes = require('./routes/organizationRules.js');
+app.use('/organizationRules', organizationRulesRoutes);
 
 // For health check
 app.get('/api/health', (req, res) => {

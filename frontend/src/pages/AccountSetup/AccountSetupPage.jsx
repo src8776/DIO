@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/user/profile');
+    const response = await fetch('${API_BASE_URL}/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');
     return await response.json();
   } catch (error) {
@@ -28,7 +28,7 @@ const fetchUserProfileData = async () => {
 //Fetch selectable majors from the majors api defined in userRoutes
 const fetchMajorData = async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/user/majors');
+    const response = await fetch('${API_BASE_URL}/api/user/majors');
     if (!response.ok) throw new Error('Failed to fetch majors');
     return await response.json();
   } catch (error) {
@@ -39,7 +39,7 @@ const fetchMajorData = async () => {
 
 //Pushes profile data to backend to save using the profile api
 const saveProfileData = async (data) => {
-  const response = await fetch('http://localhost:3001/api/user/profile', {
+  const response = await fetch('${API_BASE_URL}/api/user/profile', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)

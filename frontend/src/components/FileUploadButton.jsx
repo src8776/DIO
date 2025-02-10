@@ -65,7 +65,7 @@ export default function InputFileUpload({eventType}) {
 
       const formData = new FormData();
       formData.append('csv_file', file);
-      fetch(`http://localhost:3001/api/upload`, {
+      fetch(`/api/upload`, {
         method: 'POST',
         body: formData,
       })

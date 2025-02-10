@@ -28,7 +28,7 @@ const fetchUserProfileData = async () => {
 //Fetch selectable majors from the majors api defined in userRoutes
 const fetchMajorData = async () => {
   try {
-    const response = await fetch('${API_BASE_URL}/api/user/majors');
+    const response = await fetch('/api/user/majors');
     if (!response.ok) throw new Error('Failed to fetch majors');
     return await response.json();
   } catch (error) {
@@ -39,7 +39,7 @@ const fetchMajorData = async () => {
 
 //Pushes profile data to backend to save using the profile api
 const saveProfileData = async (data) => {
-  const response = await fetch('${API_BASE_URL}/api/user/profile', {
+  const response = await fetch('/api/user/profile', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)

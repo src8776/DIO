@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
   try {
-    const response = await fetch('${API_BASE_URL}/api/user/profile');
+    const response = await fetch('/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');
     return await response.json();
   } catch (error) {

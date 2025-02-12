@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AppBar from './components/AppBar';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AdminDash from './pages/AdminDashboard/AdminDashPage';
@@ -44,7 +44,7 @@ const App = () => {
       <AppBar toggleTheme={toggleTheme} mode={mode} />
         <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/admin" element={<AdminDash />} />
+            <Route path="/admin/:org" element={<AdminDash />} />
             <Route path="/acctSetup" element={<AcctSetup />} />
             <Route path="/memberDetails" element={<MemberDetailsModal />} />
             <Route path="/organizationSetup" element={<OrgSetup />} />

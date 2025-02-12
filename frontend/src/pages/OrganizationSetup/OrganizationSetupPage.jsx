@@ -20,7 +20,6 @@ import RuleListItem from './RuleListItem';
 
 // TODO: All table items will need to come from the database
 // TODO: Form validation (only accept numbers for point values/percentages)
-// TODO: Add default values for all fields
 // TODO: implement "save changes" buttons to update values in database
 // TODO: user feedback "changes saved successfully"
 // TODO: Formatting

@@ -1,7 +1,6 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import * as React from 'react';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import GenerateReportButton from '../../components/GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
 import UploadFileModal from '../../components/UploadFileModal';
@@ -14,7 +13,17 @@ import DataTable from '../../components/DataTable';
 
 // TODO: Make admin dashboard responsive based on selected organization module (WiC or COMS)
 
-function AdminDash({ }) {
+function AdminDash() {
+  const params = useParams(); //"wic" or "coms"
+  const orgType = params.org
+  const allowedTypes = ['wic', 'coms'];
+
+  if (allowedTypes.includes(orgType)) {
+    // Redirect to a Not Found page or landing page
+    console.log(orgType)
+    // return <div>404 page not found</div>;
+  }
+
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>

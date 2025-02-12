@@ -5,10 +5,12 @@ import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
 
 // TODO: In this component we care about the user's role and status (active/inactive)
 
-export default function ClubCard({ userObj, clubAbbr }) {
+export default function ClubCard({ userObj, organization }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    const orgType = organization.toLowerCase(); // "wic" or "coms"
 
     // store club data up here for maintainability
     // this could also eventually be stored in the database??? 
@@ -24,7 +26,7 @@ export default function ClubCard({ userObj, clubAbbr }) {
         title: "Women in Computing",
     };
 
-    const clubInfo = clubAbbr === "COMS" ? comsInfo : wicInfo;
+    const clubInfo = organization === "COMS" ? comsInfo : wicInfo;
 
     return (
         <Card sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
@@ -36,11 +38,11 @@ export default function ClubCard({ userObj, clubAbbr }) {
                     objectFit: clubInfo.imageFit,
                 }}
                 image={clubInfo.image}
-                title={clubAbbr}
+                title={organization}
             />
             <CardContent sx={{ borderTop: "1px solid #f0f0f0", flexGrow: 1 }}>
                 <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                    {clubAbbr}
+                    {organization}
                 </Typography>
                 <Typography variant="h5">
                     {clubInfo.title}
@@ -66,7 +68,7 @@ export default function ClubCard({ userObj, clubAbbr }) {
                     </Box>
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}
-                <Button component={Link} to="/admin" variant="contained">
+                <Button component={Link} to={`/admin/${orgType}`} variant="contained">
                     Admin Dashboard
                 </Button>
             </CardActions>

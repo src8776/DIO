@@ -15,7 +15,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# Step 1: Check if the directory existsa
+# Step 1: Check if the directory exists
 if [ ! -d "/opt/DIO_backend" ]; then
     echo "Directory /opt/DIO_backend does not exist. Deployment failed."
     exit 1
@@ -31,7 +31,7 @@ fi
 find /opt/DIO_backend -mindepth 1 ! -name '.env' -delete || handle_error $LINENO
 
 # Step 4: Copy everything from ../backend except .env file
-rsync -av --exclude='.env' ../backend/ /opt/DIO_backend/ || handle_error $LINENO
+rsync -av --exclude='.env' --temp-dir=/tmp ../backend/ /opt/DIO_backend/ || handle_error $LINENO
 
 # Step 5: Start dio.service
 echo "Starting dio.service..."

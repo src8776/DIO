@@ -16,6 +16,7 @@ const users = [
 
 function OfficersList() {
     const { org } = useParams(); //"wic" or "coms"
+    const orgID = org === 'wic' ? 1 : 2;
 
     return (
 

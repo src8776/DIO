@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { Autocomplete, Box, Button, IconButton, Container, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, TextField, Typography } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -28,6 +29,8 @@ const style = {
 };
 
 export default function ImportDataPage() {
+    const { org } = useParams(); //"wic" or "coms"
+    const orgID = org === 'wic' ? 1 : 2;
     const [eventType, setEventType] = React.useState('');
     const [eventDate, setEventDate] = React.useState(dayjs()); // eventDate defaults to today's date
     const [volunteerHours, setVolunteerHours] = React.useState('');
@@ -200,7 +203,7 @@ export default function ImportDataPage() {
                     </Button>
                 ) : (
                     // Show FileUploadButton for other event types
-                    <FileUploadButton eventType={eventType} />
+                    <FileUploadButton orgID={orgID} eventType={eventType} />
                 )}
 
             </Paper>

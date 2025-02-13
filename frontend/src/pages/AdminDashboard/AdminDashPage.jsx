@@ -4,7 +4,6 @@ import { Link, useParams } from 'react-router-dom';
 import GenerateReportButton from '../../components/GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
 import UploadFileModal from '../../components/UploadFileModal';
-import NavColumn from '../../components/NavColumn';
 import CloseIcon from '@mui/icons-material/Close';
 
 import DataTable from '../../components/DataTable';

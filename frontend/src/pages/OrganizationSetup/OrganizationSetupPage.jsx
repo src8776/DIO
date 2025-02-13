@@ -240,6 +240,7 @@ import RuleListItem from './RuleListItem';
 
 export default function OrganizationSetup() {
     const { org } = useParams(); //"wic" or "coms"
+    const orgID = org === 'wic' ? 1 : 2;
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);

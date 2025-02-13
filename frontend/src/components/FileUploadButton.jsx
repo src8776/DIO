@@ -23,7 +23,7 @@ const VisuallyHiddenInput = styled('input')({
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log("API URL IS: " + API_BASE_URL);
 
-export default function InputFileUpload({eventType}) {
+export default function InputFileUpload({ orgID, eventType }) {
   const selectedEventType = eventType;
   const [file, setFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
@@ -38,7 +38,7 @@ export default function InputFileUpload({eventType}) {
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    if(!selectedFile) {
+    if (!selectedFile) {
       showAlert('You must select a file', 'error');
       return;
     }
@@ -49,7 +49,7 @@ export default function InputFileUpload({eventType}) {
       return;
     }
 
-    if(selectedFile.size > 2*1024*1024) {
+    if (selectedFile.size > 2 * 1024 * 1024) {
       showAlert("File size exceeds maximum 2MB", 'error');
       setFile(null);
       return;
@@ -63,12 +63,12 @@ export default function InputFileUpload({eventType}) {
 
   const handleUpload = (file) => {
 
-      const formData = new FormData();
-      formData.append('csv_file', file);
-      fetch(`${API_BASE_URL}/api/upload`, {
-        method: 'POST',
-        body: formData,
-      })
+    const formData = new FormData();
+    formData.append('csv_file', file);
+    fetch(`${API_BASE_URL}/api/upload`, {
+      method: 'POST',
+      body: formData,
+    })
       .then(response => response.json())
       .then(data => {
         console.log(data);
@@ -83,7 +83,7 @@ export default function InputFileUpload({eventType}) {
         console.log(error);
         showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
       });
-    
+
   };
 
   const handleCloseSnackbar = () => {

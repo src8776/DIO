@@ -9,30 +9,27 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import DataTable from '../../components/DataTable';
 
-
-
-// TODO: Make admin dashboard responsive based on selected organization module (WiC or COMS)
+// TODO: Pass org to datatable to select members from the correct organization
 
 function AdminDash() {
-  const params = useParams(); //"wic" or "coms"
-  const orgType = params.org
+  const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
-  const orgID = orgType === 'wic' ? 1 : 2;
+  const orgID = org === 'wic' ? 1 : 2;
   const [orgInfo, setOrgInfo] = React.useState(null);
 
-  if (!allowedTypes.includes(orgType)) {
-    return <div>404 page not found</div>;
+  if (!allowedTypes.includes(org)) {
+    return <Typography variant='h1'>404 page not found</Typography>;
   }
 
   React.useEffect(() => {
     fetch(`http://localhost:3001/organizationInfo/name?organizationID=${orgID}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log('Fetched data:', data);
+        // console.log('Fetched data:', data);
         if (data.length > 0) {
           setOrgInfo(data[0].Name); // Extract Name directly
         } else {
-          setOrgInfo("Unknown Organization"); // Fallback if no data
+          return <Typography variant='h1'>404 page not found</Typography>; // Fallback if no data
         }
       })
       .catch((error) => {
@@ -44,11 +41,11 @@ function AdminDash() {
 
 
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
       {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-        <NavColumn pageTitle="Member Database" />
-      </Box>
+      {/* <Box sx={{ display: { xs: 'none', md: 'block' } }}> */}
+        {/* <NavColumn pageTitle="Member Database" orgType={orgType} /> */}
+      {/* </Box> */}
 
       <Paper elevation={1}>
         {/* Dashboard Content */}

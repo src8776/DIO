@@ -6,14 +6,7 @@ import {
     ListItemText, ListSubheader,
     ListItemButton
 } from '@mui/material';
-import { Table, TableBody, TableHead, TableRow, TableCell } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';
-import NavColumn from '../../components/NavColumn';
-import AddRuleModal from '../../components/AddRuleModal';
-import EventItem from './EventItem';
+import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
 import RuleListItem from './RuleListItem';
 
@@ -246,6 +239,7 @@ import RuleListItem from './RuleListItem';
 // };
 
 export default function OrganizationSetup() {
+    const { org } = useParams(); //"wic" or "coms"
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -311,10 +305,6 @@ export default function OrganizationSetup() {
 
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <NavColumn pageTitle="Organization Setup" />
-            </Box>
 
             <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
                 {/* Header box */}

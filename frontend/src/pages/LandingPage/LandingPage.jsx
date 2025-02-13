@@ -24,10 +24,11 @@ function LandingPage() {
                 {/* TODO: Only show the card that the user is a member of */}
 
                 {/* COMS Card */}
-                <ClubCard userObj={userObj} clubAbbr={'COMS'}/>
+                <ClubCard userObj={userObj} organization={'COMS'}/>
 
                 {/* WiC Card */}
-                <ClubCard userObj={userObj} clubAbbr={'WiC'}/>
+                <ClubCard userObj={userObj} organization={'WiC'}/>
+                
             </Box>
         </Container>
     );

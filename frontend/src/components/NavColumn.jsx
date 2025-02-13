@@ -1,19 +1,18 @@
 import { Box, List, ListItem, ListItemText, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const NavColumn = ({ pageTitle }) => {
+const NavColumn = ({ pageTitle, orgType }) => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "flex-start", width: "200px", mt: "100px" }}>
-      <Typography variant="h6" sx={{ flexGrow: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", width: "200px", mt: "100px" }}>
+      <Typography variant="h6">
         {pageTitle}
       </Typography>
 
       <List sx={{ }}>
         {[
-          { text: "Member Database", path: "/admin" },
-          { text: "Officers", path: "/officersList" },
-          { text: "Organization Setup", path: "/organizationSetup" },
-          { text: "Account Settings", path: "/acctSetup" }
+          { text: "Member Database", path: `/admin/${orgType}` },
+          { text: "Officers", path: `/admin/${orgType}/officersList` },
+          { text: "Organization Setup", path: `/admin/${orgType}/organizationSetup` }
         ].map((item) => (
           <ListItem key={item.path}>
             <Button

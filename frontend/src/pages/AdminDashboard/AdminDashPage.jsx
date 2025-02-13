@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import GenerateReportButton from '../../components/GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
 import UploadFileModal from '../../components/UploadFileModal';
@@ -9,20 +9,47 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import DataTable from '../../components/DataTable';
 
-// TODO: Make admin dashboard responsive based on selected organization module (WiC or COMS)
+// TODO: Pass org to datatable to select members from the correct organization
 
-function AdminDash({ }) {
+function AdminDash() {
+  const { org } = useParams(); //"wic" or "coms"
+  const allowedTypes = ['wic', 'coms'];
+  const orgID = org === 'wic' ? 1 : 2;
+  const [orgInfo, setOrgInfo] = React.useState(null);
+
+  if (!allowedTypes.includes(org)) {
+    return <Typography variant='h1'>404 page not found</Typography>;
+  }
+
+  React.useEffect(() => {
+    fetch(`http://localhost:3001/organizationInfo/name?organizationID=${orgID}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log('Fetched data:', data);
+        if (data.length > 0) {
+          setOrgInfo(data[0].Name); // Extract Name directly
+        } else {
+          return <Typography variant='h1'>404 page not found</Typography>; // Fallback if no data
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, [orgID]);
+
+
+
 
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
       {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-        <NavColumn pageTitle="Member Database" />
-      </Box>
+      {/* <Box sx={{ display: { xs: 'none', md: 'block' } }}> */}
+        {/* <NavColumn pageTitle="Member Database" orgType={orgType} /> */}
+      {/* </Box> */}
 
       <Paper elevation={1}>
         {/* Dashboard Content */}
-        <Box sx={{p: 2, display: 'flex', flexDirection: 'column', gap: 2}}>
+        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Header: Organization Flavor Text & Close Button */}
           {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
@@ -32,7 +59,7 @@ function AdminDash({ }) {
                 Member Database -
               </Typography>
               <Typography variant="h7" sx={{ textAlign: 'left', display: 'inline', ml: 1, verticalAlign: 'middle' }}>
-                Computing Organization for Multicultural Students
+                {orgInfo ? orgInfo : "Loading..."}
               </Typography>
             </Box>
 

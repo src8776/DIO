@@ -13,6 +13,10 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 
 
+// TODO: add Recent Update column to sort by
+// TODO: switch sort to Recent Update descending after file upload
+
+
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
         return -1;
@@ -197,7 +201,7 @@ export default function DataTable() {
         fetch('http://localhost:3001/api/admin/datatable')
             .then((response) => response.json())
             .then((data) => {
-                console.log('Fetched data:', data);
+                // console.log('Fetched data:', data);
                 if (Array.isArray(data)) {
                     setRows(data);
                 } else {
@@ -211,7 +215,7 @@ export default function DataTable() {
             });
     }, []);
 
-    console.log('Rows state:', rows); // Check if rows is defined
+    // console.log('Rows state:', rows); // Check if rows is defined
 
     // Prevent crashes if rows is undefined
     if (!Array.isArray(rows)) return <Typography>Error: Data is not an array</Typography>;

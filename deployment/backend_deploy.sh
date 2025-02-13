@@ -28,7 +28,7 @@ if systemctl is-active --quiet dio.service; then
 fi
 
 # Step 3: Remove all contents from the directory except .env file and tmp directory
-find /opt/DIO_backend -mindepth 1 ! -name '.env' ! -path '/opt/DIO_backend/tmp/*' -delete || handle_error $LINENO
+find /opt/DIO_backend -mindepth 1 ! -name '.env' ! -path '/opt/DIO_backend/tmp' ! -path '/opt/DIO_backend/tmp/*' -delete || handle_error $LINENO
 
 # Step 4: Copy everything from ../backend except .env file
 rsync -av --exclude='.env' --temp-dir=/tmp ../backend/ /opt/DIO_backend/ || handle_error $LINENO

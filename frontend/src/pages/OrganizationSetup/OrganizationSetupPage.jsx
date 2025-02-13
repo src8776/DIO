@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
 import RuleListItem from './RuleListItem';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // TODO: All table items will need to come from the database
 // TODO: Form validation (only accept numbers for point values/percentages)
@@ -252,7 +253,7 @@ export default function OrganizationSetup() {
     const WiCRules = orgRules.organizations ? { [orgRules.organizations[1].name]: orgRules.organizations[1] } : {};
 
     React.useEffect(() => {
-        fetch('http://localhost:3001/organizationRules/OrganizationSetupPage')
+        fetch(`${API_BASE_URL}/api/organizationRules/OrganizationSetupPage`)
             .then(response => response.json())
             .then(data => {
                 const formattedData = formatOrgRules(data);

@@ -63,12 +63,13 @@ export default function InputFileUpload({ orgID, eventType }) {
 
   const handleUpload = (file) => {
 
-    const formData = new FormData();
-    formData.append('csv_file', file);
-    fetch(`${API_BASE_URL}/api/upload`, {
-      method: 'POST',
-      body: formData,
-    })
+      const formData = new FormData();
+      formData.append('csv_file', file);
+      fetch(`/api/upload`, {
+        method: 'POST',
+        body: formData,
+      })
+
       .then(response => response.json())
       .then(data => {
         console.log(data);

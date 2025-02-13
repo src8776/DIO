@@ -1,9 +1,17 @@
 const express = require("express");
 const cors = require('cors');
 const { upload, handleFileUpload } = require('./upload/handleFileUpload');
+const userRoutes = require('./routes/userRoutes');
+const bodyParser = require('body-parser');
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
+
+/*
+NOTE TO ALL!!! ALL BACKEND ROUTES SHOULD BEGIN WITH '/api/'!!!
+THIS MAKE SURE WE KNOW WHAT IS BEING SENT TO BACKEND VERSUS FRONTEND
+*/
 
 //add admin route
 const adminRoutes = require('./routes/admin.js');
@@ -11,10 +19,10 @@ app.use('/api/admin', adminRoutes);
 
 // Add OrganizationRules route
 const organizationRulesRoutes = require('./routes/organizationRules.js');
-app.use('/organizationRules', organizationRulesRoutes);
+app.use('/api/organizationRules', organizationRulesRoutes);
 
 const organizationInfoRoutes = require('./routes/organizationInfo.js');
-app.use('/organizationInfo', organizationInfoRoutes)
+app.use('/api/organizationInfo', organizationInfoRoutes)
 
 // For health check
 app.get('/api/health', (req, res) => {
@@ -24,5 +32,6 @@ app.get('/api/health', (req, res) => {
 app.post('/api/upload', upload.single('csv_file'), handleFileUpload);
 
 // TODO: Add more REST endpoints here
+app.use('/api/user', userRoutes);  //points any api/user* calls from frontend to useRoutes file
 
 module.exports = app;

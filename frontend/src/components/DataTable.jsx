@@ -16,6 +16,7 @@ import { visuallyHidden } from '@mui/utils';
 // TODO: add Recent Update column to sort by
 // TODO: switch sort to Recent Update descending after file upload
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -198,7 +199,7 @@ export default function DataTable() {
     //Get member data
     // TODO: Fix this so it does not query the database on every page refresh
     React.useEffect(() => {
-        fetch('http://localhost:3001/api/admin/datatable')
+        fetch(`${API_BASE_URL}/api/admin/datatable`)
             .then((response) => response.json())
             .then((data) => {
                 // console.log('Fetched data:', data);

@@ -17,7 +17,7 @@ router.get('/name', async (req, res) => {
             SELECT 
                 Name
             FROM 
-                organizations
+                Organizations
             WHERE OrganizationID = ?
         `;
         const [rows] = await db.query(query, [organizationID]);

@@ -31,7 +31,7 @@ fi
 find /opt/DIO_backend -mindepth 1 ! -name '.env' -delete || handle_error $LINENO
 
 # Step 4: Copy everything from ../backend except .env file
-rsync -v --exclude='.env' ../backend/ /opt/DIO_backend/ || handle_error $LINENO
+rsync -av --no-perms --no-owner --exclude='.env' ../backend/ /opt/DIO_backend/ || handle_error $LINENO
 
 # Step 5: Start dio.service
 echo "Starting dio.service..."

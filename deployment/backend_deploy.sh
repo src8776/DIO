@@ -10,7 +10,7 @@ handle_error() {
 trap 'handle_error $LINENO' ERR
 
 # Check if the script is run as root (sudo)
-if [ "$(id -u)" -ne 0 ]; then
+if [ "$(id -u)" -ne 0; then
     echo "This script must be run as root (use sudo)."
     exit 1
 fi
@@ -27,8 +27,8 @@ if systemctl is-active --quiet dio.service; then
     systemctl stop dio.service || handle_error $LINENO
 fi
 
-# Step 3: Remove all contents from the directory except .env file
-find /opt/DIO_backend -mindepth 1 ! -name '.env' -delete || handle_error $LINENO
+# Step 3: Remove all contents from the directory except .env file and tmp directory
+find /opt/DIO_backend -mindepth 1 ! -name '.env' ! -path '/opt/DIO_backend/tmp/*' -delete || handle_error $LINENO
 
 # Step 4: Copy everything from ../backend except .env file
 rsync -av --exclude='.env' --temp-dir=/tmp ../backend/ /opt/DIO_backend/ || handle_error $LINENO

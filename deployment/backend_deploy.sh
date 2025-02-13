@@ -10,7 +10,7 @@ handle_error() {
 trap 'handle_error $LINENO' ERR
 
 # Check if the script is run as root (sudo)
-if [ "$(id -u)" -ne 0; then
+if [ "$(id -u)" -ne 0 ]; then
     echo "This script must be run as root (use sudo)."
     exit 1
 fi

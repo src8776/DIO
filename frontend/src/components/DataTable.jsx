@@ -16,6 +16,7 @@ import { visuallyHidden } from '@mui/utils';
 // TODO: add Recent Update column to sort by
 // TODO: switch sort to Recent Update descending after file upload
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {

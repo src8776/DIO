@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
 import RuleListItem from './RuleListItem';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // TODO: All table items will need to come from the database
 // TODO: Form validation (only accept numbers for point values/percentages)

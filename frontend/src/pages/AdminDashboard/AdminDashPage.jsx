@@ -11,6 +11,8 @@ import DataTable from '../../components/DataTable';
 
 // TODO: Pass org to datatable to select members from the correct organization
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];

@@ -5,16 +5,21 @@ const { upload, handleFileUpload } = require('./upload/handleFileUpload');
 const app = express();
 app.use(cors());
 
+/*
+NOTE TO ALL!!! ALL BACKEND ROUTES SHOULD BEGIN WITH '/api/'!!!
+THIS MAKE SURE WE KNOW WHAT IS BEING SENT TO BACKEND VERSUS FRONTEND
+*/
+
 //add admin route
 const adminRoutes = require('./routes/admin.js');
 app.use('/api/admin', adminRoutes); 
 
 // Add OrganizationRules route
 const organizationRulesRoutes = require('./routes/organizationRules.js');
-app.use('/organizationRules', organizationRulesRoutes);
+app.use('/api/organizationRules', organizationRulesRoutes);
 
 const organizationInfoRoutes = require('./routes/organizationInfo.js');
-app.use('/organizationInfo', organizationInfoRoutes)
+app.use('/api/organizationInfo', organizationInfoRoutes)
 
 // For health check
 app.get('/api/health', (req, res) => {

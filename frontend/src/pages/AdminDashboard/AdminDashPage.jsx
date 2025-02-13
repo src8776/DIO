@@ -22,7 +22,7 @@ function AdminDash() {
   }
 
   React.useEffect(() => {
-    fetch(`http://localhost:3001/organizationInfo/name?organizationID=${orgID}`)
+    fetch(`${API_BASE_URL}/api/organizationInfo/name?organizationID=${orgID}`)
       .then((response) => response.json())
       .then((data) => {
         // console.log('Fetched data:', data);

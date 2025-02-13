@@ -251,7 +251,7 @@ export default function OrganizationSetup() {
     const WiCRules = orgRules.organizations ? { [orgRules.organizations[1].name]: orgRules.organizations[1] } : {};
 
     React.useEffect(() => {
-        fetch('http://localhost:3001/organizationRules/OrganizationSetupPage')
+        fetch(`${API_BASE_URL}/api/organizationRules/OrganizationSetupPage`)
             .then(response => response.json())
             .then(data => {
                 const formattedData = formatOrgRules(data);

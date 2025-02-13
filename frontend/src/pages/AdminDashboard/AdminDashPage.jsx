@@ -17,12 +17,30 @@ function AdminDash() {
   const params = useParams(); //"wic" or "coms"
   const orgType = params.org
   const allowedTypes = ['wic', 'coms'];
+  const orgID = orgType === 'wic' ? 1 : 2;
+  const [orgInfo, setOrgInfo] = React.useState(null);
 
-  if (allowedTypes.includes(orgType)) {
-    // Redirect to a Not Found page or landing page
-    console.log(orgType)
-    // return <div>404 page not found</div>;
+  if (!allowedTypes.includes(orgType)) {
+    return <div>404 page not found</div>;
   }
+
+  React.useEffect(() => {
+    fetch(`http://localhost:3001/organizationInfo/name?organizationID=${orgID}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Fetched data:', data);
+        if (data.length > 0) {
+          setOrgInfo(data[0].Name); // Extract Name directly
+        } else {
+          setOrgInfo("Unknown Organization"); // Fallback if no data
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, [orgID]);
+
+
 
 
   return (
@@ -34,7 +52,7 @@ function AdminDash() {
 
       <Paper elevation={1}>
         {/* Dashboard Content */}
-        <Box sx={{p: 2, display: 'flex', flexDirection: 'column', gap: 2}}>
+        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Header: Organization Flavor Text & Close Button */}
           {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
@@ -44,7 +62,7 @@ function AdminDash() {
                 Member Database -
               </Typography>
               <Typography variant="h7" sx={{ textAlign: 'left', display: 'inline', ml: 1, verticalAlign: 'middle' }}>
-                Computing Organization for Multicultural Students
+                {orgInfo ? orgInfo : "Loading..."}
               </Typography>
             </Box>
 

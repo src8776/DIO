@@ -13,6 +13,9 @@ app.use('/admin', adminRoutes);
 const organizationRulesRoutes = require('./routes/organizationRules.js');
 app.use('/organizationRules', organizationRulesRoutes);
 
+const organizationInfoRoutes = require('./routes/organizationInfo.js');
+app.use('/organizationInfo', organizationInfoRoutes)
+
 // For health check
 app.get('/api/health', (req, res) => {
     res.status(200).send('SERVER UP');

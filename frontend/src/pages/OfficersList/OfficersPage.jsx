@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from "@mui/material";
+import { Box, Container, Table, TableBody, 
+    TableCell, TableContainer, TableHead, 
+    TableRow, Paper, Typography } from "@mui/material";
 import { Link, useParams } from 'react-router-dom';
 import MemberDetailsModal from '../../components/MemberDetailsModal';
 

@@ -6,11 +6,13 @@ import {
     TableCell, TableContainer, TableHead,
     TablePagination, TableRow, TableSortLabel,
     Toolbar, Tooltip, Typography,
-    TextField, Paper
+    TextField, Paper, Modal
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
+
 import { visuallyHidden } from '@mui/utils';
+import MemberDetailsModal from '../components/MemberDetailsModal';
 
 
 // TODO: add Recent Update column to sort by
@@ -35,11 +37,17 @@ function getComparator(order, orderBy) {
 }
 
 const headCells = [
+    // {
+    //     id: 'MemberID',
+    //     numeric: true,
+    //     disablePadding: true,
+    //     label: 'MemberID',
+    // },
     {
-        id: 'MemberID',
-        numeric: true,
-        disablePadding: true,
-        label: 'MemberID',
+        id: 'DisplayName',
+        numeric: false,
+        disablePadding: false,
+        label: 'Name',
     },
     {
         id: 'Status',
@@ -48,16 +56,22 @@ const headCells = [
         label: 'Status',
     },
     {
-        id: 'DisplayName',
-        numeric: false,
-        disablePadding: false,
-        label: 'Name',
-    },
-    {
         id: 'AttendanceRecord',
         numeric: true,
         disablePadding: false,
         label: 'Attendance Record',
+    },
+    {
+        id: 'LastUpdated',
+        numeric: true,
+        disablePadding: false,
+        label: 'Last Updated',
+    },
+    {
+        id: 'ViewDetails',
+        numeric: true,
+        disablePadding: false,
+        label: '',
     },
 ];
 
@@ -188,6 +202,9 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function DataTable() {
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('DisplayName');
     const [selected, setSelected] = React.useState([]);
@@ -286,90 +303,95 @@ export default function DataTable() {
     );
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={{ width: '100%' }}>
-                <EnhancedTableToolbar
-                    numSelected={selected.length}
-                    handleSearchChange={handleSearchChange}
-                />
-                <TableContainer>
-                    <Table
-                        stickyHeader
-                        sx={{ minWidth: 750 }}
-                        aria-labelledby="tableTitle"
-                    >
-                        <EnhancedTableHead
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={filteredRows.length}
-                        />
-                        <TableBody>
-                            {visibleRows.map((row, index) => {
-                                const isItemSelected = selected.includes(row.MemberID);
-                                const labelId = `enhanced-table-checkbox-${index}`;
 
-                                return (
-                                    <TableRow
-                                        hover
-                                        onClick={(event) => handleClick(event, row.MemberID)}
-                                        role="checkbox"
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        key={row.MemberID}
-                                        selected={isItemSelected}
-                                        sx={{ cursor: 'pointer' }}
-                                    >
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                color="primary"
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    'aria-labelledby': labelId,
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="left">{row.MemberID}</TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                            sx={{
-                                                color: row.Status === 'Inactive' ? 'red' : 'green',
-                                            }}
-                                        >
-                                            {row.Status}
-                                        </TableCell>
-                                        <TableCell align="left">{row.DisplayName}</TableCell>
-                                        <TableCell align="left">{row.AttendanceRecord} meetings</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                            {emptyRows > 0 && (
+        <Paper sx={{ width: '100%' }}>
+            <EnhancedTableToolbar
+                numSelected={selected.length}
+                handleSearchChange={handleSearchChange}
+            />
+            <TableContainer>
+                <Table
+                    stickyHeader
+                    sx={{ minWidth: 750 }}
+                    aria-labelledby="member-data-table"
+                >
+                    <EnhancedTableHead
+                        numSelected={selected.length}
+                        order={order}
+                        orderBy={orderBy}
+                        onSelectAllClick={handleSelectAllClick}
+                        onRequestSort={handleRequestSort}
+                        rowCount={filteredRows.length}
+                    />
+                    <TableBody>
+                        {visibleRows.map((row, index) => {
+                            const isItemSelected = selected.includes(row.MemberID);
+                            const labelId = `enhanced-table-checkbox-${index}`;
+
+                            return (
                                 <TableRow
-                                    style={{
-                                        height: 53 * emptyRows,
-                                    }}
+                                    hover
+                                    onClick={(event) => handleClick(event, row.MemberID)}
+                                    role="checkbox"
+                                    aria-checked={isItemSelected}
+                                    tabIndex={-1}
+                                    key={row.MemberID}
+                                    selected={isItemSelected}
+                                    sx={{ cursor: 'pointer' }}
                                 >
-                                    <TableCell colSpan={6} />
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            color="primary"
+                                            checked={isItemSelected}
+                                            inputProps={{
+                                                'aria-labelledby': labelId,
+                                            }}
+                                        />
+                                    </TableCell>
+                                    {/* <TableCell align="left">{row.MemberID}</TableCell> */}
+                                    <TableCell align="left">{row.DisplayName}</TableCell>
+                                    <TableCell
+                                        component="th"
+                                        id={labelId}
+                                        scope="row"
+                                        padding="none"
+                                        sx={{
+                                            color: row.Status === 'Inactive' ? 'red' : 'green',
+                                        }}
+                                    >
+                                        {row.Status}
+                                    </TableCell>
+                                    <TableCell align="left">{row.AttendanceRecord} meetings</TableCell>
+                                    {/* Last updated value goes here */}
+                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        <MemberDetailsModal memberData={row.MemberID} />
+                                    </TableCell>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={filteredRows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </Paper>
-        </Box>
+                            );
+                        })}
+                        {emptyRows > 0 && (
+                            <TableRow
+                                style={{
+                                    height: 53 * emptyRows,
+                                }}
+                            >
+                                <TableCell colSpan={6} />
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredRows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+        </Paper>
+
     );
 }

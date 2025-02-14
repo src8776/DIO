@@ -25,6 +25,7 @@ console.log("API URL IS: " + API_BASE_URL);
 
 export default function InputFileUpload({ orgID, eventType }) {
   const selectedEventType = eventType;
+  const selectedOrgID = orgID;
   const [file, setFile] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
@@ -65,6 +66,8 @@ export default function InputFileUpload({ orgID, eventType }) {
 
       const formData = new FormData();
       formData.append('csv_file', file);
+      formData.append('eventType', selectedEventType);
+      formData.append('orgID', orgID);
       fetch(`/api/upload`, {
         method: 'POST',
         body: formData,

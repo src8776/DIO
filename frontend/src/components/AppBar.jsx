@@ -1,24 +1,21 @@
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Button from '@mui/material/Button';
-import Brightness4 from '@mui/icons-material/Brightness4';
-import Brightness7 from '@mui/icons-material/Brightness7';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import { Toolbar, Typography, IconButton } from '@mui/material';
+import * as React from "react";
+import { Link } from "react-router-dom";
+import {
+  AppBar, Box, CssBaseline,
+  Divider, Drawer, List,
+  ListItem, ListItemButton, MenuItem, 
+  Menu, Toolbar, Typography,IconButton,
+} from "@mui/material";
+import { 
+  Menu as MenuIcon, 
+  AccountCircle, 
+  Brightness4, 
+  Brightness7 
+} from "@mui/icons-material";
 
-// TODO: Add NavColumn links to this component in mobile view (hamburger menu)
-// TODO: Hide NavColumn links if user is not admin
+
+// TODO: Add NavColumn links to this component in mobile view (hamburger menu) ONLY IF USER IS ADMIN
+// TODO: Implement logout button
 
 const drawerWidth = 240;
 
@@ -138,6 +135,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                                 onClose={handleClose}
                             >
                                 <MenuItem component={Link} to={"/acctSetup"} onClick={handleClose}>Profile</MenuItem>
+                                {/* TODO: Implement logout button */}
                                 <MenuItem onClick={handleClose}>Log Out</MenuItem>
                             </Menu>
                         </div>

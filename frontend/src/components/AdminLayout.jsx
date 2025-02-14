@@ -6,7 +6,7 @@ const AdminLayout = () => {
     const { org } = useParams();
 
     return (
-        <Container sx={{ display: 'flex'}}>
+        <Container sx={{ display: { xs: 'none', md: 'flex' } }}>
             <NavColumn pageTitle={"Admin Links"} orgType={org} />
             <Outlet />
         </Container>

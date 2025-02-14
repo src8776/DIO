@@ -109,10 +109,6 @@ export default function AccountSetup() {
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-      {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-        <NavColumn pageTitle="Account Setup" />
-      </Box>
 
       <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
         <Typography variant='h5' >Account Settings</Typography>
@@ -123,7 +119,7 @@ export default function AccountSetup() {
               <Typography variant='h6'>Name: {firstName}</Typography>
               <Typography variant='h6'>Email: {email}</Typography>
             </Box>
-            
+
             <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="student-year-select-label">Student Year</InputLabel>
@@ -141,12 +137,12 @@ export default function AccountSetup() {
                   <MenuItem value={'super_senior'}>Super Senior</MenuItem>
                 </Select>
               </FormControl>
-              
+
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Graduation Date"
                   value={graduationDate ? dayjs(graduationDate) : null}
-                  onChange={(newDate) => {setGraduationDate(newDate)}}
+                  onChange={(newDate) => { setGraduationDate(newDate) }}
                   sx={{ flex: 1 }}
                 />
               </LocalizationProvider>

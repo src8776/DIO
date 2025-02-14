@@ -137,7 +137,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                                <MenuItem component={Link} to={"/acctSetup"} onClick={handleClose}>Profile</MenuItem>
                                 <MenuItem onClick={handleClose}>Log Out</MenuItem>
                             </Menu>
                         </div>

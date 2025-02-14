@@ -1,9 +1,9 @@
 import { Box, List, ListItem, ListItemText, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const NavColumn = ({ pageTitle, orgType }) => {
+const NavColumn = ({ pageTitle, orgType, sx }) => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", width: "200px", mt: "100px" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", width: "200px", mt: "100px", ...sx }}>
       <Typography variant="h6">
         {pageTitle}
       </Typography>

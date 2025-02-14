@@ -14,6 +14,7 @@ import {
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import RouteIcon from '@mui/icons-material/Route';
 
 // TODO: This is where we want all of the user's information.
 
@@ -69,7 +70,7 @@ const mockMemberData = {
     ],
 };
 
-const AccountOverview = ({ userObj }) => {
+const AccountOverview = ({ userObj, organization }) => {
 
     return (
         <Container>
@@ -77,10 +78,11 @@ const AccountOverview = ({ userObj }) => {
                 {/* Basic Info */}
                 <Typography variant="h5" sx={{ mb: 2 }}>
                     Account Overview - Women in Computing
+                    {organization}
                 </Typography>
 
                 {/* Member Overview Container */}
-                <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: 3, p: 2, mb: 2 }}>
+                <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
                     {/* Header box */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
                         <PeopleAltIcon />
@@ -111,10 +113,10 @@ const AccountOverview = ({ userObj }) => {
                         {/* Meetings Attended box */}
                         <Box sx={{ display: 'flex', flexDirection: 'column', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
                             <Typography variant="h6">
-                                Awards Earned
+                                Status
                             </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                1
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', color: "green" }}>
+                                Active
                             </Typography>
                         </Box>
                     </Box>
@@ -123,47 +125,24 @@ const AccountOverview = ({ userObj }) => {
                 {/* Rewards and Past Events Container */}
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around' }}>
                     {/* Rewards Container */}
-                    <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', width: '50%', backgroundColor: 'white', borderRadius: 3, p: 2, mb: 2 }}>
+                    <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', width: '50%', borderRadius: 3, p: 2, mb: 2 }}>
                         {/* Header box */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
-                            <WorkspacePremiumIcon />
+                            <RouteIcon/>
                             <Typography variant="h5">
-                                Awards
+                                Active Path
                             </Typography>
                         </Box>
-                        <Box
-                            sx={{
-                                background: "linear-gradient(135deg, gold, orange)", // Gold gradient
-                                borderRadius: 3,
-                                p: 2,
-                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)", // Soft shadow for depth
-                                textAlign: "center",
-                                color: "white",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                                border: "3px solid rgba(255, 215, 0, 0.8)", // Golden border
-                            }}
-                        >
-                            <Typography
-                                variant="h5"
-                                sx={{
-                                    fontFamily: "'Cinzel', serif", // Fancy award-like font
-                                    letterSpacing: 1,
-                                    textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)", // Elegant text glow
-                                }}
-                            >
-                                Outstanding Achievement
-                            </Typography>
-                        </Box>
+                        
 
                     </Paper>
                     {/* Past Events Container */}
-                    <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', width: '50%', backgroundColor: 'white', borderRadius: 3, p: 2, mb: 2 }}>
+                    <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', width: '50%', borderRadius: 3, p: 2, mb: 2 }}>
                         {/* Header box */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
                             <EventAvailableIcon />
                             <Typography variant="h5">
-                                Past Events
+                                Attendance History
                             </Typography>
                         </Box>
                         <TableContainer component={Paper} sx={{ maxHeight: 300 }}>

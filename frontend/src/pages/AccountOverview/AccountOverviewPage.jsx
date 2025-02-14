@@ -169,7 +169,7 @@ const AccountOverview = ({ userObj, organization }) => {
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
                                             <RadioButtonUncheckedIcon sx={{}} />
-                                            <Typography>+3 point for 75% attendance</Typography>
+                                            <Typography>+3 point for 100% attendance</Typography>
                                         </Box>
                                         <Typography>+0</Typography>
                                     </Paper>

@@ -10,11 +10,11 @@ const formatDateToMySQL = (dateString) => {
   return date.toISOString().slice(0, 19).replace('T', ' ');
 };
 
-const processCsv = async (filePath) => {
+const processCsv = async (filePath, eventType, orgID) => {
   const members = [];
   const attendanceRecords = [];
-  const organizationID = 1;
-  const eventID = 1;
+  const organizationID = orgID;
+  const eventID = 1; //TODO: EventID should be retrieved from eventType
   const defaultRole = 'Member';
   const defaultRoleID = 2;
 

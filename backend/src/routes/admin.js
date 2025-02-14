@@ -10,10 +10,10 @@ router.get('/datatable', async (req, res) => {
             SELECT
                 Members.MemberID,
                 CASE
-                    WHEN Members.IsActive = 1 THEN 'Active'
+                    WHEN Members.IsActive = 0 THEN 'Active'
                     ELSE 'Inactive'
                 END AS Status,
-                Members.DisplayName,
+                Members.FullName,
                 COUNT(Attendance.MemberID) AS AttendanceRecord
             FROM
                 Members
@@ -27,7 +27,7 @@ router.get('/datatable', async (req, res) => {
                 Roles ON OrganizationMembers.RoleID = Roles.RoleID
             GROUP BY
                 Members.MemberID,
-                Members.DisplayName,
+                Members.FullName,
                 Members.IsActive;
         `;
         const [rows] = await db.query(query);

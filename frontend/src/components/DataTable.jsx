@@ -44,7 +44,7 @@ const headCells = [
     //     label: 'MemberID',
     // },
     {
-        id: 'DisplayName',
+        id: 'FullName',
         numeric: false,
         disablePadding: false,
         label: 'Name',
@@ -206,7 +206,7 @@ export default function DataTable() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('DisplayName');
+    const [orderBy, setOrderBy] = React.useState('FullName');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -249,7 +249,7 @@ export default function DataTable() {
     };
 
     const filteredRows = rows.filter((row) =>
-        row.DisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        row.FullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         row.Status.toLowerCase().includes(searchQuery.toLowerCase())
     );
 

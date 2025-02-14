@@ -349,7 +349,7 @@ export default function DataTable() {
                                         />
                                     </TableCell>
                                     {/* <TableCell align="left">{row.MemberID}</TableCell> */}
-                                    <TableCell align="left">{row.DisplayName}</TableCell>
+                                    <TableCell align="left">{row.FullName}</TableCell>
                                     <TableCell
                                         component="th"
                                         id={labelId}

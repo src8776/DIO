@@ -6,18 +6,9 @@ import {
     ListItemText, ListSubheader,
     ListItemButton
 } from '@mui/material';
-import { Table, TableBody, TableHead, TableRow, TableCell } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';
-import NavColumn from '../../components/NavColumn';
-import AddRuleModal from '../../components/AddRuleModal';
-import EventItem from './EventItem';
+import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
 import RuleListItem from './RuleListItem';
-
-
 
 // TODO: All table items will need to come from the database
 // TODO: Form validation (only accept numbers for point values/percentages)
@@ -253,6 +244,9 @@ const WiCRules = orgRules.organizations[1];
 
 
 export default function OrganizationSetup() {
+    const { org } = useParams(); //"wic" or "coms"
+    const orgID = org === 'wic' ? 1 : 2;
+    const usedRules = orgID === 1 ? WiCRules : COMSRules;
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -273,7 +267,7 @@ export default function OrganizationSetup() {
                         Organization Setup -
                     </Typography>
                     <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-                        COMS
+                        {org}
                     </Typography>
                 </Box>
 
@@ -294,11 +288,11 @@ export default function OrganizationSetup() {
                     </ListItemButton>
                     <Modal open={open} onClose={handleClose}>
                         <Box>
-                            <ActiveModal org={orgRules.organizations[0].name} rule={COMSRules.activeMembershipRequirement.value} />
+                            <ActiveModal org={usedRules.name} rule={usedRules.activeMembershipRequirement.value} />
                         </Box>
                     </Modal>
 
-                    {COMSRules.eventTypes.map((eventObj, index) => (
+                    {usedRules.eventTypes.map((eventObj, index) => (
                         <RuleListItem
                             key={`rule-${index}`}
                             {...eventObj}

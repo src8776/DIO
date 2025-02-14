@@ -10,11 +10,14 @@ import {
     TableRow,
     Paper,
     Box,
+    Button,
 } from "@mui/material";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import RouteIcon from '@mui/icons-material/Route';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 
 // TODO: This is where we want all of the user's information.
 
@@ -30,9 +33,9 @@ const style = {
     transform: 'translate(-50%, -50%)',
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 4,
     width: { xs: '90%', sm: '500px', md: '900px' },
-    maxWidth: '100%'
+    maxWidth: '100%',
+    maxHeight: '90%',
 };
 
 const mockMemberData = {
@@ -75,14 +78,16 @@ const AccountOverview = ({ userObj, organization }) => {
     return (
         <Container>
             <Paper sx={style}>
+                <Box sx={{ overflowY: 'auto', border: 'solid', p:4 }}>
+
                 {/* Basic Info */}
                 <Typography variant="h5" sx={{ mb: 2 }}>
-                    Account Overview - Women in Computing
+                    Account Overview-
                     {organization}
                 </Typography>
 
                 {/* Member Overview Container */}
-                <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
+                <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
                     {/* Header box */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
                         <PeopleAltIcon />
@@ -91,14 +96,14 @@ const AccountOverview = ({ userObj, organization }) => {
                         </Typography>
                     </Box>
                     {/* Content Box */}
-                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
                         {/* Active points box */}
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography variant="h6">
                                 Active Points
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: 'bold', color: "green" }}>
-                                18/18
+                                19/18
                             </Typography>
                         </Box>
                         {/* Meetings Attended box */}
@@ -123,21 +128,57 @@ const AccountOverview = ({ userObj, organization }) => {
                 </Paper>
 
                 {/* Rewards and Past Events Container */}
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around' }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                     {/* Rewards Container */}
-                    <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', width: '50%', borderRadius: 3, p: 2, mb: 2 }}>
+                    <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, borderRadius: 3, p: 2 }}>
                         {/* Header box */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
-                            <RouteIcon/>
+                            <RouteIcon />
                             <Typography variant="h5">
                                 Active Path
                             </Typography>
                         </Box>
-                        
+                        {/* Rule Categories */}
+                        <Paper sx={{ display: 'flex', flexDirection: 'column', p: 1, gap: 1, borderRadius: 3, }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Typography variant="h6">General Meetings</Typography>
+                                <Typography>16/18 attended</Typography>
+                            </Box>
+                            {/* Rule Modules */}
+                            <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                    <Typography>+1 point per attendance</Typography>
+                                </Box>
+                                <Typography>16/18</Typography>
+                            </Paper>
+                            <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                    <Typography>+1 point for 50% attendance</Typography>
+                                </Box>
+                                <Typography sx={{ color: "green" }}>+1</Typography>
+                            </Paper>
+                            <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                    <Typography>+2 point for 75% attendance</Typography>
+                                </Box>
+                                <Typography sx={{ color: "green" }}>+2</Typography>
+                            </Paper>
+                            <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <RadioButtonUncheckedIcon sx={{}} />
+                                    <Typography>+3 point for 75% attendance</Typography>
+                                </Box>
+                                <Typography>+0</Typography>
+                            </Paper>
+                        </Paper>
+
 
                     </Paper>
                     {/* Past Events Container */}
-                    <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', width: '50%', borderRadius: 3, p: 2, mb: 2 }}>
+                    <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, borderRadius: 3, p: 2 }}>
                         {/* Header box */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
                             <EventAvailableIcon />
@@ -172,6 +213,7 @@ const AccountOverview = ({ userObj, organization }) => {
                             </Table>
                         </TableContainer>
                     </Paper>
+                </Box>
                 </Box>
             </Paper>
         </Container>

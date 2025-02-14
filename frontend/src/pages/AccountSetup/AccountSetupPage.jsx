@@ -3,15 +3,10 @@ import { Box, Container, InputLabel, MenuItem, FormControl, Paper, Select, Typog
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import NavColumn from '../../components/NavColumn';
 import dayjs from 'dayjs';
 
-// TODO: Make sure NavColumn is only displayed if user is an Admin
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
-// TODO: Allow user to return to this page to update their profile information
-// TODO: Load existing profile information if it exists
-
 
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
@@ -108,7 +103,7 @@ export default function AccountSetup() {
   };
 
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+    <Container sx={{width: { xs: '100%', md: '50%' }, p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
 
       <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
         <Typography variant='h5' >Account Settings</Typography>

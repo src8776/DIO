@@ -64,7 +64,7 @@ export default function ClubCard({ userObj, organization }) {
                 </Button>
                 <Modal open={open} onClose={handleClose}>
                     <Box >
-                        <AccountOverview userObj={userObj} />
+                        <AccountOverview userObj={userObj} organization={organization} />
                     </Box>
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}

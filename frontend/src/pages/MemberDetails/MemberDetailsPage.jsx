@@ -47,15 +47,15 @@ const MemberDetailsModal = ({ memberID }) => {
       .catch(error => console.error('Error fetching data for MemberInfo:', error));
   }, [memberID]);
 
-  if (!memberInfo) {
-    return <div>Loading...</div>;
-  }
 
-  
+
+
   if (!memberInfo || memberInfo.length === 0) {
     return (
       <Container>
-        <Typography variant="h6">No member data available.</Typography>
+        <Paper sx={style}>
+          <Typography variant="h6">No member data available.</Typography>
+        </Paper>
       </Container>
     );
   }

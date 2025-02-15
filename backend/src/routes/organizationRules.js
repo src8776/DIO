@@ -7,6 +7,7 @@ router.get('/OrganizationSetupPage', async (req, res) => {
     console.log('Received request at /OrganizationSetupPage');
 
     let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
+    console.log(organizationID)
 
     if (isNaN(organizationID)) {
         return res.status(400).json({ error: 'Invalid organizationID parameter' });

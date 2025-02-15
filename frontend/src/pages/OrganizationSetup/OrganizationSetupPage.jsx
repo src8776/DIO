@@ -252,7 +252,18 @@ export default function OrganizationSetup() {
     const handleClose = () => setOpen(false);
 
     // need to grab the organization rules from database
-    // const [orgRules, setOrgRules] = React.useState([]);
+    const [orgRules, setOrgRules] = React.useState([]);
+
+    React.useEffect(() => {
+        console.log(orgID)
+        fetch(`/api/organizationRules/OrganizationSetupPage?organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched data:', data);
+                setOrgRules(data);
+            })
+            .catch(error => console.error('Error fetching data for OrganizationRules:', error));
+    }, []);
 
 
 

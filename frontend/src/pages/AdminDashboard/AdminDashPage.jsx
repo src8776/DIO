@@ -10,8 +10,6 @@ import DataTable from '../../components/DataTable';
 
 // TODO: Pass org to datatable to select members from the correct organization
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
@@ -23,7 +21,7 @@ function AdminDash() {
   }
 
   React.useEffect(() => {
-    fetch(`${API_BASE_URL}/api/organizationInfo/name?organizationID=${orgID}`)
+    fetch(`/api/organizationInfo/name?organizationID=${orgID}`)
       .then((response) => response.json())
       .then((data) => {
         // console.log('Fetched data:', data);

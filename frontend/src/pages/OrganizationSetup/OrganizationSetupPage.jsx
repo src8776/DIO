@@ -18,7 +18,7 @@ import RuleListItem from './RuleListItem';
 // TODO: Formatting
 
 
-const orgRules = {
+const orgRules_HC = {
     "organizations": [
         {
             "name": "COMS",
@@ -238,8 +238,8 @@ const orgRules = {
     ]
 };
 
-const COMSRules = orgRules.organizations[0];
-const WiCRules = orgRules.organizations[1];
+const COMSRules = orgRules_HC.organizations[0];
+const WiCRules = orgRules_HC.organizations[1];
 
 
 
@@ -252,10 +252,9 @@ export default function OrganizationSetup() {
     const handleClose = () => setOpen(false);
 
     // need to grab the organization rules from database
-    const [orgRules, setOrgRules] = React.useState([]);
+    const [orgRules, setOrgRules] = React.useState();
 
     React.useEffect(() => {
-        console.log(orgID)
         fetch(`/api/organizationRules/OrganizationSetupPage?organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
@@ -263,7 +262,11 @@ export default function OrganizationSetup() {
                 setOrgRules(data);
             })
             .catch(error => console.error('Error fetching data for OrganizationRules:', error));
-    }, []);
+    }, [orgID]);
+
+    if (!orgRules) {
+        return <div>Loading...</div>;
+    }
 
 
 
@@ -283,34 +286,41 @@ export default function OrganizationSetup() {
                 </Box>
 
                 {/* RULES CONTAINER */}
+                {/* Organization Rules Table */}
                 <Paper>
+                    <List
+                        component="nav"
+                        aria-labelledby="nested-list-header"
+                        subheader={
+                            <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Organization Rules</Typography>
+                        }>
+                        <ListItemButton onClick={handleOpen} sx={{}}>
+                            <ListItemText primary={"'Active' requirements"} />
+                        </ListItemButton>
+                        <Modal open={open} onClose={handleClose}>
+                            <Box>
+                                <ActiveModal org={usedRules.name} rule={usedRules.activeMembershipRequirement.value} />
+                            </Box>
+                        </Modal>
+                    </List>
+                </Paper>
+                {/* Event Rules Table */}
+                <Paper>
+                    <List
+                        component="nav"
+                        aria-labelledby="nested-list-header"
+                        subheader={
+                            <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Event Rules</Typography>
+                        }
+                    >
+                        {orgRules.eventTypes.map((eventObj, index) => (
+                            <RuleListItem
+                                key={`rule-${index}`}
+                                {...eventObj}
+                            />
+                        ))}
 
-                <List
-                    
-                    component="nav"
-                    aria-labelledby="nested-list-header"
-                    subheader={
-                        <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Organization Rules</Typography>
-                    }
-                >
-                    {/* First list item is always the organization 'active' rule */}
-                    <ListItemButton onClick={handleOpen} sx={{ borderBottom: 'solid 1px'}}>
-                        <ListItemText primary={"'Active' requirements"} />
-                    </ListItemButton>
-                    <Modal open={open} onClose={handleClose}>
-                        <Box>
-                            <ActiveModal org={usedRules.name} rule={usedRules.activeMembershipRequirement.value} />
-                        </Box>
-                    </Modal>
-
-                    {usedRules.eventTypes.map((eventObj, index) => (
-                        <RuleListItem
-                            key={`rule-${index}`}
-                            {...eventObj}
-                        />
-                    ))}
-
-                </List>
+                    </List>
                 </Paper>
             </Paper>
         </Container>

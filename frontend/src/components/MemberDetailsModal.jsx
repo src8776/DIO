@@ -43,8 +43,6 @@ const mockMemberData = {
 
 
 export default function IndividualDataModal({ memberID }) {
-
-
   const [open, setOpen] = React.useState(false);
   const handleOpen = (event) => {
     event.stopPropagation();
@@ -68,7 +66,7 @@ export default function IndividualDataModal({ memberID }) {
       <Modal open={open} onClose={handleClose}>
         <Box >
           <MemberDetailsPage
-            memberData={mockMemberData}
+            memberID={memberID}
           />
         </Box>
       </Modal>

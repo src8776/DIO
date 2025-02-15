@@ -366,7 +366,8 @@ export default function DataTable() {
                                     {/* Last updated value goes here */}
                                     <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}></TableCell>
                                     <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                                        <MemberDetailsModal memberData={row.MemberID} />
+                                        
+                                        <MemberDetailsModal memberID={row.MemberID} />
                                     </TableCell>
                                 </TableRow>
                             );

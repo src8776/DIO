@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Box, ListItemButton, ListItemText, Modal } from '@mui/material';
 import RuleModal from './RuleModal_old';
+import EventItemRules from './EventItemRules';
 
 
 
@@ -17,7 +18,7 @@ export default function RuleListItem({ name, rules }) {
             </ListItemButton>
             <Modal open={open} onClose={handleClose}>
                 <Box>
-                    <RuleModal name={name} rules={rules} />
+                    <EventItemRules name={name} rules={rules} />
                 </Box>
             </Modal>
         </>

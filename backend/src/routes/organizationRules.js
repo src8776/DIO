@@ -52,7 +52,8 @@ router.get('/OrganizationSetupPage', async (req, res) => {
             if (row.RuleID) { // Only add rules if they exist
                 eventTypesMap[eventTypeID].rules.push({
                     criteria: row.Criteria,
-                    criteriaValue: parseFloat(row.CriteriaValue) // Convert string to number
+                    criteriaValue: parseFloat(row.CriteriaValue),
+                    pointValue: parseFloat(row.PointValue) // Convert string to number
                 });
             }
         });

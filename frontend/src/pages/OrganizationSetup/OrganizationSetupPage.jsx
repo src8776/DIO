@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
-import RuleListItem from './EventRuleItem';
+import EventItem from './EventItem';
 
 // TODO: All table items will need to come from the database
 // TODO: Form validation (only accept numbers for point values/percentages)
@@ -314,7 +314,7 @@ export default function OrganizationSetup() {
                         }
                     >
                         {orgRules.eventTypes.map((eventObj, index) => (
-                            <RuleListItem
+                            <EventItem
                                 key={`rule-${index}`}
                                 {...eventObj}
                             />

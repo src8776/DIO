@@ -9,7 +9,7 @@ import {
     TableBody,
     TableRow,
     TableCell
-  } from '@mui/material';
+} from '@mui/material';
 
 const style = {
     display: 'flex',
@@ -27,28 +27,35 @@ const style = {
     maxWidth: '100%',
 };
 
-export default function RuleModal({ name, rules }) {
-    // Helper function that renders extra details from a rule.
-    // It will output any property other than id, description, or points.
-    const renderExtraDetails = (rule) => {
-      const extraKeys = Object.keys(rule).filter(
-        (key) => !["id", "description", "points"].includes(key)
-      );
+// Helper function to generate a readable description for a given rule
+function generateRuleDescription(rule) {
+    const { criteria, criteriaValue, pointValue } = rule;
   
-      if (extraKeys.length === 0) {
-        return null;
+    // Use a switch-case (or if-else) to handle different rule types
+    switch (criteria) {
+      case 'attendance':
+        // e.g., { criteria: "attendance", criteriaValue: null, pointValue: 1 }
+        return `+${pointValue} point${pointValue !== 1 ? 's' : ''} per attendance`;
+  
+      case 'minimum threshold percentage': {
+        // e.g., { criteria: "minimum threshold percentage", criteriaValue: 0.5, pointValue: 1 }
+        const percentage = criteriaValue * 100;
+        return `+${pointValue} point${pointValue !== 1 ? 's' : ''} for ${percentage}% attendance`;
       }
+
+      case 'minimum threshold hours': {
+        // e.g., { criteria: "minimum threshold hours", criteriaValue: 3, pointValue: 1 }
+        return `+${pointValue} point${pointValue !== 1 ? 's' : ''} for ${criteriaValue} hour${criteriaValue !== 1 ? 's' : ''} volunteered`;
+      }
+
+      case 'one off': {
+        return `+${pointValue} point${pointValue !== 1 ? 's' : ''} for first attendance`;
+      }
+    }
+  }
   
-      return (
-        <ul style={{ margin: 0, paddingLeft: '1rem' }}>
-          {extraKeys.map((key) => (
-            <li key={key}>
-              <strong>{key}:</strong> {rule[key]}
-            </li>
-          ))}
-        </ul>
-      );
-    };
+  export default function EventItemRules({ name, rules }) {
+    // You can also define any custom styles for your Paper if desired.
   
     return (
       <Container>
@@ -61,18 +68,13 @@ export default function RuleModal({ name, rules }) {
               <TableHead>
                 <TableRow>
                   <TableCell><strong>Rule Description</strong></TableCell>
-                  {rules.some(rule => rule.points) ? <TableCell><strong>Points</strong></TableCell> : <></> }
-                  
-                  <TableCell><strong>Details</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {rules && rules.length > 0 ? (
                   rules.map((rule, index) => (
                     <TableRow key={index}>
-                      <TableCell>{rule.description}</TableCell>
-                      {rules.some(rule => rule.points) ? <TableCell>{rule.points}</TableCell> : <></>}
-                      <TableCell>{renderExtraDetails(rule)}</TableCell>
+                      <TableCell>{generateRuleDescription(rule)}</TableCell>
                     </TableRow>
                   ))
                 ) : (

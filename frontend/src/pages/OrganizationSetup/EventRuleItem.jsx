@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, ListItemButton, ListItemText, Modal } from '@mui/material';
-import RuleModal from './RuleModal';
+import RuleModal from './RuleModal_old';
 
 
 

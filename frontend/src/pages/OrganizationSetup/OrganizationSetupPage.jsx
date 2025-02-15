@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
-import RuleListItem from './RuleListItem';
+import RuleListItem from './EventRuleItem';
 
 // TODO: All table items will need to come from the database
 // TODO: Form validation (only accept numbers for point values/percentages)

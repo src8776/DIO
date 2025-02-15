@@ -7,7 +7,7 @@ import {
     ListItemButton
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import ActiveModal from './ActiveModal';
+import ActiveModal from '../ActiveModal';
 import RuleListItem from './RuleListItem';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;

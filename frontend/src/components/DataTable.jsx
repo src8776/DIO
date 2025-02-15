@@ -309,10 +309,10 @@ export default function DataTable() {
                 numSelected={selected.length}
                 handleSearchChange={handleSearchChange}
             />
-            <TableContainer>
+            <TableContainer sx={{ maxHeight: '450px' }}>
                 <Table
                     stickyHeader
-                    sx={{ minWidth: 750 }}
+                    sx={{ minWidth: 750, overflowY: 'auto' }}
                     aria-labelledby="member-data-table"
                 >
                     <EnhancedTableHead
@@ -346,25 +346,26 @@ export default function DataTable() {
                                             inputProps={{
                                                 'aria-labelledby': labelId,
                                             }}
+
                                         />
                                     </TableCell>
                                     {/* <TableCell align="left">{row.MemberID}</TableCell> */}
-                                    <TableCell align="left">{row.FullName}</TableCell>
+                                    <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.FullName}</TableCell>
                                     <TableCell
                                         component="th"
                                         id={labelId}
                                         scope="row"
-                                        padding="none"
                                         sx={{
+                                            pl: '16px', pt: '0px', pb: '0px',
                                             color: row.Status === 'Inactive' ? 'red' : 'green',
                                         }}
                                     >
                                         {row.Status}
                                     </TableCell>
-                                    <TableCell align="left">{row.AttendanceRecord} meetings</TableCell>
+                                    <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.AttendanceRecord} meetings</TableCell>
                                     {/* Last updated value goes here */}
-                                    <TableCell></TableCell>
-                                    <TableCell>
+                                    <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}></TableCell>
+                                    <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
                                         <MemberDetailsModal memberData={row.MemberID} />
                                     </TableCell>
                                 </TableRow>

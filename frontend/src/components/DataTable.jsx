@@ -14,8 +14,6 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 import MemberDetailsModal from '../components/MemberDetailsModal';
 
-
-// TODO: add Recent Update column to sort by
 // TODO: switch sort to Recent Update descending after file upload
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;

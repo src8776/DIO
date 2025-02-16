@@ -37,7 +37,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    fetch("/shib-user.php")
+    fetch("./shib-user.php")
   }, []);
 
   // TODO: Protect all paths (except for "/").

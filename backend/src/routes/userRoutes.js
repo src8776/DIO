@@ -41,13 +41,4 @@ router.get('/majors', (req, res) => {
   res.json(majors);
 });
 
-// **Shibboleth attributes route**
-router.get('/shib', (req, res) => {
-  const uid = req.get('SHIB_UID');
-
-  console.log('Shibboleth UID:', uid);
-
-  res.json(uid);
-});
-
 module.exports = router;

@@ -7,19 +7,6 @@ import dayjs from 'dayjs';
 
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
-function test() {
-  useEffect(() => {
-    fetch('/api/shib')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Shibboleth User Data:', data);
-            setUser(data);
-        })
-        .catch(error => console.error('Error fetching user:', error));
-  }, []);
-  return data;
-}
-
 
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
@@ -69,7 +56,6 @@ export default function AccountSetup() {
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   useEffect(() => {
-    const test = test();
     const loadUserData = async () => {
       const profileData = await fetchUserProfileData();
       setFirstName(profileData.firstName);

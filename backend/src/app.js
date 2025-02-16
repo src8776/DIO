@@ -36,7 +36,7 @@ app.get('/api/shib', (req, res) => {
         surname: req.headers['sn'],
         email: req.headers['mail']
     };
-
+    console.log(user);
     res.json(user);
 });
 

@@ -8,9 +8,20 @@ import dayjs from 'dayjs';
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
 
+useEffect(() => {
+  fetch('/api/user')
+      .then(response => response.json())
+      .then(data => {
+          console.log('Shibboleth User Data:', data);
+          setUser(data);
+      })
+      .catch(error => console.error('Error fetching user:', error));
+}, []);
+
+
+
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
-
   try {
     const response = await fetch('/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');

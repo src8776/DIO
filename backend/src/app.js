@@ -29,6 +29,18 @@ app.get('/api/health', (req, res) => {
     res.status(200).send('SERVER UP');
 });
 
+app.get('/api/shib', (req, res) => {
+    const user = {
+        uid: req.headers['uid'],
+        givenName: req.headers['givenName'],
+        surname: req.headers['sn'],
+        email: req.headers['mail']
+    };
+
+    res.json(user);
+});
+
+
 app.post('/api/upload', upload.single('csv_file'), handleFileUpload);
 
 // TODO: Add more REST endpoints here

@@ -24,28 +24,17 @@ app.use('/api/organizationRules', organizationRulesRoutes);
 const organizationInfoRoutes = require('./routes/organizationInfo.js');
 app.use('/api/organizationInfo', organizationInfoRoutes)
 
-const memberDetailsRoutes = require('./routes/memberDetails.js');
-app.use('/api/memberDetails', memberDetailsRoutes)
-
 // For health check
 app.get('/api/health', (req, res) => {
     res.status(200).send('SERVER UP');
 });
 
-app.get('/api/shib', (req, res) => {
-    const uid = req.get('uid') || null;
-    const givenName = req.get('givenName') || null;
-    const sn = req.get('sn') || null;
-    const mail = req.get('mail') || null;
-    
-    const user = {
-        uid,
-        name: `${givenName} ${sn}`,
-        email: mail
-    };
+app.post('/api/shib-user', (req, res) => {
+    const { uid, givenName, surname, email } = req.body;
 
-    console.log("Authenticated User:", user);
-    res.json(user);
+    console.log('Received Shibboleth User:', { uid, givenName, surname, email });
+
+    res.json({ message: 'User data received successfully', user: { uid, givenName, surname, email } });
 });
 
 

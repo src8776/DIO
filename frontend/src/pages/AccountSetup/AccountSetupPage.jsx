@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 
 const fetchShibbolethUserData = async () => {
   try {
-    const response = await fetch('/api/user/shibboleth');
+    const response = await fetch('/api/user/shib');
     if (!response.ok) throw new Error('Failed to fetch Shibboleth user data');
     return await response.json();
   } catch (error) {

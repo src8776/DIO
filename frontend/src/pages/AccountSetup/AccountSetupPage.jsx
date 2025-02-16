@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 const fetchUserProfileData = async () => {
   try {
     const response = await fetch('/api/user/profile');
+    const shib = await fetch('/api/shib');
     if (!response.ok) throw new Error('Failed to fetch user profile');
     return await response.json();
   } catch (error) {

@@ -13,14 +13,6 @@ import AdminLayout from './components/AdminLayout.jsx';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
 
-function getShib() {
-  const uid = user?.uid ?? 'Not provided';
-  const givenName = user?.givenName ?? 'Not provided';
-  const sn = user?.sn ?? 'Not provided';
-  const mail = user?.mail ?? 'Not provided';
-  return (uid);
-}
-
 const App = () => {
   console.log(getShib());
   // dark/light mode based on system preference

@@ -14,7 +14,6 @@ import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
 
 const App = () => {
-  console.log(getShib());
   // dark/light mode based on system preference
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const [mode, setMode] = useState(systemPrefersDark ? 'dark' : 'light');

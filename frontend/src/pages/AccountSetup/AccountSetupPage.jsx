@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 // TODO: Add form validation
 
 useEffect(() => {
-  fetch('/api/user')
+  fetch('/api/shib')
       .then(response => response.json())
       .then(data => {
           console.log('Shibboleth User Data:', data);

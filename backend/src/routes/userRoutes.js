@@ -43,7 +43,7 @@ router.get('/majors', (req, res) => {
 
 // **Shibboleth attributes route**
 router.get('/shib', (req, res) => {
-  const uid = req.get('SHIB-UID');
+  const uid = req.get('SHIB_UID');
 
   console.log('Shibboleth UID:', uid);
 

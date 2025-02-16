@@ -44,7 +44,7 @@ router.get('/majors', (req, res) => {
 // **Shibboleth attributes route**
 router.get('/shibboleth', (req, res) => {
   const shibbolethUser = {
-    uid: req.headers['uid']
+    uid: process.env.SHIB_UID || null
   };
 
   console.log("Shibboleth User Data:", shibbolethUser);

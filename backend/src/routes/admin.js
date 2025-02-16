@@ -38,4 +38,44 @@ router.get('/datatable', async (req, res) => {
     }
 });
 
+// get all members in an organization by status
+router.get('/:org/members/:status', async (req, res) => {
+    // status will be -1 for all members, 0 for active, and 1 for inactive
+    const {org, status} = req.params;
+
+    try {
+        let query = ``;
+
+        const queryParams = [org];
+
+        // apply status search if needed 
+        if (status !== '-1') {
+            query += ` `;
+            queryParams.push(status);
+        }
+
+        const [rows] = await db.query(query, queryParams);
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// get all memberst that have the admin role
+router.get('/:org/officers', async (req, res) => {
+    const {org} = req.params;
+
+    try {
+        const query = ``;
+
+        const [rows] = await db.query(query);
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

@@ -41,4 +41,95 @@ router.get('/majors', (req, res) => {
   res.json(majors);
 });
 
+// get organization(s) for user
+router.get('/:memberID/orgs', async (req, res) => {
+  const {memberID} = req.params;
+
+  try {
+    const query = ``;
+    
+    const [rows] = await db.query(query, [memberID]);
+
+    res.json(rows); 
+  } catch (error) {
+    console.error('Database query error: ', error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+});
+
+// get attendance history for current semester
+router.get('/:memberID/attendance/:semester', async (req, res) => {
+  const {memberID, semester} = req.params;
+
+  try {
+    const query = ``;
+    
+    const [rows] = await db.query(query, [memberID, semester]);
+
+    res.json(rows); 
+  } catch (error) {
+    console.error('Database query error: ', error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+});
+
+// get user's awards
+router.get('/:memberID/awards', async (req, res) => {
+  const {memberID} = req.params;
+
+  try {
+    const query = ``;
+
+    const [rows] = await db.query(query, [memberID]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Darabase query error: ', error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+});
+
+// get user settings (year, graduation date, major, shirt + pants size)
+router.get('/:memberID/settings', async (req, res) => {
+  const {memberID} = req.params;
+
+  try {
+    const query = ``;
+
+    const [rows] = await db.query(query, [memberID]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Darabase query error: ', error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+});
+
+// Update user settings (year, graduation date, major, shirt + pants size)
+router.put('/:memberID/settings', async (req, res) => {
+  const {memberID} = req.params;
+  const {year, graduation, major, shirtSize, pantSize} = req.body;
+
+  if (!year && !graduation && !major && !shirtSize && !pantSize) {
+    return res.status(400).json({error: 'No fields to update'});
+  }
+
+  try {
+    const query = ``;
+
+    const [result] = await db.query(query, [
+      year, graduation, major, shirtSize, pantSize, memberID
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({error: 'User not found or no changes made'});
+    }
+
+    res.json({ message: 'User settings updated successfully' });
+  } catch (error) {
+    console.error('Database query error: ', error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+});
+
 module.exports = router;

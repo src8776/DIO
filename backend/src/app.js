@@ -30,13 +30,18 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/shib', (req, res) => {
+    const uid = req.get('uid') || null;
+    const givenName = req.get('givenName') || null;
+    const sn = req.get('sn') || null;
+    const mail = req.get('mail') || null;
+    
     const user = {
-        uid: req.headers['uid'],
-        givenName: req.headers['givenName'],
-        surname: req.headers['sn'],
-        email: req.headers['mail']
+        uid,
+        name: `${givenName} ${sn}`,
+        email: mail
     };
-    console.log(user);
+
+    console.log("Authenticated User:", user);
     res.json(user);
 });
 

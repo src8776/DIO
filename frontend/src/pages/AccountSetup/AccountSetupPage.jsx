@@ -8,14 +8,20 @@ import dayjs from 'dayjs';
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
 
+
+const fetchShibbolethUserData = async () => {
+  try {
+    const response = await fetch('/api/user/shibboleth');
+    if (!response.ok) throw new Error('Failed to fetch Shibboleth user data');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching Shibboleth user data:', error);
+    return null;
+  }
+};
+
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
-  useEffect(() => {
-      fetch('/api/user', { credentials: 'include' })
-          .then(response => response.json())
-          .then(data => console.log(data));
-  }, []);
-
   try {
     const response = await fetch('/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');
@@ -63,8 +69,11 @@ export default function AccountSetup() {
 
   useEffect(() => {
     const loadUserData = async () => {
+      const shibbolethData = await fetchShibbolethUserData();
+      setFirstName(shibbolethData.uid);
+
       const profileData = await fetchUserProfileData();
-      setFirstName(profileData.firstName);
+      //setFirstName(profileData.firstName);
       setEmail(profileData.email);
       setStudentYear(profileData.studentYear);
       setGraduationDate(profileData.graduationDate);

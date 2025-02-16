@@ -10,6 +10,12 @@ import dayjs from 'dayjs';
 
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
+  useEffect(() => {
+      fetch('/api/user', { credentials: 'include' })
+          .then(response => response.json())
+          .then(data => console.log(data));
+  }, []);
+
   try {
     const response = await fetch('/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');

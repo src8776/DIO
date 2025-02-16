@@ -31,7 +31,16 @@ app.get('/api/health', (req, res) => {
 
 app.post('/api/upload', upload.single('csv_file'), handleFileUpload);
 
+// Get shibboleth username
+app.get('/api/user', (req, res) => {
+    const user = {
+        uid: req.headers['uid']
+    };
+    res.json(user);
+});
+
+
 // TODO: Add more REST endpoints here
-app.use('/api/user', userRoutes);  //points any api/user* calls from frontend to useRoutes file
+app.use('/api/user', userRoutes);  //points any api/user* calls from frontend to userRoutes file
 
 module.exports = app;

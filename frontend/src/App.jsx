@@ -36,8 +36,13 @@ const App = () => {
     };
   }, []);
 
+  const [userData, setUserData] = useState(null);
+
   useEffect(() => {
-    fetch("./shib-user.php")
+    fetch("/shib-user.php")
+      .then((res) => res.json())
+      .then((data) => setUserData(data))
+      .catch((err) => console.error("Error fetching Shibboleth data:", err));
   }, []);
 
   // TODO: Protect all paths (except for "/").

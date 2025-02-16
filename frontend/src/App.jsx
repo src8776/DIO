@@ -36,6 +36,10 @@ const App = () => {
     };
   }, []);
 
+  useEffect(() => {
+    fetch("/shib-user.php")
+  }, []);
+
   // TODO: Protect all paths (except for "/").
   // Only to be accessible by ADMIN USERS 
 

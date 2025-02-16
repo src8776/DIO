@@ -42,7 +42,7 @@ router.get('/majors', (req, res) => {
 });
 
 // **Shibboleth attributes route**
-router.get('/shibboleth', (req, res) => {
+router.get('/shib', (req, res) => {
   const shibbolethUser = {
     uid: process.env.SHIB_UID || null
   };

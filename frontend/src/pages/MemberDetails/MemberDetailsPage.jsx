@@ -9,9 +9,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
+  Box
 } from "@mui/material";
-import Grid from '@mui/material/Grid2';
 
 // TODO: Option to delete attendance records from the attendance history table here if they are an admin
 //       - user feedback for deleting records ('this action cannot be undone', 'deleted successfully', etc.)? 
@@ -28,11 +27,39 @@ const style = {
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
-  width: { xs: '90%', sm: '500px', md: '600px' }, 
+  width: { xs: '90%', sm: '500px', md: '600px' },
   maxWidth: '100%',
 };
 
-const MemberDetailsModal = ({ memberData }) => {
+const MemberDetailsModal = ({ memberID }) => {
+
+  const [memberInfo, setMemberInfo] = React.useState();
+
+  React.useEffect(() => {
+    if (!memberID) return;
+    // console.log('Fetching data for memberID:', memberID);
+    fetch(`/api/memberDetails/allDetails?memberID=${memberID}`)
+      .then(response => response.json())
+      .then(data => {
+        // console.log('Fetched data:', data);
+        setMemberInfo(data);
+      })
+      .catch(error => console.error('Error fetching data for MemberInfo:', error));
+  }, [memberID]);
+
+
+
+
+  if (!memberInfo || memberInfo.length === 0) {
+    return (
+      <Container>
+        <Paper sx={style}>
+          <Typography variant="h6">No member data available.</Typography>
+        </Paper>
+      </Container>
+    );
+  }
+
   const {
     MemberID,
     UserName,
@@ -43,18 +70,18 @@ const MemberDetailsModal = ({ memberData }) => {
     IsActive,
     GraduationYear,
     AcademicYear,
-    AttendanceHistory,
-  } = memberData || {};
+    attendanceRecords,
+  } = memberInfo[0]; // Extracting the first item from the array
 
   return (
     <Container>
-      <Paper sx={ style }>
+      <Paper sx={style}>
         {/* Basic Info */}
         <Typography variant="h5" sx={{ mb: 2 }}>
           Member Details
         </Typography>
-        <Grid container spacing={2}>
-          <Grid xs={12} sm={6}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+          <Box>
             <Typography variant="subtitle1">
               <strong>Member ID:</strong> {MemberID}
             </Typography>
@@ -67,25 +94,25 @@ const MemberDetailsModal = ({ memberData }) => {
             <Typography variant="subtitle1">
               <strong>Last Name:</strong> {LastName}
             </Typography>
-          </Grid>
-          <Grid xs={12} sm={6}>
+          </Box>
+          <Box>
             <Typography variant="subtitle1">
               <strong>Email:</strong> {Email}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Major:</strong> {Major}
+              <strong>Major:</strong> {Major || "N/A"}
             </Typography>
             <Typography variant="subtitle1">
               <strong>Status:</strong> {IsActive ? "Active" : "Inactive"}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Graduation Year:</strong> {GraduationYear}
+              <strong>Graduation Year:</strong> {GraduationYear || "N/A"}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Academic Year:</strong> {AcademicYear}
+              <strong>Academic Year:</strong> {AcademicYear || "N/A"}
             </Typography>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Attendance History */}
         <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
@@ -95,16 +122,16 @@ const MemberDetailsModal = ({ memberData }) => {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Event</TableCell>
+                <TableCell>Event ID</TableCell>
+                <TableCell>Check-in Time</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {AttendanceHistory && AttendanceHistory.length > 0 ? (
-                AttendanceHistory.map((record, index) => (
+              {attendanceRecords && attendanceRecords.length > 0 ? (
+                attendanceRecords.map((record, index) => (
                   <TableRow key={index}>
-                    <TableCell>{record.date}</TableCell>
-                    <TableCell>{record.event}</TableCell>
+                    <TableCell>{record.EventID}</TableCell>
+                    <TableCell>{new Date(record.CheckInTime).toLocaleString()}</TableCell>
                   </TableRow>
                 ))
               ) : (

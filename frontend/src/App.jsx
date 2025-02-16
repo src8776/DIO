@@ -40,8 +40,6 @@ const App = () => {
 
   useEffect(() => {
     fetch("/shib-user.php")
-      .then((res) => res.json())
-      .then((data) => setUserData(data))
       .catch((err) => console.error("Error fetching Shibboleth data:", err));
   }, []);
 

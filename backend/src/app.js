@@ -1,7 +1,5 @@
 const express = require("express");
 const cors = require('cors');
-const { upload, handleFileUpload } = require('./upload/handleFileUpload');
-const userRoutes = require('./routes/userRoutes');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -32,6 +30,9 @@ app.use('/api/organizationInfo', organizationInfoRoutes);
 const eventRoutes = require('./routes/events');
 app.use('/api/admin/events', eventRoutes);
 
+const memberRoutes = require('./routes/members');
+app.use('/api/admin/members', memberRoutes);
+
 app.post('/api/shib-user', (req, res) => {
     const { uid, givenName, surname, email } = req.body;
 
@@ -40,10 +41,12 @@ app.post('/api/shib-user', (req, res) => {
     res.json({ message: 'User data received successfully', user: { uid, givenName, surname, email } });
 });
 
-
+const { upload, handleFileUpload } = require('./upload/handleFileUpload');
 app.post('/api/upload', upload.single('csv_file'), handleFileUpload);
 
-// TODO: Add more REST endpoints here
+const userRoutes = require('./routes/userRoutes');
 app.use('/api/user', userRoutes);  //points any api/user* calls from frontend to userRoutes file
 
+
+// TODO: Add more REST endpoints here
 module.exports = app;

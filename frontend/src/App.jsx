@@ -36,11 +36,6 @@ const App = () => {
     };
   }, []);
 
-  useEffect(() => {
-    fetch("/shib-user.php")
-      .catch((err) => console.error("Error fetching Shibboleth data:", err));
-  }, []);
-
   // TODO: Protect all paths (except for "/").
   // Only to be accessible by ADMIN USERS 
 

@@ -1,24 +1,96 @@
 const fs = require('fs');
 const csvParser = require('csv-parser');
 const db = require('../config/db');
+const crypto = require('crypto');
+const Member = require('../models/Member');
+const OrganizationMember = require('../models/OrganizationMember');
+const Attendance = require('../models/Attendance');
+const EventInstance = require('../models/EventInstance');
 require('dotenv').config({ path: '.env' });
 
+// Format both date and time for check-in for attendance record
 const formatDateToMySQL = (dateString) => {
   if (!dateString) return null;
-  const date = new Date(dateString);
-  if (isNaN(date)) throw new Error(`Invalid date: ${dateString}`);
-  return date.toISOString().slice(0, 19).replace('T', ' ');
+  console.log(`Raw date from CSV: "${dateString}"`);
+  const parts = dateString.trim().split(/[/ :]/);
+  if (parts.length < 5) {
+    console.warn(`Invalid date format: "${dateString}"`);
+    return null;
+  }
+  let [month, day, year, hours, minutes, period] = parts;
+  hours = parseInt(hours, 10);
+  minutes = parseInt(minutes, 10) || 0;
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+  console.log(`Formatted MySQL DateTime: "${formattedDate}"`);
+  return formattedDate;
 };
 
-const processCsv = async (filePath, eventType, orgID) => {
-  const members = [];
-  const attendanceRecords = [];
-  const organizationID = orgID;
-  const eventID = 1; //TODO: EventID should be retrieved from eventType
-  const defaultRole = 'Member';
-  const defaultRoleID = 2;
 
+// Generate File Hash
+const generateFileHash = (filePath) => {
   return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256');
+    const stream = fs.createReadStream(filePath);
+    stream.on('data', (data) => hash.update(data));
+    stream.on('end', () => resolve(hash.digest('hex')));
+    stream.on('error', reject);
+  });
+};
+
+// Check if file has already been uploaded
+const isFileDuplicate = async (filePath) => {
+  try {
+    const fileHash = await generateFileHash(filePath);
+    const [existingFile] = await db.query(
+      `SELECT FileID FROM UploadedFilesHistory WHERE FileHash = ?`,
+      [fileHash]
+    );
+    return existingFile.length > 0;
+  } catch (error) {
+    console.error('Error checking file duplicate:', error);
+    throw error;
+  }
+};
+
+// Insert File Info into UploadedFilesHistory
+const insertFileInfo = async (filePath) => {
+  try {
+    const fileHash = await generateFileHash(filePath);
+    await db.query(
+      `INSERT INTO UploadedFilesHistory (FileName, FileHash) VALUES (?, ?)`,
+      [filePath, fileHash]
+    );
+    console.log(`File saved: ${filePath}`);
+  } catch (error) {
+    console.error('Error saving file record:', error);
+    throw error;
+  }
+};
+
+// Process CSV with File Check
+const processCsv = async (filePath, eventType, organizationID) => {
+  const attendanceRecords = [];
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const isDuplicate = await isFileDuplicate(filePath);
+      if (isDuplicate) {
+        console.warn(`File already uploaded: ${filePath}`);
+        fs.unlink(filePath, (err) => {
+          if (err) console.error('Error removing duplicate file:', err);
+          else console.log('Duplicate file removed successfully.');
+        });
+        return resolve(); 
+      }
+      await insertFileInfo(filePath);
+    } catch (error) {
+      console.error('Error processing CSV file:', error);
+      reject(error);
+      return;
+    }
+
     fs.createReadStream(filePath)
       .pipe(csvParser())
       .on('data', (row) => {
@@ -26,97 +98,93 @@ const processCsv = async (filePath, eventType, orgID) => {
           console.warn('Skipping row due to missing Email or Checked-In Date:', row);
           return;
         }
-        const email = row['Email'];
-        const username = email.split('@')[0];
 
-        members.push({
-          username,
-          firstName: row['First Name'],
-          lastName: row['Last Name'],
-          email,
-          FullName: row['Display Name'] || `${row['First Name']} ${row['Last Name']}`,
-          major: row['Major'] || null,
-          graduationYear: row['Graduation Year'] || null,
-          academicYear: row['Academic Year'] || null,
-        });
+
+        console.log(`Raw CSV Date in Row: ${row['Checked-In Date']}`);
+        const checkInDate = formatDateToMySQL(row['Checked-In Date']);
 
         attendanceRecords.push({
-          email,
-          checkInDate: formatDateToMySQL(row['Checked-In Date']),
-          eventID,
+          firstName: row['First Name'],
+          lastName: row['Last Name'],
+          email: row['Email'],
+          fullName: `${row['First Name']} ${row['Last Name']}`,
+          checkInDate,
           organizationID,
         });
       })
       .on('end', async () => {
         console.log('CSV file successfully processed');
+
+        if (attendanceRecords.length === 0) {
+          console.warn('No attendance records found, skipping.');
+          fs.unlink(filePath, (err) => {
+            if (err) console.error('Error removing file:', err);
+            else console.log('File removed successfully');
+          });
+          return resolve(); 
+        }
+
         const connection = await db.getConnection();
         try {
           await connection.beginTransaction();
-          for (const member of members) {
-            const [memberResult] = await connection.query(
-              `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, Major, GraduationYear, AcademicYear)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-              ON DUPLICATE KEY UPDATE 
-                FirstName = VALUES(FirstName),
-                LastName = VALUES(LastName),
-                FullName = VALUES(FullName),
-                Major = VALUES(Major),
-                GraduationYear = VALUES(GraduationYear),
-                AcademicYear = VALUES(AcademicYear)`,
-              [
-                member.username,
-                member.firstName,
-                member.lastName,
-                member.email,
-                member.FullName,
-                member.major,
-                member.graduationYear,
-                member.academicYear,
-              ]
-            );
-            // const memberID = memberResult.insertId || memberResult.affectedRows;
-            await connection.query(
-              `INSERT INTO OrganizationMembers (OrganizationID, MemberID, Role, RoleID)
-                SELECT ?, MemberID, ?, ?
-                FROM Members 
-                WHERE Email = ?
-              ON DUPLICATE KEY UPDATE Role = VALUES(Role), RoleID = VALUES(RoleID)`,
-              [organizationID, defaultRole, defaultRoleID, member.email]
-            );
+
+          const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
+          // Fetch EventID once
+          const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
+
+          if (!eventID) {
+            console.warn(`No EventID found for ${eventType}, skipping attendance insert.`);
+            await connection.rollback();
+            return resolve();
           }
 
           for (const attendance of attendanceRecords) {
-            const [rows] = await connection.query(
-              `SELECT m.MemberID FROM Members m JOIN OrganizationMembers om ON m.MemberID = om.MemberID WHERE m.Email = ? AND om.OrganizationID = ?`,
-              [attendance.email, attendance.organizationID]
-            );
-            if (rows.length > 0) {
-              const memberId = rows[0].MemberID;
-              await connection.query(
-                `INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, AttendanceSource, OrganizationID)
-                VALUES (?, ?, ?, ?, 'CSV Import', ?)
-                ON DUPLICATE KEY UPDATE AttendanceStatus = VALUES(AttendanceStatus)`,
-                [memberId, attendance.eventID, attendance.checkInDate, 'Attended', attendance.organizationID]
+            try {
+              const memberID = await Member.insertMember({
+                username: attendance.email.split('@')[0],
+                email: attendance.email,
+                firstName: attendance.firstName,
+                lastName: attendance.lastName,
+                fullName: attendance.fullName,
+              });
+
+              if (!memberID) {
+                console.warn(`Skipping ${attendance.email} due to missing MemberID`);
+                await connection.rollback();
+                return resolve();
+              }
+
+              // insert in OrganizationMembers if new member
+              await OrganizationMember.insertOrganizationMember(
+                attendance.organizationID,
+                memberID,
+                'Member'
               );
-            } else {
-              console.warn(`No member found with email: ${attendance.email}`);
+
+              // Insert attendance
+              console.log(`Before Insert attendence: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
+              await Attendance.insertAttendance(attendance, eventID, organizationID);
+            } catch (err) {
+              console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
+              await connection.rollback();
+              return resolve();
             }
           }
 
           await connection.commit();
           console.log('Transaction committed successfully');
+
         } catch (error) {
           await connection.rollback();
           console.error('Transaction failed, rolled back:', error);
-          reject(error);
         } finally {
           connection.release();
           fs.unlink(filePath, (err) => {
             if (err) console.error('Error removing file:', err);
             else console.log('File removed successfully');
           });
+          resolve();
         }
-        resolve();
       });
   });
 };

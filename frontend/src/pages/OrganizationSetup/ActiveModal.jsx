@@ -19,10 +19,12 @@ const style = {
 };
 
 
-export default function ActiveModal({ orgID }) {
+export default function ActiveModal({ orgID, numberOfRules }) {
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
+    const [error, setError] = React.useState(false);
+    const [helperText, setHelperText] = React.useState('');
 
     React.useEffect(() => {
         fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
@@ -45,7 +47,12 @@ export default function ActiveModal({ orgID }) {
     const handleClose = () => setOpen(false);
 
     const handleSave = () => {
-        console.log('Saving new active requirement:', newActiveRequirement);
+        if (newActiveRequirement > numberOfRules) {
+            setError(true);
+            setHelperText(`Value cannot be greater than ${numberOfRules}`);
+            return;
+        }
+
         fetch('/api/organizationInfo/updateActiveRequirement', {
             method: 'POST',
             headers: {
@@ -58,7 +65,6 @@ export default function ActiveModal({ orgID }) {
         })
             .then((response) => response.json())
             .then((data) => {
-                console.log('Response data:', data);
                 if (data.success) {
                     setActiveRequirement(newActiveRequirement);
                     handleClose();
@@ -91,8 +97,17 @@ export default function ActiveModal({ orgID }) {
                         </TableHead>
                         <TableBody>
                             <TableCell>To Achieve 'active' status:</TableCell>
-                            <TableCell>{activeRequirement ? (orgID == 1 ? `Meet ${activeRequirement} criteria` : `earn ${activeRequirement} points`) : 'no rule defined'}</TableCell>
-                        </TableBody>
+                            <TableCell>
+                                {activeRequirement ? (
+                                    orgID == 1 ? (
+                                        activeRequirement == numberOfRules ? 'Meet all criteria' : `Meet at least ${activeRequirement} criteria`
+                                    ) : (
+                                        `earn ${activeRequirement} points`
+                                    )
+                                ) : (
+                                    'no rule defined'
+                                )}
+                            </TableCell>                        </TableBody>
                     </Table>
                 </Box>
 
@@ -107,6 +122,8 @@ export default function ActiveModal({ orgID }) {
                             onChange={(e) => setNewActiveRequirement(e.target.value)}
                             fullWidth
                             sx={{ mb: 2 }}
+                            error={error}
+                            helperText={helperText}
                         />
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                             <Button variant="contained" color="primary" onClick={handleSave}>

@@ -41,11 +41,3 @@ router.get('/allDetails', async (req, res) => {
 });
 
 module.exports = router;
-
- // SELECT 
-            //     m.*, 
-            //     (SELECT JSON_ARRAYAGG(a) 
-            //     FROM attendance a 
-            //     WHERE a.memberID = m.MemberID) AS attendanceRecords
-            // FROM members m
-            // WHERE m.MemberID = ?;

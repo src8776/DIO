@@ -99,6 +99,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
           return;
         }
 
+
         console.log(`Raw CSV Date in Row: ${row['Checked-In Date']}`);
         const checkInDate = formatDateToMySQL(row['Checked-In Date']);
 

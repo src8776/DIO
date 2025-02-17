@@ -14,6 +14,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
 import MemberDetailsModal from '../components/MemberDetailsModal';
 
+
 // TODO: switch sort to Recent Update descending after file upload
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -199,12 +200,12 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
-export default function DataTable() {
+export default function DataTable({ orgID }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('FullName');
+    const [order, setOrder] = React.useState('desc');
+    const [orderBy, setOrderBy] = React.useState('LastUpdated');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -214,7 +215,7 @@ export default function DataTable() {
     //Get member data
     // TODO: Fix this so it does not query the database on every page refresh
     React.useEffect(() => {
-        fetch(`${API_BASE_URL}/api/admin/datatable`)
+        fetch(`${API_BASE_URL}/api/admin/datatable?organizationID=${orgID}`)
             .then((response) => response.json())
             .then((data) => {
                 // console.log('Fetched data:', data);
@@ -362,9 +363,16 @@ export default function DataTable() {
                                     </TableCell>
                                     <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.AttendanceRecord} meetings</TableCell>
                                     {/* Last updated value goes here */}
-                                    <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}></TableCell>
+                                    <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>  {row.LastUpdated ? new Date(row.LastUpdated).toLocaleString('en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: true
+                                    }) : 'N/A'}</TableCell>
                                     <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                                        
+
                                         <MemberDetailsModal memberID={row.MemberID} />
                                     </TableCell>
                                 </TableRow>

@@ -32,9 +32,7 @@ const handleFileUpload = async (req, res) => {
     const eventType = req.body.eventType;
     const orgID = req.body.orgID;
     console.log("Filepath is " + filePath);
-    const eventType = req.body.eventType;
     console.log("eventType is " + eventType);
-    const orgID = req.body.orgID;
     console.log("orgID is " + orgID);
 
     try {

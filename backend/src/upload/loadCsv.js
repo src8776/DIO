@@ -12,10 +12,7 @@ const formatDateToMySQL = (dateString) => {
 
 const processCsv = async (filePath, eventType, orgID) => {
   const members = [];
-  // changed to a set to prevent duplicate attendance records
-  // I was getting a bug where each file upload would add 2 attendance records 
-  // if the member was in both WiC and COMS
-  const attendanceRecords = new Set();
+  const attendanceRecords = [];
   const organizationID = orgID;
   const eventID = 1; //TODO: EventID should be retrieved from eventType
   const defaultRole = 'Member';
@@ -43,12 +40,12 @@ const processCsv = async (filePath, eventType, orgID) => {
           academicYear: row['Academic Year'] || null,
         });
 
-        attendanceRecords.add(JSON.stringify({
+        attendanceRecords.push({
           email,
           checkInDate: formatDateToMySQL(row['Checked-In Date']),
           eventID,
           organizationID,
-        }));
+        });
       })
       .on('end', async () => {
         console.log('CSV file successfully processed');
@@ -78,8 +75,6 @@ const processCsv = async (filePath, eventType, orgID) => {
               ]
             );
             // const memberID = memberResult.insertId || memberResult.affectedRows;
-            // Changed this to grab the memberID from the database, 
-            // the previous memberResult.insertID always returned 0
             await connection.query(
               `INSERT INTO OrganizationMembers (OrganizationID, MemberID, Role, RoleID)
                 SELECT ?, MemberID, ?, ?

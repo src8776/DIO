@@ -53,7 +53,8 @@ router.get('/OrganizationSetupPage', async (req, res) => {
                 eventTypesMap[eventTypeID].rules.push({
                     criteria: row.Criteria,
                     criteriaValue: parseFloat(row.CriteriaValue),
-                    pointValue: parseFloat(row.PointValue) // Convert string to number
+                    pointValue: parseFloat(row.PointValue),
+                    ruleID:row.RuleID 
                 });
             }
         });

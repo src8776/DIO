@@ -30,16 +30,15 @@ export default function ActiveModal({ orgID, numberOfRules }) {
         fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
             .then((response) => response.json())
             .then((data) => {
-                // console.log('Fetched data:', data);
                 if (data.length > 0) {
                     setActiveRequirement(data[0].ActiveRequirement); // Extract Name directly
                 } else {
-                    setActiveRequirement(null); // Set to null if no data
+                    setActiveRequirement(null); 
                 }
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
-                setActiveRequirement(null); // Set to null on error
+                setActiveRequirement(null); 
             });
     }, [orgID]);
 

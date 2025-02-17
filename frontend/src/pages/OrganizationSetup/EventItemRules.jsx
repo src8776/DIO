@@ -1,15 +1,13 @@
 import * as React from 'react';
 import {
-    Container,
-    Paper,
-    Typography,
-    Box,
-    Table,
-    TableHead,
-    TableBody,
-    TableRow,
-    TableCell
+    Container, Paper, Typography,
+    Box, Table, TableHead,
+    TableBody, TableRow, TableCell,
+    IconButton
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+
 
 const style = {
     display: 'flex',
@@ -72,19 +70,26 @@ function generateRuleDescription(rule, ruleType) {
 }
 
 export default function EventItemRules({ name, rules, ruleType }) {
-    // You can also define any custom styles for your Paper if desired.
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     return (
         <Container>
             <Paper elevation={1} sx={style}>
-                <Typography variant="h5" gutterBottom>
-                    {name}
-                </Typography>
+                <Box sx={{ width: '100%',display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <Typography variant="h5" gutterBottom>
+                        {name}
+                    </Typography>
+                    <IconButton sx={{ color: '#08A045' }}>
+                        <AddCircleOutlineIcon/>
+                    </IconButton>
+                </Box>
                 <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
                     <Table>
                         <TableHead>
                             <TableRow>
                                 <TableCell><strong>Rule Description</strong></TableCell>
+                                <TableCell />
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -92,6 +97,11 @@ export default function EventItemRules({ name, rules, ruleType }) {
                                 rules.map((rule, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{generateRuleDescription(rule, ruleType)}</TableCell>
+                                        <TableCell align='right'>
+                                            <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
+                                                <EditIcon />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (

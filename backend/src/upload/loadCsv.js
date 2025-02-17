@@ -12,7 +12,10 @@ const formatDateToMySQL = (dateString) => {
 
 const processCsv = async (filePath, eventType, orgID) => {
   const members = [];
-  const attendanceRecords = [];
+  // changed to a set to prevent duplicate attendance records
+  // I was getting a bug where each file upload would add 2 attendance records 
+  // if the member was in both WiC and COMS
+  const attendanceRecords = new Set();
   const organizationID = orgID;
   const eventID = 1; //TODO: EventID should be retrieved from eventType
   const defaultRole = 'Member';
@@ -34,18 +37,18 @@ const processCsv = async (filePath, eventType, orgID) => {
           firstName: row['First Name'],
           lastName: row['Last Name'],
           email,
-          displayName: row['Display Name'] || `${row['First Name']} ${row['Last Name']}`,
+          FullName: row['Display Name'] || `${row['First Name']} ${row['Last Name']}`,
           major: row['Major'] || null,
           graduationYear: row['Graduation Year'] || null,
           academicYear: row['Academic Year'] || null,
         });
 
-        attendanceRecords.push({
+        attendanceRecords.add(JSON.stringify({
           email,
           checkInDate: formatDateToMySQL(row['Checked-In Date']),
           eventID,
           organizationID,
-        });
+        }));
       })
       .on('end', async () => {
         console.log('CSV file successfully processed');
@@ -54,12 +57,12 @@ const processCsv = async (filePath, eventType, orgID) => {
           await connection.beginTransaction();
           for (const member of members) {
             const [memberResult] = await connection.query(
-              `INSERT INTO Members (UserName, FirstName, LastName, Email, DisplayName, Major, GraduationYear, AcademicYear)
+              `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, Major, GraduationYear, AcademicYear)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
               ON DUPLICATE KEY UPDATE 
                 FirstName = VALUES(FirstName),
                 LastName = VALUES(LastName),
-                DisplayName = VALUES(DisplayName),
+                FullName = VALUES(FullName),
                 Major = VALUES(Major),
                 GraduationYear = VALUES(GraduationYear),
                 AcademicYear = VALUES(AcademicYear)`,
@@ -68,18 +71,22 @@ const processCsv = async (filePath, eventType, orgID) => {
                 member.firstName,
                 member.lastName,
                 member.email,
-                member.displayName,
+                member.FullName,
                 member.major,
                 member.graduationYear,
                 member.academicYear,
               ]
             );
-            const memberID = memberResult.insertId || memberResult.affectedRows;
+            // const memberID = memberResult.insertId || memberResult.affectedRows;
+            // Changed this to grab the memberID from the database, 
+            // the previous memberResult.insertID always returned 0
             await connection.query(
               `INSERT INTO OrganizationMembers (OrganizationID, MemberID, Role, RoleID)
-              VALUES (?, ?, ?, ?)
+                SELECT ?, MemberID, ?, ?
+                FROM Members 
+                WHERE Email = ?
               ON DUPLICATE KEY UPDATE Role = VALUES(Role), RoleID = VALUES(RoleID)`,
-              [organizationID, memberID, defaultRole, defaultRoleID]
+              [organizationID, defaultRole, defaultRoleID, member.email]
             );
           }
 

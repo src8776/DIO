@@ -109,7 +109,7 @@ function AdminDash() {
 
           {/* Data Table */}
           <Paper elevation={1}>
-            <DataTable />
+            <DataTable orgID={orgID} />
           </Paper>
         </Box>
       </Paper>

@@ -19,7 +19,7 @@ const style = {
 };
 
 
-export default function ActiveModal({ orgID, rule }) {
+export default function ActiveModal({ orgID }) {
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
@@ -91,7 +91,7 @@ export default function ActiveModal({ orgID, rule }) {
                         </TableHead>
                         <TableBody>
                             <TableCell>To Achieve 'active' status:</TableCell>
-                            <TableCell>{activeRequirement ? (orgID == 1 ? 'Meet all criteria' : `earn ${activeRequirement} points`) : 'no rule defined'}</TableCell>
+                            <TableCell>{activeRequirement ? (orgID == 1 ? `Meet ${activeRequirement} criteria` : `earn ${activeRequirement} points`) : 'no rule defined'}</TableCell>
                         </TableBody>
                     </Table>
                 </Box>

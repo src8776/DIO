@@ -26,7 +26,7 @@ const style = {
 };
 
 // Helper function to generate a readable description for a given rule
-function generateRuleDescription(rule, ruleType) {
+function generateRuleDescription(rule, ruleType, eventTypeID) {
     const { criteria, criteriaValue, pointValue } = rule;
 
     // Use a switch-case (or if-else) to handle different rule types

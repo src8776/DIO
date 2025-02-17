@@ -42,6 +42,7 @@ router.get('/OrganizationSetupPage', async (req, res) => {
 
             if (!eventTypesMap[eventTypeID]) {
                 eventTypesMap[eventTypeID] = {
+                    eventTypeID: row.eventTypeID,
                     name: row.EventType,
                     ruleType: row.RuleType,
                     OccurrenceTotal: row.OccurrenceTotal,
@@ -68,5 +69,7 @@ router.get('/OrganizationSetupPage', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
 
 module.exports = router;

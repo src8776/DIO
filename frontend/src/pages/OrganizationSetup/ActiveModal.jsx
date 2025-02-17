@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Box, Button, Container, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, IconButton, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 
 const style = {
     display: 'flex',
@@ -18,14 +19,19 @@ const style = {
 };
 
 
-export default function ActiveModal({org, rule}) {
+export default function ActiveModal({ org, rule }) {
 
     return (
         <Container >
             <Paper elevation={1} sx={style}>
-                <Typography variant="h5">
-                    "Active" status requirements
-                </Typography>
+                <Box sx={{display: 'flex', flexDirection: 'row', gap: 4}}>
+                    <Typography variant="h5">
+                        "Active" status requirements
+                    </Typography>
+                    <IconButton>
+                        <EditIcon/>
+                    </IconButton>
+                </Box>
                 {/* Form Elements */}
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
                     <Table>
@@ -35,12 +41,12 @@ export default function ActiveModal({org, rule}) {
                         </TableHead>
                         <TableBody>
                             <TableCell>To Achieve 'active' status:</TableCell>
-                            <TableCell>{org == "WiC" ? 'Meet all criteria' : `earn ${rule} points`} </TableCell>
+                            <TableCell>{org == 1 ? 'Meet all criteria' : `earn ${rule} points`} </TableCell>
                         </TableBody>
                     </Table>
                 </Box>
 
-                
+
             </Paper>
         </Container>
 

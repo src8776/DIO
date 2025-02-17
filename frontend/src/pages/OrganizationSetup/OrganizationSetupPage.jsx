@@ -295,11 +295,11 @@ export default function OrganizationSetup() {
                             <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Organization Rules</Typography>
                         }>
                         <ListItemButton onClick={handleOpen} sx={{}}>
-                            <ListItemText primary={"'Active' requirements"} />
+                            <ListItemText primary={"'Active' Requirements"} />
                         </ListItemButton>
                         <Modal open={open} onClose={handleClose}>
                             <Box>
-                                <ActiveModal org={usedRules.name} rule={usedRules.activeMembershipRequirement.value} />
+                                <ActiveModal org={orgID} rule={usedRules.activeMembershipRequirement.value} />
                             </Box>
                         </Modal>
                     </List>

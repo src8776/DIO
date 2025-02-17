@@ -204,8 +204,8 @@ export default function DataTable({ orgID }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('FullName');
+    const [order, setOrder] = React.useState('desc');
+    const [orderBy, setOrderBy] = React.useState('LastUpdated');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);

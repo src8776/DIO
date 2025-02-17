@@ -1,25 +1,25 @@
 import * as React from 'react';
-import { Container, TableCell, TableRow } from '@mui/material';
-import EventRule from './EventRule';
+import { Box, ListItemButton, ListItemText, Modal } from '@mui/material';
+import EventItemRules from './EventItemRules';
 
 
-export default function EventItem({
-    eventType, eventRules
-}) {
+
+
+export default function RuleListItem({ name, rules, ruleType }) {
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
     return (
         <>
-            {/* Event title (e.g., General Meeting) */}
-            <TableRow sx={{ borderBottom: "2px solid lightgray" }}>
-                <TableCell>{eventType}</TableCell>
-            </TableRow>
-
-            {/* Track type and event rules */}
-            {eventRules.map((rule, index) => (
-                <TableRow key={`rule-${index}`}>
-                    <TableCell/> 
-                    <EventRule {...rule} />
-                </TableRow>
-            ))}
+            <ListItemButton onClick={handleOpen}>
+                <ListItemText primary={name} />
+            </ListItemButton>
+            <Modal open={open} onClose={handleClose}>
+                <Box>
+                    <EventItemRules name={name} rules={rules} ruleType={ruleType} />
+                </Box>
+            </Modal>
         </>
-    );
-}
+    )
+};

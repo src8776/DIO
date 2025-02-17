@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Container, IconButton, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, IconButton, Modal, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 const style = {
@@ -19,35 +19,108 @@ const style = {
 };
 
 
-export default function ActiveModal({ org, rule }) {
+export default function ActiveModal({ orgID, rule }) {
+    const [activeRequirement, setActiveRequirement] = React.useState(null);
+    const [open, setOpen] = React.useState(false);
+    const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
+
+    React.useEffect(() => {
+        fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
+            .then((response) => response.json())
+            .then((data) => {
+                // console.log('Fetched data:', data);
+                if (data.length > 0) {
+                    setActiveRequirement(data[0].ActiveRequirement); // Extract Name directly
+                } else {
+                    setActiveRequirement(null); // Set to null if no data
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+                setActiveRequirement(null); // Set to null on error
+            });
+    }, [orgID]);
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    const handleSave = () => {
+        console.log('Saving new active requirement:', newActiveRequirement);
+        fetch('/api/organizationInfo/updateActiveRequirement', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                organizationID: orgID,
+                activeRequirement: newActiveRequirement,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    setActiveRequirement(newActiveRequirement);
+                    handleClose();
+                } else {
+                    console.error('Error updating active requirement:', data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating active requirement:', error);
+            });
+    };
 
     return (
         <Container >
             <Paper elevation={1} sx={style}>
-                <Box sx={{display: 'flex', flexDirection: 'row', gap: 4}}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
                     <Typography variant="h5">
                         "Active" status requirements
                     </Typography>
-                    <IconButton>
-                        <EditIcon/>
+                    <IconButton onClick={handleOpen}>
+                        <EditIcon />
                     </IconButton>
                 </Box>
                 {/* Form Elements */}
-                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center'}}>
                     <Table>
                         <TableHead>
                             <TableCell><strong>Rule</strong></TableCell>
-                            <TableCell><strong>{org == "WiC" ? 'Criteria' : 'Points'}</strong></TableCell>
+                            <TableCell><strong>{orgID == 1 ? 'Criteria' : 'Points'}</strong></TableCell>
                         </TableHead>
                         <TableBody>
                             <TableCell>To Achieve 'active' status:</TableCell>
-                            <TableCell>{org == 1 ? 'Meet all criteria' : `earn ${rule} points`} </TableCell>
+                            <TableCell>{activeRequirement ? (orgID == 1 ? 'Meet all criteria' : `earn ${activeRequirement} points`) : 'no rule defined'}</TableCell>
                         </TableBody>
                     </Table>
                 </Box>
 
-
+                {open && (
+                    <Box sx={{  width: '100%' }}>
+                        <Typography variant="h6" sx={{ mb: 2 }}>
+                            Update {orgID == 1 ? 'Criteria' : 'Points'} Rule
+                        </Typography>
+                        <TextField
+                            label="New Active Requirement"
+                            value={newActiveRequirement}
+                            onChange={(e) => setNewActiveRequirement(e.target.value)}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                            <Button variant="contained" color="primary" onClick={handleSave}>
+                                Save
+                            </Button>
+                            <Button variant="outlined" onClick={handleClose}>
+                                Cancel
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
             </Paper>
+
+            
         </Container>
 
     )

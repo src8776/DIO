@@ -299,7 +299,7 @@ export default function OrganizationSetup() {
                         </ListItemButton>
                         <Modal open={open} onClose={handleClose}>
                             <Box>
-                                <ActiveModal org={orgID} rule={usedRules.activeMembershipRequirement.value} />
+                                <ActiveModal orgID={orgID} rule={usedRules.activeMembershipRequirement.value} />
                             </Box>
                         </Modal>
                     </List>

@@ -74,16 +74,16 @@ export default function ActiveModal({ orgID, rule }) {
     return (
         <Container >
             <Paper elevation={1} sx={style}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                     <Typography variant="h5">
                         "Active" status requirements
                     </Typography>
-                    <IconButton onClick={handleOpen}>
-                        <EditIcon />
+                    <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
+                        <EditIcon/>
                     </IconButton>
                 </Box>
                 {/* Form Elements */}
-                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center'}}>
+                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%'}}>
                     <Table>
                         <TableHead>
                             <TableCell><strong>Rule</strong></TableCell>

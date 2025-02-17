@@ -31,11 +31,11 @@ const style = {
 export default function ImportDataPage() {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
+    const [eventTypeItems, setEventTypeItems] = React.useState([]);
     const [eventType, setEventType] = React.useState('');
     const [eventDate, setEventDate] = React.useState(dayjs()); // eventDate defaults to today's date
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
-
 
     const handleEventTypeChange = (event) => {
         setEventType(event.target.value);
@@ -66,17 +66,22 @@ export default function ImportDataPage() {
         });
     };
 
-
+    React.useEffect(() => {
+        fetch(`/api/admin/events?organizationID=${orgID}`)
+          .then((response) => response.json())
+          .then((data) => setEventTypeItems(data))
+          .catch((error) => console.error("Error fetching data:", error));
+      }, []);
 
     // TODO: populate menuItems from database
-    const menuItems = [
-        "Committee Meeting",
-        "General Meeting",
-        "Mentor Event",
-        "Social Event",
-        "Volunteer Event",
-        "Workshop",
-    ];
+    //const menuItems = [
+        //"Committee Meeting",
+        //"General Meeting",
+        //"Mentor Event",
+        //"Social Event",
+        //"Volunteer Event",
+        //"Workshop",
+    //];
 
     // TODO: pull members from database (maybe filter for members from the current semester)
     const members = [
@@ -105,9 +110,9 @@ export default function ImportDataPage() {
                             label="Event Type"
                             sx={{ minWidth: '200px' }}
                         >
-                            {menuItems.map((item, index) => (
-                                <MenuItem key={index} value={item}>
-                                    {item}
+                            {eventTypeItems.map((item) => (
+                                <MenuItem key={item.EventTypeID} value={item.EventType}>
+                                    {item.EventType}
                                 </MenuItem>
                             ))}
                         </Select>

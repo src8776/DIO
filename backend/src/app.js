@@ -13,6 +13,11 @@ NOTE TO ALL!!! ALL BACKEND ROUTES SHOULD BEGIN WITH '/api/'!!!
 THIS MAKE SURE WE KNOW WHAT IS BEING SENT TO BACKEND VERSUS FRONTEND
 */
 
+// For health check
+app.get('/api/health', (req, res) => {
+    res.status(200).send('SERVER UP');
+});
+
 //add admin route
 const adminRoutes = require('./routes/admin.js');
 app.use('/api/admin', adminRoutes); 
@@ -22,12 +27,10 @@ const organizationRulesRoutes = require('./routes/organizationRules.js');
 app.use('/api/organizationRules', organizationRulesRoutes);
 
 const organizationInfoRoutes = require('./routes/organizationInfo.js');
-app.use('/api/organizationInfo', organizationInfoRoutes)
+app.use('/api/organizationInfo', organizationInfoRoutes);
 
-// For health check
-app.get('/api/health', (req, res) => {
-    res.status(200).send('SERVER UP');
-});
+const eventRoutes = require('./routes/events');
+app.use('/api/admin/events', eventRoutes);
 
 app.post('/api/shib-user', (req, res) => {
     const { uid, givenName, surname, email } = req.body;

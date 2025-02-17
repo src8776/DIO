@@ -135,7 +135,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
           if (!eventID) {
             console.warn(`No EventID found for ${eventType}, skipping attendance insert.`);
             await connection.rollback();
-            return resolve();
+            return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
           }
 
           for (const attendance of attendanceRecords) {
@@ -151,7 +151,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
               if (!memberID) {
                 console.warn(`Skipping ${attendance.email} due to missing MemberID`);
                 await connection.rollback();
-                return resolve();
+                return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
               }
 
               // insert in OrganizationMembers if new member
@@ -167,7 +167,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
             } catch (err) {
               console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
               await connection.rollback();
-              return resolve();
+              return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
             }
           }
 

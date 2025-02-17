@@ -53,6 +53,12 @@ export default function ActiveModal({ orgID, numberOfRules }) {
             return;
         }
 
+        if (newActiveRequirement <= 0) {
+            setError(true);
+            setHelperText(`Value must be at least 1`);
+            return;
+        }
+
         fetch('/api/organizationInfo/updateActiveRequirement', {
             method: 'POST',
             headers: {

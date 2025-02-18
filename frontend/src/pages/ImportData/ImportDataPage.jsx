@@ -9,10 +9,6 @@ import FileUploadButton from '../../components/FileUploadButton';
 import { Remove } from '@mui/icons-material';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-// TODO: populate menuItems from database
-// TODO: error handling, make sure all fields are filled out when trying to import data
-// TODO: Set up the upload volunteer hours button to add the volunteer hours to the appropriate member accounts
-
 const style = {
     display: 'flex',
     flexDirection: 'column',
@@ -252,7 +248,7 @@ export default function ImportDataPage() {
                 {/* Show "Upload Volunteer Hours" button if the event type is Volunteer Event */}
 
                 {eventType === "Volunteer Event" ? (
-                    // TODO: Set this up to upload the data provided by the user into the database
+                    
                     <Button variant="contained" color="primary" onClick={logMembers}>
                         Upload Volunteer Hours
                     </Button>

@@ -31,11 +31,12 @@ const style = {
 export default function ImportDataPage() {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
+    const [eventTypeItems, setEventTypeItems] = React.useState([]);
     const [eventType, setEventType] = React.useState('');
     const [eventDate, setEventDate] = React.useState(dayjs()); // eventDate defaults to today's date
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
-
+    const [allMembers, setAllMembers] = React.useState([]);
 
     const handleEventTypeChange = (event) => {
         setEventType(event.target.value);
@@ -50,41 +51,62 @@ export default function ImportDataPage() {
     };
 
     const addMemberToList = (member) => {
-        if (!selectedMembers.some(m => m.id === member.id)) {
+        if (!selectedMembers.some(m => m.MemberID === member.MemberID)) {
             setSelectedMembers([...selectedMembers, { ...member, date: eventDate, hours: volunteerHours }]);
         }
     };
 
     const removeMemberFromList = (memberId) => {
-        setSelectedMembers(selectedMembers.filter(member => member.id !== memberId));
+        setSelectedMembers(selectedMembers.filter(member => member.MemberID !== memberId));
     };
 
     const logMembers = () => {
         console.log('Volunteer Hours Log:');
-        selectedMembers.forEach(member => {
-            console.log(`Member: ${member.name}, Date Volunteered: ${member.date}, Hours Volunteered: ${member.hours}`);
-        });
+    
+        const data = {
+            orgID: orgID,
+            eventType: eventType,
+            members: selectedMembers,
+        };
+        console.log(data);
+        fetch(`/api/admin/volunteers/hours`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            if (!data.success) {
+              //const msg = "Failed to upload file: " + data.file.originalname + " due to " + data.error;
+              //showAlert(msg, 'error');
+              console.log("Fail to upload hours");
+            } else {
+              //showAlert('Successfully uploaded file: ' + data.file.originalname, 'success');
+              console.log(data.message);
+            }
+          })
+          .catch(error => {
+            console.log(error);
+            showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
+          });
     };
 
+    React.useEffect(() => {
+        fetch(`/api/admin/events?organizationID=${orgID}`)
+          .then((response) => response.json())
+          .then((data) => setEventTypeItems(data))
+          .catch((error) => console.error("Error fetching data:", error));
+      }, []);
 
-
-    // TODO: populate menuItems from database
-    const menuItems = [
-        "Committee Meeting",
-        "General Meeting",
-        "Mentor Event",
-        "Social Event",
-        "Volunteer Event",
-        "Workshop",
-    ];
-
-    // TODO: pull members from database (maybe filter for members from the current semester)
-    const members = [
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Smith' },
-        { id: 3, name: 'Alice Johnson' },
-        { id: 4, name: 'Bob Brown' },
-    ];
+    React.useEffect(() => {
+        fetch(`/api/admin/members/names?organizationID=${orgID}`)
+          .then((response) => response.json())
+          .then((data) => setAllMembers(data))
+          .catch((error) => console.error("Error fetching data:", error));
+      }, []);
 
     return (
         <Container >
@@ -105,9 +127,9 @@ export default function ImportDataPage() {
                             label="Event Type"
                             sx={{ minWidth: '200px' }}
                         >
-                            {menuItems.map((item, index) => (
-                                <MenuItem key={index} value={item}>
-                                    {item}
+                            {eventTypeItems.map((item) => (
+                                <MenuItem key={item.EventTypeID} value={item.EventType}>
+                                    {item.EventType}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -151,8 +173,8 @@ export default function ImportDataPage() {
 
                                 {/* Autocomplete for Member Selection */}
                                 <Autocomplete
-                                    options={members}
-                                    getOptionLabel={(option) => option.name}
+                                    options={allMembers}
+                                    getOptionLabel={(option) => option.FullName}
                                     onChange={(event, value) => {
                                         // Only add to the list if value is not null or undefined
                                         if (value) {
@@ -160,7 +182,7 @@ export default function ImportDataPage() {
                                         }
                                     }}
                                     renderInput={(params) => <TextField {...params} label="Add Member" />}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
                                     sx={{ marginBottom: 2 }}
                                 />
                             </FormControl>
@@ -178,10 +200,10 @@ export default function ImportDataPage() {
                                     </TableHead>
                                     <TableBody>
                                         {selectedMembers.map((member) => (
-                                            <TableRow key={member.id}>
-                                                <TableCell>{member.name}</TableCell>
+                                            <TableRow key={member.MemberID}>
+                                                <TableCell>{member.FullName}</TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton onClick={() => removeMemberFromList(member.id)}>
+                                                    <IconButton onClick={() => removeMemberFromList(member.MemberID)}>
                                                         <Remove />
                                                     </IconButton>
                                                 </TableCell>

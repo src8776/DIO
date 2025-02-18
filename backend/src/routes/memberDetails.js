@@ -26,10 +26,10 @@ router.get('/allDetails', async (req, res) => {
                             'CheckInTime', a.CheckInTime
                         )
                     ) 
-                    FROM attendance a 
+                    FROM Attendance a 
                     WHERE a.MemberID = m.MemberID
                 ) AS attendanceRecords
-            FROM members m
+            FROM Members m
             WHERE m.MemberID = ?;
         `;
         const [rows] = await db.query(query, [memberID]);
@@ -41,11 +41,3 @@ router.get('/allDetails', async (req, res) => {
 });
 
 module.exports = router;
-
- // SELECT 
-            //     m.*, 
-            //     (SELECT JSON_ARRAYAGG(a) 
-            //     FROM attendance a 
-            //     WHERE a.memberID = m.MemberID) AS attendanceRecords
-            // FROM members m
-            // WHERE m.MemberID = ?;

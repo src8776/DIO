@@ -26,8 +26,8 @@ router.get('/OrganizationSetupPage', async (req, res) => {
                 er.Criteria,
                 er.CriteriaValue,
                 er.PointValue
-            FROM eventtypes et
-            LEFT JOIN eventrules er 
+            FROM EventTypes et
+            LEFT JOIN EventRules er 
                 ON et.EventTypeID = er.EventTypeID 
                 AND er.OrganizationID = et.OrganizationID
             WHERE et.OrganizationID = ?;

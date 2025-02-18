@@ -33,6 +33,10 @@ app.use('/api/admin/events', eventRoutes);
 const memberRoutes = require('./routes/members');
 app.use('/api/admin/members', memberRoutes);
 
+const volunteerRoutes = require('./routes/volunteers');
+app.use('/api/admin/volunteers', volunteerRoutes);
+
+
 app.post('/api/shib-user', (req, res) => {
     const { uid, givenName, surname, email } = req.body;
 

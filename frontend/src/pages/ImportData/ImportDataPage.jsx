@@ -62,9 +62,36 @@ export default function ImportDataPage() {
 
     const logMembers = () => {
         console.log('Volunteer Hours Log:');
-        selectedMembers.forEach(member => {
-            console.log(`Member: ${member.name}, Date Volunteered: ${member.date}, Hours Volunteered: ${member.hours}`);
-        });
+    
+        const data = {
+            orgID: orgID,
+            eventType: eventType,
+            members: selectedMembers,
+        };
+        console.log(data);
+        fetch(`/api/admin/volunteers/hours`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            if (!data.success) {
+              //const msg = "Failed to upload file: " + data.file.originalname + " due to " + data.error;
+              //showAlert(msg, 'error');
+              console.log("Fail to upload hours");
+            } else {
+              //showAlert('Successfully uploaded file: ' + data.file.originalname, 'success');
+              console.log(data.message);
+            }
+          })
+          .catch(error => {
+            console.log(error);
+            showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
+          });
     };
 
     React.useEffect(() => {
@@ -174,7 +201,7 @@ export default function ImportDataPage() {
                                     <TableBody>
                                         {selectedMembers.map((member) => (
                                             <TableRow key={member.MemberID}>
-                                                <TableCell>{member.name}</TableCell>
+                                                <TableCell>{member.FullName}</TableCell>
                                                 <TableCell align="center">
                                                     <IconButton onClick={() => removeMemberFromList(member.MemberID)}>
                                                         <Remove />

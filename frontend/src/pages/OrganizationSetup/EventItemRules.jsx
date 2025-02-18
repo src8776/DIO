@@ -1,15 +1,14 @@
 import * as React from 'react';
 import {
-    Container,
-    Paper,
-    Typography,
-    Box,
-    Table,
-    TableHead,
-    TableBody,
-    TableRow,
-    TableCell
+    Container, Paper, Typography,
+    Box, Table, TableHead,
+    TableBody, TableRow, TableCell,
+    IconButton, Button,
+    TextField
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+
 
 const style = {
     display: 'flex',
@@ -71,27 +70,107 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType }) {
-    // You can also define any custom styles for your Paper if desired.
+export default function EventItemRules({ name, rules, ruleType, orgID }) {
+    const [open, setOpen] = React.useState(false);
+    const [selectedRule, setSelectedRule] = React.useState(null);
+    const [newCriteriaValue, setNewCriteriaValue] = React.useState(null);
+    const [newPointValue, setNewPointValue] = React.useState(null);
+    const [percentError, setPercentError] = React.useState('');
+    const [pointError, setPointError] = React.useState('');
+
+    const handleOpen = (rule) => {
+        setSelectedRule(rule);
+        setNewCriteriaValue(rule.criteriaValue);
+        setNewPointValue(rule.pointValue);
+        setOpen(true);
+    };
+
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedRule(null);
+        setNewCriteriaValue('');
+        setNewPointValue('');
+        setPercentError('');
+        setPointError('');
+    };
+
+    const handleSave = () => {
+        if (selectedRule.criteria === 'minimum threshold percentage') {
+            if (newCriteriaValue < 0.01 || newCriteriaValue > 1) {
+                setPercentError('Percentage value must be between 0.01 and 1');
+                return;
+            }
+        }
+
+        if (newPointValue < 1) {
+            setPointError('Point value must be at least 1');
+            return;
+        }
+
+        fetch('/api/organizationRules/updateRule', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ruleID: selectedRule.ruleID,
+                criteriaValue: newCriteriaValue,
+                pointValue: newPointValue,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Update the rule in the local state
+                    selectedRule.criteriaValue = newCriteriaValue;
+                    selectedRule.pointValue = newPointValue;
+                    handleClose();
+                } else {
+                    console.error('Error updating rule:', data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating rule:', error);
+            });
+    };
 
     return (
         <Container>
             <Paper elevation={1} sx={style}>
-                <Typography variant="h5" gutterBottom>
-                    {name}
-                </Typography>
+                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Typography variant="h5" gutterBottom>
+                        {name}
+                    </Typography>
+
+                </Box>
                 <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
                     <Table>
                         <TableHead>
                             <TableRow>
+                                <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
+                                {/* new rule button */}
+                                <TableCell align='right'>
+                                    <IconButton sx={{ color: '#08A045' }}>
+                                        <AddCircleOutlineIcon />
+                                    </IconButton>
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {rules && rules.length > 0 ? (
                                 rules.map((rule, index) => (
                                     <TableRow key={index}>
+                                        <TableCell>{rule.ruleID}</TableCell>
                                         <TableCell>{generateRuleDescription(rule, ruleType)}</TableCell>
+                                        <TableCell align='right'>
+                                            {rule.criteria !== 'one off' && (
+                                                <IconButton onClick={() => handleOpen(rule)} sx={{ color: '#015aa2' }}>
+                                                    <EditIcon />
+                                                </IconButton>
+                                            )}
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
@@ -104,6 +183,44 @@ export default function EventItemRules({ name, rules, ruleType }) {
                         </TableBody>
                     </Table>
                 </Paper>
+
+                {open && (
+                    <Box sx={{ width: '100%' }}>
+                        <Typography variant="h6" sx={{ mb: 2 }}>
+                            Updating Rule: {selectedRule.ruleID}
+                        </Typography>
+                        {selectedRule && selectedRule.criteria !== 'attendance' && selectedRule.criteria !== 'one off' && (
+                            <TextField
+                                label="New Criteria Value"
+                                value={newCriteriaValue}
+                                onChange={(e) => setNewCriteriaValue(e.target.value)}
+                                fullWidth
+                                sx={{ mb: 2 }}
+                                error={!!percentError}
+                                helperText={percentError}
+                            />
+                        )}
+                        {orgID !== 1 && (
+                            <TextField
+                                label="New Point Value"
+                                value={newPointValue}
+                                onChange={(e) => setNewPointValue(e.target.value)}
+                                fullWidth
+                                sx={{ mb: 2 }}
+                                error={!!pointError}
+                                helperText={pointError}
+                            />
+                        )}
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                            <Button variant="contained" color="primary" onClick={handleSave}>
+                                Save
+                            </Button>
+                            <Button variant="outlined" onClick={handleClose}>
+                                Cancel
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
             </Paper>
         </Container>
     );

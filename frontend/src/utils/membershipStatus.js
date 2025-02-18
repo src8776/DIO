@@ -5,7 +5,7 @@
  * @param {Object} eventConfig - The configuration for this event type.
  * @returns {number} Total points earned for this event type.
  */
-function processEventType(events, eventConfig) {
+export function processEventType(events, eventConfig) {
     let points = 0;
     const rules = eventConfig.rules || [];
 
@@ -80,7 +80,7 @@ function processEventType(events, eventConfig) {
  * @param {number} requiredPoints - The points required to be considered active.
  * @returns {string} "active" if the total points meet/exceed requiredPoints; otherwise "inactive".
  */
-function determineMembershipStatusModular(attendanceData, config, requiredPoints) {
+export function determineMembershipStatusModular(attendanceData, config, requiredPoints) {
     let totalPoints = 0;
 
     // Group attendance records by event type.

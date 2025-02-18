@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from 'react';
 import {
     Container,
     Typography,
@@ -17,6 +17,7 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import RouteIcon from '@mui/icons-material/Route';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import { determineMembershipStatusModular } from "../../utils/membershipStatus";
 
 // TODO: This is where we want all of the user's information.
 
@@ -72,7 +73,24 @@ const mockMemberData = {
     ],
 };
 
-const AccountOverview = ({ userObj, organization }) => {
+const AccountOverview = ({ organization }) => {
+    const [orgConfig, setOrgConfig] = React.useState([]);
+    const [userAttendance, setUserAttendance] = React.useState([]);
+    const [userStatus, setUserStatus] = React.useState('');
+    const orgID = 1;
+    const memberID = 16;
+
+    React.useEffect(() => {
+        if (!memberID || !orgID) return;
+        // console.log('Fetching data for memberID:', memberID, 'and orgID:', orgID);
+        fetch(`/api/memberDetails/attendance?memberID=${memberID}&organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => {
+                // console.log('Fetched data:', data);
+                setUserAttendance(data);
+            })
+            .catch(error => console.error('Error fetching data for MemberInfo:', error));
+    }, [memberID, orgID]);
 
     return (
         <Container>
@@ -131,14 +149,14 @@ const AccountOverview = ({ userObj, organization }) => {
                         {/* Active Path Container */}
                         <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '450px', borderRadius: 3 }}>
                             {/* Header box */}
-                            <Box sx={{ display: 'flex', alignItems: 'center',  gap: 1, p:2}} >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }} >
                                 <RouteIcon />
                                 <Typography variant="h5">
                                     Active Path
                                 </Typography>
                             </Box>
                             {/* Rule Categories */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column' , overflowY: 'auto', p: 1, gap: 2}}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', p: 1, gap: 2 }}>
                                 <Paper sx={{ display: 'flex', flexDirection: 'column', p: 1, gap: 1, borderRadius: 3, }}>
                                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Typography variant="h6">General Meetings</Typography>
@@ -196,10 +214,10 @@ const AccountOverview = ({ userObj, organization }) => {
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{  }} />
+                                            <RadioButtonUncheckedIcon sx={{}} />
                                             <Typography>+3 points for 6 hours volunteered</Typography>
                                         </Box>
-                                        <Typography sx={{  }}>+0</Typography>
+                                        <Typography sx={{}}>+0</Typography>
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>

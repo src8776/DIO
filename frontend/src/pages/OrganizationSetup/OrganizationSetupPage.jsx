@@ -92,6 +92,7 @@ export default function OrganizationSetup() {
                             <EventItem
                                 key={`rule-${index}`}
                                 {...eventObj}
+                                orgID={orgID}
                             />
                         ))}
 

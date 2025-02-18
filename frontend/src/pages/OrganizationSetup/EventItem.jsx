@@ -5,7 +5,7 @@ import EventItemRules from './EventItemRules';
 
 
 
-export default function RuleListItem({ name, rules, ruleType, eventTypeID }) {
+export default function RuleListItem({ name, rules, ruleType, orgID }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -17,7 +17,7 @@ export default function RuleListItem({ name, rules, ruleType, eventTypeID }) {
             </ListItemButton>
             <Modal open={open} onClose={handleClose}>
                 <Box>
-                    <EventItemRules name={name} rules={rules} ruleType={ruleType} eventTypeID={eventTypeID} />
+                    <EventItemRules name={name} rules={rules} ruleType={ruleType} orgID={orgID} />
                 </Box>
             </Modal>
         </>

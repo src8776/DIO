@@ -71,5 +71,33 @@ router.get('/OrganizationSetupPage', async (req, res) => {
 });
 
 
+router.put('/updateRule', async (req, res) => {
+    console.log('Received request at /updateRule (PUT)');
+
+    const { ruleID, criteriaValue, pointValue } = req.body;
+
+    if (!ruleID || criteriaValue === undefined || pointValue === undefined) {
+        return res.status(400).json({ error: 'Missing ruleID, criteriaValue, or pointValue parameter' });
+    }
+
+    try {
+        const query = `
+            UPDATE EventRules
+            SET CriteriaValue = ?, PointValue = ?
+            WHERE RuleID = ?
+        `;
+        const [result] = await db.query(query, [criteriaValue, pointValue, ruleID]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'RuleID not found' });
+        }
+
+        res.json({ success: true, message: 'Rule updated successfully' });
+    } catch (error) {
+        console.error('Error updating rule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = router;

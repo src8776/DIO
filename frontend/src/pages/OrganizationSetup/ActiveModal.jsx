@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Container, IconButton, Modal, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, IconButton, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 const style = {
@@ -23,6 +23,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
+    const [requirementType, setRequirementType] = React.useState('');
     const [error, setError] = React.useState(false);
     const [helperText, setHelperText] = React.useState('');
 
@@ -31,14 +32,17 @@ export default function ActiveModal({ orgID, numberOfRules }) {
             .then((response) => response.json())
             .then((data) => {
                 if (data.length > 0) {
-                    setActiveRequirement(data[0].ActiveRequirement); // Extract Name directly
+                    setActiveRequirement(data[0].ActiveRequirement); // Extract ActiveRequirement directly
+                    setRequirementType(data[0].Description); // Extract RequirementType directly (either 'points' or 'criteria')
                 } else {
-                    setActiveRequirement(null); 
+                    setActiveRequirement(null);
+                    setRequirementType(null);
                 }
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
-                setActiveRequirement(null); 
+                setActiveRequirement(null);
+                setRequirementType(null);
             });
     }, [orgID]);
 
@@ -46,7 +50,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
     const handleClose = () => setOpen(false);
 
     const handleSave = () => {
-        if (newActiveRequirement > numberOfRules) {
+        if (requirementType == 'criteria' & newActiveRequirement > numberOfRules) {
             setError(true);
             setHelperText(`Value cannot be greater than ${numberOfRules}`);
             return;
@@ -90,36 +94,37 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                         "Active" status requirements
                     </Typography>
                     <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
-                        <EditIcon/>
+                        <EditIcon />
                     </IconButton>
                 </Box>
                 {/* Form Elements */}
-                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%'}}>
+                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
                     <Table>
                         <TableHead>
                             <TableCell><strong>Rule</strong></TableCell>
-                            <TableCell><strong>{orgID == 1 ? 'Criteria' : 'Points'}</strong></TableCell>
+                            <TableCell><strong>{requirementType == 'criteria' ? 'Criteria' : 'Points'}</strong></TableCell>
                         </TableHead>
                         <TableBody>
-                            <TableCell>To Achieve 'active' status:</TableCell>
+                            <TableCell>To achieve 'active' status:</TableCell>
                             <TableCell>
                                 {activeRequirement ? (
-                                    orgID == 1 ? (
+                                    requirementType == 'criteria' ? (
                                         activeRequirement == numberOfRules ? 'Meet all criteria' : `Meet at least ${activeRequirement} criteria`
                                     ) : (
-                                        `earn ${activeRequirement} points`
+                                        `earn ${activeRequirement} points.`
                                     )
                                 ) : (
                                     'no rule defined'
                                 )}
-                            </TableCell>                        </TableBody>
+                            </TableCell>
+                        </TableBody>
                     </Table>
                 </Box>
 
                 {open && (
-                    <Box sx={{  width: '100%' }}>
+                    <Box sx={{ width: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 2 }}>
-                            Update {orgID == 1 ? 'Criteria' : 'Points'} Rule
+                            Update {requirementType == 'criteria' ? 'Criteria' : 'Points'} Requirement
                         </Typography>
                         <TextField
                             label="New Active Requirement"
@@ -142,7 +147,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                 )}
             </Paper>
 
-            
+
         </Container>
 
     )

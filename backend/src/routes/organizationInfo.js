@@ -40,7 +40,8 @@ router.get('/activeRequirement', async (req, res) => {
     try {
         const query = `
             SELECT 
-                ActiveRequirement
+                ActiveRequirement,
+                Description
             FROM 
                 OrganizationSettings
             WHERE OrganizationID = ?

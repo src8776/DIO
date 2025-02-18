@@ -149,9 +149,11 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
                                         <TableCell>{rule.ruleID}</TableCell>
                                         <TableCell>{generateRuleDescription(rule, ruleType)}</TableCell>
                                         <TableCell align='right'>
-                                            <IconButton onClick={() => handleOpen(rule)} sx={{ color: '#015aa2' }}>
-                                                <EditIcon />
-                                            </IconButton>
+                                            {rule.criteria !== 'one off' && (
+                                                <IconButton onClick={() => handleOpen(rule)} sx={{ color: '#015aa2' }}>
+                                                    <EditIcon />
+                                                </IconButton>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))

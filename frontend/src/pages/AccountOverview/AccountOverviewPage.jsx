@@ -75,22 +75,64 @@ const mockMemberData = {
 
 const AccountOverview = ({ organization }) => {
     const [orgConfig, setOrgConfig] = React.useState([]);
+    const [activeRequirement, setActiveRequirement] = React.useState('');
+    const [requirementType, setRequirementType] = React.useState('');
     const [userAttendance, setUserAttendance] = React.useState([]);
     const [userStatus, setUserStatus] = React.useState('');
     const orgID = 1;
     const memberID = 16;
 
     React.useEffect(() => {
-        if (!memberID || !orgID) return;
-        // console.log('Fetching data for memberID:', memberID, 'and orgID:', orgID);
-        fetch(`/api/memberDetails/attendance?memberID=${memberID}&organizationID=${orgID}`)
-            .then(response => response.json())
-            .then(data => {
-                // console.log('Fetched data:', data);
-                setUserAttendance(data);
+        // Fetch all required data concurrently.
+        Promise.all([
+            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`).then(res => res.json()),
+            fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`).then(res => res.json()),
+            fetch(`/api/memberDetails/attendance?memberID=${memberID}&organizationID=${orgID}`).then(res => res.json())
+        ])
+            .then(([activeReqData, orgRulesData, attendanceData]) => {
+                // Process activeRequirement data.
+                if (activeReqData.length > 0) {
+                    setActiveRequirement(activeReqData[0].ActiveRequirement);
+                    setRequirementType(activeReqData[0].Description);
+                } else {
+                    setActiveRequirement(null);
+                    setRequirementType(null);
+                }
+
+                // Process organization rules (event types)
+                const rules = orgRulesData.eventTypes;
+                setOrgConfig(rules);
+
+                // Process user's attendance data.
+                const attendanceRecords = attendanceData.length > 0 ? attendanceData[0].attendanceRecord : [];
+                setUserAttendance(attendanceRecords);
+
+                // Once all data is available, call the algorithm.
+                if (rules && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
+                    const status = determineMembershipStatusModular(
+                        attendanceRecords,
+                        { eventTypes: rules },
+                        activeReqData[0].ActiveRequirement
+                    );
+                    setUserStatus(status);
+                }
             })
-            .catch(error => console.error('Error fetching data for MemberInfo:', error));
-    }, [memberID, orgID]);
+            .catch(error => console.error('Error fetching account data:', error));
+    }, [orgID, memberID]);
+
+    // Call the algorithm once all required data is available.
+    React.useEffect(() => {
+        // Make sure orgConfig, userAttendance, and activeRequirement are loaded
+        if (orgConfig.length > 0 && userAttendance.length > 0 && activeRequirement) {
+            const status = determineMembershipStatusModular(
+                userAttendance,
+                { eventTypes: orgConfig },
+                activeRequirement
+            );
+            setUserStatus(status);
+
+        }
+    }, [orgConfig, userAttendance, activeRequirement]);
 
     return (
         <Container>
@@ -117,7 +159,7 @@ const AccountOverview = ({ organization }) => {
                             {/* Active points box */}
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 <Typography variant="h6">
-                                    Active Points
+                                    {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
                                 </Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 'bold', color: "green" }}>
                                     19/18
@@ -128,8 +170,14 @@ const AccountOverview = ({ organization }) => {
                                 <Typography variant="h6">
                                     Status
                                 </Typography>
-                                <Typography variant="h5" sx={{ fontWeight: 'bold', color: "green" }}>
-                                    Active
+                                <Typography
+                                    variant="h5"
+                                    sx={{
+                                        fontWeight: 'bold',
+                                        color: userStatus === 'inactive' ? 'red' : 'green'
+                                    }}
+                                >
+                                    {userStatus}
                                 </Typography>
                             </Box>
                             {/* Meetings Attended box */}
@@ -138,7 +186,7 @@ const AccountOverview = ({ organization }) => {
                                     Meetings Attended
                                 </Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                    53
+                                    {userAttendance.length}
                                 </Typography>
                             </Box>
                         </Box>
@@ -249,11 +297,11 @@ const AccountOverview = ({ organization }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {mockMemberData.AttendanceHistory && mockMemberData.AttendanceHistory.length > 0 ? (
-                                            mockMemberData.AttendanceHistory.map((record, index) => (
+                                        {userAttendance && userAttendance.length > 0 ? (
+                                            userAttendance.map((record, index) => (
                                                 <TableRow key={index}>
-                                                    <TableCell>{record.date}</TableCell>
-                                                    <TableCell>{record.event}</TableCell>
+                                                    <TableCell>{record.eventDate}</TableCell>
+                                                    <TableCell>{record.eventType}</TableCell>
                                                 </TableRow>
                                             ))
                                         ) : (

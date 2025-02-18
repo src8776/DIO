@@ -28,7 +28,7 @@ export default function OrganizationSetup() {
 
 
     React.useEffect(() => {
-        fetch(`/api/organizationRules/OrganizationSetupPage?organizationID=${orgID}`)
+        fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
                 console.log('Fetched data:', data);

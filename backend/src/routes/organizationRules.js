@@ -3,8 +3,8 @@ const db = require('../config/db');
 
 const router = express.Router();
 
-router.get('/OrganizationSetupPage', async (req, res) => {
-    console.log('Received request at /OrganizationSetupPage');
+router.get('/eventRules', async (req, res) => {
+    console.log('Received request at /eventRules');
 
     let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
     // console.log(organizationID)

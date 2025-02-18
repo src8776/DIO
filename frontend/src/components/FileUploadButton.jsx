@@ -3,8 +3,7 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState } from 'react';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
+import SnackbarAlert from './SnackbarAlert';
 
 // TODO: use selectedEventType to ensure data from files is assigned the correct event type
 
@@ -27,9 +26,14 @@ export default function InputFileUpload({ orgID, eventType }) {
   const selectedEventType = eventType;
   const selectedOrgID = orgID;
   const [file, setFile] = useState(null);
+
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
   const showAlert = (message, severity) => {
     setAlertMessage(message);
@@ -90,10 +94,6 @@ export default function InputFileUpload({ orgID, eventType }) {
 
   };
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
   return (
     <>
       <Button
@@ -111,16 +111,12 @@ export default function InputFileUpload({ orgID, eventType }) {
           onChange={handleFileChange}
         />
       </Button>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      <SnackbarAlert
         open={openSnackbar}
-        autoHideDuration={60000}
+        message={alertMessage}
+        severity={alertSeverity}
         onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled" >
-          {alertMessage}
-        </Alert>
-      </Snackbar>
+      />
     </>
   );
 }

@@ -7,6 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import FileUploadButton from '../../components/FileUploadButton';
 import { Remove } from '@mui/icons-material';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 // TODO: populate menuItems from database
 // TODO: error handling, make sure all fields are filled out when trying to import data
@@ -35,7 +36,21 @@ export default function ImportDataPage() {
     const [eventDate, setEventDate] = React.useState(dayjs()); // eventDate defaults to today's date
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
+    const [allMembers, setAllMembers] = React.useState([]);
 
+    const [alertMessage, setAlertMessage] = React.useState('');
+    const [alertSeverity, setAlertSeverity] = React.useState('success');
+    const [openSnackbar, setOpenSnackbar] = React.useState(false);
+      
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false);
+    };
+    
+    const showAlert = (message, severity) => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setOpenSnackbar(true);
+    };
 
     const handleEventTypeChange = (event) => {
         setEventType(event.target.value);
@@ -60,10 +75,49 @@ export default function ImportDataPage() {
     };
 
     const logMembers = () => {
-        console.log('Volunteer Hours Log:');
-        selectedMembers.forEach(member => {
-            console.log(`Member: ${member.name}, Date Volunteered: ${member.date}, Hours Volunteered: ${member.hours}`);
+        //console.log('Volunteer Hours Log:');
+
+        if (selectedMembers.length === 0) {
+            showAlert("You must select member(s)!", "error");
+            return;
+        }
+        const hasInvalidData = selectedMembers.some(m => {
+            if (m.hours === '' || m.date === '') {
+                showAlert("You must select volunteer hours!", "error");
+                return true;
+            }
+            return false;
         });
+        if (hasInvalidData) return;
+
+        const data = {
+            orgID: orgID,
+            eventType: eventType,
+            members: selectedMembers,
+        };
+
+        //console.log(data);
+        fetch(`/api/admin/volunteers/hours`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            if (!data.success) {
+              const msg = "Failed to upload volunteer hours";
+              showAlert(msg, 'error');
+            } else {
+              showAlert('Successfully uploaded volunteer hours' , 'success');
+            }
+          })
+          .catch(error => {
+            console.log(error);
+            showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
+          });
     };
 
 
@@ -193,6 +247,12 @@ export default function ImportDataPage() {
 
                         </Container>
                     )}
+                    <SnackbarAlert
+                        open={openSnackbar}
+                        message={alertMessage}
+                        severity={alertSeverity}
+                        onClose={handleCloseSnackbar}
+                    />
                 </Box>
                 {/* Show "Upload Volunteer Hours" button if the event type is Volunteer Event */}
 

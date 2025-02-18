@@ -373,7 +373,7 @@ export default function DataTable({ orgID }) {
                                     }) : 'N/A'}</TableCell>
                                     <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
 
-                                        <MemberDetailsModal memberID={row.MemberID} />
+                                        <MemberDetailsModal memberID={row.MemberID} orgID={orgID} />
                                     </TableCell>
                                 </TableRow>
                             );

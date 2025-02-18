@@ -7,9 +7,10 @@ router.get('/allDetails', async (req, res) => {
     console.log('Received request at /allDetails');
 
     let memberID = parseInt(req.query.memberID, 10); // Convert to an integer
+    let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
 
-    if (isNaN(memberID)) {
-        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    if (isNaN(memberID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
     }
 
     try {
@@ -27,12 +28,12 @@ router.get('/allDetails', async (req, res) => {
                         )
                     ) 
                     FROM Attendance a 
-                    WHERE a.MemberID = m.MemberID
+                    WHERE a.MemberID = m.MemberID AND a.OrganizationID = ?
                 ) AS attendanceRecords
             FROM Members m
             WHERE m.MemberID = ?;
         `;
-        const [rows] = await db.query(query, [memberID]);
+        const [rows] = await db.query(query, [organizationID, memberID]);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Organization Info data:', error);

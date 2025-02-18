@@ -31,21 +31,21 @@ const style = {
   maxWidth: '100%',
 };
 
-const MemberDetailsModal = ({ memberID }) => {
+const MemberDetailsModal = ({ memberID, orgID }) => {
 
   const [memberInfo, setMemberInfo] = React.useState();
 
   React.useEffect(() => {
-    if (!memberID) return;
-    // console.log('Fetching data for memberID:', memberID);
-    fetch(`/api/memberDetails/allDetails?memberID=${memberID}`)
+    if (!memberID || !orgID) return;
+    // console.log('Fetching data for memberID:', memberID, 'and orgID:', orgID);
+    fetch(`/api/memberDetails/allDetails?memberID=${memberID}&organizationID=${orgID}`)
       .then(response => response.json())
       .then(data => {
         // console.log('Fetched data:', data);
         setMemberInfo(data);
       })
       .catch(error => console.error('Error fetching data for MemberInfo:', error));
-  }, [memberID]);
+  }, [memberID, orgID]);
 
 
 

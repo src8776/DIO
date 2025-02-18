@@ -5,7 +5,7 @@ import MemberDetailsPage from '../pages/MemberDetails/MemberDetailsPage';
 
 
 
-export default function IndividualDataModal({ memberID }) {
+export default function IndividualDataModal({ memberID, orgID }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = (event) => {
     event.stopPropagation();
@@ -29,6 +29,7 @@ export default function IndividualDataModal({ memberID }) {
         <Box >
           <MemberDetailsPage
             memberID={memberID}
+            orgID={orgID}
           />
         </Box>
       </Modal>

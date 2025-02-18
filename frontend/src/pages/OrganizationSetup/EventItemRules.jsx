@@ -75,6 +75,8 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
     const [selectedRule, setSelectedRule] = React.useState(null);
     const [newCriteriaValue, setNewCriteriaValue] = React.useState(null);
     const [newPointValue, setNewPointValue] = React.useState(null);
+    const [percentError, setPercentError] = React.useState('');
+    const [pointError, setPointError] = React.useState('');
 
     const handleOpen = (rule) => {
         setSelectedRule(rule);
@@ -89,9 +91,23 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
         setSelectedRule(null);
         setNewCriteriaValue('');
         setNewPointValue('');
+        setPercentError('');
+        setPointError('');
     };
 
     const handleSave = () => {
+        if (selectedRule.criteria === 'minimum threshold percentage') {
+            if (newCriteriaValue < 0.01 || newCriteriaValue > 1) {
+                setPercentError('Percentage value must be between 0.01 and 1');
+                return;
+            }
+        }
+
+        if (newPointValue < 1) {
+            setPointError('Point value must be at least 1');
+            return;
+        }
+
         fetch('/api/organizationRules/updateRule', {
             method: 'PUT',
             headers: {
@@ -180,6 +196,8 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
                                 onChange={(e) => setNewCriteriaValue(e.target.value)}
                                 fullWidth
                                 sx={{ mb: 2 }}
+                                error={!!percentError}
+                                helperText={percentError}
                             />
                         )}
                         {orgID !== 1 && (
@@ -189,6 +207,8 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
                                 onChange={(e) => setNewPointValue(e.target.value)}
                                 fullWidth
                                 sx={{ mb: 2 }}
+                                error={!!pointError}
+                                helperText={pointError}
                             />
                         )}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

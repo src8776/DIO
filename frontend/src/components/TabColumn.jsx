@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, Tabs, Tab, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // Helper to generate accessibility props
 function a11yProps(index) {
@@ -11,17 +11,26 @@ function a11yProps(index) {
 }
 
 export default function VerticalNavTabs({ pageTitle, orgType, sx }) {
+  const location = useLocation();
   const [value, setValue] = React.useState(0);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
 
   const navItems = [
     { text: "Member Database", path: `/admin/${orgType}` },
     { text: "Officers", path: `/admin/${orgType}/officersList` },
     { text: "Organization Setup", path: `/admin/${orgType}/organizationSetup` },
   ];
+
+  React.useEffect(() => {
+    const currentPath = location.pathname;
+    const currentIndex = navItems.findIndex(item => item.path === currentPath);
+    if (currentIndex !== -1) {
+      setValue(currentIndex);
+    }
+  }, [location.pathname, navItems]);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", ...sx }}>

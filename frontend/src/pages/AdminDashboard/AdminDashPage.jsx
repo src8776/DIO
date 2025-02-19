@@ -41,7 +41,6 @@ function AdminDash() {
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
-      <Box elevation={1}>
         {/* Dashboard Content */}
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Header: Organization Flavor Text & Close Button */}
@@ -107,7 +106,6 @@ function AdminDash() {
             <DataTable orgID={orgID} />
           </Paper>
         </Box>
-      </Box>
     </Container>
   );
 }

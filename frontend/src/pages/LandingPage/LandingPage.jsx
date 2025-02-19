@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Container, Typography } from "@mui/material";
-import ClubCard from '../../components/ClubCard';
+import ClubCard from './ClubCard';
 
 // TODO: Role based access control
 // TODO: active/inactive status should dynamically update based on user status

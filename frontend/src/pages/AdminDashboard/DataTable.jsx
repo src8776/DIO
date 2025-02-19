@@ -11,7 +11,7 @@ import {
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
-import MemberDetailsModal from '../components/MemberDetailsModal';
+import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
 import DataTableRow from './DataTableRow';
 
 

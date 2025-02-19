@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
-import GenerateReportButton from '../../components/GenerateReportButton';
+import GenerateReportButton from './GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
-import UploadFileModal from '../../components/UploadFileModal';
+import UploadFileModal from './UploadFileModal';
 import CloseIcon from '@mui/icons-material/Close';
 
-import DataTable from '../../components/DataTable';
+import DataTable from './DataTable';
 
 // TODO: Pass org to datatable to select members from the correct organization
 

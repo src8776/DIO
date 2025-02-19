@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, Modal } from "@mui/material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import GenerateReportPage from '../pages/GenerateReport/GenerateReportPage';
+import GenerateReportPage from '../GenerateReport/GenerateReportPage';
 
 
 // TODO: MVP Product - report shows list of all active members for the semester and for the year. 

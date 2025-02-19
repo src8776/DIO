@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Box, IconButton, Modal } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import MemberDetailsPage from '../pages/MemberDetails/MemberDetailsPage';
+import MemberDetailsPage from './MemberDetailsPage';
 
 
 export default function IndividualDataModal({ memberID, orgID, memberStatus }) {

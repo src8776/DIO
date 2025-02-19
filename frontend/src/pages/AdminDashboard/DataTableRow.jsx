@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableRow, TableCell, Checkbox } from '@mui/material';
-import MemberDetailsModal from './MemberDetailsModal';
-import useAccountStatus from '../hooks/useAccountStatus';
+import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
+import useAccountStatus from '../../hooks/useAccountStatus';
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
   const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, row.MemberID);

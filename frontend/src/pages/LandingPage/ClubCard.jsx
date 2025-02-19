@@ -1,8 +1,8 @@
 import React, { act } from "react";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Modal, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
-import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
-import useAccountStatus from "../hooks/useAccountStatus";
+import AccountOverview from '../AccountOverview/AccountOverviewPage';
+import useAccountStatus from "../../hooks/useAccountStatus";
 
 // TODO: In this component we care about the user's role and status (active/inactive)
 // TODO: Good got this needs some cleanup TT.TT
@@ -37,19 +37,21 @@ export default function ClubCard({ orgID }) {
                 component="img"
                 sx={{
                     width: "100%",
-                    height: 140,
+                    height: 118,
                     objectFit: clubInfo.imageFit,
                 }}
                 image={clubInfo.image}
                 title={orgID}
             />
-            <CardContent sx={{ borderTop: "1px solid #f0f0f0", flexGrow: 1 }}>
-                <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                    {orgID === 2 ? 'COMS' : 'WiC'}
-                </Typography>
-                <Typography variant="h5">
-                    {clubInfo.title}
-                </Typography>
+            <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between', borderTop: "1px solid #f0f0f0", }}>
+                <Box>
+                    <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
+                        {orgID === 2 ? 'COMS' : 'WiC'}
+                    </Typography>
+                    <Typography variant="h5">
+                        {clubInfo.title}
+                    </Typography>
+                </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
                     <Typography sx={{ color: "text.secondary" }}>
@@ -57,7 +59,7 @@ export default function ClubCard({ orgID }) {
                     </Typography>
                     {/* TODO: Make this say active/inactive based on member status */}
                     <Typography
-                        
+
                         sx={{
                             fontWeight: 'bold',
                             color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
@@ -73,10 +75,10 @@ export default function ClubCard({ orgID }) {
                 </Button>
                 <Modal open={open} onClose={handleClose}>
                     <Box>
-                        <AccountOverview 
+                        <AccountOverview
                             memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
-                            requirementType={requirementType} userAttendance={userAttendance} 
-                            statusObject={statusObject}     
+                            requirementType={requirementType} userAttendance={userAttendance}
+                            statusObject={statusObject}
                         />
                     </Box>
                 </Modal>

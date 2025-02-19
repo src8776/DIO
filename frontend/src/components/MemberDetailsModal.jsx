@@ -4,7 +4,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import MemberDetailsPage from '../pages/MemberDetails/MemberDetailsPage';
 
 
-export default function IndividualDataModal({ memberID, orgID }) {
+export default function IndividualDataModal({ memberID, orgID, memberStatus }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = (event) => {
     event.stopPropagation();
@@ -29,6 +29,7 @@ export default function IndividualDataModal({ memberID, orgID }) {
           <MemberDetailsPage
             memberID={memberID}
             orgID={orgID}
+            memberStatus={memberStatus}
           />
         </Box>
       </Modal>

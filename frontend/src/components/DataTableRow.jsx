@@ -1,8 +1,11 @@
 import React from 'react';
 import { TableRow, TableCell, Checkbox } from '@mui/material';
 import MemberDetailsModal from './MemberDetailsModal';
+import useAccountStatus from '../hooks/useAccountStatus';
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
+  const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, row.MemberID);
+
     return (
         <TableRow
             hover
@@ -30,10 +33,10 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
                 scope="row"
                 sx={{
                     pl: '16px', pt: '0px', pb: '0px',
-                    color: row.Status === 'Inactive' ? 'red' : 'green',
+                    color: statusObject.status === 'inactive' ? 'red' : 'green',
                 }}
             >
-                {row.Status}
+                {statusObject.status}
             </TableCell>
             <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.AttendanceRecord} meetings</TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
@@ -47,7 +50,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
                 }) : 'N/A'}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} />
+                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={statusObject.status} />
             </TableCell>
         </TableRow>
     );

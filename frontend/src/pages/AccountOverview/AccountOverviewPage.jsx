@@ -78,7 +78,7 @@ const AccountOverview = ({ organization }) => {
     const [activeRequirement, setActiveRequirement] = React.useState('');
     const [requirementType, setRequirementType] = React.useState('');
     const [userAttendance, setUserAttendance] = React.useState([]);
-    const [userStatus, setUserStatus] = React.useState('');
+    const [statusObject, setStatusObject] = React.useState({});
     const orgID = 1;
     const memberID = 16;
 
@@ -114,25 +114,12 @@ const AccountOverview = ({ organization }) => {
                         { eventTypes: rules },
                         activeReqData[0].ActiveRequirement
                     );
-                    setUserStatus(status);
+                    setStatusObject(status);
+                    // setUserStatus(status.status);
                 }
             })
             .catch(error => console.error('Error fetching account data:', error));
     }, [orgID, memberID]);
-
-    // Call the algorithm once all required data is available.
-    React.useEffect(() => {
-        // Make sure orgConfig, userAttendance, and activeRequirement are loaded
-        if (orgConfig.length > 0 && userAttendance.length > 0 && activeRequirement) {
-            const status = determineMembershipStatusModular(
-                userAttendance,
-                { eventTypes: orgConfig },
-                activeRequirement
-            );
-            setUserStatus(status);
-
-        }
-    }, [orgConfig, userAttendance, activeRequirement]);
 
     return (
         <Container>
@@ -162,7 +149,7 @@ const AccountOverview = ({ organization }) => {
                                     {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
                                 </Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 'bold', color: "green" }}>
-                                    19/18
+                                    {statusObject.totalPoints}/{activeRequirement}
                                 </Typography>
                             </Box>
                             {/* Status box */}
@@ -174,10 +161,10 @@ const AccountOverview = ({ organization }) => {
                                     variant="h5"
                                     sx={{
                                         fontWeight: 'bold',
-                                        color: userStatus === 'inactive' ? 'red' : 'green'
+                                        color: statusObject.status === 'inactive' ? 'red' : 'green'
                                     }}
                                 >
-                                    {userStatus}
+                                    {statusObject.status}
                                 </Typography>
                             </Box>
                             {/* Meetings Attended box */}
@@ -192,7 +179,7 @@ const AccountOverview = ({ organization }) => {
                         </Box>
                     </Paper>
 
-                    {/* Rewards and Past Events Container */}
+                    {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                         {/* Active Path Container */}
                         <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '450px', borderRadius: 3 }}>

@@ -44,8 +44,8 @@ export function processEventType(events, eventConfig) {
         for (const rule of percentageRules) {
             if (attendancePercentage >= rule.criteriaValue) {
                 points += rule.pointValue;
-                // UNCOMMENT THIS IF WE ONLY WANT HIGHEST THRESHOLD RULE AWARDED
-                // break; // Only the first matching bonus is awarded.
+                // If you want to only award the highest applicable bonus, uncomment the next line:
+                // break;
             }
         }
     }
@@ -61,8 +61,8 @@ export function processEventType(events, eventConfig) {
             for (const rule of hourRules) {
                 if (hours >= rule.criteriaValue) {
                     points += rule.pointValue;
-                    // UNCOMMENT THIS IF WE ONLY WANT HIGHEST THRESHOLD RULE AWARDED
-                    //   break; // Award the highest applicable rule per event.
+                    // If you want to only award the highest applicable bonus, uncomment the next line:
+                    // break;
                 }
             }
         });
@@ -78,10 +78,14 @@ export function processEventType(events, eventConfig) {
  *                                 { eventType: string, eventDate: string, hours?: number }
  * @param {Object} config - The configuration object containing an "eventTypes" array.
  * @param {number} requiredPoints - The points required to be considered active.
- * @returns {string} "active" if the total points meet/exceed requiredPoints; otherwise "inactive".
+ * @returns {Object} An object containing:
+ *                   - status: "active" if totalPoints meets/exceeds requiredPoints, otherwise "inactive"
+ *                   - totalPoints: the total points earned
+ *                   - breakdown: an object with keys for each event type and their respective points
  */
 export function determineMembershipStatusModular(attendanceData, config, requiredPoints) {
     let totalPoints = 0;
+    const breakdown = {};
 
     // Group attendance records by event type.
     const eventsByType = attendanceData.reduce((acc, record) => {
@@ -95,12 +99,12 @@ export function determineMembershipStatusModular(attendanceData, config, require
     // Process each event type defined in the config.
     config.eventTypes.forEach(eventConfig => {
         const events = eventsByType[eventConfig.name] || [];
-        totalPoints += processEventType(events, eventConfig);
+        const pointsForType = processEventType(events, eventConfig);
+        breakdown[eventConfig.name] = pointsForType;
+        totalPoints += pointsForType;
     });
 
-    return totalPoints >= requiredPoints ? "active" : "inactive";
+    const status = totalPoints >= requiredPoints ? "active" : "inactive";
+
+    return { status, totalPoints, breakdown };
 }
-
-
-
-

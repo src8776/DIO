@@ -4,7 +4,6 @@ import InfoIcon from '@mui/icons-material/Info';
 import MemberDetailsPage from '../pages/MemberDetails/MemberDetailsPage';
 
 
-
 export default function IndividualDataModal({ memberID, orgID }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = (event) => {

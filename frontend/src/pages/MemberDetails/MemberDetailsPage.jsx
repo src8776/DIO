@@ -11,6 +11,7 @@ import {
   Paper,
   Box
 } from "@mui/material";
+import useAccountStatus from "../../hooks/useAccountStatus";
 
 // TODO: Option to delete attendance records from the attendance history table here if they are an admin
 //       - user feedback for deleting records ('this action cannot be undone', 'deleted successfully', etc.)? 
@@ -31,7 +32,9 @@ const style = {
   maxWidth: '100%',
 };
 
-const MemberDetailsModal = ({ memberID, orgID }) => {
+export default function MemberDetailsModal ({ memberID, orgID }) {
+  const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
+
 
   const [memberInfo, setMemberInfo] = React.useState();
 
@@ -103,7 +106,7 @@ const MemberDetailsModal = ({ memberID, orgID }) => {
               <strong>Major:</strong> {Major || "N/A"}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Status:</strong> {IsActive ? "Active" : "Inactive"}
+              <strong>Status:</strong> {statusObject.status}
             </Typography>
             <Typography variant="subtitle1">
               <strong>Graduation Year:</strong> {GraduationYear || "N/A"}
@@ -148,5 +151,3 @@ const MemberDetailsModal = ({ memberID, orgID }) => {
     </Container>
   );
 };
-
-export default MemberDetailsModal;

@@ -66,16 +66,16 @@ const AccountOverview = ({ organization }) => {
                         {/* Content Box */}
                         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
                             {/* Active points box */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                 <Typography variant="h6">
                                     {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
                                 </Typography>
-                                <Typography variant="h5" sx={{ fontWeight: 'bold', color: "green" }}>
+                                <Typography variant="h5" sx={{ fontWeight: 'bold'}}>
                                     {statusObject.totalPoints}/{activeRequirement}
                                 </Typography>
                             </Box>
                             {/* Status box */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
                                 <Typography variant="h6">
                                     Status
                                 </Typography>
@@ -90,9 +90,9 @@ const AccountOverview = ({ organization }) => {
                                 </Typography>
                             </Box>
                             {/* Meetings Attended box */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
                                 <Typography variant="h6">
-                                    Meetings Attended
+                                    Events Attended
                                 </Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                                     {userAttendance.length}

@@ -38,8 +38,8 @@ const style = {
     maxHeight: '90%',
 };
 
-const AccountOverview = ({ organization }) => {
-    const orgID = 1;
+const AccountOverview = ({ orgID }) => {
+
     const memberID = 16;
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
 
@@ -50,8 +50,8 @@ const AccountOverview = ({ organization }) => {
 
                     {/* Basic Info */}
                     <Typography variant="h5" sx={{ mb: 2 }}>
-                        Account Overview-
-                        {organization}
+                        Account Overview -
+                        {orgID === 2 ? ' COMS' : ' WiC'}
                     </Typography>
 
                     {/* Member Overview Container */}
@@ -70,8 +70,8 @@ const AccountOverview = ({ organization }) => {
                                 <Typography variant="h6">
                                     {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
                                 </Typography>
-                                <Typography variant="h5" sx={{ fontWeight: 'bold'}}>
-                                    {statusObject.totalPoints}/{activeRequirement}
+                                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                    {statusObject.totalPoints || 0}/{activeRequirement || 0}
                                 </Typography>
                             </Box>
                             {/* Status box */}
@@ -83,10 +83,10 @@ const AccountOverview = ({ organization }) => {
                                     variant="h5"
                                     sx={{
                                         fontWeight: 'bold',
-                                        color: statusObject.status === 'inactive' ? 'red' : 'green'
+                                        color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
                                     }}
                                 >
-                                    {statusObject.status}
+                                    {statusObject.status || 'No status'}
                                 </Typography>
                             </Box>
                             {/* Meetings Attended box */}
@@ -94,8 +94,9 @@ const AccountOverview = ({ organization }) => {
                                 <Typography variant="h6">
                                     Events Attended
                                 </Typography>
+                                {/* No idea how to get rid of the null value error here x.x */}
                                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                    {userAttendance.length}
+                                    {userAttendance?.length ?? 'No events attended'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -206,7 +207,7 @@ const AccountOverview = ({ organization }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {userAttendance && userAttendance.length > 0 ? (
+                                        {userAttendance.length > 0 ? (
                                             userAttendance.map((record, index) => (
                                                 <TableRow key={index}>
                                                     <TableCell>{record.eventDate}</TableCell>

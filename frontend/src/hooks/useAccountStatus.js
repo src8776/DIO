@@ -29,7 +29,7 @@ const useAccountStatus = (orgID, memberID) => {
 
                 // Process user's attendance data.
                 const attendanceRecords = attendanceData.length > 0 ? attendanceData[0].attendanceRecord : [];
-                setUserAttendance(attendanceRecords);
+                setUserAttendance(attendanceRecords || []);
 
                 // Once all data is available, call the algorithm.
                 if (rules && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {

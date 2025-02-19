@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
 
 // TODO: In this component we care about the user's role and status (active/inactive)
+// TODO: Good got this needs some cleanup TT.TT
 
-export default function ClubCard({ userObj, organization }) {
+export default function ClubCard({ userObj, orgID }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const orgType = organization.toLowerCase(); // "wic" or "coms"
-
+    const orgType = orgID === 1 ? 'wic' : orgID === 2 ? 'coms' : orgID.toLowerCase(); // "wic" or "coms"
     // store club data up here for maintainability
     // this could also eventually be stored in the database??? 
     const comsInfo = {
@@ -26,7 +26,7 @@ export default function ClubCard({ userObj, organization }) {
         title: "Women in Computing",
     };
 
-    const clubInfo = organization === "COMS" ? comsInfo : wicInfo;
+    const clubInfo = orgID === 2 ? comsInfo : wicInfo;
 
     return (
         <Card sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
@@ -38,11 +38,11 @@ export default function ClubCard({ userObj, organization }) {
                     objectFit: clubInfo.imageFit,
                 }}
                 image={clubInfo.image}
-                title={organization}
+                title={orgID}
             />
             <CardContent sx={{ borderTop: "1px solid #f0f0f0", flexGrow: 1 }}>
                 <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                    {organization}
+                    {orgID === 2 ? 'COMS' : 'WiC'}
                 </Typography>
                 <Typography variant="h5">
                     {clubInfo.title}
@@ -64,7 +64,7 @@ export default function ClubCard({ userObj, organization }) {
                 </Button>
                 <Modal open={open} onClose={handleClose}>
                     <Box >
-                        <AccountOverview userObj={userObj} organization={organization} />
+                        <AccountOverview userObj={userObj} orgID={orgID} />
                     </Box>
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}

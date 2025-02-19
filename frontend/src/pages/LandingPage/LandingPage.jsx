@@ -5,6 +5,7 @@ import ClubCard from '../../components/ClubCard';
 // TODO: Role based access control
 // TODO: active/inactive status should dynamically update based on user status
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
+// TODO: Club cards should be generated based on database values
 
 function LandingPage() {
 
@@ -24,10 +25,10 @@ function LandingPage() {
                 {/* TODO: Only show the card that the user is a member of */}
 
                 {/* COMS Card */}
-                <ClubCard userObj={userObj} organization={'COMS'}/>
+                <ClubCard userObj={userObj} orgID={2}/>
 
                 {/* WiC Card */}
-                <ClubCard userObj={userObj} organization={'WiC'}/>
+                <ClubCard userObj={userObj} orgID={1}/>
                 
             </Box>
         </Container>

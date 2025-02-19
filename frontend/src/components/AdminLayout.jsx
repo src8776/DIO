@@ -7,7 +7,7 @@ const AdminLayout = () => {
 
     return (
         <Container sx={{ display: 'flex' }}>
-            <NavColumn pageTitle={"Admin Links"} orgType={org} sx={{ display: { xs: "none", sm: "block" } }} />
+            <NavColumn pageTitle={"Admin Tabs"} orgType={org} sx={{ display: { xs: "none", sm: "block" } }} />
             <Outlet />
         </Container>
     );

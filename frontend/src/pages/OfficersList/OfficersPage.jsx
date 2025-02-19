@@ -23,7 +23,7 @@ function OfficersList() {
     return (
 
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            <Paper sx={{ p: 2 }}>
+            <Box sx={{ p: 2 }}>
                 <Typography variant="h5" gutterBottom>
                     Admin User List
                 </Typography>
@@ -48,7 +48,7 @@ function OfficersList() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </Paper>
+            </Box>
         </Container>
     );
 }

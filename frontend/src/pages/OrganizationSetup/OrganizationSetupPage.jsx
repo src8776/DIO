@@ -49,7 +49,7 @@ export default function OrganizationSetup() {
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
 
-            <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
+            <Box component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
                 {/* Header box */}
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
                     <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
@@ -98,7 +98,7 @@ export default function OrganizationSetup() {
 
                     </List>
                 </Paper>
-            </Paper>
+            </Box>
         </Container>
     );
 }

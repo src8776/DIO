@@ -1,12 +1,15 @@
-import React from "react";
+import React, { act } from "react";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Modal, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
 import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
+import useAccountStatus from "../hooks/useAccountStatus";
 
 // TODO: In this component we care about the user's role and status (active/inactive)
 // TODO: Good got this needs some cleanup TT.TT
 
-export default function ClubCard({ userObj, orgID }) {
+export default function ClubCard({ orgID }) {
+    const memberID = 16;
+    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -47,14 +50,20 @@ export default function ClubCard({ userObj, orgID }) {
                 <Typography variant="h5">
                     {clubInfo.title}
                 </Typography>
-                <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
                     <Typography sx={{ color: "text.secondary" }}>
                         Admin
                     </Typography>
                     {/* TODO: Make this say active/inactive based on member status */}
-                    <Typography sx={{ fontWeight: 'bold', color: "green", ml: .5 }}>
-                        - Active
+                    <Typography
+                        
+                        sx={{
+                            fontWeight: 'bold',
+                            color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
+                        }}
+                    >
+                        {statusObject.status || 'no status'}
                     </Typography>
                 </Box>
             </CardContent>
@@ -63,8 +72,12 @@ export default function ClubCard({ userObj, orgID }) {
                     View Info
                 </Button>
                 <Modal open={open} onClose={handleClose}>
-                    <Box >
-                        <AccountOverview userObj={userObj} orgID={orgID} />
+                    <Box>
+                        <AccountOverview 
+                            memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
+                            requirementType={requirementType} userAttendance={userAttendance} 
+                            statusObject={statusObject}     
+                        />
                     </Box>
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}

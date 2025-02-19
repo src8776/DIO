@@ -17,7 +17,6 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import RouteIcon from '@mui/icons-material/Route';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import useAccountStatus from '../../hooks/useAccountStatus';
 
 // TODO: 
 
@@ -38,10 +37,7 @@ const style = {
     maxHeight: '90%',
 };
 
-const AccountOverview = ({ orgID }) => {
-
-    const memberID = 16;
-    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
+const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, userAttendance, statusObject }) => {
 
     return (
         <Container>
@@ -86,7 +82,7 @@ const AccountOverview = ({ orgID }) => {
                                         color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
                                     }}
                                 >
-                                    {statusObject.status || 'No status'}
+                                    {statusObject.status || 'no status'}
                                 </Typography>
                             </Box>
                             {/* Meetings Attended box */}

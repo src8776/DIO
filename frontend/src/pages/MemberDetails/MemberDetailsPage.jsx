@@ -46,9 +46,7 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
       .catch(error => console.error('Error fetching data for MemberInfo:', error));
   }, [memberID, orgID]);
 
-
-
-
+  
   if (!memberInfo || memberInfo.length === 0) {
     return (
       <Container>

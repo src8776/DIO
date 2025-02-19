@@ -6,12 +6,11 @@ import {
     TableCell, TableContainer, TableHead,
     TablePagination, TableRow, TableSortLabel,
     Toolbar, Tooltip, Typography,
-    TextField, Paper, Modal
+    TextField, Paper
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
-import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
 import DataTableRow from './DataTableRow';
 
 

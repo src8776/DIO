@@ -41,11 +41,6 @@ function AdminDash() {
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
-      {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-      {/* <Box sx={{ display: { xs: 'none', md: 'block' } }}> */}
-        {/* <NavColumn pageTitle="Member Database" orgType={orgType} /> */}
-      {/* </Box> */}
-
       <Box elevation={1}>
         {/* Dashboard Content */}
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>

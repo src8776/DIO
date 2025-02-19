@@ -17,9 +17,9 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import RouteIcon from '@mui/icons-material/Route';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import { determineMembershipStatusModular } from "../../utils/membershipStatus";
+import useAccountStatus from '../../hooks/useAccountStatus';
 
-// TODO: This is where we want all of the user's information.
+// TODO: 
 
 // TODO: Normalize this style for modals and house it somewhere else
 const style = {
@@ -38,88 +38,10 @@ const style = {
     maxHeight: '90%',
 };
 
-const mockMemberData = {
-    MemberID: 12345,
-    UserName: "lse3284",
-    FirstName: "Liam",
-    LastName: "Edwards",
-    Email: "lse3284@example.com",
-    Major: "Computer Science",
-    IsActive: true,
-    GraduationYear: 2025,
-    AcademicYear: "Senior",
-    AttendanceHistory: [
-        { date: "2025-01-20", event: "General Meeting" },
-        { date: "2025-01-15", event: "Workshop" },
-        { date: "2025-01-12", event: "General Meeting" },
-        { date: "2025-01-10", event: "Volunteer" },
-        { date: "2025-01-08", event: "Club Fair" },
-        { date: "2025-01-06", event: "General Meeting" },
-        { date: "2024-12-20", event: "Volunteer" },
-        { date: "2024-12-15", event: "Holiday Celebration" },
-        { date: "2024-12-10", event: "General Meeting" },
-        { date: "2024-11-25", event: "Workshop" },
-        { date: "2024-11-20", event: "Club Fair" },
-        { date: "2024-11-15", event: "Volunteer" },
-        { date: "2024-11-10", event: "General Meeting" },
-        { date: "2024-10-30", event: "Halloween Social" },
-        { date: "2024-10-25", event: "General Meeting" },
-        { date: "2024-10-20", event: "Volunteer" },
-        { date: "2024-10-15", event: "Club Fair" },
-        { date: "2024-10-10", event: "Workshop" },
-        { date: "2024-09-25", event: "General Meeting" },
-        { date: "2024-09-20", event: "Volunteer" },
-        { date: "2024-09-15", event: "Club Orientation" },
-    ],
-};
-
 const AccountOverview = ({ organization }) => {
-    const [orgConfig, setOrgConfig] = React.useState([]);
-    const [activeRequirement, setActiveRequirement] = React.useState('');
-    const [requirementType, setRequirementType] = React.useState('');
-    const [userAttendance, setUserAttendance] = React.useState([]);
-    const [statusObject, setStatusObject] = React.useState({});
     const orgID = 1;
     const memberID = 16;
-
-    React.useEffect(() => {
-        // Fetch all required data concurrently.
-        Promise.all([
-            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`).then(res => res.json()),
-            fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`).then(res => res.json()),
-            fetch(`/api/memberDetails/attendance?memberID=${memberID}&organizationID=${orgID}`).then(res => res.json())
-        ])
-            .then(([activeReqData, orgRulesData, attendanceData]) => {
-                // Process activeRequirement data.
-                if (activeReqData.length > 0) {
-                    setActiveRequirement(activeReqData[0].ActiveRequirement);
-                    setRequirementType(activeReqData[0].Description);
-                } else {
-                    setActiveRequirement(null);
-                    setRequirementType(null);
-                }
-
-                // Process organization rules (event types)
-                const rules = orgRulesData.eventTypes;
-                setOrgConfig(rules);
-
-                // Process user's attendance data.
-                const attendanceRecords = attendanceData.length > 0 ? attendanceData[0].attendanceRecord : [];
-                setUserAttendance(attendanceRecords);
-
-                // Once all data is available, call the algorithm.
-                if (rules && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
-                    const status = determineMembershipStatusModular(
-                        attendanceRecords,
-                        { eventTypes: rules },
-                        activeReqData[0].ActiveRequirement
-                    );
-                    setStatusObject(status);
-                    // setUserStatus(status.status);
-                }
-            })
-            .catch(error => console.error('Error fetching account data:', error));
-    }, [orgID, memberID]);
+    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
 
     return (
         <Container>

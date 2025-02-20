@@ -8,7 +8,7 @@ import AdminDash from './pages/AdminDashboard/AdminDashPage';
 import AcctSetup from './pages/AccountSetup/AccountSetupPage';
 import OrgSetup from './pages/OrganizationSetup/OrganizationSetupPage.jsx';
 import OfficersList from './pages/OfficersList/OfficersPage.jsx';
-import MemberDetailsModal from './components/MemberDetailsModal.jsx';
+import MemberDetailsModal from './pages/MemberDetails/MemberDetailsPage.jsx';
 import AdminLayout from './components/AdminLayout.jsx';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';

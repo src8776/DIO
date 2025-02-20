@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Box, Button, Modal } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import ImportDataPage from '../pages/ImportData/ImportDataPage';
+import AddIcon from '@mui/icons-material/Add';
+import AddRulePage from './AddRulePage';
 
-export default function AddMemberModal() {
+export default function AddRuleModal() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -13,13 +13,13 @@ export default function AddMemberModal() {
       <Button
         onClick={handleOpen}
         variant="contained"
-        startIcon={<CloudUploadIcon />}
+        startIcon={<AddIcon/>}
       >
-        Import Attendance Data
+        Add Event
       </Button>
       <Modal open={open} onClose={handleClose}>
         <Box>
-          <ImportDataPage/>
+          <AddRulePage/>
         </Box>
       </Modal>
     </>

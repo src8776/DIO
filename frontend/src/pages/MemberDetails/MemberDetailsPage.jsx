@@ -31,25 +31,22 @@ const style = {
   maxWidth: '100%',
 };
 
-const MemberDetailsModal = ({ memberID }) => {
-
+export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  {
   const [memberInfo, setMemberInfo] = React.useState();
 
   React.useEffect(() => {
-    if (!memberID) return;
-    // console.log('Fetching data for memberID:', memberID);
-    fetch(`/api/memberDetails/allDetails?memberID=${memberID}`)
+    if (!memberID || !orgID) return;
+    // console.log('Fetching data for memberID:', memberID, 'and orgID:', orgID);
+    fetch(`/api/memberDetails/allDetails?memberID=${memberID}&organizationID=${orgID}`)
       .then(response => response.json())
       .then(data => {
         // console.log('Fetched data:', data);
         setMemberInfo(data);
       })
       .catch(error => console.error('Error fetching data for MemberInfo:', error));
-  }, [memberID]);
+  }, [memberID, orgID]);
 
-
-
-
+  
   if (!memberInfo || memberInfo.length === 0) {
     return (
       <Container>
@@ -103,7 +100,7 @@ const MemberDetailsModal = ({ memberID }) => {
               <strong>Major:</strong> {Major || "N/A"}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Status:</strong> {IsActive ? "Active" : "Inactive"}
+              <strong>Status:</strong> {memberStatus}
             </Typography>
             <Typography variant="subtitle1">
               <strong>Graduation Year:</strong> {GraduationYear || "N/A"}
@@ -148,5 +145,3 @@ const MemberDetailsModal = ({ memberID }) => {
     </Container>
   );
 };
-
-export default MemberDetailsModal;

@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { Box, IconButton, Modal } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import MemberDetailsPage from '../pages/MemberDetails/MemberDetailsPage';
+import MemberDetailsPage from './MemberDetailsPage';
 
 
-
-export default function IndividualDataModal({ memberID }) {
+export default function IndividualDataModal({ memberID, orgID, memberStatus }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = (event) => {
     event.stopPropagation();
@@ -29,6 +28,8 @@ export default function IndividualDataModal({ memberID }) {
         <Box >
           <MemberDetailsPage
             memberID={memberID}
+            orgID={orgID}
+            memberStatus={memberStatus}
           />
         </Box>
       </Modal>

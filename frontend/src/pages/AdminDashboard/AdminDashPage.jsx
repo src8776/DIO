@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
-import GenerateReportButton from '../../components/GenerateReportButton';
+import GenerateReportButton from './GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
-import UploadFileModal from '../../components/UploadFileModal';
+import UploadFileModal from './UploadFileModal';
 import CloseIcon from '@mui/icons-material/Close';
 
-import DataTable from '../../components/DataTable';
+import DataTable from './DataTable';
 
 // TODO: Pass org to datatable to select members from the correct organization
 
@@ -41,12 +41,6 @@ function AdminDash() {
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
-      {/* NavColumn goes away on mobile and links should appear in hamburger menu */}
-      {/* <Box sx={{ display: { xs: 'none', md: 'block' } }}> */}
-        {/* <NavColumn pageTitle="Member Database" orgType={orgType} /> */}
-      {/* </Box> */}
-
-      <Paper elevation={1}>
         {/* Dashboard Content */}
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Header: Organization Flavor Text & Close Button */}
@@ -63,7 +57,7 @@ function AdminDash() {
             </Box>
 
 
-            {/* Close Button */}
+            {/* Close Button
             <Button
               sx={{
                 width: 'fit-content',
@@ -85,7 +79,7 @@ function AdminDash() {
               >
                 Close
               </Box>
-            </Button>
+            </Button> */}
           </Box>
 
           {/* User Action Buttons */}
@@ -112,7 +106,6 @@ function AdminDash() {
             <DataTable orgID={orgID} />
           </Paper>
         </Box>
-      </Paper>
     </Container>
   );
 }

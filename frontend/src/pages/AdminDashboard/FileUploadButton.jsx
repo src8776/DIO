@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState } from 'react';
-import SnackbarAlert from './SnackbarAlert';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 // TODO: use selectedEventType to ensure data from files is assigned the correct event type
 

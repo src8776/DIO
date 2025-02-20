@@ -1,10 +1,11 @@
 import * as React from 'react';
 import {
-    Box, Container, InputLabel, MenuItem,
-    FormControl, Modal, Paper, Select, TextField,
-    Typography, Button, IconButton, List, ListItem,
-    ListItemText, ListSubheader,
-    ListItemButton
+    Box, Container,
+    Modal, Paper,
+    Typography, List,
+    ListItemText,
+    ListItemButton,
+    Skeleton
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
@@ -25,39 +26,41 @@ export default function OrganizationSetup() {
 
     // need to grab the organization rules from database
     const [orgRules, setOrgRules] = React.useState();
-
+    const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
-        fetch(`/api/organizationRules/OrganizationSetupPage?organizationID=${orgID}`)
+        fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
-                console.log('Fetched data:', data);
+                // console.log('Fetched data:', data);
                 setOrgRules(data);
+                setLoading(false);
             })
             .catch(error => console.error('Error fetching data for OrganizationRules:', error));
     }, [orgID]);
 
-    if (!orgRules) {
-        return <div>Loading...</div>;
-    }
-
     // Extract the number of rules
-    const numberOfRules = orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0);
-
+    const numberOfRules = orgRules ? orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0) : 0;
 
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-
-
-            <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
+            <Box component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
                 {/* Header box */}
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
                     <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
                         Organization Setup -
                     </Typography>
-                    <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-                        {org}
-                    </Typography>
+                    {loading ? (
+                        <>
+                            <Skeleton variant="text" width={100} height={30} sx={{ ml: 1 }} />
+                        </>
+                    ) : (
+                        <>
+                            <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+                                {org}
+                            </Typography>
+                        </>
+                    )}
                 </Box>
 
                 {/* RULES CONTAINER */}
@@ -69,9 +72,13 @@ export default function OrganizationSetup() {
                         subheader={
                             <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Organization Rules</Typography>
                         }>
-                        <ListItemButton onClick={handleOpen} sx={{}}>
-                            <ListItemText primary={"'Active' Requirements"} />
-                        </ListItemButton>
+                        {loading ? (
+                            <Skeleton variant="rectangular" height={50} />
+                        ) : (
+                            <ListItemButton onClick={handleOpen} sx={{}}>
+                                <ListItemText primary={"'Active' Requirements"} />
+                            </ListItemButton>
+                        )}
                         <Modal open={open} onClose={handleClose}>
                             <Box>
                                 <ActiveModal orgID={orgID} numberOfRules={numberOfRules} />
@@ -86,19 +93,23 @@ export default function OrganizationSetup() {
                         aria-labelledby="nested-list-header"
                         subheader={
                             <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Event Rules</Typography>
-                        }
-                    >
-                        {orgRules.eventTypes.map((eventObj, index) => (
-                            <EventItem
-                                key={`rule-${index}`}
-                                {...eventObj}
-                                orgID={orgID}
-                            />
-                        ))}
-
+                        }>
+                        {loading ? (
+                            [...Array(3)].map((_, index) => (
+                                <Skeleton key={index} variant="rectangular" height={50} sx={{ mb: 1 }} />
+                            ))
+                        ) : (
+                            orgRules.eventTypes.map((eventObj, index) => (
+                                <EventItem
+                                    key={`rule-${index}`}
+                                    {...eventObj}
+                                    orgID={orgID}
+                                />
+                            ))
+                        )}
                     </List>
                 </Paper>
-            </Paper>
+            </Box>
         </Container>
     );
 }

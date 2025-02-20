@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { Box, Container, Table, TableBody, 
-    TableCell, TableContainer, TableHead, 
-    TableRow, Paper, Typography } from "@mui/material";
-import { Link, useParams } from 'react-router-dom';
-import MemberDetailsModal from '../../components/MemberDetailsModal';
+import {
+    Box, Container, Table, TableBody,
+    TableCell, TableContainer, TableHead,
+    TableRow, Paper, Typography
+} from "@mui/material";
+import { useParams } from 'react-router-dom';
+import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
+import AddAdminModal from './AddAdminModal';
 
 
 // TODO: pull admin list from database to display here
@@ -23,10 +26,13 @@ function OfficersList() {
     return (
 
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" gutterBottom>
+            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2  }}>
+                <Typography variant="h5">
                     Admin User List
                 </Typography>
+                <Box>
+                    <AddAdminModal orgID={orgID} />
+                </Box>
 
                 <TableContainer component={Paper}>
                     <Table>
@@ -48,7 +54,7 @@ function OfficersList() {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </Paper>
+            </Box>
         </Container>
     );
 }

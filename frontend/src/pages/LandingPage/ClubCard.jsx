@@ -1,17 +1,20 @@
-import React from "react";
+import React, { act } from "react";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Modal, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
-import AccountOverview from '../pages/AccountOverview/AccountOverviewPage';
+import AccountOverview from '../AccountOverview/AccountOverviewPage';
+import useAccountStatus from "../../hooks/useAccountStatus";
 
 // TODO: In this component we care about the user's role and status (active/inactive)
+// TODO: Good got this needs some cleanup TT.TT
 
-export default function ClubCard({ userObj, organization }) {
+export default function ClubCard({ orgID }) {
+    const memberID = 16;
+    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const orgType = organization.toLowerCase(); // "wic" or "coms"
-
+    const orgType = orgID === 1 ? 'wic' : orgID === 2 ? 'coms' : orgID.toLowerCase(); // "wic" or "coms"
     // store club data up here for maintainability
     // this could also eventually be stored in the database??? 
     const comsInfo = {
@@ -26,7 +29,7 @@ export default function ClubCard({ userObj, organization }) {
         title: "Women in Computing",
     };
 
-    const clubInfo = organization === "COMS" ? comsInfo : wicInfo;
+    const clubInfo = orgID === 2 ? comsInfo : wicInfo;
 
     return (
         <Card sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
@@ -34,27 +37,35 @@ export default function ClubCard({ userObj, organization }) {
                 component="img"
                 sx={{
                     width: "100%",
-                    height: 140,
+                    height: 118,
                     objectFit: clubInfo.imageFit,
                 }}
                 image={clubInfo.image}
-                title={organization}
+                title={orgID}
             />
-            <CardContent sx={{ borderTop: "1px solid #f0f0f0", flexGrow: 1 }}>
-                <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                    {organization}
-                </Typography>
-                <Typography variant="h5">
-                    {clubInfo.title}
-                </Typography>
-                <Box sx={{ display: 'flex' }}>
+            <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between', borderTop: "1px solid #f0f0f0", }}>
+                <Box>
+                    <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
+                        {orgID === 2 ? 'COMS' : 'WiC'}
+                    </Typography>
+                    <Typography variant="h5">
+                        {clubInfo.title}
+                    </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
                     <Typography sx={{ color: "text.secondary" }}>
                         Admin
                     </Typography>
                     {/* TODO: Make this say active/inactive based on member status */}
-                    <Typography sx={{ fontWeight: 'bold', color: "green", ml: .5 }}>
-                        - Active
+                    <Typography
+
+                        sx={{
+                            fontWeight: 'bold',
+                            color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
+                        }}
+                    >
+                        {statusObject.status || 'no status'}
                     </Typography>
                 </Box>
             </CardContent>
@@ -63,8 +74,12 @@ export default function ClubCard({ userObj, organization }) {
                     View Info
                 </Button>
                 <Modal open={open} onClose={handleClose}>
-                    <Box >
-                        <AccountOverview userObj={userObj} organization={organization} />
+                    <Box>
+                        <AccountOverview
+                            memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
+                            requirementType={requirementType} userAttendance={userAttendance}
+                            statusObject={statusObject}
+                        />
                     </Box>
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}

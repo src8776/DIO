@@ -5,7 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import FileUploadButton from '../../components/FileUploadButton';
+import FileUploadButton from '../AdminDashboard/FileUploadButton';
 import { Remove } from '@mui/icons-material';
 import SnackbarAlert from '../../components/SnackbarAlert';
 

@@ -34,7 +34,7 @@ export default function VerticalNavTabs({ pageTitle, orgType, sx }) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", ...sx }}>
-      <Typography variant="h6" sx={{ textAlign: 'center',  mt: "100px" }}>
+      <Typography variant="h6" sx={{ textAlign: 'center',  mt: "80px" }}>
         {/* {pageTitle} */}
       </Typography>
       <Box sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}>

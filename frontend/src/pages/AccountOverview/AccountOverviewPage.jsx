@@ -101,7 +101,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                         {/* Active Path Container */}
-                        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '450px', borderRadius: 3 }}>
+                        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3 }}>
                             {/* Header box */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }} >
                                 <RouteIcon />
@@ -114,7 +114,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                 <Paper sx={{ display: 'flex', flexDirection: 'column', p: 1, gap: 1, borderRadius: 3, }}>
                                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Typography variant="h6">General Meetings</Typography>
-                                        <Typography>16/18 attended</Typography>
+                                        <Typography>1/18 attended</Typography>
                                     </Box>
                                     {/* Rule Modules */}
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
@@ -122,21 +122,21 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                             <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
                                             <Typography>+1 point per attendance</Typography>
                                         </Box>
-                                        <Typography sx={{ color: "green" }}>16/18</Typography>
+                                        <Typography sx={{ color: "green" }}>1/18</Typography>
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                            <RadioButtonUncheckedIcon sx={{  }} />
                                             <Typography>+1 point for 50% attendance</Typography>
                                         </Box>
-                                        <Typography sx={{ color: "green" }}>+1</Typography>
+                                        <Typography sx={{ }}>+1</Typography>
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                            <RadioButtonUncheckedIcon sx={{  }} />
                                             <Typography>+2 point for 75% attendance</Typography>
                                         </Box>
-                                        <Typography sx={{ color: "green" }}>+2</Typography>
+                                        <Typography sx={{ }}>+2</Typography>
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
@@ -149,22 +149,22 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                 <Paper sx={{ display: 'flex', flexDirection: 'column', p: 1, gap: 1, borderRadius: 3, }}>
                                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Typography variant="h6">Volunteer Events</Typography>
-                                        <Typography>3 hours volunteered</Typography>
+                                        <Typography>0 hours volunteered</Typography>
                                     </Box>
                                     {/* Rule Modules */}
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                            <RadioButtonUncheckedIcon sx={{  }} />
                                             <Typography>+1 point for 1 hour volunteered</Typography>
                                         </Box>
-                                        <Typography sx={{ color: "green" }}>+1</Typography>
+                                        <Typography sx={{  }}>+1</Typography>
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
+                                            <RadioButtonUncheckedIcon sx={{  }} />
                                             <Typography>+2 points for 3 hours volunteered</Typography>
                                         </Box>
-                                        <Typography sx={{ color: "green" }}>+1</Typography>
+                                        <Typography sx={{  }}>+1</Typography>
                                     </Paper>
                                     <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
@@ -186,7 +186,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
 
                         </Paper>
                         {/* Attendance History Container */}
-                        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, borderRadius: 3, p: 2 }}>
+                        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3, p: 2 }}>
                             {/* Header box */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
                                 <EventAvailableIcon />

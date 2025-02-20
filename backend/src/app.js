@@ -61,7 +61,6 @@ app.use('/api/user', userRoutes);  //points any api/user* calls from frontend to
 
 const session = require('express-session')
 const path = require("path");
-const bodyParser = require("body-parser")
 const { defaultSamlStrategy, SP_CERT } = require('./saml.js')
 const passport = require('passport')
 

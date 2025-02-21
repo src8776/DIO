@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/datatable', async (req, res) => {
     console.log('Received request at /admin/datatable');
 
-    let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
+    let organizationID = parseInt(req.query.organizationID, 10);
 
     try {
         const query = `
@@ -26,16 +26,18 @@ router.get('/datatable', async (req, res) => {
             JOIN
                 Organizations ON OrganizationMembers.OrganizationID = Organizations.OrganizationID
             LEFT JOIN
-                Attendance ON Members.MemberID = Attendance.MemberID
+                Attendance ON Members.MemberID = Attendance.MemberID 
+                           AND Attendance.OrganizationID = ?
             LEFT JOIN
                 Roles ON OrganizationMembers.RoleID = Roles.RoleID
-                WHERE Attendance.OrganizationID = ?
+            WHERE
+                OrganizationMembers.OrganizationID = ?
             GROUP BY
                 Members.MemberID,
                 Members.FullName,
                 Members.IsActive;
         `;
-        const [rows] = await db.query(query, [organizationID]);
+        const [rows] = await db.query(query, [organizationID, organizationID]);
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);

@@ -14,7 +14,7 @@ const IDP_CERT = fs.readFileSync('/opt/shared/idp.crt', { encoding: 'utf8' });
 const defaultSamlStrategy = new SamlStrategy(
     {
         name: 'saml',
-        callbackUrl: BASE_URL + 'saml2/acs',
+        callbackUrl: BASE_URL + '/saml2/acs',
         entryPoint: IDP_SSO_URL,
         issuer: SP_ENTITY_ID,
         idpCert: IDP_CERT,

@@ -15,7 +15,7 @@ const defaultSamlStrategy = new SamlStrategy(
     {
         name: 'saml',
         callbackUrl: BASE_URL + '/saml2/acs',
-        nameIDFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+        identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
         entryPoint: IDP_SSO_URL,
         issuer: SP_ENTITY_ID,
         idpCert: IDP_CERT,

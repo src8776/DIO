@@ -28,9 +28,8 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
             </TableCell>
             <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.FullName}</TableCell>
             <TableCell
-                component="th"
+                align="left"
                 id={labelId}
-                scope="row"
                 sx={{
                     pl: '16px', pt: '0px', pb: '0px',
                     color: statusObject.status === 'inactive' ? 'red' : 'green',

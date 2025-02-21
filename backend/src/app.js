@@ -64,7 +64,7 @@ const path = require("path");
 const { defaultSamlStrategy, SP_CERT } = require('./saml.js')
 const passport = require('passport')
 
-const SITE_ROOT = '/nodejs'
+const SITE_ROOT = ''
 
 // Set express to use the ejs template engine
 app.set('view engine', 'ejs')

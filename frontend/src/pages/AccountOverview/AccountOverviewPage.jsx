@@ -160,7 +160,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                 <Typography variant="h6">Status</Typography>
                                 <Typography
                                     variant="h5"
-                                    sx={{ fontWeight: 'bold', color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black' }}
+                                    sx={{ fontWeight: 'bold', color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'system' }}
                                 >
                                     {statusObject.status || 'no status'}
                                 </Typography>

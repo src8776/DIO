@@ -64,7 +64,7 @@ const path = require("path");
 const { defaultSamlStrategy, SP_CERT } = require('./saml.js')
 const passport = require('passport')
 
-const SITE_ROOT = ''
+const SITE_ROOT = '/saml2'
 
 // Set express to use the ejs template engine
 app.set('view engine', 'ejs')
@@ -124,7 +124,7 @@ siteRoot.get('/login', passport.authenticate('saml'))
 // Passport will then extract the attributes from the IdP
 // assertion and store the user in the session.
 siteRoot.post(
-    "/saml2/acs",
+    "/acs",
     bodyParser.urlencoded({ extended: false }),
     passport.authenticate("saml", {
         failureRedirect: SITE_ROOT,
@@ -138,7 +138,7 @@ siteRoot.post(
 
 /* metadata example */
 siteRoot.get(
-    "/saml2/metadata",
+    "/metadata",
     (req, res) => {
         res.set('Content-Type', 'text/xml');
         res.send(defaultSamlStrategy.generateServiceProviderMetadata(SP_CERT, SP_CERT))

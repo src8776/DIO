@@ -25,7 +25,7 @@ export default function IndividualDataModal({ memberID, orgID, memberStatus }) {
         <InfoIcon fontSize="inherit" />
       </IconButton>
       <Modal open={open} onClose={handleClose}>
-        <Box >
+        <Box onClick={(e) => e.stopPropagation()}>
           <MemberDetailsPage
             memberID={memberID}
             orgID={orgID}

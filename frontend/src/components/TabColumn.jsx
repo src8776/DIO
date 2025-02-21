@@ -34,10 +34,10 @@ export default function VerticalNavTabs({ pageTitle, orgType, sx }) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", ...sx }}>
-      <Typography variant="h6" sx={{ textAlign: 'center',  mt: "80px" }}>
+      <Typography variant="h6" sx={{ textAlign: 'center', mt: "80px" }}>
         {/* {pageTitle} */}
       </Typography>
-      <Box sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}>
+      <Box sx={{ display: 'flex', flexGrow: 1, bgcolor: 'background.paper', }}>
         <Tabs
           orientation="vertical"
           variant="scrollable"
@@ -53,6 +53,7 @@ export default function VerticalNavTabs({ pageTitle, orgType, sx }) {
               {...a11yProps(index)}
               component={Link}
               to={item.path}
+              sx={{ alignItems: 'flex-start' }}
             />
           ))}
         </Tabs>

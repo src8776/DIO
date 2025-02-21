@@ -120,6 +120,7 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
             <TableHead>
               <TableRow>
                 <TableCell>Event ID</TableCell>
+                <TableCell>Event Type</TableCell>
                 <TableCell>Check-in Time</TableCell>
               </TableRow>
             </TableHead>
@@ -128,6 +129,7 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
                 attendanceRecords.map((record, index) => (
                   <TableRow key={index}>
                     <TableCell>{record.EventID}</TableCell>
+                    <TableCell>{record.EventType}</TableCell>
                     <TableCell>{new Date(record.CheckInTime).toLocaleString()}</TableCell>
                   </TableRow>
                 ))

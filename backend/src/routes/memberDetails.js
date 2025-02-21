@@ -6,8 +6,8 @@ const router = express.Router();
 router.get('/allDetails', async (req, res) => {
     console.log('Received request at /allDetails');
 
-    let memberID = parseInt(req.query.memberID, 10); // Convert to an integer
-    let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
+    let memberID = parseInt(req.query.memberID, 10);
+    let organizationID = parseInt(req.query.organizationID, 10);
 
     if (isNaN(memberID) || isNaN(organizationID)) {
         return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
@@ -15,7 +15,6 @@ router.get('/allDetails', async (req, res) => {
 
     try {
         const query = `
-           
             SELECT 
                 m.*, 
                 (
@@ -24,10 +23,13 @@ router.get('/allDetails', async (req, res) => {
                             'AttendanceID', a.AttendanceID,
                             'MemberID', a.MemberID,
                             'EventID', a.EventID,
-                            'CheckInTime', a.CheckInTime
+                            'CheckInTime', a.CheckInTime,
+                            'EventType', et.EventType
                         )
                     ) 
-                    FROM Attendance a 
+                    FROM Attendance a
+                    LEFT JOIN EventInstances ei ON a.EventID = ei.EventID
+                    LEFT JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
                     WHERE a.MemberID = m.MemberID AND a.OrganizationID = ?
                 ) AS attendanceRecords
             FROM Members m
@@ -40,7 +42,6 @@ router.get('/allDetails', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 
 router.get('/attendance', async (req, res) => {
     console.log('Received request at /attendance');

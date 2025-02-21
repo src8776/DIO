@@ -50,7 +50,7 @@ const headCells = [
     {
         id: 'Status',
         numeric: false,
-        disablePadding: true,
+        disablePadding: false,
         label: 'Status',
     },
     {

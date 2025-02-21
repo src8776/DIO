@@ -79,7 +79,7 @@ app.set('trust proxy', true);
 // Create a session for express and passport to share
 siteRoot.use(session({
     name: 'express-sess',
-    secret: 'some secret, change it!',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: true },

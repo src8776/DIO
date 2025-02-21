@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {
-    Container, Typography, Table, 
+    Container, Typography, Table,
     TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Box, 
+    TableHead, TableRow, Paper, Box,
     Skeleton, List, ListItem, Divider,
 } from "@mui/material";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
@@ -134,9 +134,17 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                         <Typography variant="h5">
                             Account Overview - {orgID === 2 ? ' COMS' : ' WiC'}
                         </Typography>
-                        <Typography variant="h6">
-                            {memberName.fullName || 'Loading...'}
-                        </Typography>
+                        {loading ? (
+                            <>
+                                <Skeleton variant="text" width={100} height={30} sx={{ ml: 1 }} />
+                            </>
+                        ) : (
+                            <>
+                                <Typography variant="h6">
+                                    {memberName.fullName || 'Loading...'}
+                                </Typography>
+                            </>
+                        )}
                     </Box>
 
                     {/* Member Overview Container */}

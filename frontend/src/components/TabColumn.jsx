@@ -44,7 +44,13 @@ export default function VerticalNavTabs({ pageTitle, orgType, sx }) {
           value={value}
           onChange={handleChange}
           aria-label="Vertical navigation tabs"
-          sx={{ borderRight: 1, borderColor: 'divider', width: "200px" }}
+          sx={{
+            borderLeft: 1, borderColor: 'divider', width: "200px",
+            '& .MuiTabs-indicator': {
+              left: 0,           // Move indicator to the left edge
+              right: 'auto'
+            },
+          }}
         >
           {navItems.map((item, index) => (
             <Tab

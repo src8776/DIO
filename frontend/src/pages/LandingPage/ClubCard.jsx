@@ -62,7 +62,7 @@ export default function ClubCard({ orgID }) {
 
                         sx={{
                             fontWeight: 'bold',
-                            color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
+                            color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'system'
                         }}
                     >
                         {statusObject.status || 'no status'}

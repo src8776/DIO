@@ -96,6 +96,7 @@ passport.use('saml', defaultSamlStrategy)
 // In a production environment we may just serialize the
 // user.id and then read from the database when deserializing
 passport.serializeUser(function (user, done) {
+    console.log(user);
     done(null, user);
 });
 
@@ -103,6 +104,7 @@ passport.serializeUser(function (user, done) {
 // that into a full user object. In this example we just store the
 // full attribute array in the session and retrieve it every time.
 passport.deserializeUser(function (user, done) {
+    console.log(user);
     done(null, user);
 });
 /* end user session */

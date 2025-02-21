@@ -29,6 +29,7 @@ const defaultSamlStrategy = new SamlStrategy(
     },
     /* acs callback */
     (profile, done) => {
+        console.log(profile);
         // Called after successful authentication, parse
         // the attributes in profile.attributes and create
         // or update a local user. Then return that user.

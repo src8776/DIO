@@ -1,24 +1,15 @@
 import * as React from 'react';
 import {
-    Container,
-    Typography,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Box,
-    Button,
+    Container, Typography, Table, 
+    TableBody, TableCell, TableContainer,
+    TableHead, TableRow, Paper, Box, 
+    Skeleton, List, ListItem, Divider,
 } from "@mui/material";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import RouteIcon from '@mui/icons-material/Route';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-
-// TODO: 
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 
 // TODO: Normalize this style for modals and house it somewhere else
 const style = {
@@ -37,62 +28,147 @@ const style = {
     maxHeight: '90%',
 };
 
+// Helper function to generate rule descriptions
+function generateRuleDescription(rule, ruleType) {
+    const { criteria, criteriaValue, pointValue } = rule;
+
+    switch (ruleType) {
+        case 'criteria':
+            switch (criteria) {
+                case 'minimum threshold percentage':
+                    const percentage = criteriaValue * 100;
+                    return `attend at least ${percentage}% of events`;
+                case 'one off':
+                    return `attend at least one event`;
+            }
+            break;
+        case 'points':
+            switch (criteria) {
+                case 'attendance':
+                    return `+${pointValue} point${pointValue !== 1 ? 's' : ''} per attendance`;
+                case 'minimum threshold percentage':
+                    const percentage = criteriaValue * 100;
+                    return `+${pointValue} point${pointValue !== 1 ? 's' : ''} for ${percentage}% attendance`;
+                case 'minimum threshold hours':
+                    return `+${pointValue} point${pointValue !== 1 ? 's' : ''} for ${criteriaValue} hour${criteriaValue !== 1 ? 's' : ''} volunteered`;
+                case 'one off':
+                    return `+${pointValue} point${pointValue !== 1 ? 's' : ''} for first attendance`;
+            }
+    }
+    return 'No rules available'; // Default fallback
+}
+
+// Updated calculateProgress function
+const calculateProgress = (eventType, rules, occurrenceTotal, userAttendance, requirementType) => {
+    const safeAttendance = Array.isArray(userAttendance) ? userAttendance : [];
+    const attended = safeAttendance.filter(event => event.eventType === eventType).length;
+    let points = 0;
+    const progressDetails = rules.map(rule => {
+        let isMet = false;
+        let progress = '';
+        let description = generateRuleDescription(rule, requirementType); // Pass requirementType dynamically
+
+        if (rule.criteria === "minimum threshold percentage" && rule.criteriaValue) {
+            const threshold = Math.ceil(occurrenceTotal * rule.criteriaValue);
+            isMet = attended >= threshold;
+            points += isMet ? rule.pointValue : 0;
+            progress = `${attended}/${threshold}`;
+        } else if (rule.criteria === "one off") {
+            points += attended * rule.pointValue;
+            isMet = attended > 0;
+            progress = `${attended}/${occurrenceTotal}`;
+        }
+
+        return {
+            description: description || `+${rule.pointValue} point for ${rule.criteria}`,
+            value: rule.pointValue,
+            isMet,
+            progress
+        };
+    });
+    return { attended, total: occurrenceTotal, points, progressDetails };
+};
+
 const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, userAttendance, statusObject }) => {
+    const [memberName, setMemberName] = React.useState('');
+    const [orgRules, setOrgRules] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        if (!memberID) return;
+        fetch(`/api/memberDetails/name?memberID=${memberID}`)
+            .then(response => response.json())
+            .then(data => setMemberName(data))
+            .catch(error => console.error('Error fetching data for MemberName:', error));
+    }, [memberID]);
+
+    React.useEffect(() => {
+        fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => {
+                setOrgRules(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data for OrganizationRules:', error);
+                setLoading(false); // Stop loading even on error
+            });
+    }, [orgID]);
+
+    const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
+
+    const progressByType = React.useMemo(() => {
+        if (!orgRules?.eventTypes) return [];
+        return orgRules.eventTypes.map(eventType => ({
+            ...eventType,
+            progress: calculateProgress(eventType.name, eventType.rules, eventType.OccurrenceTotal, safeUserAttendance, requirementType)
+        }));
+    }, [orgRules, safeUserAttendance, requirementType]);
 
     return (
         <Container>
             <Paper sx={style}>
                 <Box sx={{ overflowY: 'auto', p: 4 }}>
-
                     {/* Basic Info */}
-                    <Typography variant="h5" sx={{ mb: 2 }}>
-                        Account Overview -
-                        {orgID === 2 ? ' COMS' : ' WiC'}
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                        <Typography variant="h5">
+                            Account Overview - {orgID === 2 ? ' COMS' : ' WiC'}
+                        </Typography>
+                        <Typography variant="h6">
+                            {memberName.fullName || 'Loading...'}
+                        </Typography>
+                    </Box>
 
                     {/* Member Overview Container */}
-                    <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
-                        {/* Header box */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
+                    <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                             <PeopleAltIcon />
-                            <Typography variant="h5">
-                                Member Overview
-                            </Typography>
+                            <Typography variant="h5">Member Overview</Typography>
                         </Box>
-                        {/* Content Box */}
                         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
-                            {/* Active points box */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                 <Typography variant="h6">
                                     {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
                                 </Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                    {statusObject.totalPoints || 0}/{activeRequirement || 0}
+
+                                    {statusObject.totalPoints || 0} / {activeRequirement || 0}
+
                                 </Typography>
                             </Box>
-                            {/* Status box */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
-                                <Typography variant="h6">
-                                    Status
-                                </Typography>
+                                <Typography variant="h6">Status</Typography>
                                 <Typography
                                     variant="h5"
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black'
-                                    }}
+                                    sx={{ fontWeight: 'bold', color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'black' }}
                                 >
                                     {statusObject.status || 'no status'}
                                 </Typography>
                             </Box>
-                            {/* Meetings Attended box */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
-                                <Typography variant="h6">
-                                    Events Attended
-                                </Typography>
-                                {/* No idea how to get rid of the null value error here x.x */}
+                                <Typography variant="h6">Events Attended</Typography>
                                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                    {userAttendance?.length ?? 'No events attended'}
+                                    {safeUserAttendance.length || 'No events attended'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -100,121 +176,71 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
 
                     {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-                        {/* Active Path Container */}
-                        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3 }}>
-                            {/* Header box */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }} >
+                        {/* Active Path */}
+                        <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}>
                                 <RouteIcon />
-                                <Typography variant="h5">
-                                    Active Path
-                                </Typography>
+                                <Typography variant="h5">Active Path</Typography>
                             </Box>
-                            {/* Rule Categories */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', p: 1, gap: 2 }}>
-                                <Paper sx={{ display: 'flex', flexDirection: 'column', p: 1, gap: 1, borderRadius: 3, }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                                        <Typography variant="h6">General Meetings</Typography>
-                                        <Typography>1/18 attended</Typography>
-                                    </Box>
-                                    {/* Rule Modules */}
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonCheckedIcon sx={{ color: '#F76902' }} />
-                                            <Typography>+1 point per attendance</Typography>
-                                        </Box>
-                                        <Typography sx={{ color: "green" }}>1/18</Typography>
-                                    </Paper>
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{  }} />
-                                            <Typography>+1 point for 50% attendance</Typography>
-                                        </Box>
-                                        <Typography sx={{ }}>+1</Typography>
-                                    </Paper>
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{  }} />
-                                            <Typography>+2 point for 75% attendance</Typography>
-                                        </Box>
-                                        <Typography sx={{ }}>+2</Typography>
-                                    </Paper>
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{}} />
-                                            <Typography>+3 point for 100% attendance</Typography>
-                                        </Box>
-                                        <Typography>+0</Typography>
-                                    </Paper>
-                                </Paper>
-                                <Paper sx={{ display: 'flex', flexDirection: 'column', p: 1, gap: 1, borderRadius: 3, }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                                        <Typography variant="h6">Volunteer Events</Typography>
-                                        <Typography>0 hours volunteered</Typography>
-                                    </Box>
-                                    {/* Rule Modules */}
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{  }} />
-                                            <Typography>+1 point for 1 hour volunteered</Typography>
-                                        </Box>
-                                        <Typography sx={{  }}>+1</Typography>
-                                    </Paper>
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{  }} />
-                                            <Typography>+2 points for 3 hours volunteered</Typography>
-                                        </Box>
-                                        <Typography sx={{  }}>+1</Typography>
-                                    </Paper>
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{}} />
-                                            <Typography>+3 points for 6 hours volunteered</Typography>
-                                        </Box>
-                                        <Typography sx={{}}>+0</Typography>
-                                    </Paper>
-                                    <Paper elevation={1} sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', borderRadius: 2, p: 1 }}>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <RadioButtonUncheckedIcon sx={{}} />
-                                            <Typography>+4 points for 9 hours volunteered</Typography>
-                                        </Box>
-                                        <Typography>+0</Typography>
-                                    </Paper>
-                                </Paper>
+                            <Box sx={{ overflowY: 'auto', p: 1 }}>
+                                {loading ? (
+                                    <>
+                                        <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 3, m: 1 }} />
+                                        <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 3, m: 1 }} />
+                                        <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 3, m: 1 }} />
+                                    </>
+                                ) : progressByType.length > 0 ? (
+                                    <List disablePadding>
+                                        {progressByType.map((eventType, index) => (
+                                            <React.Fragment key={index}>
+                                                <ListItem sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
+                                                    <Typography variant="h6">{eventType.name}s</Typography>
+                                                    <Typography>{eventType.progress?.progressDetails[0]?.progress || '0/0'} attended</Typography>
+                                                </ListItem>
+                                                {eventType.progress?.progressDetails.map((rule, ruleIndex) => (
+                                                    <ListItem key={ruleIndex} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                            {rule.isMet ? <DoneIcon sx={{ color: '#F76902' }} /> : <CloseIcon sx={{ color: '#757575' }} />}
+                                                            <Typography>{rule.description}</Typography>
+                                                        </Box>
+                                                        <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>{`+${rule.isMet ? rule.value : 0}`}</Typography>
+                                                    </ListItem>
+                                                ))}
+                                                {index < progressByType.length - 1 && <Divider sx={{ my: 1 }} />}
+                                            </React.Fragment>
+                                        ))}
+                                    </List>
+                                ) : (
+                                    <Typography sx={{ p: 1 }}>No rules available.</Typography>
+                                )}
                             </Box>
-
-
                         </Paper>
+
                         {/* Attendance History Container */}
-                        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3, p: 2 }}>
-                            {/* Header box */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} >
+                        <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3, p: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                 <EventAvailableIcon />
-                                <Typography variant="h5">
-                                    Attendance History
-                                </Typography>
+                                <Typography variant="h5">Attendance History</Typography>
                             </Box>
-                            <TableContainer component={Paper} sx={{ maxHeight: 370 }}>
+                            <TableContainer component={Paper} elevation={1} sx={{ maxHeight: 370 }}>
                                 <Table stickyHeader>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Date</TableCell>
                                             <TableCell>Event</TableCell>
+                                            <TableCell>Date</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {userAttendance.length > 0 ? (
-                                            userAttendance.map((record, index) => (
+                                        {safeUserAttendance.length > 0 ? (
+                                            safeUserAttendance.map((record, index) => (
                                                 <TableRow key={index}>
-                                                    <TableCell>{record.eventDate}</TableCell>
                                                     <TableCell>{record.eventType}</TableCell>
+                                                    <TableCell>{record.eventDate}</TableCell>
                                                 </TableRow>
                                             ))
                                         ) : (
                                             <TableRow>
-                                                <TableCell colSpan={2} align="center">
-                                                    No attendance records found.
-                                                </TableCell>
+                                                <TableCell colSpan={2} align="center">No attendance records found.</TableCell>
                                             </TableRow>
                                         )}
                                     </TableBody>

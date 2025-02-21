@@ -43,6 +43,33 @@ router.get('/allDetails', async (req, res) => {
     }
 });
 
+router.get('/name', async (req, res) => {
+    console.log('Received request at /name');
+
+    let memberID = parseInt(req.query.memberID, 10);
+
+    if (isNaN(memberID)) {
+        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    }
+
+    try {
+        const query = `
+            SELECT CONCAT(m.FirstName, ' ', m.LastName) AS fullName
+            FROM Members m
+            WHERE m.MemberID = ?;
+        `;
+        const [rows] = await db.query(query, [memberID]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Member not found' });
+        }
+        res.json({ fullName: rows[0].fullName });
+    } catch (error) {
+        console.error('Error fetching member name:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/attendance', async (req, res) => {
     console.log('Received request at /attendance');
 

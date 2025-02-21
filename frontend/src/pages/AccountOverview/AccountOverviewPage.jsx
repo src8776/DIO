@@ -154,28 +154,27 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                             <Typography variant="h5">Member Overview</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                <Typography variant="h6">
-                                    {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
-                                </Typography>
-                                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-
-                                    {statusObject.totalPoints || 0} / {activeRequirement || 0}
-
-                                </Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
-                                <Typography variant="h6">Status</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+                                <Typography variant="h5">Status</Typography>
                                 <Typography
                                     variant="h5"
-                                    sx={{ fontWeight: 'bold', color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'system' }}
+                                    sx={{ color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'system' }}
                                 >
                                     {statusObject.status || 'no status'}
                                 </Typography>
                             </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2  }}>
+                                <Typography variant="h5">
+                                    {requirementType === 'points' ? 'Points Earned' : requirementType === 'criteria' ? 'Requirements Met' : 'Active Points'}
+                                </Typography>
+                                <Typography variant="h5" >
+                                    {statusObject.totalPoints || 0} / {activeRequirement || 0}
+                                </Typography>
+                            </Box>
+                            
                             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '1px solid #CBCBCB', pl: 2 }}>
-                                <Typography variant="h6">Events Attended</Typography>
-                                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                <Typography variant="h5">Events Attended</Typography>
+                                <Typography variant="h5">
                                     {safeUserAttendance.length || 'No events attended'}
                                 </Typography>
                             </Box>

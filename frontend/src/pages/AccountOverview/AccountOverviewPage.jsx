@@ -61,32 +61,65 @@ function generateRuleDescription(rule, ruleType) {
 // Updated calculateProgress function
 const calculateProgress = (eventType, rules, occurrenceTotal, userAttendance, requirementType) => {
     const safeAttendance = Array.isArray(userAttendance) ? userAttendance : [];
-    const attended = safeAttendance.filter(event => event.eventType === eventType).length;
+    const attendedEvents = safeAttendance.filter(event => event.eventType === eventType);
+    const attendedCount = attendedEvents.length;
+    const totalHours = attendedEvents.reduce((sum, event) => sum + (event.hours || 0), 0); // Sum hours if available
     let points = 0;
+    const safeOccurrenceTotal = occurrenceTotal || 0; // Handle null case
+
     const progressDetails = rules.map(rule => {
         let isMet = false;
         let progress = '';
-        let description = generateRuleDescription(rule, requirementType); // Pass requirementType dynamically
+        let description = generateRuleDescription(rule, requirementType);
+        const { criteria, criteriaValue, pointValue } = rule;
 
-        if (rule.criteria === "minimum threshold percentage" && rule.criteriaValue) {
-            const threshold = Math.ceil(occurrenceTotal * rule.criteriaValue);
-            isMet = attended >= threshold;
-            points += isMet ? rule.pointValue : 0;
-            progress = `${attended}/${threshold}`;
-        } else if (rule.criteria === "one off") {
-            points += attended * rule.pointValue;
-            isMet = attended > 0;
-            progress = `${attended}/${occurrenceTotal}`;
+        switch (criteria) {
+            case "attendance":
+                points += attendedCount * pointValue;
+                isMet = attendedCount > 0;
+                progress = `${attendedCount}/${safeOccurrenceTotal}`;
+                break;
+
+            case "minimum threshold percentage":
+                if (criteriaValue && safeOccurrenceTotal > 0) {
+                    const threshold = Math.ceil(safeOccurrenceTotal * criteriaValue);
+                    isMet = attendedCount >= threshold;
+                    points += isMet ? pointValue : 0;
+                    progress = `${attendedCount}/${threshold}`;
+                }
+                break;
+
+            case "minimum threshold hours":
+                isMet = totalHours >= criteriaValue;
+                points += isMet ? pointValue : 0;
+                progress = `${totalHours}/${criteriaValue} hours`;
+                break;
+
+            case "one off":
+                isMet = attendedCount > 0;
+                points += isMet ? pointValue : 0;
+                progress = `${attendedCount}/${safeOccurrenceTotal}`;
+                break;
+
+            default:
+                progress = 'N/A';
         }
 
         return {
-            description: description || `+${rule.pointValue} point for ${rule.criteria}`,
-            value: rule.pointValue,
+            description: description || `+${pointValue} point for ${criteria}`,
+            value: pointValue,
             isMet,
             progress
         };
     });
-    return { attended, total: occurrenceTotal, points, progressDetails };
+
+    return {
+        attended: attendedCount,
+        total: safeOccurrenceTotal,
+        points,
+        progressDetails,
+        totalHours // Include for volunteer events if needed
+    };
 };
 
 const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, userAttendance, statusObject }) => {

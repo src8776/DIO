@@ -50,7 +50,7 @@ export default function GenerateReport() {
         variant="contained"
         startIcon={<EditNoteIcon />}
       >
-        Generate Report
+        Quick Report
 
       </Button>
       <Modal open={open} onClose={handleClose}>

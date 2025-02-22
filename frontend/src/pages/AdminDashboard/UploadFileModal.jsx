@@ -15,7 +15,7 @@ export default function AddMemberModal() {
         variant="contained"
         startIcon={<CloudUploadIcon />}
       >
-        Import Attendance Data
+        Upload Attendance Data
       </Button>
       <Modal open={open} onClose={handleClose}>
         <Box>

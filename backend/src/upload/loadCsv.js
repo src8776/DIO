@@ -50,7 +50,7 @@ const isFileDuplicate = async (filePath) => {
     return existingFile.length > 0;
   } catch (error) {
     console.error('Error checking file duplicate:', error);
-    throw error;
+    reject(error);
   }
 };
 
@@ -65,7 +65,7 @@ const insertFileInfo = async (filePath) => {
     console.log(`File saved: ${filePath}`);
   } catch (error) {
     console.error('Error saving file record:', error);
-    throw error;
+    reject(error);
   }
 };
 
@@ -82,7 +82,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
           if (err) console.error('Error removing duplicate file:', err);
           else console.log('Duplicate file removed successfully.');
         });
-        return resolve(); 
+        return reject(new Error("File already uploaded before!")); 
       }
       await insertFileInfo(filePath);
     } catch (error) {

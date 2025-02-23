@@ -72,7 +72,7 @@ if (process.env.NODE_ENV === "production") {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: true },
+        cookie: { secure: false },
         store: session.MemoryStore()
     }))
 
@@ -81,12 +81,12 @@ if (process.env.NODE_ENV === "production") {
 
     /* user session */
     passport.serializeUser(function (user, done) {
-        console.log(user);
+        console.log("Serializing:",user);
         done(null, user);
     });
 
     passport.deserializeUser(function (user, done) {
-        console.log(user);
+        console.log("Deserializing:",user);
         done(null, user);
     });
     /* end user session */

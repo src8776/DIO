@@ -47,6 +47,17 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
         setAnchorEl(null);
     };
 
+    const handleLogout = async () => {
+        try {
+          const response = await fetch('/saml2/logout', {
+            method: 'GET',
+            credentials: 'include',
+          });
+        } catch (error) {
+          console.error("Error logging out:", error);
+        }
+      };
+
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
             <Typography variant="h6" sx={{ my: 2 }}>
@@ -136,7 +147,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                             >
                                 <MenuItem component={Link} to={"/acctSetup"} onClick={handleClose}>Profile</MenuItem>
                                 {/* TODO: Implement logout button */}
-                                <MenuItem onClick={handleClose}>Log Out</MenuItem>
+                                <MenuItem onClick={() => { handleLogout(); handleClose(); }}>Log Out</MenuItem>
                             </Menu>
                         </div>
                     </Box>

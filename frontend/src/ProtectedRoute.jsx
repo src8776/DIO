@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 // Function to check if the user is authenticated by making a request to the backend
 const checkAuth = async () => {
   try {
-    const response = await fetch('/api/me', {
+    const response = await fetch('/saml2/api/me', {
       method: 'GET',
       credentials: 'same-origin', // Ensure the session cookie is sent
     });

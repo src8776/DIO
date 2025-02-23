@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AppBar from './components/AppBar';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AdminDash from './pages/AdminDashboard/AdminDashPage';
@@ -12,8 +12,7 @@ import MemberDetailsModal from './pages/MemberDetails/MemberDetailsPage.jsx';
 import AdminLayout from './components/AdminLayout.jsx';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
-import ProtectedRoute from './ProtectedRoute';
-
+import ProtectedRoute from './ProtectedRoute.jsx';
 
 const App = () => {
   // dark/light mode based on system preference
@@ -45,15 +44,17 @@ const App = () => {
     <ThemeProvider theme={mode === 'light' ? lightTheme : darkTheme}>
       <CssBaseline />
       <AppBar toggleTheme={toggleTheme} mode={mode} />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/admin/:org" element={<AdminLayout />} />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/admin/:org" element={<AdminLayout />}>
           <Route index element={<AdminDash />} />
           <Route path="memberDetails" element={<MemberDetailsModal />} />
           <Route path="organizationSetup" element={<OrgSetup />} />
           <Route path="officersList" element={<OfficersList />} />
-          <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />
-        </Routes>
+        </Route>
+
+        <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />
+      </Routes>
     </ThemeProvider>
   );
 };

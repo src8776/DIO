@@ -53,6 +53,11 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
             method: 'GET',
             credentials: 'include',
           });
+          if (response.ok) {
+            window.location.href = '/';
+          } else {
+            console.error("Logout failed");
+          }
         } catch (error) {
           console.error("Error logging out:", error);
         }
@@ -146,7 +151,6 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                                 onClose={handleClose}
                             >
                                 <MenuItem component={Link} to={"/acctSetup"} onClick={handleClose}>Profile</MenuItem>
-                                {/* TODO: Implement logout button */}
                                 <MenuItem onClick={() => { handleLogout(); handleClose(); }}>Log Out</MenuItem>
                             </Menu>
                         </div>

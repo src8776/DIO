@@ -1,18 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const user = req.user;
 
-//TODO: get data from database
-const userProfile = {
-  firstName: user['urn:oid:2.5.4.42'],
-  email: user['urn:oid:0.9.2342.19200300.100.1.3'],
-  studentYear: 'junior',
-  graduationDate: '2025-05-01',
-  major: 'computer_science',
-  shirtSize: 'M',
-  pantSize: '32'
-};
 
 //TODO: get data from database
 const majors = [
@@ -25,6 +14,21 @@ const majors = [
 
 // profile route
 router.get('/profile', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  const user = req.user;
+  const userProfile = {
+    firstName: user['urn:oid:2.5.4.42'],
+    email: user['urn:oid:0.9.2342.19200300.100.1.3'],
+    studentYear: user.studentYear || 'Unknown',
+    graduationDate: user.graduationDate || 'Unknown',
+    major: user.major || 'Unknown',
+    shirtSize: user.shirtSize || 'Unknown',
+    pantSize: user.pantSize || 'Unknown'
+  };
+
   res.json(userProfile);
 });
 

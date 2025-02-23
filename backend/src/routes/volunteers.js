@@ -1,7 +1,9 @@
 const express = require('express');
 const Attendance = require('../models/Attendance');
 const EventInstance = require('../models/EventInstance');
-
+const useAccountStatus = require('../services/useAccountStatus');
+const OrganizationSetting = require('../models/OrganizationSetting');
+const EventRule = require('../models/EventRule');
 const router = express.Router();
 
 router.post('/hours', async (req, res) => {
@@ -25,6 +27,13 @@ router.post('/hours', async (req, res) => {
             }
             await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate);
             
+            //recalculate member status
+            const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
+            const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
+            const attendanceData = await Attendance.getAttendanceByMemberAndOrg(member.MemberID, organizationID);
+            const statusObject = useAccountStatus.useAccountStatus(activeReqData, orgRulesData, attendanceData);
+            console.log(statusObject);
+
         } catch (error) {
             console.error('Failed to insert volunteer hours into database', error);
             res.status(500).json({ 

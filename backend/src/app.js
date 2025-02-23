@@ -3,7 +3,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    credentials: true,
+}));
 app.use(bodyParser.json());
 
 /*
@@ -129,6 +131,15 @@ if (process.env.NODE_ENV === "production") {
         }
     )
     /* end metadata example */
+
+    //Check is user is authenticated
+    app.get('/api/me', (req, res) => {
+        if (req.isAuthenticated()) {
+          res.json(req.user);
+        } else {
+          res.status(401).json({ message: 'Not authenticated' });
+        }
+    });
 
     siteRoot.get('/logout', (req, res) => {
         req.session.destroy()

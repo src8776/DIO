@@ -41,19 +41,11 @@ app.use('/api/admin/volunteers', volunteerRoutes);
 const memberDetailsRoutes = require('./routes/memberDetails.js');
 app.use('/api/memberDetails', memberDetailsRoutes)
 
-app.post('/api/shib-user', (req, res) => {
-    const { uid, givenName, surname, email } = req.body;
-
-    console.log('Received Shibboleth User:', { uid, givenName, surname, email });
-
-    res.json({ message: 'User data received successfully', user: { uid, givenName, surname, email } });
-});
-
 const { upload, handleFileUpload } = require('./upload/handleFileUpload');
 app.post('/api/upload', upload.single('csv_file'), handleFileUpload);
 
 const userRoutes = require('./routes/userRoutes');
-app.use('/api/user', userRoutes);  //points any api/user* calls from frontend to userRoutes file
+app.use('/api/user', userRoutes);
 
 
 
@@ -132,8 +124,8 @@ if (process.env.NODE_ENV === "production") {
     )
     /* end metadata example */
 
-    //Check is user is authenticated
-    app.get('/api/me', (req, res) => {
+    //Check if user is authenticated
+    siteRoot.get('/api/me', (req, res) => {
         if (req.isAuthenticated()) {
           res.json(req.user);
         } else {

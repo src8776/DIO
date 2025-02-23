@@ -34,7 +34,7 @@ const ProtectedRoute = ({ element }) => {
     return <div>Loading...</div>;  // Loading state while checking auth status
   }
 
-  return isAuthenticated ? element : <Navigate to="/saml2/login" replace />;
+  return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

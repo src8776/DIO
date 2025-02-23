@@ -58,7 +58,7 @@ const App = () => {
       <CssBaseline />
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <AuthProvider>
-      <Routes>
+      <Router>
         <ProtectedRoute path="/" element={<LandingPage />} />
         <Route path="/admin/:org" element={<AdminLayout />}>
           <Route index element={<AdminDash />} />
@@ -68,7 +68,7 @@ const App = () => {
         </Route>
 
         <Route path="/acctSetup" element={<AcctSetup />} />
-      </Routes>
+      </Router>
       </AuthProvider>
     </ThemeProvider>
   );

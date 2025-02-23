@@ -111,11 +111,11 @@ if (process.env.NODE_ENV === "production") {
         "/acs",
         bodyParser.urlencoded({ extended: false }),
         passport.authenticate("saml", {
-            failureRedirect: SITE_ROOT,
+            failureRedirect: "/login",
             failureFlash: true,
         }),
         function (req, res) {
-            res.redirect(SITE_ROOT);
+            res.redirect('/');
         },
     )
     /* end acs example */

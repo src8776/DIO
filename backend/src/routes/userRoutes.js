@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
+const user = req.user;
+
 //TODO: get data from database
 const userProfile = {
-  firstName: 'John',
-  email: 'jd9217@rit.edu',
+  firstName: user['urn:oid:2.5.4.42'],
+  email: user['urn:oid:0.9.2342.19200300.100.1.3'],
   studentYear: 'junior',
   graduationDate: '2025-05-01',
   major: 'computer_science',

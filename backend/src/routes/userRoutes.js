@@ -14,14 +14,14 @@ const majors = [
 
 // profile route
 router.get('/profile', (req, res) => {
-  if (!req.isAuthenticated()) {
+  if (!req.user) {
     return res.status(401).json({ message: 'Not authenticated' });
   }
 
   const user = req.user;
   const userProfile = {
-    firstName: user['urn:oid:2.5.4.42'],
-    email: user['urn:oid:0.9.2342.19200300.100.1.3'],
+    firstName: user.firstname,
+    email: user.lastname,
     studentYear: user.studentYear || 'Unknown',
     graduationDate: user.graduationDate || 'Unknown',
     major: user.major || 'Unknown',

@@ -87,7 +87,12 @@ if (process.env.NODE_ENV === "production") {
 
     passport.deserializeUser(function (user, done) {
         console.log("Deserializing:",user);
-        done(null, user);
+        done(null, {
+            email: user['urn:oid:0.9.2342.19200300.100.1.3'],
+            firstName: user['urn:oid:2.5.4.42'],
+            lastName: user['urn:oid:2.5.4.4'],
+            username: user['urn:oid:0.9.2342.19200300.100.1.1'],
+        });
     });
     /* end user session */
 

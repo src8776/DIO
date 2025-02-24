@@ -41,9 +41,10 @@ class EventInstance {
             const eventTypeID = eventTypeRows[0].EventTypeID;
 
             // Insert new event instance and return the new EventID
+            const eventTitle = `${eventType}`; // Example title, adjust as needed
             const [insertResult] = await db.query(
-                `INSERT INTO EventInstances (EventDate, EventTypeID, OrganizationID) VALUES (?, ?, ?)`,
-                [eventDate, eventTypeID, organizationID]
+                `INSERT INTO EventInstances (EventDate, EventTypeID, OrganizationID, EventTitle) VALUES (?, ?, ?, ?)`,
+                [eventDate, eventTypeID, organizationID, eventTitle]
             );
 
             console.log(`[@EventInstance] New EventID created: ${insertResult.insertId}`);

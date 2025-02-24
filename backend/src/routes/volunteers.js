@@ -11,10 +11,10 @@ router.post('/hours', async (req, res) => {
     const data = req.body;
     const organizationID = data.orgID;
     const eventType = data.eventType;
-
+    //TODO: SUPPORT TRANSACTIONS
     for (const member of data.members) {
         try {
-            console.log(member.date);
+            console.log("processing hours volunteers.js member " + member.FullName + member.MemberID);
             const eventDate = member.date;
             // Fetch EventID once
             const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID);
@@ -32,7 +32,8 @@ router.post('/hours', async (req, res) => {
             const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
             const attendanceData = await Attendance.getAttendanceByMemberAndOrg(member.MemberID, organizationID);
             const statusObject = useAccountStatus.useAccountStatus(activeReqData, orgRulesData, attendanceData);
-            console.log(statusObject);
+            console.log(statusObject.status + " statusObject.status from volunteers.js");
+            //TODO: UPDATE THE MEMBER STATUS IN THE DATABASE
 
         } catch (error) {
             console.error('Failed to insert volunteer hours into database', error);

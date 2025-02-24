@@ -38,7 +38,7 @@ router.get('/activeRequirement', async (req, res) => {
     }
 
     try {
-        const [rows] = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
+        const rows = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Organization Info data:', error);

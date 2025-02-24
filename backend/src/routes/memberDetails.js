@@ -81,7 +81,7 @@ router.get('/attendance', async (req, res) => {
     }
 
     try {
-        const [rows] = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
+        const rows = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Organization Info data:', error);

@@ -31,10 +31,10 @@ class EventRule {
 
             if (!eventTypesMap[eventTypeID]) {
                 eventTypesMap[eventTypeID] = {
-                    eventTypeID: row.eventTypeID,
+                    eventTypeID: eventTypeID,
                     name: row.EventType,
                     ruleType: row.RuleType,
-                    OccurrenceTotal: row.OccurrenceTotal,
+                    occurrenceTotal: row.OccurrenceTotal,
                     rules: []
                 };
             }
@@ -51,6 +51,7 @@ class EventRule {
 
         // Convert the object map to an array
         const formattedResponse = Object.values(eventTypesMap);
+
         return formattedResponse;
     } catch (error) {
         console.error('Error fetching data for Organization Setup Page:', error);

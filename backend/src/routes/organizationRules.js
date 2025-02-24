@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../config/db');
-
+const EventRule = require('../models/EventRule');
 const router = express.Router();
 
 router.get('/eventRules', async (req, res) => {
@@ -14,54 +14,8 @@ router.get('/eventRules', async (req, res) => {
     }
 
     try {
-        const query = `
-            SELECT 
-                et.EventTypeID,
-                et.EventType,
-                et.RuleType,
-                et.MaxPoints,
-                et.MinPoints,
-                et.OccurrenceTotal,
-                er.RuleID,
-                er.Criteria,
-                er.CriteriaValue,
-                er.PointValue
-            FROM EventTypes et
-            LEFT JOIN EventRules er 
-                ON et.EventTypeID = er.EventTypeID 
-                AND er.OrganizationID = et.OrganizationID
-            WHERE et.OrganizationID = ?;
-        `;
-        const [rows] = await db.query(query, [organizationID]);
-
-        // Transform the flat array into a nested structure
-        const eventTypesMap = {};
-
-        rows.forEach(row => {
-            const eventTypeID = row.EventTypeID;
-
-            if (!eventTypesMap[eventTypeID]) {
-                eventTypesMap[eventTypeID] = {
-                    eventTypeID: eventTypeID,
-                    name: row.EventType,
-                    ruleType: row.RuleType,
-                    occurrenceTotal: row.OccurrenceTotal,
-                    rules: []
-                };
-            }
-
-            if (row.RuleID) { // Only add rules if they exist
-                eventTypesMap[eventTypeID].rules.push({
-                    criteria: row.Criteria,
-                    criteriaValue: parseFloat(row.CriteriaValue),
-                    pointValue: parseFloat(row.PointValue),
-                    ruleID:row.RuleID 
-                });
-            }
-        });
-
         // Convert the object map to an array
-        const formattedResponse = Object.values(eventTypesMap);
+        const formattedResponse = await EventRule.getEventRulesByOrg(organizationID);
 
         res.json({ eventTypes: formattedResponse });
     } catch (error) {

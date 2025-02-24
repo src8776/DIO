@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../config/db');
-
+const OrganizationSetting = require('../models/OrganizationSetting');
 const router = express.Router();
 
 router.get('/name', async (req, res) => {
@@ -38,15 +38,7 @@ router.get('/activeRequirement', async (req, res) => {
     }
 
     try {
-        const query = `
-            SELECT 
-                ActiveRequirement,
-                Description
-            FROM 
-                OrganizationSettings
-            WHERE OrganizationID = ?
-        `;
-        const [rows] = await db.query(query, [organizationID]);
+        const rows = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Organization Info data:', error);

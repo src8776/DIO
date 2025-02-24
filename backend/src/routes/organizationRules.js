@@ -74,19 +74,19 @@ router.get('/eventRules', async (req, res) => {
 router.put('/updateRule', async (req, res) => {
     console.log('Received request at /updateRule (PUT)');
 
-    const { ruleID, criteriaValue, pointValue } = req.body;
+    const { ruleID, criteriaType, criteriaValue, pointValue } = req.body;
 
-    if (!ruleID || criteriaValue === undefined || pointValue === undefined) {
-        return res.status(400).json({ error: 'Missing ruleID, criteriaValue, or pointValue parameter' });
+    if (!ruleID || !criteriaType || criteriaValue === undefined || pointValue === undefined) {
+        return res.status(400).json({ error: 'Missing ruleID, criteriaType, criteriaValue, or pointValue parameter' });
     }
 
     try {
         const query = `
             UPDATE EventRules
-            SET CriteriaValue = ?, PointValue = ?
+            SET Criteria = ?, CriteriaValue = ?, PointValue = ?
             WHERE RuleID = ?
         `;
-        const [result] = await db.query(query, [criteriaValue, pointValue, ruleID]);
+        const [result] = await db.query(query, [criteriaType, criteriaValue, pointValue, ruleID]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'RuleID not found' });
@@ -98,6 +98,7 @@ router.put('/updateRule', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 router.put('/updateOccurrences', async (req, res) => {
     console.log('Received request at /updateOccurrences (PUT)');

@@ -4,7 +4,9 @@ import {
     Box, Table, TableHead,
     TableBody, TableRow, TableCell,
     IconButton, Button,
-    TextField
+    TextField, Select, MenuItem,
+    FormControl,
+    InputLabel
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -26,6 +28,7 @@ const style = {
     p: 4,
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
+    maxHeight: '90%'
 };
 
 // Helper function to generate a readable description for a given rule
@@ -74,15 +77,38 @@ function generateRuleDescription(rule, ruleType) {
 
 export default function EventItemRules({ name, rules, ruleType, orgID, occurrenceTotal, eventTypeID }) {
     const [open, setOpen] = React.useState(false);
+    const [activeRequirement, setActiveRequirement] = React.useState(null);
+    const [requirementType, setRequirementType] = React.useState('');
     const [selectedRule, setSelectedRule] = React.useState(null);
+    const [newCriteriaType, setNewCriteriaType] = React.useState(null);
     const [newCriteriaValue, setNewCriteriaValue] = React.useState(null);
-    const [newPointValue, setNewPointValue] = React.useState(null);
+    const [newPointValue, setNewPointValue] = React.useState(1);
     const [editOccurrences, setEditOccurrences] = React.useState(false);
     const [currentOccurrenceTotal, setCurrentOccurrenceTotal] = React.useState(occurrenceTotal);
     const [newOccurrenceTotal, setNewOccurrenceTotal] = React.useState(occurrenceTotal);
     const [percentError, setPercentError] = React.useState('');
     const [pointError, setPointError] = React.useState('');
     const [occurrenceError, setOccurrenceError] = React.useState('');
+
+
+    React.useEffect(() => {
+        fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.length > 0) {
+                    setActiveRequirement(data[0].ActiveRequirement); // Extract ActiveRequirement directly
+                    setRequirementType(data[0].Description); // Extract RequirementType directly (either 'points' or 'criteria')
+                } else {
+                    setActiveRequirement(null);
+                    setRequirementType(null);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+                setActiveRequirement(null);
+                setRequirementType(null);
+            });
+    }, [orgID]);
 
     React.useEffect(() => {
         setCurrentOccurrenceTotal(occurrenceTotal);
@@ -91,6 +117,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
 
     const handleOpen = (rule) => {
         setSelectedRule(rule);
+        setNewCriteriaType(rule.criteria);
         setNewCriteriaValue(rule.criteriaValue);
         setNewPointValue(rule.pointValue);
         setOpen(true);
@@ -105,7 +132,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
         setPointError('');
     };
 
-    const handleSave = () => {
+    const handleSaveRule = () => {
         if (selectedRule.criteria === 'minimum threshold percentage') {
             if (newCriteriaValue < 0.01 || newCriteriaValue > 1) {
                 setPercentError('Percentage value must be between 0.01 and 1');
@@ -125,6 +152,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
             },
             body: JSON.stringify({
                 ruleID: selectedRule.ruleID,
+                criteriaType: newCriteriaType,
                 criteriaValue: newCriteriaValue,
                 pointValue: newPointValue,
             }),
@@ -133,6 +161,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
             .then((data) => {
                 if (data.success) {
                     // Update the rule in the local state
+                    selectedRule.criteria = newCriteriaType;
                     selectedRule.criteriaValue = newCriteriaValue;
                     selectedRule.pointValue = newPointValue;
                     handleClose();
@@ -205,7 +234,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                     size="small"
                                     error={!!occurrenceError}
                                     helperText={occurrenceError}
-                                    sx={{ }}
+                                    sx={{}}
                                 />
                                 <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
                                     <SaveIcon />
@@ -233,11 +262,19 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                 <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
                                 {/* new rule button */}
-                                <TableCell align='right'>
-                                    <IconButton sx={{ color: '#08A045' }}>
-                                        <AddCircleOutlineIcon />
-                                    </IconButton>
-                                </TableCell>
+                                {ruleType === 'Threshold' ? (
+                                    <>
+                                        <TableCell />
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableCell align='right'>
+                                            <IconButton sx={{ color: '#08A045' }}>
+                                                <AddCircleOutlineIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </>
+                                )}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -247,11 +284,9 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                         <TableCell>{rule.ruleID}</TableCell>
                                         <TableCell>{generateRuleDescription(rule, ruleType)}</TableCell>
                                         <TableCell align='right'>
-                                            {rule.criteria !== 'one off' && (
-                                                <IconButton onClick={() => handleOpen(rule)} sx={{ color: '#015aa2' }}>
-                                                    <EditIcon />
-                                                </IconButton>
-                                            )}
+                                            <IconButton onClick={() => handleOpen(rule)} sx={{ color: '#015aa2' }}>
+                                                <EditIcon />
+                                            </IconButton>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -271,6 +306,24 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                         <Typography variant="h6" sx={{ mb: 2 }}>
                             Updating Rule: {selectedRule.ruleID}
                         </Typography>
+
+                        <FormControl>
+                            <InputLabel id="criteria-select-label">Criteria Type</InputLabel>
+                            <Select
+                                labelId='criteria-select-label'
+                                label="Criteria Type"
+                                value={newCriteriaType}
+                                onChange={(e) => setNewCriteriaType(e.target.value)}
+                                fullWidth
+                                sx={{ mb: 2 }}
+                            >
+                                <MenuItem value="one off">One Off</MenuItem>
+                                <MenuItem value="attendance">Per Attendance</MenuItem>
+                                <MenuItem value="minimum threshold percentage">Minimum Threshold Percentage</MenuItem>
+                                <MenuItem value="minimum threshold hours">Minimum Threshold Hours</MenuItem>
+                            </Select>
+                        </FormControl>
+
                         {selectedRule && selectedRule.criteria !== 'attendance' && selectedRule.criteria !== 'one off' && (
                             <TextField
                                 label="New Criteria Value"
@@ -282,7 +335,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                 helperText={percentError}
                             />
                         )}
-                        {orgID !== 1 && (
+                        {requirementType === 'points' && (
                             <TextField
                                 label="New Point Value"
                                 value={newPointValue}
@@ -294,7 +347,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                             />
                         )}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                            <Button variant="contained" color="primary" onClick={handleSave}>
+                            <Button variant="contained" color="primary" onClick={handleSaveRule}>
                                 Save
                             </Button>
                             <Button variant="outlined" onClick={handleClose}>

@@ -53,5 +53,33 @@ router.put('/updateRule', async (req, res) => {
     }
 });
 
+router.put('/updateOccurrences', async (req, res) => {
+    console.log('Received request at /updateOccurrences (PUT)');
+
+    const { eventTypeID, occurrences } = req.body;
+
+    if (!eventTypeID || occurrences === undefined) {
+        return res.status(400).json({ error: 'Missing eventTypeID or occurrences parameter' });
+    }
+
+    try {
+        const query = `
+            UPDATE EventTypes
+            SET OccurrenceTotal = ?
+            WHERE EventTypeID = ?
+        `;
+        const [result] = await db.query(query, [occurrences, eventTypeID]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'EventTypeID not found' });
+        }
+
+        res.json({ success: true, message: 'Occurrences updated successfully' });
+    } catch (error) {
+        console.error('Error updating occurrences:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = router;

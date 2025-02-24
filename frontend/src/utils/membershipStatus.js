@@ -35,8 +35,8 @@ export function processEventType(events, eventConfig) {
 
     // Process "minimum threshold percentage": bonus based on overall attendance.
     // This applies if an OccurrenceTotal is defined.
-    if (eventConfig.OccurrenceTotal && rulesByCriteria["minimum threshold percentage"]) {
-        const attendancePercentage = events.length / eventConfig.OccurrenceTotal;
+    if (eventConfig.occurrenceTotal && rulesByCriteria["minimum threshold percentage"]) {
+        const attendancePercentage = events.length / eventConfig.occurrenceTotal;
         // Sort the threshold rules in descending order (highest threshold first).
         const percentageRules = rulesByCriteria["minimum threshold percentage"]
             .slice()

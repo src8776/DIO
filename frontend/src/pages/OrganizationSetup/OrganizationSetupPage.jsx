@@ -32,7 +32,7 @@ export default function OrganizationSetup() {
         fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
-                // console.log('Fetched data:', data);
+                console.log('Fetched data:', data);
                 setOrgRules(data);
                 setLoading(false);
             })
@@ -46,21 +46,25 @@ export default function OrganizationSetup() {
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <Box component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
                 {/* Header box */}
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
-                    <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
-                        Organization Setup -
-                    </Typography>
-                    {loading ? (
-                        <>
-                            <Skeleton variant="text" width={100} height={30} sx={{ ml: 1 }} />
-                        </>
-                    ) : (
-                        <>
-                            <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-                                {org}
-                            </Typography>
-                        </>
-                    )}
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                        <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
+                            Organization Setup -
+                        </Typography>
+                        {loading ? (
+                            <>
+                                <Skeleton variant="text" width={100} height={30} sx={{ ml: 1 }} />
+                            </>
+                        ) : (
+                            <>
+                                <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+                                    {org}
+                                </Typography>
+                            </>
+                        )}
+                    </Box>
+                    {/* TODO: Reflect current semester, need to figure out this system */}
+                    <Typography>Spring Semester, 2025</Typography>
                 </Box>
 
                 {/* RULES CONTAINER */}

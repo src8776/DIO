@@ -1,16 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-//TODO: get data from database
-const userProfile = {
-  firstName: 'John',
-  email: 'jd9217@rit.edu',
-  studentYear: 'junior',
-  graduationDate: '2025-05-01',
-  major: 'computer_science',
-  shirtSize: 'M',
-  pantSize: '32'
-};
+
 
 //TODO: get data from database
 const majors = [
@@ -23,6 +14,21 @@ const majors = [
 
 // profile route
 router.get('/profile', (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  const user = req.user;
+  const userProfile = {
+    firstName: user.firstname,
+    email: user.lastname,
+    studentYear: user.studentYear || 'Unknown',
+    graduationDate: user.graduationDate || 'Unknown',
+    major: user.major || 'Unknown',
+    shirtSize: user.shirtSize || 'Unknown',
+    pantSize: user.pantSize || 'Unknown'
+  };
+
   res.json(userProfile);
 });
 

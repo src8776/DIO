@@ -1,10 +1,29 @@
 import React from 'react';
-import { TableRow, TableCell, Checkbox } from '@mui/material';
+import { TableRow, TableCell, Checkbox, Grow } from '@mui/material';
 import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
 import useAccountStatus from '../../hooks/useAccountStatus';
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
-  const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, row.MemberID);
+    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, row.MemberID);
+
+    const cellStyles = {
+        pl: '16px',
+        pt: '0px',
+        pb: '0px'
+    };
+
+    const statusColor = statusObject.status === 'inactive' ? 'red' : 'green';
+
+    const formattedDate = row.LastUpdated
+        ? new Date(row.LastUpdated).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        })
+        : 'N/A';
 
     return (
         <TableRow
@@ -26,27 +45,20 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
                     }}
                 />
             </TableCell>
-            <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.FullName}</TableCell>
+            <TableCell align="left" sx={{ cellStyles }}>
+                {row.FullName}
+            </TableCell>
             <TableCell
                 align="left"
                 id={labelId}
-                sx={{
-                    pl: '16px', pt: '0px', pb: '0px',
-                    color: statusObject.status === 'inactive' ? 'red' : 'green',
-                }}
-            >
+                sx={{ ...cellStyles, color: statusColor }}>
                 {statusObject.status}
             </TableCell>
-            <TableCell align="left" sx={{ pl: '16px', pt: '0px', pb: '0px' }}>{row.AttendanceRecord} meetings</TableCell>
-            <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                {row.LastUpdated ? new Date(row.LastUpdated).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                }) : 'N/A'}
+            <TableCell align="left" sx={{ cellStyles }}>
+                {row.AttendanceRecord} meetings
+            </TableCell>
+            <TableCell sx={{ cellStyles }}>
+                {formattedDate}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
                 <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={statusObject.status} />

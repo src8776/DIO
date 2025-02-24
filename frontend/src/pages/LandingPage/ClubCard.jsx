@@ -1,4 +1,4 @@
-import React, { act } from "react";
+import React from "react";
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Modal, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
 import AccountOverview from '../AccountOverview/AccountOverviewPage';

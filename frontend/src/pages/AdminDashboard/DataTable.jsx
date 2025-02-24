@@ -6,17 +6,14 @@ import {
     TableCell, TableContainer, TableHead,
     TablePagination, TableRow, TableSortLabel,
     Toolbar, Tooltip, Typography,
-    TextField, Paper
+    TextField, Paper, Grow
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { visuallyHidden } from '@mui/utils';
+import SkeletonRow from './SkeletonRow';
 import DataTableRow from './DataTableRow';
 
-
-// TODO: switch sort to Recent Update descending after file upload
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -210,31 +207,33 @@ export default function DataTable({ orgID }) {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [searchQuery, setSearchQuery] = React.useState('');
     const [rows, setRows] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
 
-    //Get member data
-    // TODO: Fix this so it does not query the database on every page refresh
     React.useEffect(() => {
-        fetch(`${API_BASE_URL}/api/admin/datatable?organizationID=${orgID}`)
+        setIsLoading(true);
+        fetch(`/api/admin/datatable?organizationID=${orgID}`)
             .then((response) => response.json())
             .then((data) => {
-                // console.log('Fetched data:', data);
                 if (Array.isArray(data)) {
-                    setRows(data);
+                    return new Promise((resolve) => {
+                        setTimeout(() => resolve(data), 800); // slight delay
+                    });
                 } else {
                     console.error('Error: Expected array but got:', data);
-                    setRows([]);
+                    return [];
                 }
+            })
+            .then((data) => {
+                setRows(data);
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
-                setRows([]); // Ensure rows is always an array
+                setRows([]);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     }, []);
-
-    // console.log('Rows state:', rows); // Check if rows is defined
-
-    // Prevent crashes if rows is undefined
-    if (!Array.isArray(rows)) return <Typography>Error: Data is not an array</Typography>;
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -289,8 +288,7 @@ export default function DataTable({ orgID }) {
     };
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     const visibleRows = React.useMemo(
         () =>
@@ -301,7 +299,6 @@ export default function DataTable({ orgID }) {
     );
 
     return (
-
         <Paper sx={{ width: '100%' }}>
             <EnhancedTableToolbar
                 numSelected={selected.length}
@@ -322,22 +319,30 @@ export default function DataTable({ orgID }) {
                         rowCount={filteredRows.length}
                     />
                     <TableBody>
-                        {visibleRows.map((row, index) => {
-                            const isItemSelected = selected.includes(row.MemberID);
-                            const labelId = `enhanced-table-checkbox-${index}`;
+                        {isLoading ? (
+                            // Use SkeletonTableRow component for 5 rows
+                            Array.from(new Array(5)).map((_, index) => (
+                                <SkeletonRow key={`skeleton-${index}`} index={index} />
+                            ))
+                        ) : (
+                            // Display actual data when loaded
+                            visibleRows.map((row, index) => {
+                                const isItemSelected = selected.includes(row.MemberID);
+                                const labelId = `enhanced-table-checkbox-${index}`;
 
-                            return (
-                                <DataTableRow
-                                    key={row.MemberID}
-                                    row={row}
-                                    isItemSelected={isItemSelected}
-                                    labelId={labelId}
-                                    handleClick={handleClick}
-                                    orgID={orgID}
-                                />
-                            );
-                        })}
-                        {emptyRows > 0 && (
+                                return (
+                                    <DataTableRow
+                                        key={row.MemberID}
+                                        row={row}
+                                        isItemSelected={isItemSelected}
+                                        labelId={labelId}
+                                        handleClick={handleClick}
+                                        orgID={orgID}
+                                    />
+                                );
+                            })
+                        )}
+                        {!isLoading && emptyRows > 0 && (
                             <TableRow
                                 style={{
                                     height: 53 * emptyRows,
@@ -359,6 +364,5 @@ export default function DataTable({ orgID }) {
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
         </Paper>
-
     );
 }

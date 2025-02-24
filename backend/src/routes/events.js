@@ -15,13 +15,11 @@ router.get('/', async (req, res) => {
     try {
         const query = `
             SELECT 
-                et.EventType, et.EventTypeID
+                EventType, EventTypeID
             FROM 
-                EventTypes AS et
-            JOIN EventInstances AS ei
-            ON et.EventTypeID = ei.EventTypeID
-            WHERE et.OrganizationID = ?
-            GROUP BY et.EventTypeID
+                EventTypes
+            WHERE 
+                OrganizationID = ?
         `;
         const [rows] = await db.query(query, [organizationID]);
         res.json(rows);

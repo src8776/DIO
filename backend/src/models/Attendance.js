@@ -33,6 +33,27 @@ class Attendance {
       console.log(`[@Attendance] Attendance added: MemberID = ${memberID}, EventID = ${eventID}, checkInDate = ${checkInDate}`);
     } catch (err) {
       console.error('[@Attendance] Error inserting attendance:', err);
+      throw err;
+    }
+  }
+
+  static async insertVolunteerHours(memberID, eventID, organizationID, hours, eventDate) {
+    if (!eventID) {
+      console.error("Cannot insert attendance: EventID is null");
+      return;
+    }
+
+    try {
+      await db.query(
+        `INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, AttendanceSource, OrganizationID, Hours)
+           VALUES (?, ?, ?, 'Attended', 'Volunteer Form', ?, ?);`,
+        [memberID, eventID, eventDate, organizationID, hours]
+      );
+      //for logs
+      console.log(`[@Attendance] Volunteer hours added: MemberID = ${memberID}, EventID = ${eventID}, eventDate = ${eventDate}, hours = ${hours}`);
+    } catch (err) {
+      console.error('[@Attendance] Error inserting attendance:', err);
+      throw err;
     }
   }
 }

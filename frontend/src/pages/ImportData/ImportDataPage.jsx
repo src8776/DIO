@@ -54,7 +54,7 @@ export default function ImportDataPage() {
     }
 
     const handleDateChange = (date) => {
-        setEventDate(date);  // `date` will be a `dayjs` object
+        setEventDate(dayjs(date).startOf("day"));
     };
 
     const handleVolunteerHoursChange = (event) => {
@@ -63,7 +63,7 @@ export default function ImportDataPage() {
 
     const addMemberToList = (member) => {
         if (!selectedMembers.some(m => m.MemberID === member.MemberID)) {
-            setSelectedMembers([...selectedMembers, { ...member, date: eventDate, hours: volunteerHours }]);
+            setSelectedMembers([...selectedMembers, { ...member, date: eventDate.format("YYYY-MM-DD"), hours: volunteerHours }]);
         }
     };
 
@@ -105,7 +105,7 @@ export default function ImportDataPage() {
           .then(data => {
             console.log(data);
             if (!data.success) {
-              const msg = "Failed to upload volunteer hours";
+              const msg = "Failed to upload volunteer hours due to " + data.error;
               showAlert(msg, 'error');
             } else {
               showAlert('Successfully uploaded volunteer hours' , 'success');
@@ -218,6 +218,8 @@ export default function ImportDataPage() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Member</TableCell>
+                                            <TableCell>Date</TableCell>
+                                            <TableCell>Hours</TableCell>
                                             <TableCell align="center">Remove</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -225,6 +227,8 @@ export default function ImportDataPage() {
                                         {selectedMembers.map((member) => (
                                             <TableRow key={member.MemberID}>
                                                 <TableCell>{member.FullName}</TableCell>
+                                                <TableCell>{dayjs(member.date).format("MM/DD/YYYY")}</TableCell>
+                                                <TableCell>{member.hours}</TableCell>
                                                 <TableCell align="center">
                                                     <IconButton onClick={() => removeMemberFromList(member.MemberID)}>
                                                         <Remove />

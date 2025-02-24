@@ -12,6 +12,8 @@ import MemberDetailsModal from './pages/MemberDetails/MemberDetailsPage.jsx';
 import AdminLayout from './components/AdminLayout.jsx';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
+import ProtectedRoute from './ProtectedRoute.jsx';
+import Login from './pages/LoginPage/login';
 
 const App = () => {
   // dark/light mode based on system preference
@@ -51,8 +53,8 @@ const App = () => {
           <Route path="organizationSetup" element={<OrgSetup />} />
           <Route path="officersList" element={<OfficersList />} />
         </Route>
-
-        <Route path="/acctSetup" element={<AcctSetup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />
       </Routes>
     </ThemeProvider>
   );

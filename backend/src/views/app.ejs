@@ -1,7 +1,5 @@
 <!doctype html>
 <title>SAML Recipe</title>
-<link rel="stylesheet" href="https://saml-cookbook.localtest.me/apache/assets/skeleton.css" />
-<link rel="stylesheet" href="https://saml-cookbook.localtest.me/apache/assets/shared.css" />
 <body>
     <div class="header">
         <a href="/">Go Back to Index</a>
@@ -12,11 +10,11 @@
         </h1>
         
         <% if (user) { %>
-            <a  href="/nodejs/logout" class="button button-primary" href="#">Log Out</a>
+            <a  href="/saml2/logout" class="button button-primary" href="#">Log Out</a>
         <% }else{ %>
-            <a  href="/nodejs/login" class="button button-primary" href="#">Log In</a>
+            <a  href="/saml2/login" class="button button-primary" href="#">Log In</a>
         <% } %>
-        <a href="/nodejs/saml2/metadata" class="button">View Metadata</a>
+        <a href="/saml2/metadata" class="button">View Metadata</a>
         <div class="button-divider"></div>
         <a class="documentation-link button" href="https://shibboleth.main.ad.rit.edu/docs/saml-cookbook/code_examples/nodejs.html">Documentation</a>
 

@@ -3,6 +3,26 @@ const db = require('../config/db');
 const OrganizationSetting = require('../models/OrganizationSetting');
 const router = express.Router();
 
+
+router.get('/allOrganizationIDs', async (req, res) => {
+    console.log('Received request at /OrganizationInfo/allOrganizationIDs');
+
+    try {
+        const query = `
+            SELECT 
+                OrganizationID
+            FROM 
+                Organizations
+        `;
+        const [rows] = await db.query(query);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching all OrganizationIDs:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/name', async (req, res) => {
     console.log('Received request at /OrganizationInfo/name');
 

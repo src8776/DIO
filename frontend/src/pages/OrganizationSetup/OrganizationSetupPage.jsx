@@ -12,7 +12,6 @@ import ActiveModal from './ActiveModal';
 import EventItem from './EventItem';
 
 // TODO: Form validation (only accept numbers for point values/percentages)
-// TODO: implement "save changes" buttons to update values in database
 // TODO: user feedback "changes saved successfully"
 // TODO: Formatting
 
@@ -58,7 +57,7 @@ export default function OrganizationSetup() {
                         ) : (
                             <>
                                 <Typography variant='h6' sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
-                                    {org}
+                                    {org.toUpperCase()}
                                 </Typography>
                             </>
                         )}

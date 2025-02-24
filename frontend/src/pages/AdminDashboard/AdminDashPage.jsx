@@ -40,72 +40,49 @@ function AdminDash() {
 
 
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
-        {/* Dashboard Content */}
-        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {/* Header: Organization Flavor Text & Close Button */}
-          {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'relative' }}>
-            {/* Flavor Text */}
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
-                Member Database -
-              </Typography>
-              <Typography variant="h7" sx={{ textAlign: 'left', display: 'inline', ml: 1, verticalAlign: 'middle' }}>
-                {orgInfo ? orgInfo : "Loading..."}
-              </Typography>
-            </Box>
-
-
-            {/* Close Button
-            <Button
-              sx={{
-                width: 'fit-content',
-                height: 'fit-content',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 1,
-              }}
-              component={Link}
-              to="/"
-              variant="contained"
-              disableElevation
-            >
-              <CloseIcon />
-              <Box
-                component="span"
-                sx={{ display: { xs: 'none', sm: 'block' } }}
-              >
-                Close
-              </Box>
-            </Button> */}
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+      {/* Dashboard Content */}
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Header: Organization Flavor Text & Close Button */}
+        {/* TODO: Display the info of the selected organization module (WiC or COMS) */}
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative'}}>
+          {/* Flavor Text */}
+          <Box>
+            <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
+              Member Database -
+            </Typography>
+            <Typography variant="h7" sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
+              {orgInfo ? orgInfo : "Loading..."}
+            </Typography>
           </Box>
-
-          {/* User Action Buttons */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: {
-                xs: 'column',
-                sm: 'row',
-              },
-              justifyContent: 'space-between',
-              gap: 2,
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-              <UploadFileModal />
-              <GenerateReportButton />
-            </Box>
-            <AddMemberModal />
-          </Box>
-
-          {/* Data Table */}
-          <Paper elevation={1}>
-            <DataTable orgID={orgID} />
-          </Paper>
+          {/* TODO: Reflect current semester, need to figure out this system */}
+          <Typography>Spring Semester, 2025</Typography>
         </Box>
+
+        {/* User Action Buttons */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: {
+              xs: 'column',
+              sm: 'row',
+            },
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            <UploadFileModal />
+            <GenerateReportButton />
+          </Box>
+          <AddMemberModal />
+        </Box>
+
+        {/* Data Table */}
+        <Paper elevation={1}>
+          <DataTable orgID={orgID} />
+        </Paper>
+      </Box>
     </Container>
   );
 }

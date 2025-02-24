@@ -6,6 +6,8 @@ import {
     IconButton, Button,
     TextField
 } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
@@ -70,13 +72,22 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, orgID }) {
+export default function EventItemRules({ name, rules, ruleType, orgID, occurrenceTotal, eventTypeID }) {
     const [open, setOpen] = React.useState(false);
     const [selectedRule, setSelectedRule] = React.useState(null);
     const [newCriteriaValue, setNewCriteriaValue] = React.useState(null);
     const [newPointValue, setNewPointValue] = React.useState(null);
+    const [editOccurrences, setEditOccurrences] = React.useState(false);
+    const [currentOccurrenceTotal, setCurrentOccurrenceTotal] = React.useState(occurrenceTotal);
+    const [newOccurrenceTotal, setNewOccurrenceTotal] = React.useState(occurrenceTotal);
     const [percentError, setPercentError] = React.useState('');
     const [pointError, setPointError] = React.useState('');
+    const [occurrenceError, setOccurrenceError] = React.useState('');
+
+    React.useEffect(() => {
+        setCurrentOccurrenceTotal(occurrenceTotal);
+        setNewOccurrenceTotal(occurrenceTotal);
+    }, [occurrenceTotal]);
 
     const handleOpen = (rule) => {
         setSelectedRule(rule);
@@ -84,7 +95,6 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
         setNewPointValue(rule.pointValue);
         setOpen(true);
     };
-
 
     const handleClose = () => {
         setOpen(false);
@@ -135,6 +145,49 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
             });
     };
 
+    const handleEditOccurrences = () => {
+        setEditOccurrences(true);
+        setNewOccurrenceTotal(currentOccurrenceTotal);
+    };
+
+    const handleCancelEditOccurrences = () => {
+        setEditOccurrences(false);
+        setOccurrenceError('');
+    };
+
+    const handleSaveOccurrences = () => {
+        const parsedValue = parseInt(newOccurrenceTotal, 10);
+        if (isNaN(parsedValue) || parsedValue < 0) {
+            setOccurrenceError('Total occurrences must be a non-negative number');
+            return;
+        }
+
+        fetch('/api/organizationRules/updateOccurrences', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                eventTypeID,
+                occurrences: parsedValue,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setCurrentOccurrenceTotal(parsedValue); // Update displayed value
+                    setEditOccurrences(false);
+                    setOccurrenceError('');
+                } else {
+                    setOccurrenceError('Failed to update occurrences');
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating occurrences:', error);
+                setOccurrenceError('An error occurred');
+            });
+    };
+
     return (
         <Container>
             <Paper elevation={1} sx={style}>
@@ -142,7 +195,36 @@ export default function EventItemRules({ name, rules, ruleType, orgID }) {
                     <Typography variant="h5" gutterBottom>
                         {name}
                     </Typography>
-
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {editOccurrences ? (
+                            <>
+                                <TextField
+                                    label="Total Occurrences"
+                                    value={newOccurrenceTotal}
+                                    onChange={(e) => setNewOccurrenceTotal(e.target.value)}
+                                    size="small"
+                                    error={!!occurrenceError}
+                                    helperText={occurrenceError}
+                                    sx={{ }}
+                                />
+                                <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
+                                    <SaveIcon />
+                                </IconButton>
+                                <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
+                                    <CancelIcon />
+                                </IconButton>
+                            </>
+                        ) : (
+                            <>
+                                <Typography>
+                                    Total Occurrences: {currentOccurrenceTotal}
+                                </Typography>
+                                <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
+                                    <EditIcon />
+                                </IconButton>
+                            </>
+                        )}
+                    </Box>
                 </Box>
                 <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
                     <Table>

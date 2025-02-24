@@ -92,7 +92,7 @@ const calculateProgress = (eventType, rules, occurrenceTotal, userAttendance, re
             case "minimum threshold hours":
                 isMet = totalHours >= criteriaValue;
                 points += isMet ? pointValue : 0;
-                progress = `${totalHours}/${criteriaValue} hours`;
+                progress = `${totalHours} hours`;
                 break;
 
             case "one off":
@@ -154,7 +154,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
         if (!orgRules?.eventTypes) return [];
         return orgRules.eventTypes.map(eventType => ({
             ...eventType,
-            progress: calculateProgress(eventType.name, eventType.rules, eventType.OccurrenceTotal, safeUserAttendance, requirementType)
+            progress: calculateProgress(eventType.name, eventType.rules, eventType.occurrenceTotal, safeUserAttendance, requirementType)
         }));
     }, [orgRules, safeUserAttendance, requirementType]);
 

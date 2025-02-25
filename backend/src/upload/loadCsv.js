@@ -6,6 +6,7 @@ const Member = require('../models/Member');
 const OrganizationMember = require('../models/OrganizationMember');
 const Attendance = require('../models/Attendance');
 const EventInstance = require('../models/EventInstance');
+const useAccountStatus = require('../services/useAccountStatus');
 require('dotenv').config({ path: '.env' });
 
 // Format both date and time for check-in for attendance record
@@ -145,7 +146,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
                 email: attendance.email,
                 firstName: attendance.firstName,
                 lastName: attendance.lastName,
-                fullName: attendance.fullName,
+                fullName: attendance.fullName
               });
 
               if (!memberID) {
@@ -164,6 +165,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
               // Insert attendance
               console.log(`Before Insert attendence: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
               await Attendance.insertAttendance(attendance, eventID, organizationID);
+              await useAccountStatus.updateMemberStatus(memberID, organizationID);
             } catch (err) {
               console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
               await connection.rollback();

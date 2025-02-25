@@ -33,7 +33,7 @@ class Member {
           fullName,
           member.major,
           member.graduationYear,
-          member.academicYear,
+          member.academicYear
         ]
       );
 

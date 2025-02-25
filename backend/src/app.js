@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 
 const app = express();
 app.use(cors({
-    origin: 'http://dio.gccis.rit.edu',
-    credentials: true,
+    //origin: 'http://dio.gccis.rit.edu',
+    //credentials: true,
 }));
 app.use(bodyParser.json());
 

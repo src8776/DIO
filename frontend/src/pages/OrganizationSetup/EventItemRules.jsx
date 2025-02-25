@@ -133,7 +133,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
     };
 
     const handleSaveRule = () => {
-        if (selectedRule.criteria === 'minimum threshold percentage') {
+        if (newCriteriaType === 'minimum threshold percentage') {
             if (newCriteriaValue < 0.01 || newCriteriaValue > 1) {
                 setPercentError('Percentage value must be between 0.01 and 1');
                 return;
@@ -262,7 +262,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                 <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
                                 {/* new rule button */}
-                                {ruleType === 'Threshold' ? (
+                                {requirementType === 'criteria' ? (
                                     <>
                                         <TableCell />
                                     </>
@@ -301,6 +301,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                     </Table>
                 </Paper>
 
+                {/* Edit Options */}
                 {open && (
                     <Box sx={{ width: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 2 }}>
@@ -314,17 +315,16 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                 label="Criteria Type"
                                 value={newCriteriaType}
                                 onChange={(e) => setNewCriteriaType(e.target.value)}
-                                fullWidth
                                 sx={{ mb: 2 }}
                             >
                                 <MenuItem value="one off">One Off</MenuItem>
-                                <MenuItem value="attendance">Per Attendance</MenuItem>
+                                {requirementType === 'points' && <MenuItem value="attendance">Per Attendance</MenuItem>}
                                 <MenuItem value="minimum threshold percentage">Minimum Threshold Percentage</MenuItem>
                                 <MenuItem value="minimum threshold hours">Minimum Threshold Hours</MenuItem>
                             </Select>
                         </FormControl>
 
-                        {selectedRule && selectedRule.criteria !== 'attendance' && selectedRule.criteria !== 'one off' && (
+                        {selectedRule && newCriteriaType !== 'attendance' && newCriteriaType !== 'one off' && (
                             <TextField
                                 label="New Criteria Value"
                                 value={newCriteriaValue}
@@ -346,7 +346,20 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                 helperText={pointError}
                             />
                         )}
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                        <Typography>
+                            Example:
+                            {requirementType == 'criteria' ? (
+                                newCriteriaType === "one off" && <> "Attend at least one event"</> ||
+                                newCriteriaType === "minimum threshold percentage" && <> "Attend at least 50% of events"</> ||
+                                newCriteriaType === "minimum threshold hours" && <> "Attend event for at least 5 hours"</>
+                            ) : (
+                                newCriteriaType === "one off" && <> "Earn 1 point for your first attendance"</> ||
+                                newCriteriaType === "per attendance" && <> "Earn 1 point per attendance"</> ||
+                                newCriteriaType === "minimum threshold percentage" && <> "Earn 1 point for 50% attendance"</> ||
+                                newCriteriaType === "minimum threshold hours" && <> "Earn 1 point for 3 hours attended"</>
+                            )}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt:2, gap: 2 }}>
                             <Button variant="contained" color="primary" onClick={handleSaveRule}>
                                 Save
                             </Button>

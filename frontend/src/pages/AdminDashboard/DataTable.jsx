@@ -6,7 +6,7 @@ import {
     TableCell, TableContainer, TableHead,
     TablePagination, TableRow, TableSortLabel,
     Toolbar, Tooltip, Typography,
-    TextField, Paper, Grow
+    TextField, Paper
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -216,7 +216,7 @@ export default function DataTable({ orgID }) {
             .then((data) => {
                 if (Array.isArray(data)) {
                     return new Promise((resolve) => {
-                        setTimeout(() => resolve(data), 800); // slight delay
+                        setTimeout(() => resolve(data), 600); // slight delay
                     });
                 } else {
                     console.error('Error: Expected array but got:', data);

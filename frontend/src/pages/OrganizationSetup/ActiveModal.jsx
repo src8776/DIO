@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Container, IconButton, Paper, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 const style = {
@@ -20,13 +20,15 @@ const style = {
 
 
 export default function ActiveModal({ orgID, numberOfRules }) {
-    const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [open, setOpen] = React.useState(false);
+    const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
     const [requirementType, setRequirementType] = React.useState('');
+    const [newRequirementType, setNewRequirementType] = React.useState('');
     const [error, setError] = React.useState(false);
     const [helperText, setHelperText] = React.useState('');
 
+    // fetch current requirement info
     React.useEffect(() => {
         fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
             .then((response) => response.json())
@@ -46,7 +48,12 @@ export default function ActiveModal({ orgID, numberOfRules }) {
             });
     }, [orgID]);
 
-    const handleOpen = () => setOpen(true);
+    const handleOpen = () => {
+        setNewActiveRequirement(activeRequirement);
+        setNewRequirementType(requirementType);
+        setOpen(true);
+    };
+
     const handleClose = () => setOpen(false);
 
     const handleSave = () => {
@@ -70,12 +77,14 @@ export default function ActiveModal({ orgID, numberOfRules }) {
             body: JSON.stringify({
                 organizationID: orgID,
                 activeRequirement: newActiveRequirement,
+                requirementType: newRequirementType
             }),
         })
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
                     setActiveRequirement(newActiveRequirement);
+                    setRequirementType(newRequirementType);
                     handleClose();
                 } else {
                     console.error('Error updating active requirement:', data.error);
@@ -91,7 +100,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
             <Paper elevation={1} sx={style}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                     <Typography variant="h5">
-                        "Active" status requirements
+                        'Active' status requirements
                     </Typography>
                     <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
                         <EditIcon />
@@ -105,7 +114,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                             <TableCell><strong>{requirementType == 'criteria' ? 'Criteria' : 'Points'}</strong></TableCell>
                         </TableHead>
                         <TableBody>
-                            <TableCell>To achieve 'active' status:</TableCell>
+                            <TableCell>To achieve active status:</TableCell>
                             <TableCell>
                                 {activeRequirement ? (
                                     requirementType == 'criteria' ? (
@@ -121,11 +130,27 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                     </Table>
                 </Box>
 
+                {/* Edit Options */}
                 {open && (
                     <Box sx={{ width: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 2 }}>
-                            Update {requirementType == 'criteria' ? 'Criteria' : 'Points'} Requirement
+                            Updating {requirementType == 'criteria' ? 'Criteria' : 'Points'} Requirement
                         </Typography>
+
+                        <FormControl>
+                            <InputLabel id="requiremen-type-select-label">Requirement Type</InputLabel>
+                            <Select
+                                labelID="requiremen-type-select-label"
+                                label="Requirement Type"
+                                value={newRequirementType}
+                                onChange={(e) => setNewRequirementType(e.target.value)}
+                                sx={{ width: '150px', mb: 2 }}
+                            >
+                                <MenuItem value="points">Points</MenuItem>
+                                <MenuItem value="criteria">Criteria</MenuItem>
+                            </Select>
+                        </FormControl>
+
                         <TextField
                             label="New Active Requirement"
                             value={newActiveRequirement}
@@ -135,7 +160,15 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                             error={error}
                             helperText={helperText}
                         />
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                        <Typography>
+                            Example:
+                            {newRequirementType == 'criteria' ? (
+                                <> "complete all requirements to become active"</>
+                            ) : (
+                                <> "earn at least 18 points to become active"</>
+                            )}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt:2, gap: 2 }}>
                             <Button variant="contained" color="primary" onClick={handleSave}>
                                 Save
                             </Button>

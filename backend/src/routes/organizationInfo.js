@@ -48,6 +48,7 @@ router.get('/name', async (req, res) => {
     }
 });
 
+
 router.get('/activeRequirement', async (req, res) => {
     console.log('Received request at /OrganizationInfo/activeRequirement');
 
@@ -66,16 +67,17 @@ router.get('/activeRequirement', async (req, res) => {
     }
 });
 
-// New endpoint to insert a new ActiveRequirement value
+
+// endpoint to insert a new ActiveRequirement value
 router.post('/updateActiveRequirement', async (req, res) => {
     console.log('Received request at /OrganizationInfo/updateActiveRequirement (POST)');
-    const { organizationID, activeRequirement } = req.body;
+    const { organizationID, activeRequirement, requirementType } = req.body;
     
-    if (!organizationID || !activeRequirement) {
-        return res.status(400).json({ error: 'Missing organizationID or activeRequirement parameter' });
+    if (!organizationID || (!activeRequirement && !requirementType)) {
+        return res.status(400).json({ error: 'Missing organizationID or activeRequirement/requirementType parameter' });
     }
 
-    console.log('Updating ActiveRequirement:', { organizationID, activeRequirement });
+    console.log('Updating ActiveRequirement and/or requirementType:', { organizationID, activeRequirement, requirementType });
 
     try {
         // Check if the record exists
@@ -88,24 +90,34 @@ router.post('/updateActiveRequirement', async (req, res) => {
 
         if (checkResult.length > 0) {
             // Record exists, update it
-            const updateQuery = `
-                UPDATE OrganizationSettings
-                SET ActiveRequirement = ?
-                WHERE OrganizationID = ?
-            `;
-            await db.query(updateQuery, [activeRequirement, organizationID]);
-            res.json({ success: true, message: 'ActiveRequirement value updated successfully' });
+            if (activeRequirement) {
+                const updateRequirementQuery = `
+                    UPDATE OrganizationSettings
+                    SET ActiveRequirement = ?
+                    WHERE OrganizationID = ?
+                `;
+                await db.query(updateRequirementQuery, [activeRequirement, organizationID]);
+            }
+            if (requirementType) {
+                const updateRequirementTypeQuery = `
+                    UPDATE OrganizationSettings
+                    SET Description = ?
+                    WHERE OrganizationID = ?
+                `;
+                await db.query(updateRequirementTypeQuery, [requirementType, organizationID]);
+            }
+            res.json({ success: true, message: 'ActiveRequirement and/or requirementType value updated successfully' });
         } else {
             // Record does not exist, insert it
             const insertQuery = `
-                INSERT INTO OrganizationSettings (OrganizationID, ActiveRequirement)
-                VALUES (?, ?)
+                INSERT INTO OrganizationSettings (OrganizationID, ActiveRequirement, requirementType)
+                VALUES (?, ?, ?)
             `;
-            await db.query(insertQuery, [organizationID, activeRequirement]);
-            res.json({ success: true, message: 'ActiveRequirement value inserted successfully' });
+            await db.query(insertQuery, [organizationID, activeRequirement || null, requirementType || null]);
+            res.json({ success: true, message: 'ActiveRequirement and/or requirementType value inserted successfully' });
         }
     } catch (error) {
-        console.error('Error updating ActiveRequirement:', error);
+        console.error('Error updating ActiveRequirement and/or requirementType:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

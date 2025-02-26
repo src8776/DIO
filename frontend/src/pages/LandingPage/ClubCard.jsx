@@ -24,8 +24,8 @@ export default function ClubCard({ orgID }) {
     };
 
     const wicInfo = {
-        image: "/Gritty_resized.jpg",
-        imageFit: "",
+        image: "/WiC.png",
+        imageFit: "contain",
         title: "Women in Computing",
     };
 
@@ -41,7 +41,7 @@ export default function ClubCard({ orgID }) {
                     objectFit: clubInfo.imageFit,
                 }}
                 image={clubInfo.image}
-                title={orgID}
+                title={clubInfo.title}
             />
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between', borderTop: "1px solid #f0f0f0", }}>
                 <Box>

@@ -21,7 +21,8 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    bgcolor: 'background.paper',
+    bgcolor: 'rgba(255, 255, 255, 0.85)',
+    backdropFilter: 'blur(10px)', 
     boxShadow: 24,
     width: { xs: '90%', sm: '500px', md: '900px' },
     maxWidth: '100%',
@@ -155,7 +156,8 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
         return orgRules.eventTypes.map(eventType => ({
             ...eventType,
             progress: calculateProgress(eventType.name, eventType.rules, eventType.occurrenceTotal, safeUserAttendance, requirementType)
-        }));
+        }))
+            .filter(eventType => eventType.rules && eventType.rules.length > 0); // Filter out event types without rules
     }, [orgRules, safeUserAttendance, requirementType]);
 
     return (
@@ -181,7 +183,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     </Box>
 
                     {/* Member Overview Container */}
-                    <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
+                    <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                             <PeopleAltIcon />
                             <Typography variant="h5">Member Overview</Typography>
@@ -217,7 +219,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                         {/* Active Path */}
-                        <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3 }}>
+                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', borderRadius: 3 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}>
                                 <RouteIcon />
                                 <Typography variant="h5">Active Path</Typography>
@@ -245,7 +247,8 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                                         </Box>
                                                         {requirementType === 'points' && (
                                                             <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>{`+${rule.isMet ? rule.value : 0}`}</Typography>
-                                                        )}                                                    </ListItem>
+                                                        )}
+                                                    </ListItem>
                                                 ))}
                                                 {index < progressByType.length - 1 && <Divider sx={{ my: 1 }} />}
                                             </React.Fragment>
@@ -258,7 +261,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                         </Paper>
 
                         {/* Attendance History Container */}
-                        <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '50%' }, height: '390px', borderRadius: 3, p: 2 }}>
+                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '45%' }, height: '390px', borderRadius: 3, p: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                 <EventAvailableIcon />
                                 <Typography variant="h5">Attendance History</Typography>
@@ -275,7 +278,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                         {safeUserAttendance.length > 0 ? (
                                             safeUserAttendance.map((record, index) => (
                                                 <TableRow key={index}>
-                                                    <TableCell>{record.eventType}</TableCell>
+                                                    <TableCell>{record.eventType} {record.hours ? `- ${record.hours} hours` : ''}</TableCell>
                                                     <TableCell>{record.eventDate}</TableCell>
                                                 </TableRow>
                                             ))

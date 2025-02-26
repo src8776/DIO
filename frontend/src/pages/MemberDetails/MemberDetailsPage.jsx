@@ -91,6 +91,12 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
             <Typography variant="subtitle1">
               <strong>Last Name:</strong> {LastName}
             </Typography>
+            <Typography variant="subtitle1">
+              <strong>Shirt Size:</strong> n/a
+            </Typography>
+            <Typography variant="subtitle1">
+              <strong>Pant Size:</strong> n/a
+            </Typography>
           </Box>
           <Box>
             <Typography variant="subtitle1">
@@ -100,13 +106,16 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
               <strong>Major:</strong> {Major || "N/A"}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Status:</strong> {memberStatus}
-            </Typography>
-            <Typography variant="subtitle1">
               <strong>Graduation Year:</strong> {GraduationYear || "N/A"}
             </Typography>
             <Typography variant="subtitle1">
               <strong>Academic Year:</strong> {AcademicYear || "N/A"}
+            </Typography>
+            <Typography variant="subtitle1">
+              <strong>Status:</strong> {memberStatus}
+            </Typography>
+            <Typography variant="subtitle1">
+              <strong>Role:</strong> Member
             </Typography>
           </Box>
         </Box>

@@ -326,7 +326,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
 
                         {selectedRule && newCriteriaType !== 'attendance' && newCriteriaType !== 'one off' && (
                             <TextField
-                                label="New Criteria Value"
+                                label="Criteria Value"
                                 value={newCriteriaValue}
                                 onChange={(e) => setNewCriteriaValue(e.target.value)}
                                 fullWidth
@@ -337,7 +337,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                         )}
                         {requirementType === 'points' && (
                             <TextField
-                                label="New Point Value"
+                                label="Point Value"
                                 value={newPointValue}
                                 onChange={(e) => setNewPointValue(e.target.value)}
                                 fullWidth

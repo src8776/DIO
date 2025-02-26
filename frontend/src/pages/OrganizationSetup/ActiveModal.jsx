@@ -152,7 +152,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                         </FormControl>
 
                         <TextField
-                            label="New Active Requirement"
+                            label="Active Requirement"
                             value={newActiveRequirement}
                             onChange={(e) => setNewActiveRequirement(e.target.value)}
                             fullWidth

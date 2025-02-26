@@ -8,7 +8,7 @@ import useAccountStatus from "../../hooks/useAccountStatus";
 // TODO: Good got this needs some cleanup TT.TT
 
 export default function ClubCard({ orgID }) {
-    const memberID = 16;
+    const memberID = 1;
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);

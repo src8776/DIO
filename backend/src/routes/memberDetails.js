@@ -23,6 +23,7 @@ router.get('/allDetails', async (req, res) => {
                             'AttendanceID', a.AttendanceID,
                             'MemberID', a.MemberID,
                             'EventID', a.EventID,
+                            'Hours', a.Hours,
                             'CheckInTime', a.CheckInTime,
                             'EventType', et.EventType
                         )
@@ -35,6 +36,7 @@ router.get('/allDetails', async (req, res) => {
             FROM Members m
             WHERE m.MemberID = ?;
         `;
+        console.log('Executing query:', query);
         const [rows] = await db.query(query, [organizationID, memberID]);
         res.json(rows);
     } catch (error) {

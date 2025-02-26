@@ -138,7 +138,7 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
                 attendanceRecords.map((record, index) => (
                   <TableRow key={index}>
                     <TableCell>{record.EventID}</TableCell>
-                    <TableCell>{record.EventType}</TableCell>
+                    <TableCell>{record.EventType} {record.Hours ? `- ${record.Hours} hours` : ''}</TableCell>
                     <TableCell>{new Date(record.CheckInTime).toLocaleString()}</TableCell>
                   </TableRow>
                 ))

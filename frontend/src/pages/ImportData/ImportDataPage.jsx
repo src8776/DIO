@@ -230,7 +230,13 @@ export default function ImportDataPage() {
                                                 <TableCell>{dayjs(member.date).format("MM/DD/YYYY")}</TableCell>
                                                 <TableCell>{member.hours}</TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton onClick={() => removeMemberFromList(member.MemberID)}>
+                                                    <IconButton onClick={() => removeMemberFromList(member.MemberID)}
+                                                        sx={{
+                                                            '&:hover': {
+                                                                color: 'red',
+                                                                backgroundColor: 'rgba(255, 0, 0, 0.1)'
+                                                            },
+                                                        }}>
                                                         <Remove />
                                                     </IconButton>
                                                 </TableCell>
@@ -242,12 +248,7 @@ export default function ImportDataPage() {
 
                         </Container>
                     )}
-                    <SnackbarAlert
-                        open={openSnackbar}
-                        message={alertMessage}
-                        severity={alertSeverity}
-                        onClose={handleCloseSnackbar}
-                    />
+                    
                 </Box>
                 {/* Show "Upload Volunteer Hours" button if the event type is Volunteer Event */}
 
@@ -262,6 +263,12 @@ export default function ImportDataPage() {
                 )}
 
             </Paper>
+            <SnackbarAlert
+                        open={openSnackbar}
+                        message={alertMessage}
+                        severity={alertSeverity}
+                        onClose={handleCloseSnackbar}
+                    />
         </Container>
     );
 }

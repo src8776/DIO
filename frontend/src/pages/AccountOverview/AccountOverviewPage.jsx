@@ -11,6 +11,9 @@ import RouteIcon from '@mui/icons-material/Route';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 
+// We are continuing to use the frontend calculation here 
+// as a sort of validation against the backend calculation and db storage
+
 // TODO: Normalize this style for modals and house it somewhere else
 const style = {
     display: 'flex',

@@ -1,7 +1,9 @@
 const express = require('express');
 const db = require('../config/db');
 const Attendance = require('../models/Attendance');
+const Member = require('../models/Member');
 const router = express.Router();
+
 
 router.get('/allDetails', async (req, res) => {
     console.log('Received request at /allDetails');
@@ -17,6 +19,7 @@ router.get('/allDetails', async (req, res) => {
         const query = `
             SELECT 
                 m.*, 
+                r.RoleName,
                 (
                     SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
@@ -34,6 +37,8 @@ router.get('/allDetails', async (req, res) => {
                     WHERE a.MemberID = m.MemberID AND a.OrganizationID = ?
                 ) AS attendanceRecords
             FROM Members m
+            JOIN OrganizationMembers om ON m.MemberID = om.MemberID
+            JOIN Roles r ON om.RoleID = r.RoleID
             WHERE m.MemberID = ?;
         `;
         console.log('Executing query:', query);
@@ -44,6 +49,7 @@ router.get('/allDetails', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 router.get('/name', async (req, res) => {
     console.log('Received request at /name');
@@ -75,8 +81,8 @@ router.get('/name', async (req, res) => {
 router.get('/attendance', async (req, res) => {
     console.log('Received request at /attendance');
 
-    let memberID = parseInt(req.query.memberID, 10); // Convert to an integer
-    let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
+    let memberID = parseInt(req.query.memberID, 10); 
+    let organizationID = parseInt(req.query.organizationID, 10); 
 
     if (isNaN(memberID) || isNaN(organizationID)) {
         return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
@@ -90,5 +96,50 @@ router.get('/attendance', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+router.get('/status', async (req, res) => {
+    console.log('Received request at /status');
+
+    let memberID = parseInt(req.query.memberID, 10);
+
+    if (isNaN(memberID)) {
+        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    }
+
+    try {
+        const status = await Member.getMemberStatus(memberID);
+        if (!status) {
+            return res.status(404).json({ error: 'Member not found' });
+        }
+        res.json({ status });
+    } catch (error) {
+        console.error('Error fetching member status:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/role', async (req, res) => {
+    console.log('Received request at /role');
+
+    let memberID = parseInt(req.query.memberID, 10);
+
+    if (isNaN(memberID)) {
+        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    }
+
+    try {
+        const role = await Member.getMemberStatus(memberID);
+        if (!role) {
+            return res.status(404).json({ error: 'Member not found' });
+        }
+        res.json({ role });
+    } catch (error) {
+        console.error('Error fetching member role:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = router;

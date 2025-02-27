@@ -52,14 +52,12 @@ class Member {
     }
   }
 
+  // This doesn't appear to be used anywhere? Should we remove it?
   static async lastUpdatedMemberAttendance() {
     const query = `
             SELECT
                 Members.MemberID,
-                CASE
-                    WHEN Members.IsActive = 0 THEN 'Active'
-                    ELSE 'Inactive'
-                END AS Status,
+                OrganizationMembers.Status,
                 Members.FullName,
                 COUNT(Attendance.MemberID) AS AttendanceRecord
             FROM
@@ -75,7 +73,7 @@ class Member {
             GROUP BY
                 Members.MemberID,
                 Members.FullName,
-                Members.IsActive;
+                OrganizationMembers.Status;
         `;
   }
 }

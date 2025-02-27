@@ -12,10 +12,7 @@ router.get('/datatable', async (req, res) => {
         const query = `
             SELECT
                 Members.MemberID,
-                CASE
-                    WHEN Members.IsActive = 0 THEN 'Active'
-                    ELSE 'Inactive'
-                END AS Status,
+                OrganizationMembers.Status,
                 Members.FullName,
                 COUNT(Attendance.MemberID) AS AttendanceRecord,
                 MAX(Attendance.LastUpdated) AS LastUpdated
@@ -35,7 +32,7 @@ router.get('/datatable', async (req, res) => {
             GROUP BY
                 Members.MemberID,
                 Members.FullName,
-                Members.IsActive;
+                OrganizationMembers.Status;
         `;
         const [rows] = await db.query(query, [organizationID, organizationID]);
         res.json(rows);

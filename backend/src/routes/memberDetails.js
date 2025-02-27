@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../config/db');
 const Attendance = require('../models/Attendance');
-const Member = require('../models/Member');
+const OrganizationMember = require('../models/OrganizationMember');
 const router = express.Router();
 
 
@@ -102,13 +102,14 @@ router.get('/status', async (req, res) => {
     console.log('Received request at /status');
 
     let memberID = parseInt(req.query.memberID, 10);
+    let organizationID = parseInt(req.query.organizationID, 10);
 
-    if (isNaN(memberID)) {
-        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    if (isNaN(memberID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
     }
 
     try {
-        const status = await Member.getMemberStatus(memberID);
+        const status = await OrganizationMember.getMemberStatus(memberID, organizationID);
         if (!status) {
             return res.status(404).json({ error: 'Member not found' });
         }
@@ -124,13 +125,14 @@ router.get('/role', async (req, res) => {
     console.log('Received request at /role');
 
     let memberID = parseInt(req.query.memberID, 10);
+    let organizationID = parseInt(req.query.organizationID, 10);
 
-    if (isNaN(memberID)) {
-        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    if (isNaN(memberID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
     }
 
     try {
-        const role = await Member.getMemberStatus(memberID);
+        const role = await OrganizationMember.getMemberRole(memberID, organizationID);
         if (!role) {
             return res.status(404).json({ error: 'Member not found' });
         }

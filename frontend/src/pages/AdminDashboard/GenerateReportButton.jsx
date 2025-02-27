@@ -40,6 +40,32 @@ export default function GenerateReport() {
     // TODO: Implement report generation logic
     //       if start date is null, set to first day of semester
     //       if end date is null, set to today
+    const reportCommand = {
+      includeFullname: true,
+      includeEmail: true,
+      includeClothingsize: true,
+      includeActivestatus: true,
+      includeInactivestatus: true,
+      semester: "Spring 2025"
+    }
+    //TODO: Implement backend call to generate report
+    fetch(`/api/admin/report`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(reportCommand),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      //TODO: save report
+    })
+    .catch(error => {
+      console.log(error);
+      showAlert('Unrecoverable error occured when generating report. Please contact administrator!', 'error');
+    });
+
     handleClose();
   };
 

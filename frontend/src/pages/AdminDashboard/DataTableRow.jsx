@@ -26,7 +26,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
 
     React.useEffect(() => {
         if (!row.MemberID) return;
-        fetch(`/api/memberDetails/status?memberID=${row.MemberID}`)
+        fetch(`/api/memberDetails/status?memberID=${row.MemberID}&organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => setMemberStatus(data.status))
             .catch(error => console.error('Error fetching data for MemberName:', error));

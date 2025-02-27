@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { TableRow, TableCell, Checkbox, Grow } from '@mui/material';
 import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
-import useAccountStatus from '../../hooks/useAccountStatus';
+
+
+const cellStyles = {
+    pl: '16px',
+    pt: '0px',
+    pb: '0px'
+};
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
-    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, row.MemberID);
+    const [memberStatus, setMemberStatus] = React.useState(null);
 
-    const cellStyles = {
-        pl: '16px',
-        pt: '0px',
-        pb: '0px'
-    };
-
-    const statusColor = statusObject.status === 'inactive' ? 'red' : 'green';
+    const statusColor = memberStatus === 'Inactive' ? 'red' : 'green';
 
     const formattedDate = row.LastUpdated
         ? new Date(row.LastUpdated).toLocaleString('en-US', {
@@ -22,8 +22,16 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
-        })
-        : 'N/A';
+        }) : 'N/A';
+
+    React.useEffect(() => {
+        if (!row.MemberID) return;
+        fetch(`/api/memberDetails/status?memberID=${row.MemberID}`)
+            .then(response => response.json())
+            .then(data => setMemberStatus(data.status))
+            .catch(error => console.error('Error fetching data for MemberName:', error));
+        console.log(memberStatus);
+    }, [row.MemberID]);
 
     return (
         <TableRow
@@ -52,7 +60,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
                 align="left"
                 id={labelId}
                 sx={{ ...cellStyles, color: statusColor }}>
-                {statusObject.status}
+                {memberStatus}
             </TableCell>
             <TableCell align="left" sx={{ cellStyles }}>
                 {row.AttendanceRecord} meetings
@@ -61,7 +69,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
                 {formattedDate}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={statusObject.status} />
+                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={memberStatus} />
             </TableCell>
         </TableRow>
     );

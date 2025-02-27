@@ -68,6 +68,7 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
     GraduationYear,
     AcademicYear,
     attendanceRecords,
+    RoleName
   } = memberInfo[0]; // Extracting the first item from the array
 
   return (
@@ -115,7 +116,7 @@ export default function MemberDetailsModal ({ memberID, orgID, memberStatus })  
               <strong>Status:</strong> {memberStatus}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>Role:</strong> Member
+              <strong>Role:</strong> {RoleName}
             </Typography>
           </Box>
         </Box>

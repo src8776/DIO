@@ -52,14 +52,12 @@ class Member {
     }
   }
 
+  // This doesn't appear to be used anywhere? Should we remove it?
   static async lastUpdatedMemberAttendance() {
     const query = `
             SELECT
                 Members.MemberID,
-                CASE
-                    WHEN Members.IsActive = 0 THEN 'Active'
-                    ELSE 'Inactive'
-                END AS Status,
+                OrganizationMembers.Status,
                 Members.FullName,
                 COUNT(Attendance.MemberID) AS AttendanceRecord
             FROM
@@ -75,20 +73,52 @@ class Member {
             GROUP BY
                 Members.MemberID,
                 Members.FullName,
-                Members.IsActive;
+                OrganizationMembers.Status;
         `;
   }
 
   static async updateMemberStatus(memberID, isActive) {
     try {
       const query = `
-            UPDATE Members
-            SET IsActive = ?
+            UPDATE OrganizationMembers
+            SET Status = ?
             WHERE MemberID = ?
         `;
       await db.query(query, [isActive, memberID]);
     } catch (error) {
       console.error('Error updating member status:', error);
+      throw error;
+    }
+  }
+
+  static async getMemberStatus(memberID) {
+    try {
+      const query = `
+            SELECT Status
+            FROM OrganizationMembers
+            WHERE MemberID = ?
+        `;
+      const [[result]] = await db.query(query, [memberID]);
+      return result?.Status;
+    } catch (error) {
+      console.error('Error fetching member status:', error);
+      throw error;
+    }
+  }
+
+  
+  static async getMemberRole(memberID) {
+    try {
+      const query = `
+            SELECT Roles.RoleName
+            FROM OrganizationMembers
+            JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
+            WHERE OrganizationMembers.MemberID = ?
+        `;
+      const [[result]] = await db.query(query, [memberID]);
+      return result?.RoleName;
+    } catch (error) {
+      console.error('Error fetching member role:', error);
       throw error;
     }
   }

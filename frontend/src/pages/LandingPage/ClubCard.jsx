@@ -10,9 +10,19 @@ import useAccountStatus from "../../hooks/useAccountStatus";
 export default function ClubCard({ orgID }) {
     const memberID = 16;
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
+    const [memberStatus, setMemberStatus] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+     React.useEffect(() => {
+            if (!memberID) return;
+            fetch(`/api/memberDetails/status?memberID=${memberID}`)
+                .then(response => response.json())
+                .then(data => setMemberStatus(data.status))
+                .catch(error => console.error('Error fetching data for MemberName:', error));
+                console.log(memberStatus);
+        }, [memberID]);
 
     const orgType = orgID === 1 ? 'wic' : orgID === 2 ? 'coms' : orgID.toLowerCase(); // "wic" or "coms"
     // store club data up here for maintainability
@@ -62,10 +72,10 @@ export default function ClubCard({ orgID }) {
 
                         sx={{
                             fontWeight: 'bold',
-                            color: statusObject.status === 'inactive' ? 'red' : statusObject.status ? 'green' : 'system'
+                            color: memberStatus === 'Inactive' ? 'red' : memberStatus ? 'green' : 'system'
                         }}
                     >
-                        {statusObject.status || 'no status'}
+                        {memberStatus || 'no status'}
                     </Typography>
                 </Box>
             </CardContent>

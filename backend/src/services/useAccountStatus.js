@@ -9,7 +9,7 @@ const updateMemberStatus = async (memberID, organizationID) => {
     const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
     const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
     const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
-    await Member.updateMemberStatus(memberID, statusObject.status === 'active' ? 1 : 0);
+    await Member.updateMemberStatus(memberID, statusObject.status);
 }
 
 const useAccountStatus = (activeReqData, orgRulesData, attendanceData) => {

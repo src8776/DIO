@@ -76,52 +76,6 @@ class Member {
                 OrganizationMembers.Status;
         `;
   }
-
-  static async updateMemberStatus(memberID, isActive) {
-    try {
-      const query = `
-            UPDATE OrganizationMembers
-            SET Status = ?
-            WHERE MemberID = ?
-        `;
-      await db.query(query, [isActive, memberID]);
-    } catch (error) {
-      console.error('Error updating member status:', error);
-      throw error;
-    }
-  }
-
-  static async getMemberStatus(memberID) {
-    try {
-      const query = `
-            SELECT Status
-            FROM OrganizationMembers
-            WHERE MemberID = ?
-        `;
-      const [[result]] = await db.query(query, [memberID]);
-      return result?.Status;
-    } catch (error) {
-      console.error('Error fetching member status:', error);
-      throw error;
-    }
-  }
-
-  
-  static async getMemberRole(memberID) {
-    try {
-      const query = `
-            SELECT Roles.RoleName
-            FROM OrganizationMembers
-            JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
-            WHERE OrganizationMembers.MemberID = ?
-        `;
-      const [[result]] = await db.query(query, [memberID]);
-      return result?.RoleName;
-    } catch (error) {
-      console.error('Error fetching member role:', error);
-      throw error;
-    }
-  }
 }
 
 module.exports = Member;

@@ -17,7 +17,7 @@ export default function ClubCard({ orgID }) {
 
      React.useEffect(() => {
             if (!memberID) return;
-            fetch(`/api/memberDetails/status?memberID=${memberID}`)
+            fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}`)
                 .then(response => response.json())
                 .then(data => setMemberStatus(data.status))
                 .catch(error => console.error('Error fetching data for MemberName:', error));

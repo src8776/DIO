@@ -2,14 +2,16 @@ const membershipStatus = require('./membershipStatus');
 const OrganizationSetting = require('../models/OrganizationSetting');
 const EventRule = require('../models/EventRule');
 const Attendance = require('../models/Attendance');
-const Member = require('../models/Member');
+const OrganizationMember = require('../models/OrganizationMember');
 
 const updateMemberStatus = async (memberID, organizationID) => {
     const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
     const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
     const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
     const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
-    await Member.updateMemberStatus(memberID, statusObject.status);
+    if (OrganizationMember.getMemberStatus(memberID, organizationID) !== 'Exempt') {
+        await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status);
+    }
 }
 
 const useAccountStatus = (activeReqData, orgRulesData, attendanceData) => {

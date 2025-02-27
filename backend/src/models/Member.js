@@ -78,20 +78,6 @@ class Member {
                 Members.IsActive;
         `;
   }
-
-  static async updateMemberStatus(memberID, isActive) {
-    try {
-      const query = `
-            UPDATE Members
-            SET IsActive = ?
-            WHERE MemberID = ?
-        `;
-      await db.query(query, [isActive, memberID]);
-    } catch (error) {
-      console.error('Error updating member status:', error);
-      throw error;
-    }
-  }
 }
 
 module.exports = Member;

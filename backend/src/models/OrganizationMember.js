@@ -33,6 +33,34 @@ class OrganizationMember {
       throw err;
     }
   }
+
+  static async updateMemberStatus(memberID, organizationID, status) {
+    try {
+      const query = `
+            UPDATE OrganizationMembers
+            SET Status = ?
+            WHERE MemberID = ? AND OrganizationID = ?`;
+      await db.query(query, [status, memberID, organizationID]);
+    } catch (error) {
+      console.error('Error updating member status in OrganizationMembers:', error);
+      throw error;
+    }
+  }
+
+  static async getMemberStatus(memberID, organizationID) {
+    try {
+      const [[result]] = await db.query(
+        `SELECT Status
+         FROM OrganizationMembers
+         WHERE MemberID = ? AND OrganizationID = ?`,
+        [memberID, organizationID]
+      );
+      return result?.Status;
+    } catch (error) {
+      console.error('Error getting member status:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = OrganizationMember;

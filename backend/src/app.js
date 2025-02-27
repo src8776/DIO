@@ -48,9 +48,10 @@ app.post('/api/upload', upload.single('csv_file'), handleFileUpload);
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/user', userRoutes);
 
+const reportRoutes = require('./routes/reportRoutes');
+app.use('/api/admin/report', reportRoutes);
 
-
-
+//consider moving the below to a different file -adam
 //Server only code for SAML
 if (process.env.NODE_ENV === "production") {
     const session = require('express-session')

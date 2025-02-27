@@ -40,6 +40,31 @@ export default function GenerateReport() {
     // TODO: Implement report generation logic
     //       if start date is null, set to first day of semester
     //       if end date is null, set to today
+    const reportCommand = {
+      includeFullname: true,
+      includeEmail: true,
+      includeClothingsize: true,
+      includeActivestatus: true,
+      includeInactivestatus: true,
+      semester: "Spring 2025"
+    }
+    //TODO: Implement backend call to generate report
+    //      const response = await fetch('/api/admin/report', {
+    //        method: 'POST',
+    //        headers: {
+    //          'Content-Type': 'application/json',
+    //        },
+    //        body: JSON.stringify(reportCommand),
+    //      });
+    //      const data = await response.json();
+    //      console.log(data);
+    //      if (response.ok) {
+    //        console.log("Report generated successfully");
+    //      } else {
+    //        console.error("Failed to generate report");
+    //
+    //      }
+
     handleClose();
   };
 

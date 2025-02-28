@@ -25,7 +25,7 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     bgcolor: 'rgba(255, 255, 255, 0.85)',
-    backdropFilter: 'blur(10px)', 
+    backdropFilter: 'blur(10px)',
     boxShadow: 24,
     width: { xs: '90%', sm: '500px', md: '900px' },
     maxWidth: '100%',
@@ -189,7 +189,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                             <PeopleAltIcon />
-                            <Typography variant="h5">Member Overview</Typography>
+                            <Typography variant="h5">Member Metrics</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
                             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -222,12 +222,17 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                         {/* Active Path */}
-                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', borderRadius: 3 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2 }}>
-                                <RouteIcon />
-                                <Typography variant="h5">Active Path</Typography>
+                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', borderRadius: 3, p: 2 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+                                    <RouteIcon />
+                                    <Typography variant="h5">Active Path</Typography>
+                                </Box>
+                                <Typography variant="h7" sx={{ ml: 4, mb: 1}}>
+                                    {requirementType === 'points' ? `earn ${activeRequirement} points by attending events` : `meet ${activeRequirement} criteria by attending events`}
+                                </Typography>
                             </Box>
-                            <Box sx={{ overflowY: 'auto', p: 1 }}>
+                            <Box sx={{ overflowY: 'auto' }}>
                                 {loading ? (
                                     <>
                                         <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 3, m: 1 }} />

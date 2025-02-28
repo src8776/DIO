@@ -2,16 +2,32 @@ const membershipStatus = require('./membershipStatus');
 const OrganizationSetting = require('../models/OrganizationSetting');
 const EventRule = require('../models/EventRule');
 const Attendance = require('../models/Attendance');
+const Member = require('../models/Member');
 const OrganizationMember = require('../models/OrganizationMember');
+const { sendActiveStatusEmail } = require('../utils/email');
 
 const updateMemberStatus = async (memberID, organizationID) => {
-    const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
-    const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
-    const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
-    const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
-    if (OrganizationMember.getMemberStatus(memberID, organizationID) !== 'Exempt') {
-        await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status);
+    try {
+        const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
+        const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
+        const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
+        const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
+
+        const memberName = await Member.getMemberNameById(memberID);
+        const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID);
+        const memberEmail = await Member.getMemberEmailById(memberID);
+
+        // only update if newly active
+        if (currentStatus !== 'Exempt' && currentStatus !== 'Active') {
+            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status);
+            if (statusObject.status === 'Active') {
+                await sendActiveStatusEmail(organizationID, memberName, memberEmail);
+            }
+        }
+    } catch (error) {
+        console.error(`Error updating status for member ${memberID}:`, error);
     }
+
 }
 
 const useAccountStatus = (activeReqData, orgRulesData, attendanceData) => {

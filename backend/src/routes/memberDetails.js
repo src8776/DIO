@@ -6,8 +6,6 @@ const router = express.Router();
 
 
 router.get('/allDetails', async (req, res) => {
-    console.log('Received request at /allDetails');
-
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);
 
@@ -41,7 +39,6 @@ router.get('/allDetails', async (req, res) => {
             JOIN Roles r ON om.RoleID = r.RoleID
             WHERE m.MemberID = ?;
         `;
-        console.log('Executing query:', query);
         const [rows] = await db.query(query, [organizationID, memberID]);
         res.json(rows);
     } catch (error) {

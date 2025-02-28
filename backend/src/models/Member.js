@@ -76,6 +76,32 @@ class Member {
                 OrganizationMembers.Status;
         `;
   }
+
+  static async getMemberEmailById(memberId) {
+    try {
+      const [[member]] = await db.query(
+        'SELECT Email FROM Members WHERE MemberID = ?',
+        [memberId]
+      );
+      return member?.Email || null;
+    } catch (err) {
+      console.error('Error fetching member email:', err);
+      throw err;
+    }
+  }
+
+  static async getMemberNameById(memberId) {
+    try {
+      const [[member]] = await db.query(
+        'SELECT FirstName FROM Members WHERE MemberID = ?',
+        [memberId]
+      );
+      return member?.Email || null;
+    } catch (err) {
+      console.error('Error fetching member email:', err);
+      throw err;
+    }
+  }
 }
 
 module.exports = Member;

@@ -4,7 +4,8 @@ import {
     Modal, Paper,
     Typography, List,
     ListItemText,
-    ListItemButton, Skeleton
+    ListItemButton, Skeleton,
+    Snackbar, Alert
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
@@ -19,6 +20,7 @@ export default function OrganizationSetup() {
     const orgID = org === 'wic' ? 1 : 2;
     const [open, setOpen] = React.useState(false);
     const [formOpen, setFormOpen] = React.useState(false);
+    const [successMessage, setSuccessMessage] = React.useState(null);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const handleFormOpen = () => setFormOpen(true);
@@ -45,6 +47,8 @@ export default function OrganizationSetup() {
     React.useEffect(() => {
         fetchEventRules();
     }, [fetchEventRules]);
+
+    const handleCloseSnackbar = () => setSuccessMessage(null);
 
     // Extract the number of rules
     const numberOfRules = orgRules ? orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0) : 0;
@@ -102,11 +106,11 @@ export default function OrganizationSetup() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: 'solid 2px' }}>
                         <Typography variant='h6'>Event Rules</Typography>
                         <Button variant="contained" color="primary" onClick={handleFormOpen}>Add New Event</Button>
-                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules}/>
+                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules} setSuccessMessage={setSuccessMessage}/>
                     </Box>
                     <List
                         component="nav"
-                        aria-labelledby="nested-list-header">
+                        aria-labelledby="event-types-list">
                         {loading ? (
                             [...Array(3)].map((_, index) => (
                                 <Skeleton key={index} variant="rectangular" height={50} sx={{ mb: 1 }} />
@@ -123,6 +127,17 @@ export default function OrganizationSetup() {
                     </List>
                 </Paper>
             </Box>
+            {/* Success Snackbar */}
+            <Snackbar
+                open={!!successMessage}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                    {successMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }

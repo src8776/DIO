@@ -23,7 +23,7 @@ const style = {
     maxHeight: '90%'
 };
 
-export default function AddEventForm({ onClose, orgID, refetchEventRules }) {
+export default function AddEventForm({ onClose, orgID, refetchEventRules, setSuccessMessage }) {
     const [eventTypeName, setEventTypeName] = useState('');
     const [occurrences, setOccurrences] = useState('');
     const [trackingType, setTrackingType] = useState('Attendance');
@@ -51,6 +51,7 @@ export default function AddEventForm({ onClose, orgID, refetchEventRules }) {
     
             const data = JSON.parse(text); // Parse only if it’s JSON
             refetchEventRules();
+            setSuccessMessage('Event added successfully!');
             onClose();
         } catch (error) {
             console.error('Fetch error:', error);

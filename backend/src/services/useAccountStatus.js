@@ -21,7 +21,8 @@ const updateMemberStatus = async (memberID, organizationID) => {
         if (currentStatus !== 'Exempt' && currentStatus !== 'Active') {
             await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status);
             if (statusObject.status === 'Active') {
-                await sendActiveStatusEmail(organizationID, memberName, memberEmail);
+                // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disable for now so we don't spam students :)
+                console.log(`Would send email to ${memberEmail} (disabled)`);
             }
         }
     } catch (error) {

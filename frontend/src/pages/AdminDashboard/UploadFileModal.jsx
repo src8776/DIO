@@ -3,7 +3,7 @@ import { Box, Button, Modal } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ImportDataPage from '../ImportData/ImportDataPage';
 
-export default function AddMemberModal() {
+export default function UploadAttendanceModal({ onUploadSuccess }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -19,7 +19,7 @@ export default function AddMemberModal() {
       </Button>
       <Modal open={open} onClose={handleClose}>
         <Box>
-          <ImportDataPage/>
+          <ImportDataPage onUploadSuccess={onUploadSuccess} onClose={handleClose}/>
         </Box>
       </Modal>
     </>

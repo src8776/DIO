@@ -1,11 +1,9 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { useState } from 'react';
 import SnackbarAlert from '../../components/SnackbarAlert';
-
-// TODO: use selectedEventType to ensure data from files is assigned the correct event type
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -19,14 +17,9 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-console.log("API URL IS: " + API_BASE_URL);
-
-export default function InputFileUpload({ orgID, eventType }) {
-  const selectedEventType = eventType;
-  const selectedOrgID = orgID;
+export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
   const [file, setFile] = useState(null);
-
+  const [isUploading, setIsUploading] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -67,16 +60,16 @@ export default function InputFileUpload({ orgID, eventType }) {
   };
 
   const handleUpload = (file) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('csv_file', file);
+    formData.append('eventType', eventType);
+    formData.append('orgID', orgID);
 
-      const formData = new FormData();
-      formData.append('csv_file', file);
-      formData.append('eventType', selectedEventType);
-      formData.append('orgID', orgID);
-      fetch(`/api/upload`, {
-        method: 'POST',
-        body: formData,
-      })
-
+    fetch(`/api/upload`, {
+      method: 'POST',
+      body: formData,
+    })
       .then(response => response.json())
       .then(data => {
         console.log(data);
@@ -84,14 +77,16 @@ export default function InputFileUpload({ orgID, eventType }) {
           const msg = "Failed to upload file: " + data.file.originalname + " due to " + data.error;
           showAlert(msg, 'error');
         } else {
-          showAlert('Successfully uploaded file: ' + data.file.originalname, 'success');
+          showAlert('Successfully uploaded file: ' + data.file.originalname + '. You can upload another file or close the modal.', 'success'); 
+          onUploadSuccess?.();
+          setFile(null);
         }
       })
       .catch(error => {
         console.log(error);
         showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
-      });
-
+      })
+      .finally(() => setIsUploading(false));
   };
 
   return (
@@ -103,8 +98,9 @@ export default function InputFileUpload({ orgID, eventType }) {
         variant="contained"
         tabIndex={-1}
         startIcon={<CloudUploadIcon />}
+        disabled={isUploading}
       >
-        Import Attendance File
+        {isUploading ? 'Uploading...' : 'Upload Attendance File'}
         <VisuallyHiddenInput
           type="file"
           accept=".csv"

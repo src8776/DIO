@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
+import { visuallyHidden } from '@mui/utils';
 import {
     Box, Checkbox, IconButton, Table, TableBody,
     TableCell, TableContainer, TableHead,
@@ -10,18 +11,13 @@ import {
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { visuallyHidden } from '@mui/utils';
 import SkeletonRow from './SkeletonRow';
 import DataTableRow from './DataTableRow';
 
 
 function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
+    if (b[orderBy] < a[orderBy]) return -1;
+    if (b[orderBy] > a[orderBy]) return 1;
     return 0;
 }
 
@@ -71,18 +67,8 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-    const {
-        onSelectAllClick,
-        order,
-        orderBy,
-        numSelected,
-        rowCount,
-        onRequestSort
-    } = props;
-
-    const createSortHandler = (property) => (event) => {
-        onRequestSort(event, property);
-    };
+    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+    const createSortHandler = (property) => (event) => onRequestSort(event, property);
 
     return (
         <TableHead>
@@ -133,16 +119,13 @@ EnhancedTableHead.propTypes = {
 
 function EnhancedTableToolbar(props) {
     const { numSelected, handleSearchChange } = props;
+
     return (
         <Toolbar
             sx={[
-                {
-                    pl: { sm: 2 },
-                    pr: { xs: 1, sm: 1 },
-                },
+                { pl: { sm: 2 }, pr: { xs: 1, sm: 1 } },
                 numSelected > 0 && {
-                    bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
                 },
             ]}
         >
@@ -192,14 +175,9 @@ function EnhancedTableToolbar(props) {
     );
 }
 
-EnhancedTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-};
+EnhancedTableToolbar.propTypes = { numSelected: PropTypes.number.isRequired };
 
-export default function DataTable({ orgID }) {
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+export default function DataTable({ orgID, memberData, isLoading }) {
     const [order, setOrder] = React.useState('desc');
     const [orderBy, setOrderBy] = React.useState('LastUpdated');
     const [selected, setSelected] = React.useState([]);
@@ -207,33 +185,11 @@ export default function DataTable({ orgID }) {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [searchQuery, setSearchQuery] = React.useState('');
     const [rows, setRows] = React.useState([]);
-    const [isLoading, setIsLoading] = React.useState(true);
 
+    // Update rows when memberData changes
     React.useEffect(() => {
-        setIsLoading(true);
-        fetch(`/api/admin/datatable?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    return new Promise((resolve) => {
-                        setTimeout(() => resolve(data), 600); // slight delay
-                    });
-                } else {
-                    console.error('Error: Expected array but got:', data);
-                    return [];
-                }
-            })
-            .then((data) => {
-                setRows(data);
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setRows([]);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, []);
+        setRows(memberData);
+    }, [memberData]);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -241,9 +197,7 @@ export default function DataTable({ orgID }) {
         setOrderBy(property);
     };
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
+    const handleSearchChange = (event) => setSearchQuery(event.target.value);
 
     const filteredRows = rows.filter((row) =>
         row.FullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -278,9 +232,7 @@ export default function DataTable({ orgID }) {
         setSelected(newSelected);
     };
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
+    const handleChangePage = (event, newPage) => setPage(newPage);
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
@@ -300,16 +252,9 @@ export default function DataTable({ orgID }) {
 
     return (
         <Paper sx={{ width: '100%' }}>
-            <EnhancedTableToolbar
-                numSelected={selected.length}
-                handleSearchChange={handleSearchChange}
-            />
+            <EnhancedTableToolbar numSelected={selected.length} handleSearchChange={handleSearchChange} />
             <TableContainer sx={{ maxHeight: '450px' }}>
-                <Table
-                    stickyHeader
-                    sx={{ minWidth: 750, overflowY: 'auto' }}
-                    aria-labelledby="member-data-table"
-                >
+                <Table stickyHeader sx={{ minWidth: 750, overflowY: 'auto' }} aria-labelledby="member-data-table">
                     <EnhancedTableHead
                         numSelected={selected.length}
                         order={order}
@@ -320,12 +265,8 @@ export default function DataTable({ orgID }) {
                     />
                     <TableBody>
                         {isLoading ? (
-                            // Use SkeletonTableRow component for 5 rows
-                            Array.from(new Array(5)).map((_, index) => (
-                                <SkeletonRow key={`skeleton-${index}`} index={index} />
-                            ))
+                            Array.from(new Array(5)).map((_, index) => <SkeletonRow key={`skeleton-${index}`} index={index} />)
                         ) : (
-                            // Display actual data when loaded
                             visibleRows.map((row, index) => {
                                 const isItemSelected = selected.includes(row.MemberID);
                                 const labelId = `enhanced-table-checkbox-${index}`;
@@ -343,11 +284,7 @@ export default function DataTable({ orgID }) {
                             })
                         )}
                         {!isLoading && emptyRows > 0 && (
-                            <TableRow
-                                style={{
-                                    height: 53 * emptyRows,
-                                }}
-                            >
+                            <TableRow style={{ height: 53 * emptyRows }}>
                                 <TableCell colSpan={6} />
                             </TableRow>
                         )}

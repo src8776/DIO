@@ -1,6 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Autocomplete, Box, Button, IconButton, Container, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, TextField, Typography } from '@mui/material';
+import {
+    Autocomplete, Box, Button,
+    IconButton, Container, FormControl,
+    InputLabel, MenuItem, Paper,
+    Select, Table, TableContainer,
+    TableHead, TableBody, TableCell,
+    TableRow, TextField, Typography
+} from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -25,7 +32,7 @@ const style = {
     maxWidth: '100%',
 };
 
-export default function ImportDataPage() {
+export default function ImportDataPage({ onUploadSuccess, onClose }) {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
     const [eventTypeItems, setEventTypeItems] = React.useState([]);
@@ -38,27 +45,19 @@ export default function ImportDataPage() {
     const [alertMessage, setAlertMessage] = React.useState('');
     const [alertSeverity, setAlertSeverity] = React.useState('success');
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
-      
-    const handleCloseSnackbar = () => {
-        setOpenSnackbar(false);
-    };
-    
+
+    const handleCloseSnackbar = () => setOpenSnackbar(false);
+
+    const handleEventTypeChange = (event) => setEventType(event.target.value);
+
+    const handleDateChange = (date) => setEventDate(dayjs(date).startOf('day'));
+
+    const handleVolunteerHoursChange = (event) => setVolunteerHours(event.target.value);
+
     const showAlert = (message, severity) => {
         setAlertMessage(message);
         setAlertSeverity(severity);
         setOpenSnackbar(true);
-    };
-
-    const handleEventTypeChange = (event) => {
-        setEventType(event.target.value);
-    }
-
-    const handleDateChange = (date) => {
-        setEventDate(dayjs(date).startOf("day"));
-    };
-
-    const handleVolunteerHoursChange = (event) => {
-        setVolunteerHours(event.target.value);
     };
 
     const addMemberToList = (member) => {
@@ -71,16 +70,14 @@ export default function ImportDataPage() {
         setSelectedMembers(selectedMembers.filter(member => member.MemberID !== memberId));
     };
 
-    const logMembers = () => {
-        //console.log('Volunteer Hours Log:');
-
+    const uploadVolunteerHours = () => {
         if (selectedMembers.length === 0) {
-            showAlert("You must select member(s)!", "error");
+            showAlert('You must select member(s)', 'error');
             return;
         }
-        const hasInvalidData = selectedMembers.some(m => {
+        const hasInvalidData = selectedMembers.some((m) => {
             if (m.hours === '' || m.date === '') {
-                showAlert("You must select volunteer hours!", "error");
+                showAlert('You must select volunteer hours', 'error');
                 return true;
             }
             return false;
@@ -93,50 +90,53 @@ export default function ImportDataPage() {
             members: selectedMembers,
         };
 
-        //console.log(data);
         fetch(`/api/admin/volunteers/hours`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-            if (!data.success) {
-              const msg = "Failed to upload volunteer hours due to " + data.error;
-              showAlert(msg, 'error');
-            } else {
-              showAlert('Successfully uploaded volunteer hours' , 'success');
-            }
-          })
-          .catch(error => {
-            console.log(error);
-            showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
-          });
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!data.success) {
+                    const msg = 'Failed to upload volunteer hours due to ' + data.error;
+                    showAlert(msg, 'error');
+                } else {
+                    showAlert('Successfully uploaded volunteer hours', 'success');
+                    if (onUploadSuccess) onUploadSuccess();
+                    if (onClose) onClose();
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
+            });
     };
 
     React.useEffect(() => {
         fetch(`/api/admin/events?organizationID=${orgID}`)
-          .then((response) => response.json())
-          .then((data) => setEventTypeItems(data))
-          .catch((error) => console.error("Error fetching data:", error));
-      }, []);
+            .then((response) => response.json())
+            .then((data) => setEventTypeItems(data))
+            .catch((error) => console.error('Error fetching data:', error));
+    }, [orgID]);
 
     React.useEffect(() => {
         fetch(`/api/admin/members/names?organizationID=${orgID}`)
-          .then((response) => response.json())
-          .then((data) => setAllMembers(data))
-          .catch((error) => console.error("Error fetching data:", error));
-      }, []);
+            .then((response) => response.json())
+            .then((data) => setAllMembers(data))
+            .catch((error) => console.error('Error fetching data:', error));
+    }, [orgID]);
 
     return (
         <Container >
             <Paper elevation={1} sx={style}>
-                <Typography variant="h5">
-                    Data Import Form
-                </Typography>
+                <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+                    <Typography variant="h5">
+                        Data Import Form
+                    </Typography>
+                    <Button onClick={onClose} variant="outlined" color="secondary">
+                        Close
+                    </Button>
+                </Box>
 
                 {/* Form Elements */}
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
@@ -174,7 +174,6 @@ export default function ImportDataPage() {
                             </FormControl>
 
                             <FormControl required fullWidth>
-
                                 <InputLabel id="volunteer-hours-select-label">Volunteer Hours</InputLabel>
                                 <Select
                                     labelId="volunteer-hours-select-label"
@@ -245,30 +244,24 @@ export default function ImportDataPage() {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-
                         </Container>
                     )}
-                    
                 </Box>
-                {/* Show "Upload Volunteer Hours" button if the event type is Volunteer Event */}
-
                 {eventType === "Volunteer Event" ? (
-                    
-                    <Button variant="contained" color="primary" onClick={logMembers}>
+                    <Button variant="contained" color="primary" onClick={uploadVolunteerHours}>
                         Upload Volunteer Hours
                     </Button>
                 ) : (
                     // Show FileUploadButton for other event types
-                    <FileUploadButton orgID={orgID} eventType={eventType} />
+                    <FileUploadButton orgID={orgID} eventType={eventType} onUploadSuccess={onUploadSuccess} onClose={onClose} />
                 )}
-
             </Paper>
             <SnackbarAlert
-                        open={openSnackbar}
-                        message={alertMessage}
-                        severity={alertSeverity}
-                        onClose={handleCloseSnackbar}
-                    />
+                open={openSnackbar}
+                message={alertMessage}
+                severity={alertSeverity}
+                onClose={handleCloseSnackbar}
+            />
         </Container>
     );
 }

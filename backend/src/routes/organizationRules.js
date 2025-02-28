@@ -83,4 +83,42 @@ router.put('/updateOccurrences', async (req, res) => {
 });
 
 
+router.post('/addEventType', async (req, res) => {
+    console.log('Received POST to /api/events/addEventType:', req.body);
+    const { organizationID, EventTypeName, TrackingType, occurrences } = req.body;
+
+    if (!organizationID || !EventTypeName || !TrackingType || !occurrences) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    try {
+        // Check if an event type with the same name already exists
+        const checkQuery = `
+            SELECT 
+                EventTypeID 
+            FROM 
+                EventTypes 
+            WHERE 
+                OrganizationID = ? AND EventType = ?
+        `;
+        const [existingEventTypes] = await db.query(checkQuery, [organizationID, EventTypeName]);
+
+        if (existingEventTypes.length > 0) {
+            return res.status(400).json({ error: 'Event type with the same name already exists' });
+        }
+
+        // Insert the new event type
+        const insertQuery = `
+            INSERT INTO EventTypes (OrganizationID, EventType, RuleType, OccurrenceTotal)
+            VALUES (?, ?, ?, ?)
+        `;
+        await db.query(insertQuery, [organizationID, EventTypeName, TrackingType, occurrences]);
+        res.status(201).json({ message: 'Event type added successfully' });
+    } catch (error) {
+        console.error('Error adding event type:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 module.exports = router;

@@ -359,7 +359,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                                 newCriteriaType === "minimum threshold hours" && <> "Earn 1 point for 3 hours attended"</>
                             )}
                         </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt:2, gap: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
                             <Button variant="contained" color="primary" onClick={handleSaveRule}>
                                 Save
                             </Button>

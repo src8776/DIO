@@ -1,29 +1,29 @@
 import * as React from 'react';
 import {
-    Box, Container,
+    Box, Button, Container,
     Modal, Paper,
     Typography, List,
     ListItemText,
-    ListItemButton,
-    Skeleton
+    ListItemButton, Skeleton
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
 import EventItem from './EventItem';
+import AddEventModal from './AddEventModal';
 
-// TODO: Form validation (only accept numbers for point values/percentages)
+// TODO: Form validation
 // TODO: user feedback "changes saved successfully"
-// TODO: Formatting
-
 
 export default function OrganizationSetup() {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
     const [open, setOpen] = React.useState(false);
+    const [formOpen, setFormOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    const handleFormOpen = () => setFormOpen(true);
+    const handleFormClose = () => setFormOpen(false);
 
-    // need to grab the organization rules from database
     const [orgRules, setOrgRules] = React.useState();
     const [loading, setLoading] = React.useState(true);
 
@@ -31,7 +31,6 @@ export default function OrganizationSetup() {
         fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
-                console.log('Fetched data:', data);
                 setOrgRules(data);
                 setLoading(false);
             })
@@ -91,12 +90,14 @@ export default function OrganizationSetup() {
                 </Paper>
                 {/* Event Rules Table */}
                 <Paper>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: 'solid 2px' }}>
+                        <Typography variant='h6'>Event Rules</Typography>
+                        <Button variant="contained" color="primary" onClick={handleFormOpen}>Add New Event</Button>
+                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID}/>
+                    </Box>
                     <List
                         component="nav"
-                        aria-labelledby="nested-list-header"
-                        subheader={
-                            <Typography variant='h6' sx={{ p: 1, borderBottom: 'solid 2px' }}>Event Rules</Typography>
-                        }>
+                        aria-labelledby="nested-list-header">
                         {loading ? (
                             [...Array(3)].map((_, index) => (
                                 <Skeleton key={index} variant="rectangular" height={50} sx={{ mb: 1 }} />

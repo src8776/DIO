@@ -23,7 +23,7 @@ const style = {
     maxHeight: '90%'
 };
 
-export default function AddEventForm({ onClose, orgID }) {
+export default function AddEventForm({ onClose, orgID, refetchEventRules }) {
     const [eventTypeName, setEventTypeName] = useState('');
     const [occurrences, setOccurrences] = useState('');
     const [trackingType, setTrackingType] = useState('Attendance');
@@ -44,14 +44,13 @@ export default function AddEventForm({ onClose, orgID }) {
             });
     
             const text = await response.text(); // Get raw text first
-            console.log('Raw response:', text); // Log it for debugging
     
             if (!response.ok) {
                 throw new Error(`Server error: ${response.status} - ${text}`);
             }
     
             const data = JSON.parse(text); // Parse only if it’s JSON
-            console.log('Success:', data);
+            refetchEventRules();
             onClose();
         } catch (error) {
             console.error('Fetch error:', error);

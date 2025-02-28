@@ -27,15 +27,24 @@ export default function OrganizationSetup() {
     const [orgRules, setOrgRules] = React.useState();
     const [loading, setLoading] = React.useState(true);
 
-    React.useEffect(() => {
+    // Function to fetch event rules
+    const fetchEventRules = React.useCallback(() => {
+        setLoading(true);
         fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
                 setOrgRules(data);
                 setLoading(false);
             })
-            .catch(error => console.error('Error fetching data for OrganizationRules:', error));
+            .catch(error => {
+                console.error('Error fetching data for OrganizationRules:', error);
+                setLoading(false);
+            });
     }, [orgID]);
+
+    React.useEffect(() => {
+        fetchEventRules();
+    }, [fetchEventRules]);
 
     // Extract the number of rules
     const numberOfRules = orgRules ? orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0) : 0;
@@ -93,7 +102,7 @@ export default function OrganizationSetup() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: 'solid 2px' }}>
                         <Typography variant='h6'>Event Rules</Typography>
                         <Button variant="contained" color="primary" onClick={handleFormOpen}>Add New Event</Button>
-                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID}/>
+                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules}/>
                     </Box>
                     <List
                         component="nav"

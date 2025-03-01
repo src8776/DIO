@@ -1,6 +1,14 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Autocomplete, Box, Button, IconButton, Container, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableContainer, TableHead, TableBody, TableCell, TableRow, TextField, Typography } from '@mui/material';
+import {
+    Autocomplete, Box, Button,
+    IconButton, Container, FormControl,
+    InputLabel, MenuItem, Paper,
+    Select, Table, TableContainer,
+    TableHead, TableBody, TableCell,
+    TableRow, TextField, Typography,
+    Skeleton
+} from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -21,11 +29,14 @@ const style = {
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
+    height: 'auto',
+    overflow: 'auto',
+    maxHeight: '90%',
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
 };
 
-export default function ImportDataPage() {
+export default function ImportDataPage({ onUploadSuccess, onClose }) {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
     const [eventTypeItems, setEventTypeItems] = React.useState([]);
@@ -38,27 +49,19 @@ export default function ImportDataPage() {
     const [alertMessage, setAlertMessage] = React.useState('');
     const [alertSeverity, setAlertSeverity] = React.useState('success');
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
-      
-    const handleCloseSnackbar = () => {
-        setOpenSnackbar(false);
-    };
-    
+
+    const handleCloseSnackbar = () => setOpenSnackbar(false);
+
+    const handleEventTypeChange = (event) => setEventType(event.target.value);
+
+    const handleDateChange = (date) => setEventDate(dayjs(date).startOf('day'));
+
+    const handleVolunteerHoursChange = (event) => setVolunteerHours(event.target.value);
+
     const showAlert = (message, severity) => {
         setAlertMessage(message);
         setAlertSeverity(severity);
         setOpenSnackbar(true);
-    };
-
-    const handleEventTypeChange = (event) => {
-        setEventType(event.target.value);
-    }
-
-    const handleDateChange = (date) => {
-        setEventDate(dayjs(date).startOf("day"));
-    };
-
-    const handleVolunteerHoursChange = (event) => {
-        setVolunteerHours(event.target.value);
     };
 
     const addMemberToList = (member) => {
@@ -71,16 +74,14 @@ export default function ImportDataPage() {
         setSelectedMembers(selectedMembers.filter(member => member.MemberID !== memberId));
     };
 
-    const logMembers = () => {
-        //console.log('Volunteer Hours Log:');
-
+    const uploadVolunteerHours = () => {
         if (selectedMembers.length === 0) {
-            showAlert("You must select member(s)!", "error");
+            showAlert('You must select member(s)', 'error');
             return;
         }
-        const hasInvalidData = selectedMembers.some(m => {
+        const hasInvalidData = selectedMembers.some((m) => {
             if (m.hours === '' || m.date === '') {
-                showAlert("You must select volunteer hours!", "error");
+                showAlert('You must select volunteer hours', 'error');
                 return true;
             }
             return false;
@@ -93,54 +94,56 @@ export default function ImportDataPage() {
             members: selectedMembers,
         };
 
-        //console.log(data);
         fetch(`/api/admin/volunteers/hours`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-            if (!data.success) {
-              const msg = "Failed to upload volunteer hours due to " + data.error;
-              showAlert(msg, 'error');
-            } else {
-              showAlert('Successfully uploaded volunteer hours' , 'success');
-            }
-          })
-          .catch(error => {
-            console.log(error);
-            showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
-          });
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!data.success) {
+                    const msg = 'Failed to upload volunteer hours due to ' + data.error;
+                    showAlert(msg, 'error');
+                } else {
+                    showAlert('Successfully uploaded volunteer hours', 'success');
+                    onUploadSuccess?.();
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
+            });
     };
 
     React.useEffect(() => {
         fetch(`/api/admin/events?organizationID=${orgID}`)
-          .then((response) => response.json())
-          .then((data) => setEventTypeItems(data))
-          .catch((error) => console.error("Error fetching data:", error));
-      }, []);
+            .then((response) => response.json())
+            .then((data) => setEventTypeItems(data))
+            .catch((error) => console.error('Error fetching data:', error));
+    }, [orgID]);
 
     React.useEffect(() => {
         fetch(`/api/admin/members/names?organizationID=${orgID}`)
-          .then((response) => response.json())
-          .then((data) => setAllMembers(data))
-          .catch((error) => console.error("Error fetching data:", error));
-      }, []);
+            .then((response) => response.json())
+            .then((data) => setAllMembers(data))
+            .catch((error) => console.error('Error fetching data:', error));
+    }, [orgID]);
 
     return (
         <Container >
             <Paper elevation={1} sx={style}>
-                <Typography variant="h5">
-                    Data Import Form
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                    <Typography variant="h5">
+                        Data Import Form
+                    </Typography>
+                    <Button onClick={onClose} variant="outlined" color="secondary">
+                        Close
+                    </Button>
+                </Box>
 
                 {/* Form Elements */}
-                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-                    <FormControl required fullWidth>
+                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', width: '100%' }}>
+                    <FormControl required fullWidth >
                         <InputLabel id="event-type-select-label">Event Type</InputLabel>
                         <Select
                             labelId="event-type-select-label"
@@ -158,117 +161,124 @@ export default function ImportDataPage() {
                         </Select>
                     </FormControl>
 
+
                     {/* Conditionally render Volunteer Hours input */}
                     {eventType === "Volunteer Event" && (
-                        <Container sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <FormControl required fullWidth>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        label="Event Date"
-                                        id="event-date-select"
-                                        value={eventDate}
-                                        onChange={handleDateChange}
-                                        sx={{ flex: 1 }}
-                                    />
-                                </LocalizationProvider>
-                            </FormControl>
+                        <Container disableGutters sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, justifyContent: 'space-evenly' }}>
+                                <FormControl required sx={{ flex: 1 }} >
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            label="Event Date"
+                                            id="event-date-select"
+                                            value={eventDate}
+                                            onChange={handleDateChange}
+                                        />
+                                    </LocalizationProvider>
+                                </FormControl>
 
-                            <FormControl required fullWidth>
-
-                                <InputLabel id="volunteer-hours-select-label">Volunteer Hours</InputLabel>
-                                <Select
-                                    labelId="volunteer-hours-select-label"
-                                    id="volunteer-hours-select"
-                                    value={volunteerHours}
-                                    onChange={handleVolunteerHoursChange}
-                                    label="Volunteer Hours"
-                                    sx={{ minWidth: '200px' }}
-                                >
-                                    {[...Array(9)].map((_, index) => (
-                                        <MenuItem key={index} value={index + 1}>
-                                            {index + 1} Hour{index + 1 > 1 ? 's' : ''}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <FormControl required fullWidth>
-
-                                {/* Autocomplete for Member Selection */}
-                                <Autocomplete
-                                    options={allMembers}
-                                    getOptionLabel={(option) => option.FullName}
-                                    onChange={(event, value) => {
-                                        // Only add to the list if value is not null or undefined
-                                        if (value) {
-                                            addMemberToList(value);
-                                        }
-                                    }}
-                                    renderInput={(params) => <TextField {...params} label="Add Member" />}
-                                    isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
-                                    sx={{ marginBottom: 2 }}
-                                />
-                            </FormControl>
-
-                            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-                                Selected Members
-                            </Typography>
-                            <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
-                                <Table stickyHeader>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Member</TableCell>
-                                            <TableCell>Date</TableCell>
-                                            <TableCell>Hours</TableCell>
-                                            <TableCell align="center">Remove</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {selectedMembers.map((member) => (
-                                            <TableRow key={member.MemberID}>
-                                                <TableCell>{member.FullName}</TableCell>
-                                                <TableCell>{dayjs(member.date).format("MM/DD/YYYY")}</TableCell>
-                                                <TableCell>{member.hours}</TableCell>
-                                                <TableCell align="center">
-                                                    <IconButton onClick={() => removeMemberFromList(member.MemberID)}
-                                                        sx={{
-                                                            '&:hover': {
-                                                                color: 'red',
-                                                                backgroundColor: 'rgba(255, 0, 0, 0.1)'
-                                                            },
-                                                        }}>
-                                                        <Remove />
-                                                    </IconButton>
-                                                </TableCell>
-                                            </TableRow>
+                                <FormControl required sx={{ flex: 1 }}>
+                                    <InputLabel id="volunteer-hours-select-label">Volunteer Hours</InputLabel>
+                                    <Select
+                                        labelId="volunteer-hours-select-label"
+                                        id="volunteer-hours-select"
+                                        value={volunteerHours}
+                                        onChange={handleVolunteerHoursChange}
+                                        label="Volunteer Hours"
+                                    >
+                                        {[...Array(9)].map((_, index) => (
+                                            <MenuItem key={index} value={index + 1}>
+                                                {index + 1} Hour{index + 1 > 1 ? 's' : ''}
+                                            </MenuItem>
                                         ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                                    </Select>
+                                </FormControl>
+                            </Box>
 
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, justifyContent: 'space-evenly' }}>
+                                    <Typography variant="h6" sx={{ flex: 1 }}>
+                                        Selected Members: {selectedMembers.length}
+                                    </Typography>
+                                    <FormControl required fullWidth sx={{ flex: 1 }}>
+                                        {/* Autocomplete for Member Selection */}
+                                        <Autocomplete
+                                            size='small'
+                                            options={allMembers}
+                                            getOptionLabel={(option) => option.FullName}
+                                            onChange={(event, value) => {
+                                                // Only add to the list if value is not null or undefined
+                                                if (value) {
+                                                    addMemberToList(value);
+                                                }
+                                            }}
+                                            renderInput={(params) => <TextField {...params} label="Add Member" />}
+                                            isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
+                                        />
+                                    </FormControl>
+
+                                </Box>
+                                <TableContainer component={Paper} sx={{ maxHeight: 300, overflow: 'auto' }}>
+                                    <Table stickyHeader>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Member</TableCell>
+                                                <TableCell>Date</TableCell>
+                                                <TableCell>Hours</TableCell>
+                                                <TableCell align="center">Remove</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {selectedMembers.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={4}>
+                                                        <Skeleton variant="rectangular" height={40} sx={{bgcolor: '#e3f2fd'}}/>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                selectedMembers.map((member) => (
+                                                    <TableRow key={member.MemberID}>
+                                                        <TableCell>{member.FullName}</TableCell>
+                                                        <TableCell>{dayjs(member.date).format("MM/DD/YYYY")}</TableCell>
+                                                        <TableCell>{member.hours}</TableCell>
+                                                        <TableCell align="center">
+                                                            <IconButton onClick={() => removeMemberFromList(member.MemberID)}
+                                                                sx={{
+                                                                    '&:hover': {
+                                                                        color: 'red',
+                                                                        backgroundColor: 'rgba(255, 0, 0, 0.1)'
+                                                                    },
+                                                                }}>
+                                                                <Remove />
+                                                            </IconButton>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Box>
                         </Container>
                     )}
-                    
                 </Box>
-                {/* Show "Upload Volunteer Hours" button if the event type is Volunteer Event */}
-
                 {eventType === "Volunteer Event" ? (
-                    
-                    <Button variant="contained" color="primary" onClick={logMembers}>
+                    <Button variant="contained" color="primary" onClick={uploadVolunteerHours}>
                         Upload Volunteer Hours
                     </Button>
                 ) : (
                     // Show FileUploadButton for other event types
-                    <FileUploadButton orgID={orgID} eventType={eventType} />
+                    <Box sx={{ mt: 2, width: '100%' }}>
+                        <FileUploadButton orgID={orgID} eventType={eventType} onUploadSuccess={onUploadSuccess} onClose={onClose} />
+                    </Box>
                 )}
-
             </Paper>
             <SnackbarAlert
-                        open={openSnackbar}
-                        message={alertMessage}
-                        severity={alertSeverity}
-                        onClose={handleCloseSnackbar}
-                    />
+                open={openSnackbar}
+                message={alertMessage}
+                severity={alertSeverity}
+                onClose={handleCloseSnackbar}
+            />
         </Container>
     );
 }

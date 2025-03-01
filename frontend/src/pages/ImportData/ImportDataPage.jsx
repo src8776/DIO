@@ -28,6 +28,9 @@ const style = {
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
+    height: 'auto',
+    overflow: 'auto',
+    maxHeight: '90%',
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
 };
@@ -129,7 +132,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
     return (
         <Container >
             <Paper elevation={1} sx={style}>
-                <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                     <Typography variant="h5">
                         Data Import Form
                     </Typography>
@@ -205,14 +208,14 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                     }}
                                     renderInput={(params) => <TextField {...params} label="Add Member" />}
                                     isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
-                                    sx={{ marginBottom: 2 }}
+                                    sx={{ mb: 2 }}
                                 />
                             </FormControl>
 
-                            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+                            <Typography variant="h6">
                                 Selected Members
                             </Typography>
-                            <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
+                            <TableContainer component={Paper} sx={{ maxHeight: 300, overflow: 'auto' }}>
                                 <Table stickyHeader>
                                     <TableHead>
                                         <TableRow>
@@ -224,7 +227,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                     </TableHead>
                                     <TableBody>
                                         {selectedMembers.map((member) => (
-                                            <TableRow key={member.MemberID}>
+                                            <TableRow key={member.MemberID} sx={{ }}>
                                                 <TableCell>{member.FullName}</TableCell>
                                                 <TableCell>{dayjs(member.date).format("MM/DD/YYYY")}</TableCell>
                                                 <TableCell>{member.hours}</TableCell>
@@ -253,7 +256,9 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                     </Button>
                 ) : (
                     // Show FileUploadButton for other event types
-                    <FileUploadButton orgID={orgID} eventType={eventType} onUploadSuccess={onUploadSuccess} onClose={onClose} />
+                    <Box sx={{ mt: 2, width: '100%' }}>
+                        <FileUploadButton orgID={orgID} eventType={eventType} onUploadSuccess={onUploadSuccess} onClose={onClose} />
+                    </Box>
                 )}
             </Paper>
             <SnackbarAlert

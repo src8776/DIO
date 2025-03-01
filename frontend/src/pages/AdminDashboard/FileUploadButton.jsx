@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, IconButton } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 const VisuallyHiddenInput = styled('input')({
@@ -17,14 +18,14 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-const DropZone = styled(Box)(({ isDragging }) => ({
+const DropZone = styled(Box)(({ isDragging, hasFile }) => ({
   border: `2px dashed ${isDragging ? '#1976d2' : '#ccc'}`,
   borderRadius: '8px',
   padding: '20px',
   textAlign: 'center',
   backgroundColor: isDragging ? '#e3f2fd' : '#fafafa',
   transition: 'all 0.3s ease',
-  '&:hover': {
+  '&:hover': hasFile ? {} : {
     borderColor: '#1976d2',
     backgroundColor: '#e3f2fd',
   },
@@ -49,37 +50,30 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     setOpenSnackbar(true);
   };
 
-  const validateAndSetFile = (selectedFile) => {
+  const validateFile = (selectedFile) => {
     if (!selectedFile) {
       showAlert('You must select a file', 'error');
       return false;
     }
-
     if (selectedFile.type !== 'text/csv' && !selectedFile.name.endsWith('.csv')) {
       showAlert('Invalid file type. Only CSV files are allowed.', 'error');
-      setFile(null);
       return false;
     }
-
     if (selectedFile.size > 2 * 1024 * 1024) {
       showAlert('File size exceeds maximum 2MB', 'error');
-      setFile(null);
       return false;
     }
-
-    setFile(selectedFile);
     return true;
   };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    if (validateAndSetFile(selectedFile)) {
-      handleUpload(selectedFile);
+    if (validateFile(selectedFile)) {
+      setFile(selectedFile);
     }
-    // Uncomment for same file upload
-    // if (fileInputRef.current) {
-    //   fileInputRef.current.value = '';
-    // }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleDragOver = (event) => {
@@ -96,12 +90,16 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     event.preventDefault();
     setIsDragging(false);
     const droppedFile = event.dataTransfer.files[0];
-    if (validateAndSetFile(droppedFile)) {
-      handleUpload(droppedFile);
+    if (validateFile(droppedFile)) {
+      setFile(droppedFile);
     }
   };
 
-  const handleUpload = (file) => {
+  const handleUpload = () => {
+    if (!file) {
+      showAlert('No file selected', 'error');
+      return;
+    }
     setIsUploading(true);
     const formData = new FormData();
     formData.append('csv_file', file);
@@ -112,21 +110,23 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
       method: 'POST',
       body: formData,
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
+      .then((response) => response.json())
+      .then((data) => {
         if (!data.success) {
-          const msg = "Failed to upload file: " + data.file.originalname + " due to " + data.error;
+          const msg = 'Failed to upload file: ' + data.file.originalname + ' due to ' + data.error;
           showAlert(msg, 'error');
         } else {
-          showAlert('Successfully uploaded file: ' + data.file.originalname + '. You can upload another file or close the modal.', 'success'); 
+          showAlert(
+            'Successfully uploaded file: ' + data.file.originalname + '. You can upload another file or close the modal.',
+            'success'
+          );
           onUploadSuccess?.();
-          setFile(null);
+          setFile(null); // Reset after successful upload
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
-        showAlert('Unrecoverable error occured when uploading file. Please contact administrator!', 'error');
+        showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
       })
       .finally(() => setIsUploading(false));
   };
@@ -138,35 +138,58 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         isDragging={isDragging}
+        hasFile={!!file}
         sx={{ opacity: isUploading ? 0.5 : 1, pointerEvents: isUploading ? 'none' : 'auto' }}
       >
-        <CloudUploadIcon sx={{ fontSize: 40, color: isDragging ? '#1976d2' : '#888' }} />
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          {isDragging ? 'Drop your CSV file here!' : 'Drag & drop your CSV file here'}
-        </Typography>
-        <Typography variant="body2" sx={{ mt: 1, color: '#666' }}>
-          or
-        </Typography>
-        <Button
-          component="label"
-          variant="contained"
-          color="primary"
-          startIcon={<CloudUploadIcon />}
-          sx={{ mt: 2 }}
-          disabled={isUploading}
-        >
-          {isUploading ? 'Uploading...' : 'Browse Files'}
-          <VisuallyHiddenInput
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            ref={fileInputRef}
-          />
-        </Button>
-        {file && !isUploading && (
-          <Typography variant="body2" sx={{ mt: 2, color: '#1976d2' }}>
-            Selected: {file.name}
-          </Typography>
+        {isUploading ? (
+          <Typography variant="body1">Uploading...</Typography>
+        ) : file ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body1">Selected: <span style={{ color: 'rgb(0, 119, 255)' }}>{file.name}</span></Typography>
+              <IconButton size="small" onClick={() => setFile(null)} sx={{
+                '&:hover': {
+                  color: 'red',
+                  backgroundColor: 'rgba(255, 0, 0, 0.1)'
+                },
+              }}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleUpload}
+              sx={{ mt: 2 }}
+            >
+              Upload
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <CloudUploadIcon sx={{ fontSize: 40, color: isDragging ? '#1976d2' : '#888' }} />
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              {isDragging ? 'Drop your CSV file here!' : 'Drag & drop your CSV file here'}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, color: '#666' }}>
+              or
+            </Typography>
+            <Button
+              component="label"
+              variant="contained"
+              color="primary"
+              startIcon={<CloudUploadIcon />}
+              sx={{ mt: 2 }}
+            >
+              Browse Files
+              <VisuallyHiddenInput
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+              />
+            </Button>
+          </>
         )}
       </DropZone>
       <SnackbarAlert
@@ -174,6 +197,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
         message={alertMessage}
         severity={alertSeverity}
         onClose={handleCloseSnackbar}
+        autoHideDuration={4000}
       />
     </>
   );

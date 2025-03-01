@@ -143,8 +143,8 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                 </Box>
 
                 {/* Form Elements */}
-                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    <FormControl required fullWidth sx={{ mb: 4 }}>
+                <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', width: '100%' }}>
+                    <FormControl required fullWidth >
                         <InputLabel id="event-type-select-label">Event Type</InputLabel>
                         <Select
                             labelId="event-type-select-label"
@@ -165,7 +165,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
 
                     {/* Conditionally render Volunteer Hours input */}
                     {eventType === "Volunteer Event" && (
-                        <Container disableGutters sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <Container disableGutters sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
                             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, justifyContent: 'space-evenly' }}>
                                 <FormControl required sx={{ flex: 1 }} >
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -199,7 +199,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, justifyContent: 'space-evenly' }}>
                                     <Typography variant="h6" sx={{ flex: 1 }}>
-                                        Selected Members
+                                        Selected Members: {selectedMembers.length}
                                     </Typography>
                                     <FormControl required fullWidth sx={{ flex: 1 }}>
                                         {/* Autocomplete for Member Selection */}
@@ -233,7 +233,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                             {selectedMembers.length === 0 ? (
                                                 <TableRow>
                                                     <TableCell colSpan={4}>
-                                                        <Skeleton variant="rectangular" height={40} />
+                                                        <Skeleton variant="rectangular" height={40} sx={{bgcolor: '#e3f2fd'}}/>
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (

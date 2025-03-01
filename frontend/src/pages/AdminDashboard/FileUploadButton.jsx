@@ -100,6 +100,10 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
       showAlert('No file selected', 'error');
       return;
     }
+    if (!eventType) {
+      showAlert('No event type selected', 'error');
+      return;
+    }
     setIsUploading(true);
     const formData = new FormData();
     formData.append('csv_file', file);
@@ -117,7 +121,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           showAlert(msg, 'error');
         } else {
           showAlert(
-            'Successfully uploaded file: ' + data.file.originalname + '. You can upload another file or close the modal.',
+            'Successfully uploaded file: ' + data.file.originalname,
             'success'
           );
           onUploadSuccess?.();

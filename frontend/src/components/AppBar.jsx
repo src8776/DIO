@@ -13,8 +13,6 @@ import {
     Brightness7
 } from "@mui/icons-material";
 
-
-// TODO: Add NavColumn links to this component in mobile view (hamburger menu) ONLY IF USER IS ADMIN
 // TODO: Implement logout button
 
 const drawerWidth = 240;

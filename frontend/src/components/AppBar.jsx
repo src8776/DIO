@@ -21,16 +21,16 @@ const drawerWidth = 240;
 const navItems = [];
 
 //toggleTheme and mode defined in App.jsx
-export default function DrawerAppBar({ toggleTheme, mode}) {
+export default function DrawerAppBar({ toggleTheme, mode }) {
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [drawerAnchorEl, setDrawerAnchorEl] = React.useState(null);
     const [appBarAnchorEl, setAppBarAnchorEl] = React.useState(null);
-    
+
     // Get current location to determine orgType
     const location = useLocation();
     const match = location.pathname.match(/^\/admin\/([^\/]+)/);
     const orgType = match ? match[1] : null;
-    
+
     // Define admin navigation items only if orgType is present
     const adminNavItems = orgType ? [
         { name: "Member Database", path: `/admin/${orgType}` },
@@ -99,6 +99,7 @@ export default function DrawerAppBar({ toggleTheme, mode}) {
                             <Link
                                 to={item.path}
                                 style={{ textDecoration: 'none', color: 'inherit' }}
+                                onClick={handleDrawerToggle}
                             >
                                 {item.name}
                             </Link>

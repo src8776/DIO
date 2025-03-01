@@ -21,7 +21,6 @@ export default function ClubCard({ orgID }) {
                 .then(response => response.json())
                 .then(data => setMemberStatus(data.status))
                 .catch(error => console.error('Error fetching data for MemberName:', error));
-                console.log(memberStatus);
         }, [memberID]);
 
     const orgType = orgID === 1 ? 'wic' : orgID === 2 ? 'coms' : orgID.toLowerCase(); // "wic" or "coms"
@@ -67,9 +66,7 @@ export default function ClubCard({ orgID }) {
                     <Typography sx={{ color: "text.secondary" }}>
                         Admin
                     </Typography>
-                    {/* TODO: Make this say active/inactive based on member status */}
                     <Typography
-
                         sx={{
                             fontWeight: 'bold',
                             color: memberStatus === 'Inactive' ? 'red' : memberStatus ? 'green' : 'system'

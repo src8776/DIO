@@ -47,7 +47,7 @@ export default function VerticalNavTabs({ pageTitle, orgType, sx }) {
           sx={{
             borderLeft: 1, borderColor: 'divider', width: "200px",
             '& .MuiTabs-indicator': {
-              left: 0,           // Move indicator to the left edge
+              left: 0,
               right: 'auto'
             },
           }}

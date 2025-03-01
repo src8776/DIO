@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { TableRow, TableCell, Checkbox, Grow } from '@mui/material';
+import React from "react";
+import { TableRow, TableCell, Checkbox } from '@mui/material';
 import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
 
 
@@ -30,7 +30,6 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
             .then(response => response.json())
             .then(data => setMemberStatus(data.status))
             .catch(error => console.error('Error fetching data for MemberName:', error));
-        console.log(memberStatus);
     }, [row.MemberID]);
 
     return (

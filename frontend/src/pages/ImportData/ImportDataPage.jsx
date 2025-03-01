@@ -26,15 +26,16 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    bgcolor: 'background.paper',
-    boxShadow: 24,
+    bgcolor: 'rgba(255, 255, 255)', // Semi-transparent white for frosted effect
+    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', // Soft shadow for depth
+    border: '1px solid rgba(255, 255, 255, 0.18)', // Subtle border
     p: 4,
     height: 'auto',
     overflow: 'auto',
     maxHeight: '90%',
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
-};
+  };
 
 export default function ImportDataPage({ onUploadSuccess, onClose }) {
     const { org } = useParams(); //"wic" or "coms"
@@ -131,7 +132,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
 
     return (
         <Container >
-            <Paper elevation={1} sx={style}>
+            <Paper elevation={0} sx={style}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                     <Typography variant="h5">
                         Data Import Form
@@ -214,6 +215,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                             }}
                                             renderInput={(params) => <TextField {...params} label="Add Member" />}
                                             isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
+                                            disabled={!volunteerHours} 
                                         />
                                     </FormControl>
 
@@ -222,10 +224,10 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                     <Table stickyHeader>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Member</TableCell>
-                                                <TableCell>Date</TableCell>
-                                                <TableCell>Hours</TableCell>
-                                                <TableCell align="center">Remove</TableCell>
+                                                <TableCell sx={{ fontWeight: 600 }}>Member</TableCell>
+                                                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                                                <TableCell sx={{ fontWeight: 600 }}>Hours</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 600 }}>Remove</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>

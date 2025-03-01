@@ -19,18 +19,17 @@ const style = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'left',
-    gap: 3,
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    bgcolor: 'rgba(255, 255, 255, 0.85)',
-    backdropFilter: 'blur(10px)',
-    boxShadow: 24,
+    bgcolor: 'rgba(235, 235, 235)', 
+    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', 
+    border: '1px solid rgba(255, 255, 255, 0.18)', 
     width: { xs: '90%', sm: '500px', md: '900px' },
     maxWidth: '100%',
-    maxHeight: '90%',
-};
+    maxHeight: '95%',
+  };
 
 // Helper function to generate rule descriptions
 function generateRuleDescription(rule, ruleType) {
@@ -186,7 +185,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     </Box>
 
                     {/* Member Overview Container */}
-                    <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 3, p: 2, mb: 2 }}>
+                    <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 2, p: 2, mb: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                             <PeopleAltIcon />
                             <Typography variant="h5">Member Metrics</Typography>
@@ -222,7 +221,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                         {/* Active Path */}
-                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', borderRadius: 3, p: 2 }}>
+                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', borderRadius: 2, p: 2 }}>
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
                                     <RouteIcon />
@@ -269,7 +268,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                         </Paper>
 
                         {/* Attendance History Container */}
-                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '45%' }, height: '390px', borderRadius: 3, p: 2 }}>
+                        <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '45%' }, height: '390px', borderRadius: 2, p: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                 <EventAvailableIcon />
                                 <Typography variant="h5">Attendance History</Typography>
@@ -278,8 +277,8 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                 <Table stickyHeader>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Event</TableCell>
-                                            <TableCell>Date</TableCell>
+                                            <TableCell sx={{ fontWeight: 600 }}>Event</TableCell>
+                                            <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>

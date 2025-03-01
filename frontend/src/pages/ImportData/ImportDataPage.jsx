@@ -106,8 +106,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                     showAlert(msg, 'error');
                 } else {
                     showAlert('Successfully uploaded volunteer hours', 'success');
-                    if (onUploadSuccess) onUploadSuccess();
-                    if (onClose) onClose();
+                    onUploadSuccess?.();
                 }
             })
             .catch((error) => {

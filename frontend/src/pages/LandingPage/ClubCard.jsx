@@ -93,6 +93,7 @@ export default function ClubCard({ orgID }) {
                     </Box>
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}
+                {/* Need to grab orgType from organizations table 'abbreviation' field... tolowercase?  */}
                 <Button component={Link} to={`/admin/${orgType}`} variant="contained">
                     Admin Dashboard
                 </Button>

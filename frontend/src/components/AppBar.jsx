@@ -1,16 +1,16 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
-  AppBar, Box, CssBaseline,
-  Divider, Drawer, List,
-  ListItem, ListItemButton, MenuItem, 
-  Menu, Toolbar, Typography,IconButton,
+    AppBar, Box, CssBaseline,
+    Divider, Drawer, List,
+    ListItem, ListItemButton, MenuItem,
+    Menu, Toolbar, Typography, IconButton,
 } from "@mui/material";
-import { 
-  Menu as MenuIcon, 
-  AccountCircle, 
-  Brightness4, 
-  Brightness7 
+import {
+    Menu as MenuIcon,
+    AccountCircle,
+    Brightness4,
+    Brightness7
 } from "@mui/icons-material";
 
 
@@ -19,74 +19,151 @@ import {
 
 const drawerWidth = 240;
 
-// Links for the navigation bar
-const navItems = [
-    // { name: 'Home', path: '/' },
-    // { name: 'Admin Dashboard', path: '/admin' },
-    // { name: 'Account Setup', path: '/acctSetup' },
-    // { name: 'Member Details', path: '/memberDetails' },
-    // { name: 'Organization Setup', path: '/organizationSetup' },
-    // { name: 'Add New Member', path: '/addMember'}
-
-];
+// Links for general navigation (currently empty, but can be populated if needed)
+const navItems = [];
 
 //toggleTheme and mode defined in App.jsx
-export default function DrawerAppBar({ toggleTheme, mode }) {
+export default function DrawerAppBar({ toggleTheme, mode}) {
     const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [drawerAnchorEl, setDrawerAnchorEl] = React.useState(null);
+    const [appBarAnchorEl, setAppBarAnchorEl] = React.useState(null);
+    
+    // Get current location to determine orgType
+    const location = useLocation();
+    const match = location.pathname.match(/^\/admin\/([^\/]+)/);
+    const orgType = match ? match[1] : null;
+    
+    // Define admin navigation items only if orgType is present
+    const adminNavItems = orgType ? [
+        { name: "Member Database", path: `/admin/${orgType}` },
+        { name: "Officers", path: `/admin/${orgType}/officersList` },
+        { name: "Organization Setup", path: `/admin/${orgType}/organizationSetup` },
+    ] : [];
 
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
 
-    const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleDrawerMenu = (event) => {
+        setDrawerAnchorEl(event.currentTarget);
     };
 
-    const handleClose = () => {
-        setAnchorEl(null);
+    const handleAppBarMenu = (event) => {
+        setAppBarAnchorEl(event.currentTarget);
+    };
+
+    const handleDrawerClose = () => {
+        setDrawerAnchorEl(null);
+    };
+
+    const handleAppBarClose = () => {
+        setAppBarAnchorEl(null);
     };
 
     const handleLogout = async () => {
         try {
-          const response = await fetch('/saml2/logout', {
-            method: 'GET',
-            credentials: 'include',
-          });
-          if (response.ok) {
-            window.location.href = '/';
-          } else {
-            console.error("Logout failed");
-          }
+            const response = await fetch('/saml2/logout', {
+                method: 'GET',
+                credentials: 'include',
+            });
+            if (response.ok) {
+                window.location.href = '/';
+            } else {
+                console.error("Logout failed");
+            }
         } catch (error) {
-          console.error("Error logging out:", error);
+            console.error("Error logging out:", error);
         }
-      };
+    };
+
 
     const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            textAlign: 'center'
+        }}>
             <Typography variant="h6" sx={{ my: 2 }}>
-                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link
+                    to="/"
+                    onClick={handleDrawerToggle}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                     RIT | DIO
                 </Link>
             </Typography>
             <Divider />
-            <List>
+            <List sx={{ flexGrow: 1 }}>
                 {navItems.map((item) => (
                     <ListItem key={item.name} disablePadding>
                         <ListItemButton sx={{ textAlign: 'center' }}>
-                            <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <Link
+                                to={item.path}
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
                                 {item.name}
                             </Link>
                         </ListItemButton>
                     </ListItem>
                 ))}
-                <ListItem sx={{ position: 'fixed', bottom: '0' }}>
-                    <IconButton color="inherit" onClick={toggleTheme}>
-                        {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
-                    </IconButton>
-                </ListItem>
+                {/* Admin-specific navigation items for mobile view */}
+                {adminNavItems.map((item) => (
+                    <ListItem key={item.name} disablePadding>
+                        <ListItemButton sx={{ textAlign: 'center' }}>
+                            <Link
+                                to={item.path}
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                onClick={handleDrawerToggle}
+                            >
+                                {item.name}
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                ))}
             </List>
+            <Box sx={{
+                mt: 'auto',
+                pb: 2,
+                display: 'flex',
+                justifyContent: 'space-around',
+                gap: 2
+            }}>
+                <IconButton color="inherit" onClick={toggleTheme}>
+                    {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+                </IconButton>
+                <IconButton
+                    aria-label="account of current user"
+                    aria-controls="drawer-menu"
+                    aria-haspopup="true"
+                    onClick={handleDrawerMenu}
+                    color="inherit"
+                >
+                    <AccountCircle />
+                </IconButton>
+                <Menu
+                    id="drawer-menu"
+                    anchorEl={drawerAnchorEl}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    open={Boolean(drawerAnchorEl)}
+                    onClose={handleDrawerClose}
+                >
+                    <MenuItem component={Link} to={"/acctSetup"} onClick={handleDrawerClose}>
+                        Profile
+                    </MenuItem>
+                    <MenuItem onClick={() => { handleLogout(); handleDrawerClose(); }}>
+                        Log Out
+                    </MenuItem>
+                </Menu>
+            </Box>
         </Box>
     );
 
@@ -127,17 +204,17 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                             <IconButton
                                 size="large"
                                 aria-label="account of current user"
-                                aria-controls="menu-appbar"
+                                aria-controls="appbar-menu"
                                 aria-haspopup="true"
-                                onClick={handleMenu}
+                                onClick={handleAppBarMenu}
                                 color="inherit"
                             >
                                 <AccountCircle />
                             </IconButton>
                             <Menu
                                 sx={{ mt: '45px' }}
-                                id="menu-appbar"
-                                anchorEl={anchorEl}
+                                id="appbar-menu"
+                                anchorEl={appBarAnchorEl}
                                 anchorOrigin={{
                                     vertical: 'top',
                                     horizontal: 'right',
@@ -147,11 +224,15 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                                     vertical: 'top',
                                     horizontal: 'right',
                                 }}
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
+                                open={Boolean(appBarAnchorEl)}
+                                onClose={handleAppBarClose}
                             >
-                                <MenuItem component={Link} to={"/acctSetup"} onClick={handleClose}>Profile</MenuItem>
-                                <MenuItem onClick={() => { handleLogout(); handleClose(); }}>Log Out</MenuItem>
+                                <MenuItem component={Link} to={"/acctSetup"} onClick={handleAppBarClose}>
+                                    Profile
+                                </MenuItem>
+                                <MenuItem onClick={() => { handleLogout(); handleAppBarClose(); }}>
+                                    Log Out
+                                </MenuItem>
                             </Menu>
                         </div>
                     </Box>
@@ -163,17 +244,17 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                     open={mobileOpen}
                     onClose={handleDrawerToggle}
                     ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
+                        keepMounted: true,
                     }}
                     sx={{
                         display: { xs: 'block', md: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        '& .MuiDrawer-paper': { width: drawerWidth },
                     }}
                 >
                     {drawer}
                 </Drawer>
             </Box>
-            <Box component="main" sx={{ p: 0 }}>
+            <Box component="main">
                 <Toolbar />
             </Box>
         </Box>

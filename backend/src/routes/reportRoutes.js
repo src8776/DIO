@@ -7,10 +7,12 @@ router.post('/', async (req, res) => {
     console.log('Received request at /api/admin/report');
     const data = req.body;
     console.log(data);
-    generateReport(res, data);
+    //TODO: Retrieve data from database
+    const members = [];
+    generateReport(res, members);
 });
 
-const generateReport = (res, data) => {
+const generateReport = (res, members) => {
     // Create a new PDF document
     const doc = new PDFDocument();
     res.header('Content-Type', 'application/pdf');
@@ -44,6 +46,7 @@ const generateReport = (res, data) => {
     doc.text('24: 9\n\n');
 
     // List of Members
+    //create a loop to loop through the members array and add them to the pdf
     doc.text('List of Members:', { underline: true });
     doc.text('Full Name               | Status  | Email             | Shirt Size | Pants Size');
     doc.text('Maddie Thompson  | Active | mt2442@rit.edu | Large      | 16');

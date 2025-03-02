@@ -1,4 +1,5 @@
 import React from 'react';
+import dayjs from 'dayjs';
 import { Box, Button, Modal } from "@mui/material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import GenerateReportPage from '../GenerateReport/GenerateReportPage';
@@ -9,7 +10,7 @@ import GenerateReportPage from '../GenerateReport/GenerateReportPage';
 // TODO: Display report preview to user
 // TODO: Implement PDF download of report feature
 
-export default function GenerateReport() {
+export default function GenerateReport(orgID) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -37,10 +38,10 @@ export default function GenerateReport() {
 
   const handleGenerateReport = () => {
     console.log("Generating report with filters:", filters);
-    // TODO: Implement report generation logic
-    //       if start date is null, set to first day of semester
-    //       if end date is null, set to today
+
+    //TODO: fill in the JSON below with the user selection, also add any other fields that are added
     const reportCommand = {
+      orgID: orgID,
       includeFullname: true,
       includeEmail: true,
       includeClothingsize: true,
@@ -48,18 +49,25 @@ export default function GenerateReport() {
       includeInactivestatus: true,
       semester: "Spring 2025"
     }
-    //TODO: Implement backend call to generate report
+
     fetch(`/api/admin/report`, {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/pdf'
       },
       body: JSON.stringify(reportCommand),
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      //TODO: save report
+    .then(response => response.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "report-" + dayjs().format("YYYY-MM-DD HH.mm.ss") + ".pdf"; 
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url); 
     })
     .catch(error => {
       console.log(error);

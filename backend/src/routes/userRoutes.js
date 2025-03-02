@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const passport = require('passport');
 
 
 //TODO: get data from database
@@ -14,14 +14,15 @@ const majors = [
 
 // profile route
 router.get('/profile', (req, res) => {
-  if (!req.user) {
+  if (!req.isAuthenticated()) {
     return res.status(401).json({ message: 'Not authenticated' });
   }
 
   const user = req.user;
+
   const userProfile = {
-    firstName: user.firstname,
-    email: user.lastname,
+    firstName: user.firstName,
+    email: user.email,
     studentYear: user.studentYear || 'Unknown',
     graduationDate: user.graduationDate || 'Unknown',
     major: user.major || 'Unknown',

@@ -54,20 +54,6 @@ function AdminDash() {
       });
   };
 
-  // Fetch organization info
-  React.useEffect(() => {
-    fetch(`/api/organizationInfo/name?organizationID=${orgID}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.length > 0) {
-          setOrgInfo(data[0].Name);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, [orgID]);
-
   // Callback to refresh data after upload
   const handleUploadSuccess = () => {
     fetchData();

@@ -9,14 +9,35 @@ import DataTable from './DataTable';
 function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
-  const orgID = org === 'wic' ? 1 : 2;
+  const [orgID, setOrgID] = React.useState(null);
   const [orgInfo, setOrgInfo] = React.useState(null);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   if (!allowedTypes.includes(org)) {
-    return <Typography variant='h1'>404 page not found</Typography>;
+    return <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>Organization Doesn't Exist</Typography>;
   }
+
+  // Grab oranization ID from the abbreviation value
+  React.useEffect(() => {
+    fetch(`/api/organizationInfo/organizationIDByAbbreviation?abbreviation=${org}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.length > 0) {
+          setOrgID(data[0].OrganizationID);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, [org]);
+
+  // Fetch data on component mount
+  React.useEffect(() => {
+    if (orgID !== null) {
+      fetchData();
+    }
+  }, [orgID]);
 
   // Function to fetch member data
   const fetchData = () => {
@@ -32,11 +53,6 @@ function AdminDash() {
         setIsLoading(false);
       });
   };
-
-  // Fetch data on component mount
-  React.useEffect(() => {
-    fetchData();
-  }, [orgID]);
 
   // Fetch organization info
   React.useEffect(() => {

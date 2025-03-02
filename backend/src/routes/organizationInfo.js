@@ -22,6 +22,31 @@ router.get('/allOrganizationIDs', async (req, res) => {
     }
 });
 
+router.get('/organizationIDByAbbreviation', async (req, res) => {
+    console.log('Received request at /OrganizationInfo/organizationIDByAbbreviation');
+
+    let abbreviation = req.query.abbreviation;
+
+    if (!abbreviation) {
+        return res.status(400).json({ error: 'Missing abbreviation parameter' });
+    }
+
+    try {
+        const query = `
+            SELECT 
+                OrganizationID
+            FROM 
+                Organizations
+            WHERE Abbreviation = ?
+        `;
+        const [rows] = await db.query(query, [abbreviation]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching OrganizationID by Abbreviation:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 router.get('/name', async (req, res) => {
     console.log('Received request at /OrganizationInfo/name');

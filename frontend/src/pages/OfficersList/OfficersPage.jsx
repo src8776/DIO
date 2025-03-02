@@ -21,12 +21,17 @@ const users = [
 
 function OfficersList() {
     const { org } = useParams(); //"wic" or "coms"
+    const allowedTypes = ['wic', 'coms'];
     const orgID = org === 'wic' ? 1 : 2;
+
+    if (!allowedTypes.includes(org)) {
+        return <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>Organization Doesn't Exist</Typography>;
+    }
 
     return (
 
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2  }}>
+            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Typography variant="h5">
                     Admin User List
                 </Typography>

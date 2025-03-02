@@ -17,31 +17,51 @@ import AddEventModal from './AddEventModal';
 
 export default function OrganizationSetup() {
     const { org } = useParams(); //"wic" or "coms"
-    const orgID = org === 'wic' ? 1 : 2;
+    const allowedTypes = ['wic', 'coms'];
+    const [orgID, setOrgID] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const [formOpen, setFormOpen] = React.useState(false);
     const [successMessage, setSuccessMessage] = React.useState(null);
+    const [orgRules, setOrgRules] = React.useState();
+    const [loading, setLoading] = React.useState(true);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const handleFormOpen = () => setFormOpen(true);
     const handleFormClose = () => setFormOpen(false);
 
-    const [orgRules, setOrgRules] = React.useState();
-    const [loading, setLoading] = React.useState(true);
+    if (!allowedTypes.includes(org)) {
+        return <Typography component={Paper} variant='h1' sx={{alignContent: 'center', p: 6, m: 'auto'}}>Organization Doesn't Exist</Typography>;
+    }
+
+    React.useEffect(() => {
+        setLoading(true); // Reset loading state when org changes
+        fetch(`/api/organizationInfo/organizationIDByAbbreviation?abbreviation=${org}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.length > 0) {
+                    setOrgID(data[0].OrganizationID); // Assuming API returns array like [1]
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching orgID:', error);
+            });
+    }, [org]);
 
     // Function to fetch event rules
     const fetchEventRules = React.useCallback(() => {
-        setLoading(true);
-        fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
-            .then(response => response.json())
-            .then(data => {
-                setOrgRules(data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching data for OrganizationRules:', error);
-                setLoading(false);
-            });
+        if (orgID !== null) {
+            setLoading(true);
+            fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setOrgRules(data);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.error('Error fetching data for OrganizationRules:', error);
+                    setLoading(false);
+                });
+        }
     }, [orgID]);
 
     React.useEffect(() => {
@@ -106,7 +126,7 @@ export default function OrganizationSetup() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: 'solid 2px' }}>
                         <Typography variant='h6'>Event Rules</Typography>
                         <Button variant="contained" color="primary" onClick={handleFormOpen}>Add New Event</Button>
-                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules} setSuccessMessage={setSuccessMessage}/>
+                        <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules} setSuccessMessage={setSuccessMessage} />
                     </Box>
                     <List
                         component="nav"

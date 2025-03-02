@@ -92,9 +92,14 @@ if (process.env.NODE_ENV === "production") {
     });
 
     siteRoot.get('/logout', (req, res) => {
-        req.session.destroy();
-        res.redirect(SITE_ROOT);
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error destroying session' });
+            }
+            res.status(200).json({ message: 'Logged out successfully' });
+        });
     });
+    
 }
 
 /*

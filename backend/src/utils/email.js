@@ -2,11 +2,16 @@ const nodemailer = require('nodemailer');
 const OrganizationSetting = require('../models/OrganizationSetting');
 
 const transporter = nodemailer.createTransport({
+    host: "smtp-server.rit.edu",
+    port: 25, 
+    secure: false, // No TLS/SSL
+    /*
     service: 'gmail',
     auth: {
         user: 'dreamteamdiotest@gmail.com', // Replace with DIO gmail
         pass: 'ksrv umhe cgvl dglv'    // Replace with club's App Password (16 digit code from gmail)
     }
+        */
 });
 
 async function sendActiveStatusEmail(organizationID, memberName, memberEmail) {
@@ -26,8 +31,8 @@ async function sendActiveStatusEmail(organizationID, memberName, memberEmail) {
 }
 
 // Testing email function
-// sendActiveStatusEmail(1, 'name', 'youremailhere' )
-//     .then(() => console.log('Test email sent successfully'))
-//     .catch(console.error);
+ sendActiveStatusEmail(1, 'name', 'edb2875@rit.edu' )
+     .then(() => console.log('Test email sent successfully'))
+     .catch(console.error);
 
 module.exports = { transporter, sendActiveStatusEmail };

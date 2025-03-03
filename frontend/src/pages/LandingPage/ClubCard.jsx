@@ -9,7 +9,7 @@ export default function ClubCard({ memberID, orgID }) {
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
-    const [memberRole, setMemberRole] = React.useState('Admin');
+    const [memberRole, setMemberRole] = React.useState('');
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -29,6 +29,16 @@ export default function ClubCard({ memberID, orgID }) {
             .then(data => setMemberStatus(data.status))
             .catch(error => console.error('Error fetching data for MemberName:', error));
     }, [memberID]);
+
+    React.useEffect(() => {
+        if (!memberID) return;
+        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => setMemberRole(data.role))
+            .catch(error => console.error('Error fetching data for MemberName:', error));
+    }, [memberID]);
+
+
 
     // TODO: Store image paths in database
     const comsInfo = {

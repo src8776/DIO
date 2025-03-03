@@ -11,11 +11,11 @@ function LandingPage() {
     const [organizationIDs, setOrganizationIDs] = useState([]);
 
     React.useEffect(() => {
-        fetch(`/api/OrganizationInfo/allOrganizationIDs`)
+        fetch(`/api/organizationInfo/organizationIDsByMemberID?memberID=${memberID}`)
             .then(response => response.json())
             .then(data => setOrganizationIDs(data))
             .catch(error => console.error('Error fetching data for MemberName:', error));
-    }, []);
+    }, [memberID]);
 
 
     return (

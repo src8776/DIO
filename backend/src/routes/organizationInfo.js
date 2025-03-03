@@ -5,7 +5,7 @@ const router = express.Router();
 
 
 router.get('/allOrganizationIDs', async (req, res) => {
-    console.log('Received request at /OrganizationInfo/allOrganizationIDs');
+    console.log('Received request at /organizationInfo/allOrganizationIDs');
 
     try {
         const query = `
@@ -22,8 +22,35 @@ router.get('/allOrganizationIDs', async (req, res) => {
     }
 });
 
+
+router.get('/organizationIDsByMemberID', async (req, res) => {
+    console.log('Received request at /organizationInfo/organizationIDsByMemberID');
+
+    let memberID = parseInt(req.query.memberID, 10);
+
+    if (isNaN(memberID)) {
+        return res.status(400).json({ error: 'Invalid memberID parameter' });
+    }
+
+    try {
+        const query = `
+            SELECT 
+                OrganizationID
+            FROM 
+                OrganizationMembers
+            WHERE MemberID = ?
+        `;
+        const [rows] = await db.query(query, [memberID]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching OrganizationIDs by MemberID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/organizationIDByAbbreviation', async (req, res) => {
-    console.log('Received request at /OrganizationInfo/organizationIDByAbbreviation');
+    console.log('Received request at /organizationInfo/organizationIDByAbbreviation');
 
     let abbreviation = req.query.abbreviation;
 
@@ -75,7 +102,7 @@ router.get('/abbreviationByOrganizationID', async (req, res) => {
 
 
 router.get('/name', async (req, res) => {
-    console.log('Received request at /OrganizationInfo/name');
+    console.log('Received request at /organizationInfo/name');
 
     let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
 
@@ -101,7 +128,7 @@ router.get('/name', async (req, res) => {
 
 
 router.get('/activeRequirement', async (req, res) => {
-    console.log('Received request at /OrganizationInfo/activeRequirement');
+    console.log('Received request at /organizationInfo/activeRequirement');
 
     let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
 
@@ -121,7 +148,7 @@ router.get('/activeRequirement', async (req, res) => {
 
 // endpoint to insert a new ActiveRequirement value
 router.post('/updateActiveRequirement', async (req, res) => {
-    console.log('Received request at /OrganizationInfo/updateActiveRequirement (POST)');
+    console.log('Received request at /organizationInfo/updateActiveRequirement (POST)');
     const { organizationID, activeRequirement, requirementType } = req.body;
     
     if (!organizationID || (!activeRequirement && !requirementType)) {

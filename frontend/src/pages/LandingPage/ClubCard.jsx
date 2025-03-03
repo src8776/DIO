@@ -10,6 +10,7 @@ export default function ClubCard({ orgID }) {
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
+    const [memberRole, setMemberRole] = React.useState('Admin');
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -69,7 +70,7 @@ export default function ClubCard({ orgID }) {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
                     <Typography sx={{ color: "text.secondary" }}>
-                        Admin
+                        {memberRole}
                     </Typography>
                     <Typography
                         sx={{
@@ -96,9 +97,11 @@ export default function ClubCard({ orgID }) {
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}
                 {/* Need to grab orgType from organizations table 'abbreviation' field... tolowercase?  */}
-                <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
-                    Admin Dashboard
-                </Button>
+                {memberRole === 'Admin' &&
+                    <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
+                        Admin Dashboard
+                    </Button>
+                }
             </CardActions>
         </Card>
     );

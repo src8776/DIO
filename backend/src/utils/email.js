@@ -31,8 +31,8 @@ async function sendActiveStatusEmail(organizationID, memberName, memberEmail) {
 }
 
 // Testing email function
- sendActiveStatusEmail(1, 'name', 'edb2875@rit.edu' )
-     .then(() => console.log('Test email sent successfully'))
-     .catch(console.error);
+ //sendActiveStatusEmail(1, 'name', 'edb2875@rit.edu' )
+   //  .then(() => console.log('Test email sent successfully'))
+     //.catch(console.error);
 
 module.exports = { transporter, sendActiveStatusEmail };

@@ -73,7 +73,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
               />
             </Typography>
             <Typography variant="subtitle2" sx={{ mt: .5 }}>
-              {RoleName} • Member ID: {MemberID}
+              {RoleName} • MemberID: {MemberID}
             </Typography>
           </Box>
 

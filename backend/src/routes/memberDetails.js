@@ -37,9 +37,9 @@ router.get('/allDetails', async (req, res) => {
             FROM Members m
             JOIN OrganizationMembers om ON m.MemberID = om.MemberID
             JOIN Roles r ON om.RoleID = r.RoleID
-            WHERE m.MemberID = ?;
+            WHERE m.MemberID = ? AND om.OrganizationID = ?;
         `;
-        const [rows] = await db.query(query, [organizationID, memberID]);
+        const [rows] = await db.query(query, [organizationID, memberID, organizationID]);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Organization Info data:', error);

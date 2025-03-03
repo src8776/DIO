@@ -50,24 +50,24 @@ export function processEventType(events, eventConfig) {
         }
     }
 
-    // Process "minimum threshold hours": for each event (e.g. Volunteer Event) award based on hours.
+    // Process "minimum threshold hours": award based on total hours across all events
     if (rulesByCriteria["minimum threshold hours"]) {
-        // Sort descending by criteriaValue.
+        // Calculate total hours volunteered
+        const totalHours = events.reduce((sum, event) => sum + (event.hours || 0), 0);
+        // Sort rules by threshold in descending order
         const hourRules = rulesByCriteria["minimum threshold hours"]
             .slice()
             .sort((a, b) => b.criteriaValue - a.criteriaValue);
-        events.forEach(event => {
-            const hours = event.hours || 0;
-            for (const rule of hourRules) {
-                if (hours >= rule.criteriaValue) {
-                    points += rule.pointValue;
-                    // If you want to only award the highest applicable bonus, uncomment the next line:
-                    // break;
-                }
+        // Award points for each threshold met
+        for (const rule of hourRules) {
+            if (totalHours >= rule.criteriaValue) {
+                points += rule.pointValue;
+                // If you want to only award the highest applicable bonus, uncomment the next line:
+                // break;
             }
-        });
+        }
     }
-
+    // console.log(points + " points");
     return points;
 }
 

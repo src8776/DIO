@@ -64,18 +64,19 @@ class OrganizationMember {
 
   static async getMemberRole(memberID, organizationID) {
     try {
-        const query = `
-            SELECT Role
+      const query = `
+            SELECT Roles.RoleName
             FROM OrganizationMembers
-            WHERE MemberID = ? AND OrganizationID = ?
+            JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
+            WHERE OrganizationMembers.MemberID = ? AND OrganizationMembers.OrganizationID = ?
         `;
-        const [[result]] = await db.query(query, [memberID, organizationID]);
-        return result?.Role;
+      const [[result]] = await db.query(query, [memberID, organizationID]);
+      return result?.RoleName;
     } catch (error) {
-        console.error('Error fetching member role:', error);
-        throw error;
+      console.error('Error fetching member role:', error);
+      throw error;
     }
-}
+  }
 }
 
 module.exports = OrganizationMember;

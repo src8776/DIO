@@ -83,13 +83,13 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
               {/* Personal Info */}
               <Paper elevation={2} sx={{ flex: 1, p: 2 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>
                   Personal Info
                 </Typography>
-                <Typography variant="body2" sx={{  }}>
+                <Typography variant="body2">
                   <strong>Username:</strong> {UserName}
                 </Typography>
-                <Typography variant="body2" sx={{  }}>
+                <Typography variant="body2">
                   <strong>Email:</strong> {Email}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -104,13 +104,13 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
 
               {/* Academic Info */}
               <Paper elevation={2} sx={{ flex: 1, p: 2 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>
                   Academic Info
                 </Typography>
-                <Typography variant="body2" sx={{  }}>
+                <Typography variant="body2">
                   <strong>Major:</strong> {Major || "N/A"}
                 </Typography>
-                <Typography variant="body2" sx={{  }}>
+                <Typography variant="body2">
                   <strong>Grad Year:</strong> {GraduationYear || "N/A"}
                 </Typography>
                 <Typography variant="body2">
@@ -121,7 +121,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
 
             {/* Attendance History */}
             <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+              <Typography variant="h6">
                 Attendance History
               </Typography>
               <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 200 }}>
@@ -144,7 +144,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
                               <Chip
                                 label={`${record.Hours}h`}
                                 size="small"
-                                sx={{ ml: 1}}
+                                sx={{ ml: 1 }}
                               />
                             )}
                           </TableCell>

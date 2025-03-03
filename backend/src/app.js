@@ -12,16 +12,19 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // Initialize session
-app.use(session({
-    name: 'express-sess',
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
-    store: session.MemoryStore()
-}));
+
 
 if (process.env.NODE_ENV === "production") {
+    //May need to be moved outside of function
+    app.use(session({
+        name: 'express-sess',
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false },
+        store: session.MemoryStore()
+    }));
+
     const passport = require('passport');
     const { defaultSamlStrategy, SP_CERT } = require('./saml.js');
 

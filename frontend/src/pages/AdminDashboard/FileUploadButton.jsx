@@ -23,7 +23,7 @@ const DropZone = styled(Box)(({ isDragging, hasFile }) => ({
   borderRadius: '8px',
   padding: '20px',
   textAlign: 'center',
-  backgroundColor: isDragging ? '#e3f2fd' : '#fafafa',
+  backgroundColor: isDragging ? '#e3f2fd' : 'background.paper',
   transition: 'all 0.3s ease',
   '&:hover': hasFile ? {} : {
     borderColor: '#1976d2',
@@ -152,8 +152,8 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography variant="body1">Selected: <span style={{ color: 'rgb(0, 119, 255)' }}>{file.name}</span></Typography>
               <IconButton size="small" onClick={() => setFile(null)} sx={{
+                color: 'red',
                 '&:hover': {
-                  color: 'red',
                   backgroundColor: 'rgba(255, 0, 0, 0.1)'
                 },
               }}>

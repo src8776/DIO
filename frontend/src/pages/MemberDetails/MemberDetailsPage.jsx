@@ -18,9 +18,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  bgcolor: 'rgba(235, 235, 235)',
-  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', 
-  border: '1px solid rgba(255, 255, 255, 0.18)', 
+  bgcolor: 'background.paper',
   width: { xs: '90%', sm: '500px', md: '600px' },
   maxWidth: '100%',
   maxHeight: '95%',
@@ -67,7 +65,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
         <Box sx={{ overflowY: 'auto', p: 4 }}>
           {/* Header Section */}
           <Box sx={{ mb: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a237e' }}>
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
               {FirstName} {LastName} • <StatusChip
                 label={memberStatus}
                 memberStatus={memberStatus} // Changed from active to memberStatus
@@ -84,14 +82,14 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
             {/* Personal and Academic Info */}
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
               {/* Personal Info */}
-              <Paper elevation={0} sx={{ flex: 1, p: 2 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: '#1976d2' }}>
+              <Paper elevation={2} sx={{ flex: 1, p: 2 }}>
+                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
                   Personal Info
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{  }}>
                   <strong>Username:</strong> {UserName}
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{  }}>
                   <strong>Email:</strong> {Email}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -105,14 +103,14 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
               </Paper>
 
               {/* Academic Info */}
-              <Paper elevation={0} sx={{ flex: 1, p: 2 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: '#1976d2' }}>
+              <Paper elevation={2} sx={{ flex: 1, p: 2 }}>
+                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
                   Academic Info
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{  }}>
                   <strong>Major:</strong> {Major || "N/A"}
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{  }}>
                   <strong>Grad Year:</strong> {GraduationYear || "N/A"}
                 </Typography>
                 <Typography variant="body2">
@@ -122,11 +120,11 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
             </Box>
 
             {/* Attendance History */}
-            <Paper elevation={0} sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 500, color: '#1976d2' }}>
+            <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                 Attendance History
               </Typography>
-              <TableContainer component={Paper} elevation={1} sx={{ maxHeight: 200 }}>
+              <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 200 }}>
                 <Table stickyHeader size="small">
                   <TableHead>
                     <TableRow >
@@ -146,7 +144,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
                               <Chip
                                 label={`${record.Hours}h`}
                                 size="small"
-                                sx={{ ml: 1, bgcolor: '#e3f2fd' }}
+                                sx={{ ml: 1}}
                               />
                             )}
                           </TableCell>

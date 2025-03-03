@@ -48,6 +48,32 @@ router.get('/organizationIDByAbbreviation', async (req, res) => {
 });
 
 
+router.get('/abbreviationByOrganizationID', async (req, res) => {
+    console.log('Received request at /organizationInfo/abbreviationByOrganizationID');
+
+    let organizationID = parseInt(req.query.organizationID, 10);
+
+    if (isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid organizationID parameter' });
+    }
+
+    try {
+        const query = `
+            SELECT 
+                Abbreviation
+            FROM 
+                Organizations
+            WHERE OrganizationID = ?
+        `;
+        const [rows] = await db.query(query, [organizationID]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching Abbreviation by OrganizationID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/name', async (req, res) => {
     console.log('Received request at /OrganizationInfo/name');
 

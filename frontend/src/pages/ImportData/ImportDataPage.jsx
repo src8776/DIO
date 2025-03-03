@@ -26,16 +26,14 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    bgcolor: 'rgba(255, 255, 255)', // Semi-transparent white for frosted effect
-    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', // Soft shadow for depth
-    border: '1px solid rgba(255, 255, 255, 0.18)', // Subtle border
+    bgcolor: 'background.paper',
     p: 4,
     height: 'auto',
     overflow: 'auto',
     maxHeight: '90%',
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
-  };
+};
 
 export default function ImportDataPage({ onUploadSuccess, onClose }) {
     const { org } = useParams(); //"wic" or "coms"
@@ -46,7 +44,6 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
     const [allMembers, setAllMembers] = React.useState([]);
-
     const [alertMessage, setAlertMessage] = React.useState('');
     const [alertSeverity, setAlertSeverity] = React.useState('success');
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -215,7 +212,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                             }}
                                             renderInput={(params) => <TextField {...params} label="Add Member" />}
                                             isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
-                                            disabled={!volunteerHours} 
+                                            disabled={!volunteerHours}
                                         />
                                     </FormControl>
 
@@ -234,7 +231,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                             {selectedMembers.length === 0 ? (
                                                 <TableRow>
                                                     <TableCell colSpan={4}>
-                                                        <Skeleton variant="rectangular" height={40} sx={{bgcolor: '#e3f2fd'}}/>
+                                                        <Skeleton variant="rectangular" height={40} sx={{ bgcolor: '#e3f2fd' }} />
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
@@ -246,8 +243,8 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
                                                         <TableCell align="center">
                                                             <IconButton onClick={() => removeMemberFromList(member.MemberID)}
                                                                 sx={{
+                                                                    color: 'red',
                                                                     '&:hover': {
-                                                                        color: 'red',
                                                                         backgroundColor: 'rgba(255, 0, 0, 0.1)'
                                                                     },
                                                                 }}>

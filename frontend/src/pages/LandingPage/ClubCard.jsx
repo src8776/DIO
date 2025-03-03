@@ -4,28 +4,33 @@ import { Link } from 'react-router-dom';
 import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
 
-// TODO: In this component we care about the user's role and status (active/inactive)
-// TODO: Good got this needs some cleanup TT.TT
 
 export default function ClubCard({ orgID }) {
     const memberID = 16;
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
+    const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-     React.useEffect(() => {
-            if (!memberID) return;
-            fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}`)
-                .then(response => response.json())
-                .then(data => setMemberStatus(data.status))
-                .catch(error => console.error('Error fetching data for MemberName:', error));
-        }, [memberID]);
+    React.useEffect(() => {
+        if (!orgID) return;
+        fetch(`/api/organizationInfo/abbreviationByOrganizationID?organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => setOrgAbbreviation(data[0].Abbreviation))
+            .catch(error => console.error('Error fetching data for MemberName:', error));
+    }, [orgID]);
 
-    const orgType = orgID === 1 ? 'wic' : orgID === 2 ? 'coms' : orgID.toLowerCase(); // "wic" or "coms"
-    // store club data up here for maintainability
-    // this could also eventually be stored in the database??? 
+    React.useEffect(() => {
+        if (!memberID) return;
+        fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => setMemberStatus(data.status))
+            .catch(error => console.error('Error fetching data for MemberName:', error));
+    }, [memberID]);
+
+    // TODO: Store image paths in database
     const comsInfo = {
         image: "/COMS.png",
         imageFit: "contain",
@@ -91,7 +96,7 @@ export default function ClubCard({ orgID }) {
                 </Modal>
                 {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}
                 {/* Need to grab orgType from organizations table 'abbreviation' field... tolowercase?  */}
-                <Button component={Link} to={`/admin/${orgType}`} variant="contained">
+                <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
                     Admin Dashboard
                 </Button>
             </CardActions>

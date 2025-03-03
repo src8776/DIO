@@ -7,7 +7,7 @@ import AddClubCard from "./AddClubCard";
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
 
 function LandingPage() {
-    const [memberID, setMemberID] = useState(null);
+    const [memberID, setMemberID] = useState(16);
     const [organizationIDs, setOrganizationIDs] = useState([]);
 
     React.useEffect(() => {

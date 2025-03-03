@@ -5,8 +5,7 @@ import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
 
 
-export default function ClubCard({ orgID }) {
-    const memberID = 16;
+export default function ClubCard({ memberID, orgID }) {
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
@@ -61,7 +60,7 @@ export default function ClubCard({ orgID }) {
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between', borderTop: "1px solid #f0f0f0", }}>
                 <Box>
                     <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                        {orgID === 2 ? 'COMS' : 'WiC'}
+                        {orgAbbreviation.toUpperCase()}
                     </Typography>
                     <Typography variant="h5">
                         {clubInfo.title}
@@ -95,8 +94,6 @@ export default function ClubCard({ orgID }) {
                         />
                     </Box>
                 </Modal>
-                {/* IF USER IS ADMIN, SHOW THIS BUTTON, ELSE DO NOOOOOOOOOOOOT SHOW THIS BUTTON !@!!!! */}
-                {/* Need to grab orgType from organizations table 'abbreviation' field... tolowercase?  */}
                 {memberRole === 'Admin' &&
                     <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
                         Admin Dashboard

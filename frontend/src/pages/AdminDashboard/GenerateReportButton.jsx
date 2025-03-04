@@ -47,6 +47,7 @@ export default function GenerateReport(orgID) {
       includeClothingsize: true,
       includeActivestatus: true,
       includeInactivestatus: true,
+      includeGraduationYear: true, // Lenn added this 
       semester: "Spring 2025"
     }
 

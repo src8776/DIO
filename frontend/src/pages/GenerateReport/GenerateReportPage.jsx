@@ -36,7 +36,29 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
           Quick Report Form
         </Typography>
         <Divider />
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <FormGroup sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.includeActivestatus}
+                onChange={handleFilterChange}
+                name="includeActiveStatus"
+              />
+            }
+            label="Active Members"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.includeInactivestatus}
+                onChange={handleFilterChange}
+                name="includeInactiveStatus"
+              />
+            }
+            label="Inactive Members"
+          />
+        </FormGroup>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box>
             <Typography variant="h6">
               Personal Information
@@ -79,26 +101,16 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
             <Typography variant="h6">
               Academic Information
             </Typography>
-            <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
+            <FormGroup>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={filters.includeActivestatus}
+                    checked={filters.includeGraduationYear}
                     onChange={handleFilterChange}
-                    name="includeActiveStatus"
+                    name="includeGraduationYear"
                   />
                 }
-                label="Active Status"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeInactivestatus}
-                    onChange={handleFilterChange}
-                    name="includeInactiveStatus"
-                  />
-                }
-                label="Inactive Status"
+                label="Graduation Year"
               />
             </FormGroup>
           </Box>

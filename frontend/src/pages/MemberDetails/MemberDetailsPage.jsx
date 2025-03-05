@@ -62,7 +62,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
   return (
     <Container>
       <Paper sx={style}>
-        <Box sx={{ overflowY: 'auto', p: 4 }}>
+        <Box sx={{ overflowY: 'auto', p: 2 }}>
           {/* Header Section */}
           <Box sx={{ mb: 2 }}>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -80,7 +80,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
           {/* Main Content */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {/* Personal and Academic Info */}
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
               {/* Personal Info */}
               <Paper elevation={2} sx={{ flex: 1, p: 2 }}>
                 <Typography variant="h6" sx={{ mb: 1 }}>
@@ -92,7 +92,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
                 <Typography variant="body2">
                   <strong>Email:</strong> {Email}
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
                   <Typography variant="body2">
                     <strong>Shirt Size:</strong> n/a
                   </Typography>

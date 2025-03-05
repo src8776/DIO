@@ -40,6 +40,7 @@ export default function AddMemberModal() {
         onClick={handleOpen}
         variant="contained"
         startIcon={<AddIcon />}
+        sx={{maxWidth: '280px'}}
       >
         Add Member
       </Button>

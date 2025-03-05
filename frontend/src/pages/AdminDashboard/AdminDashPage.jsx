@@ -102,8 +102,8 @@ function AdminDash() {
         </Box>
 
         {/* User Action Buttons */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <UploadFileModal onUploadSuccess={handleUploadSuccess} />
             <GenerateReportButton orgID={orgID} />
           </Box>

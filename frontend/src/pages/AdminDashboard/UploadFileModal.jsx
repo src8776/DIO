@@ -14,6 +14,7 @@ export default function UploadAttendanceModal({ onUploadSuccess }) {
         onClick={handleOpen}
         variant="contained"
         startIcon={<CloudUploadIcon />}
+        sx={{maxWidth: '280px'}}
       >
         Upload Attendance Data
       </Button>

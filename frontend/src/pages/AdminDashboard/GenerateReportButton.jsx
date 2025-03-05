@@ -84,6 +84,7 @@ export default function GenerateReport(orgID) {
         onClick={handleOpen}
         variant="contained"
         startIcon={<EditNoteIcon />}
+        sx={{maxWidth: '280px'}}
       >
         Quick Report
 

@@ -254,7 +254,7 @@ export default function DataTable({ orgID, memberData, isLoading }) {
         <Paper sx={{ width: '100%' }}>
             <EnhancedTableToolbar numSelected={selected.length} handleSearchChange={handleSearchChange} />
             <TableContainer sx={{ maxHeight: '450px' }}>
-                <Table stickyHeader sx={{ minWidth: 750, overflowY: 'auto' }} aria-labelledby="member-data-table">
+                <Table stickyHeader sx={{ minWidth: 800, overflowY: 'auto' }} aria-labelledby="member-data-table">
                     <EnhancedTableHead
                         numSelected={selected.length}
                         order={order}

@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { Box, Container, Paper, Typography } from '@mui/material';
+import {
+  Box, Container, Paper,
+  Typography, Select, MenuItem
+} from '@mui/material';
 import { useParams } from 'react-router-dom';
 import GenerateReportButton from './GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
@@ -10,7 +13,7 @@ function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
-  const [orgInfo, setOrgInfo] = React.useState(null);
+  const [semester, setSemester] = React.useState('Spring 2025');
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -59,6 +62,10 @@ function AdminDash() {
     fetchData();
   };
 
+  const handleSemesterChange = (event) => {
+    setSemester(event.target.value);
+  };
+
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
@@ -76,8 +83,22 @@ function AdminDash() {
               {org ? org.toUpperCase() : "Loading..."}
             </Typography>
           </Box>
-          {/* TODO: Reflect current semester, need to figure out this system */}
-          <Typography>Spring Semester, 2025</Typography>
+          {/* Semester Select */}
+          <Select
+            value={semester}
+            onChange={handleSemesterChange}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Select Semester' }}
+            size='small'
+            sx={{ width: 150 }}
+          >
+            <MenuItem value="Fall 2024">Fall 2024</MenuItem>
+            <MenuItem value="Spring 2024">Spring 2024</MenuItem>
+            <MenuItem value="Spring 2025">Spring 2025</MenuItem>
+            <MenuItem value="Fall 2025">Fall 2025</MenuItem>
+            <MenuItem value="Spring 2026">Spring 2026</MenuItem>
+            <MenuItem value="Fall 2026">Fall 2026</MenuItem>
+          </Select>
         </Box>
 
         {/* User Action Buttons */}

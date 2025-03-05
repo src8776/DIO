@@ -1,13 +1,15 @@
 import { Outlet, useParams } from 'react-router-dom';
-import VerticalNavTabs from './TabColumn';
+import HorizontalNavTabs from './TabRow';
 import { Container } from '@mui/material';
 
 const AdminLayout = () => {
     const { org } = useParams();
 
     return (
-        <Container sx={{ display: 'flex' }}>
-            <VerticalNavTabs pageTitle={"Admin Tabs"} orgType={org} sx={{ display: { xs: "none", sm: "block" } }} />
+        <Container>
+            <HorizontalNavTabs
+                orgType={org}
+            />
             <Outlet />
         </Container>
     );

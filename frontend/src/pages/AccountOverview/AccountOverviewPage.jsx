@@ -69,7 +69,7 @@ function generateRuleDescription(rule, ruleType) {
  * @param {string} requirementType - 'points' or 'criteria'.
  * @returns {Object} Progress metrics including points, attendance, and rule details.
  */
-function calculateProgress(eventType, rules, occurrenceTotal, userAttendance, requirementType) {
+function calculateProgress(eventType, rules, occurrenceTotal, userAttendance, requirementType, maxPoints) {
     const safeAttendance = Array.isArray(userAttendance) ? userAttendance : [];
     const attendedEvents = safeAttendance.filter(event => event.eventType === eventType);
     const attendedCount = attendedEvents.length;
@@ -125,7 +125,13 @@ function calculateProgress(eventType, rules, occurrenceTotal, userAttendance, re
         };
     });
 
-    return { attended: attendedCount, total: safeOccurrenceTotal, points, progressDetails, totalHours };
+    // Apply the maxPoints cap if it exists
+    const uncappedPoints = points;
+    if (maxPoints !== null) {
+        points = Math.min(points, maxPoints);
+    }
+
+    return { attended: attendedCount, total: safeOccurrenceTotal, uncappedPoints, points, progressDetails, totalHours };
 };
 
 
@@ -176,7 +182,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
         if (!orgRules?.eventTypes) return [];
         return orgRules.eventTypes
             .map(eventType => {
-                const progress = calculateProgress(eventType.name, eventType.rules, eventType.occurrenceTotal, safeUserAttendance, requirementType);
+                const progress = calculateProgress(eventType.name, eventType.rules, eventType.occurrenceTotal, safeUserAttendance, requirementType, eventType.maxPoints);
                 // Compute the highest achieved tier for "minimum threshold hours" rules
                 const metHourRules = progress.progressDetails.filter(
                     detail => detail.criteria === "minimum threshold hours" && detail.isMet
@@ -216,6 +222,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     {/* Path and Past Events Container */}
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
                         <ActivePath
+                            statusObject={statusObject}
                             progressByType={progressByType}
                             loading={loading}
                             requirementType={requirementType}

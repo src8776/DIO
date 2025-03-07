@@ -1,8 +1,14 @@
 import * as React from 'react';
-import { Box, Button, Container, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableHead, TextField, Typography } from '@mui/material';
+import {
+    Box, Button, Container,
+    FormControl, IconButton,
+    InputLabel, MenuItem, Paper,
+    Select, Table, TableBody, TableCell,
+    TableHead, TextField, Typography
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
-const style = {
+const modalStyle = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -97,7 +103,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
 
     return (
         <Container >
-            <Paper elevation={1} sx={style}>
+            <Paper elevation={1} sx={modalStyle}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                     <Typography variant="h5">
                         'Active' status requirements
@@ -168,7 +174,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                                 <> "earn at least 18 points to become active"</>
                             )}
                         </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt:2, gap: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
                             <Button variant="contained" color="primary" onClick={handleSave}>
                                 Save
                             </Button>
@@ -179,9 +185,6 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                     </Box>
                 )}
             </Paper>
-
-
         </Container>
-
     )
 };

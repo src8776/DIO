@@ -3,8 +3,6 @@ import { Box, ListItemButton, ListItemText, Modal } from '@mui/material';
 import EventItemRules from './EventItemRules';
 
 
-
-
 export default function RuleListItem({ name, rules, ruleType, orgID, occurrenceTotal, eventTypeID }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);

@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
+// TODO: Add Race & Gender fields (text fields or select?)
 
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {

@@ -14,7 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 
-const style = {
+const modalStyle = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -44,13 +44,10 @@ function generateRuleDescription(rule, ruleType) {
                     const percentage = criteriaValue * 100;
                     return `attend at least ${percentage}% of events`;
                 }
-
                 case 'one off': {
                     return `attend at least one event`;
                 }
-
             }
-
         case 'Points':
             switch (criteria) {
                 case 'attendance':
@@ -219,7 +216,7 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
 
     return (
         <Container>
-            <Paper elevation={1} sx={style}>
+            <Paper elevation={1} sx={modalStyle}>
                 <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Typography variant="h5" gutterBottom>
                         {name}

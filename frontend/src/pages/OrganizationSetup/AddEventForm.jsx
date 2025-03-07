@@ -6,7 +6,7 @@ const trackingTypes = [
     { value: 'Attendance', label: 'Attendance' },
 ];
 
-const style = {
+const modalStyle = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -60,7 +60,7 @@ export default function AddEventForm({ onClose, orgID, refetchEventRules, setSuc
     };
 
     return (
-        <Paper elevation={1} sx={style}>
+        <Paper elevation={1} sx={modalStyle}>
             <Box component={'form'} sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
                 <Typography variant="h6">Add New Event</Typography>
                 <Box>

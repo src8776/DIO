@@ -34,6 +34,7 @@ class EventRule {
                     eventTypeID: eventTypeID,
                     name: row.EventType,
                     ruleType: row.RuleType,
+                    maxPoints: row.MaxPoints,
                     occurrenceTotal: row.OccurrenceTotal,
                     rules: []
                 };

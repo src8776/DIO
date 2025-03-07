@@ -17,8 +17,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 const modalStyle = {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    gap: 3,
+    alignItems: 'left',
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -72,7 +71,7 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, orgID, occurrenceTotal, eventTypeID }) {
+export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID }) {
     const [open, setOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [requirementType, setRequirementType] = React.useState('');
@@ -221,37 +220,43 @@ export default function EventItemRules({ name, rules, ruleType, orgID, occurrenc
                     <Typography variant="h5" gutterBottom>
                         {name}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {editOccurrences ? (
-                            <>
-                                <TextField
-                                    label="Total Occurrences"
-                                    value={newOccurrenceTotal}
-                                    onChange={(e) => setNewOccurrenceTotal(e.target.value)}
-                                    size="small"
-                                    error={!!occurrenceError}
-                                    helperText={occurrenceError}
-                                    sx={{}}
-                                />
-                                <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
-                                    <SaveIcon />
-                                </IconButton>
-                                <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
-                                    <CancelIcon />
-                                </IconButton>
-                            </>
-                        ) : (
-                            <>
-                                <Typography>
-                                    Total Occurrences: {currentOccurrenceTotal}
-                                </Typography>
-                                <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
-                                    <EditIcon />
-                                </IconButton>
-                            </>
-                        )}
-                    </Box>
                 </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {editOccurrences ? (
+                        <>
+                            <TextField
+                                label="Total Occurrences"
+                                value={newOccurrenceTotal}
+                                onChange={(e) => setNewOccurrenceTotal(e.target.value)}
+                                size="small"
+                                error={!!occurrenceError}
+                                helperText={occurrenceError}
+                                sx={{}}
+                            />
+                            <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
+                                <SaveIcon />
+                            </IconButton>
+                            <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
+                                <CancelIcon />
+                            </IconButton>
+                        </>
+                    ) : (
+                        <>
+                            <Typography>
+                                Occurences Per Semester: {currentOccurrenceTotal}
+                            </Typography>
+                            <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
+                                <EditIcon />
+                            </IconButton>
+                        </>
+                    )}
+                </Box>
+                {/* display max points if it exists (not null) */}
+                {maxPoints !== null && (
+                    <Typography sx={{ pb: 1 }}>
+                        Max Points: {maxPoints}
+                    </Typography>
+                )}
                 <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
                     <Table>
                         <TableHead>

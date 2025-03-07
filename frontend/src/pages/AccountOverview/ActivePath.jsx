@@ -33,7 +33,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                             <React.Fragment key={index}>
                                 <ListItem sx={{ justifyContent: 'space-between', py: 1 }}>
                                     <Typography variant="h6">{eventType.name}s</Typography>
-                                    <Typography>{eventType.progress.attended}/{eventType.progress.total} attended</Typography>
+                                    <Typography>{eventType.progress?.progressDetails[0]?.progress || '0/0'} attended</Typography>
                                 </ListItem>
                                 {eventType.progress.progressDetails.map((rule, ruleIndex) => (
                                     <ListItem key={ruleIndex} sx={{ justifyContent: 'space-between', py: 0.5 }}>
@@ -52,7 +52,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                                                     rule.isMet ? <DoneIcon sx={{ color: 'green' }} /> : <CloseIcon sx={{ color: '#757575' }} />
                                                 )}
                                             </Box>
-                                            <Typography>{rule.description} </Typography>
+                                            <Typography> {rule.description} </Typography>
                                         </Box>
 
                                         {rule.criteria === "minimum threshold hours" && rule.isMet && rule.criteriaValue === eventType.highestAchievedTier ? (

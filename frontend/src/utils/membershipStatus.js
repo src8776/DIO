@@ -67,6 +67,12 @@ export function processEventType(events, eventConfig) {
             }
         }
     }
+
+    // Apply the maxPoints cap if defined.
+    if (eventConfig.maxPoints !== null) {
+        points = Math.min(points, eventConfig.maxPoints);
+    }
+    
     // console.log(points + " points");
     return points;
 }

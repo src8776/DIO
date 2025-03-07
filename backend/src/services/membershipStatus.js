@@ -62,6 +62,8 @@ const processEventType = (events, eventConfig) => {
         for (const rule of hourRules) {
             if (totalHours >= rule.criteriaValue) {
                 points += rule.pointValue;
+                // If you want to only award the highest applicable bonus, uncomment the next line:
+                break;
             }
         }
     }

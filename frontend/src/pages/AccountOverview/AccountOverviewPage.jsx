@@ -10,6 +10,8 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import RouteIcon from '@mui/icons-material/Route';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
+import CircleIcon from '@mui/icons-material/Circle';
+import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 
 // We are continuing to use the frontend calculation here 
 // as a sort of validation against the backend calculation and db storage
@@ -23,11 +25,11 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    bgcolor: 'background.paper', 
+    bgcolor: 'background.paper',
     width: { xs: '90%', sm: '500px', md: '900px' },
     maxWidth: '100%',
     maxHeight: '95%',
-  };
+};
 
 // Helper function to generate rule descriptions
 function generateRuleDescription(rule, ruleType) {
@@ -110,7 +112,9 @@ const calculateProgress = (eventType, rules, occurrenceTotal, userAttendance, re
             description: description || `+${pointValue} point for ${criteria}`,
             value: pointValue,
             isMet,
-            progress
+            progress,
+            criteria,
+            criteriaValue
         };
     });
 
@@ -119,7 +123,7 @@ const calculateProgress = (eventType, rules, occurrenceTotal, userAttendance, re
         total: safeOccurrenceTotal,
         points,
         progressDetails,
-        totalHours // Include for volunteer events if needed
+        totalHours
     };
 };
 
@@ -153,11 +157,21 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
 
     const progressByType = React.useMemo(() => {
         if (!orgRules?.eventTypes) return [];
-        return orgRules.eventTypes.map(eventType => ({
-            ...eventType,
-            progress: calculateProgress(eventType.name, eventType.rules, eventType.occurrenceTotal, safeUserAttendance, requirementType)
-        }))
-            .filter(eventType => eventType.rules && eventType.rules.length > 0); // Filter out event types without rules
+        return orgRules.eventTypes.map(eventType => {
+            const progress = calculateProgress(eventType.name, eventType.rules, eventType.occurrenceTotal, safeUserAttendance, requirementType);
+            // Compute the highest achieved tier for "minimum threshold hours" rules
+            const metHourRules = progress.progressDetails.filter(
+                detail => detail.criteria === "minimum threshold hours" && detail.isMet
+            );
+            const highestAchievedTier = metHourRules.length > 0
+                ? Math.max(...metHourRules.map(detail => detail.criteriaValue))
+                : null;
+            return {
+                ...eventType,
+                progress,
+                highestAchievedTier
+            };
+        }).filter(eventType => eventType.rules && eventType.rules.length > 0); // Filter out event types without rules
     }, [orgRules, safeUserAttendance, requirementType]);
 
     return (
@@ -225,7 +239,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                     <RouteIcon />
                                     <Typography variant="h5">Active Path</Typography>
                                 </Box>
-                                <Typography variant="h7" sx={{ ml: 4, mb: 1}}>
+                                <Typography variant="h7" sx={{ ml: 4, mb: 1 }}>
                                     {requirementType === 'points' ? `earn ${activeRequirement} points by attending events` : `meet ${activeRequirement} criteria by attending events`}
                                 </Typography>
                             </Box>
@@ -247,11 +261,33 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                                 {eventType.progress?.progressDetails.map((rule, ruleIndex) => (
                                                     <ListItem key={ruleIndex} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                            {rule.isMet ? <DoneIcon sx={{ color: 'green' }} /> : <CloseIcon sx={{ color: '#757575' }} />}
+                                                            <Box sx={{ width: 24, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                                                                {rule.criteria === "minimum threshold hours" ? (
+                                                                    rule.isMet && rule.criteriaValue === eventType.highestAchievedTier ? (
+                                                                        <DoneIcon sx={{ color: 'green' }} />
+                                                                    ) : rule.isMet ? (
+                                                                        <HorizontalRuleIcon sx={{ color: 'green', fontSize: 'small' }} />
+                                                                    ) : (
+                                                                        <CloseIcon sx={{ color: '#757575' }} />
+                                                                    )
+
+                                                                ) : (
+                                                                    rule.isMet ? <DoneIcon sx={{ color: 'green' }} /> : <CloseIcon sx={{ color: '#757575' }} />
+                                                                )}
+                                                            </Box>
                                                             <Typography>{rule.description}</Typography>
                                                         </Box>
-                                                        {requirementType === 'points' && (
-                                                            <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>{`+${rule.isMet ? rule.value : 0}`}</Typography>
+
+                                                        {rule.criteria === "minimum threshold hours" && rule.isMet && rule.criteriaValue === eventType.highestAchievedTier ? (
+                                                            <Typography sx={{ color: 'green' }}>
+                                                                {`+${rule.value}`}
+                                                            </Typography>
+                                                        ) : (
+                                                            rule.criteria !== "minimum threshold hours" && requirementType === 'points' && (
+                                                                <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>
+                                                                    {`+${rule.isMet ? rule.value : 0}`}
+                                                                </Typography>
+                                                            )
                                                         )}
                                                     </ListItem>
                                                 ))}

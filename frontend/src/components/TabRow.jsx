@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Box, Tabs, Tab, Typography } from "@mui/material";
+import { Box, Tabs, Tab } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 
 // Helper to generate accessibility props
-function a11yProps(index) {
+function accessibilityProps(index) {
   return {
     id: `vertical-tab-${index}`,
     'aria-controls': `vertical-tabpanel-${index}`,
@@ -47,7 +47,7 @@ export default function HorizontalNavTabs({ orgType }) {
           <Tab
             key={item.path}
             label={item.text}
-            {...a11yProps(index)}
+            {...accessibilityProps(index)}
             component={Link}
             to={item.path}
           />

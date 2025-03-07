@@ -6,7 +6,6 @@ import {
 import RouteIcon from '@mui/icons-material/Route';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
-import CircleIcon from '@mui/icons-material/Circle';
 import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 
 /**

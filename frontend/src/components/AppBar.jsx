@@ -1,14 +1,9 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import {
-    AppBar,
-    Box,
-    CssBaseline,
-    Menu,
-    MenuItem,
-    Toolbar,
-    Typography,
-    IconButton,
+    AppBar, Box, CssBaseline,
+    Menu, MenuItem, Toolbar,
+    Typography, IconButton,
 } from "@mui/material";
 import {
     AccountCircle,
@@ -19,10 +14,8 @@ import { useMediaQuery } from "@mui/material";
 
 export default function DrawerAppBar({ toggleTheme, mode }) {
     const [appBarAnchorEl, setAppBarAnchorEl] = React.useState(null);
-    
-    // Detect if screen size is xs
+
     const isXs = useMediaQuery((theme) => theme.breakpoints.only("xs"));
-    // Set title text based on screen size
     const titleText = isXs ? "RIT | DIO" : "RIT | Diversity Initiatives Office";
 
     const handleAppBarMenu = (event) => {

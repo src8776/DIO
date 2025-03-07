@@ -282,10 +282,14 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                                                             <Typography sx={{ color: 'green' }}>
                                                                 {`+${rule.value}`}
                                                             </Typography>
+                                                        ) : rule.criteria === "attendance" ? (
+                                                            <Typography sx={{ color: 'green' }}>
+                                                                {`+${rule.value * eventType.progress.attended}`}
+                                                            </Typography>
                                                         ) : (
                                                             rule.criteria !== "minimum threshold hours" && requirementType === 'points' && (
                                                                 <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>
-                                                                    {`+${rule.isMet ? rule.value : 0}`}
+                                                                    {`+${rule.isMet ? (rule.value) : 0}`}
                                                                 </Typography>
                                                             )
                                                         )}

@@ -13,7 +13,8 @@ function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
-  const [semester, setSemester] = React.useState('Spring 2025');
+  const [semester, setSemester] = React.useState('');
+  const [semesters, setSemesters] = React.useState([]);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -35,6 +36,22 @@ function AdminDash() {
       });
   }, [org]);
 
+  // Fetch semesters on component mount
+  React.useEffect(() => {
+    fetch('/api/admin/getSemesters')
+      .then((response) => response.json())
+      .then((data) => {
+        setSemesters(data);
+        const activeSemester = data.find(semester => semester.IsActive === 1);
+        if (activeSemester) {
+          setSemester(activeSemester.TermName);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching semesters:', error);
+      });
+  }, []);
+
   // Fetch data on component mount
   React.useEffect(() => {
     if (orgID !== null) {
@@ -43,9 +60,10 @@ function AdminDash() {
   }, [orgID]);
 
   // Function to fetch member data
-  const fetchData = () => {
+  const fetchData = (termCode = null) => {
     setIsLoading(true);
-    fetch(`/api/admin/datatable?organizationID=${orgID}`)
+    const endpoint = termCode ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}` : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
+    fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
         setMemberData(data);
@@ -63,7 +81,14 @@ function AdminDash() {
   };
 
   const handleSemesterChange = (event) => {
-    setSemester(event.target.value);
+    const selectedSemester = event.target.value;
+    setSemester(selectedSemester);
+    if (selectedSemester === "All Semesters") {
+      fetchData();
+    } else {
+      const selectedTermCode = semesters.find(sem => sem.TermName === selectedSemester)?.TermCode;
+      fetchData(selectedTermCode);
+    }
   };
 
 
@@ -92,12 +117,12 @@ function AdminDash() {
             size='small'
             sx={{ width: 150 }}
           >
-            <MenuItem value="Fall 2024">Fall 2024</MenuItem>
-            <MenuItem value="Spring 2024">Spring 2024</MenuItem>
-            <MenuItem value="Spring 2025">Spring 2025</MenuItem>
-            <MenuItem value="Fall 2025">Fall 2025</MenuItem>
-            <MenuItem value="Spring 2026">Spring 2026</MenuItem>
-            <MenuItem value="Fall 2026">Fall 2026</MenuItem>
+            <MenuItem value="All Semesters">All Semesters</MenuItem>
+            {semesters.map((sem) => (
+              <MenuItem key={sem.SemesterID} value={sem.TermName}>
+                {sem.TermName}
+              </MenuItem>
+            ))}
           </Select>
         </Box>
 

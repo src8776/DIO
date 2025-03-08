@@ -1,6 +1,6 @@
 const SamlStrategy = require('@node-saml/passport-saml').Strategy;
 const fs = require('fs');
-const db = require('./config/db');
+const Member = require('../models/Member');
 
 const BASE_URL = 'https://dio.gccis.rit.edu';
 const SP_ENTITY_ID = 'https://dio.gccis.rit.edu/saml2';
@@ -46,7 +46,7 @@ const defaultSamlStrategy = new SamlStrategy(
             const userEmail = profile.attributes['urn:oid:0.9.2342.19200300.100.1.3'];
 
             // Check if the user exists in the database
-            const user = await db.getMemberByEmail(userEmail);
+            const user = await Member.getMemberByEmail(userEmail);
 
             if (!user) {
                 console.log(`Unauthorized login attempt by ${userEmail}`);

@@ -103,13 +103,13 @@ class Member {
     }
   }
 
-  static async getMemberByEmail(Email) {
+  static async getMemberByEmail(email) {
     try {
       const [[member]] = await db.query(
-        'SELECT * FROM users WHERE Email = $1',
-        [Email]
+        'SELECT * FROM users WHERE Email = ?',
+        [email]
       );
-      return member?.Email || null;
+      return member || null;
     } catch (err) {
       console.error('Error fetching member email:', err);
       throw err;

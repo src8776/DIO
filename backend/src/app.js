@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require("path");
+const flash = require('connect-flash');
 
 const app = express();
 app.use(cors({
@@ -10,7 +11,7 @@ app.use(cors({
     //credentials: true,
 }));
 app.use(bodyParser.json());
-
+app.use(flash());
 // Initialize session
 
 
@@ -58,7 +59,19 @@ if (process.env.NODE_ENV === "production") {
     app.set('trust proxy', true);
 
     /* login example */
-    siteRoot.get('/login', passport.authenticate('saml'));
+    //siteRoot.get('/login', passport.authenticate('saml'));
+    app.post('/login', passport.authenticate('saml', {
+        failureRedirect: '/login',
+        failureFlash: true,
+    }), (req, res) => {
+    });
+    
+    app.use((err, req, res, next) => {
+        if (err && err.message === 'User not authorized') {
+            return res.redirect('/unauthorized'); // Redirect to unauthorized page
+        }
+        next(err);
+    });
     /* end login example */
 
     /* acs example */

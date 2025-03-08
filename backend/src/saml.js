@@ -50,7 +50,7 @@ const defaultSamlStrategy = new SamlStrategy(
 
             if (!user) {
                 console.log(`Unauthorized login attempt by ${userEmail}`);
-                return done(null, false, { message: 'User not authorized', redirect: '/unauthorized' });
+                return done(null, false, { message: 'User not authorized'});
             }
 
             console.log(`User ${userEmail} authenticated successfully.`);

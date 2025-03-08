@@ -15,7 +15,7 @@ class Member {
 
       // Insert the member
       const [result] = await db.query(
-        `INSERT INTO Members (UserName, FirstName, LastName, Email, fullName, Major, GraduationYear, AcademicYear)
+        `INSERT INTO Members (UserName, FirstName, LastName, Email, fullName, Major, GraduationYear, AcademicYear, ShirtSize, PantSize)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE 
            UserName = VALUES(UserName),
@@ -24,7 +24,9 @@ class Member {
            fullName = VALUES(fullName),
            Major = VALUES(Major),
            GraduationYear = VALUES(GraduationYear),
-           AcademicYear = VALUES(AcademicYear)`,
+           AcademicYear = VALUES(AcademicYear),
+           ShirtSize = VALUES(ShirtSize),
+           PantSize = VALUES(PantSize)`,
         [
           username,
           firstName,
@@ -33,7 +35,9 @@ class Member {
           fullName,
           member.major,
           member.graduationYear,
-          member.academicYear
+          member.academicYear,
+          member.ShirtSize,
+          member.PantSize
         ]
       );
 

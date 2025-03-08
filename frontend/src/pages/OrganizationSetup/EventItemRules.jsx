@@ -5,13 +5,16 @@ import {
     TableBody, TableRow, TableCell,
     IconButton, Button,
     TextField, Select, MenuItem,
-    FormControl,
-    InputLabel
+    FormControl, InputLabel,
+    Dialog, DialogActions,
+    DialogContent, DialogContentText,
+    DialogTitle, Divider
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 const modalStyle = {
@@ -85,6 +88,14 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
     const [percentError, setPercentError] = React.useState('');
     const [pointError, setPointError] = React.useState('');
     const [occurrenceError, setOccurrenceError] = React.useState('');
+    const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+
+    const [addRuleOpen, setAddRuleOpen] = React.useState(false);
+    const [newRuleCriteriaType, setNewRuleCriteriaType] = React.useState('');
+    const [newRuleCriteriaValue, setNewRuleCriteriaValue] = React.useState('');
+    const [newRulePointValue, setNewRulePointValue] = React.useState(1);
+    const [addPercentError, setAddPercentError] = React.useState('');
+    const [addPointError, setAddPointError] = React.useState('');
 
 
     React.useEffect(() => {
@@ -170,6 +181,41 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
             });
     };
 
+    const handleDeleteRule = () => {
+        fetch('/api/organizationRules/deleteRule', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ruleID: selectedRule.ruleID,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Remove the rule from the local state
+                    const updatedRules = rules.filter(rule => rule.ruleID !== selectedRule.ruleID);
+                    setSelectedRule(null);
+                    setOpen(false);
+                    setDeleteDialogOpen(false);
+                } else {
+                    console.error('Error deleting rule:', data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error deleting rule:', error);
+            });
+    };
+
+    const handleOpenDeleteDialog = () => {
+        setDeleteDialogOpen(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setDeleteDialogOpen(false);
+    };
+
     const handleEditOccurrences = () => {
         setEditOccurrences(true);
         setNewOccurrenceTotal(currentOccurrenceTotal);
@@ -213,6 +259,72 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
             });
     };
 
+    const handleSaveNewRule = () => {
+        // Reset errors
+        setAddPercentError('');
+        setAddPointError('');
+    
+        // Validate criteria type
+        if (!newRuleCriteriaType) {
+            setAddPercentError('Please select a criteria type');
+            return;
+        }
+    
+        // Handle criteria value
+        let criteriaValue = null;
+        if (newRuleCriteriaType === 'minimum threshold percentage' || newRuleCriteriaType === 'minimum threshold hours') {
+            criteriaValue = parseFloat(newRuleCriteriaValue);
+            if (isNaN(criteriaValue) || criteriaValue <= 0) {
+                setAddPercentError('Criteria value must be a positive number');
+                return;
+            }
+            if (newRuleCriteriaType === 'minimum threshold percentage' && (criteriaValue < 0.01 || criteriaValue > 1)) {
+                setAddPercentError('Percentage must be between 0.01 and 1');
+                return;
+            }
+        }
+    
+        // Validate point value
+        const pointValue = parseInt(newRulePointValue, 10);
+        if (isNaN(pointValue) || pointValue < 1) {
+            setAddPointError('Point value must be at least 1');
+            return;
+        }
+    
+        // Add New Rule
+        fetch('/api/organizationRules/addRule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                orgID,
+                eventTypeID,
+                criteria: newRuleCriteriaType,
+                criteriaValue,
+                pointValue,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.message === 'Rule added successfully') {
+                    // Close form and reset fields
+                    setAddRuleOpen(false);
+                    setNewRuleCriteriaType('');
+                    setNewRuleCriteriaValue('');
+                    setNewRulePointValue(1);
+                    setAddPercentError('');
+                    setAddPointError('');
+                    // Note: Rules list won't update automatically since `rules` is a prop
+                } else {
+                    console.error('Error adding rule:', data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error adding rule:', error);
+            });
+    };
+
     return (
         <Container>
             <Paper elevation={1} sx={modalStyle}>
@@ -252,30 +364,30 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     )}
                 </Box>
                 {/* display max points if it exists (not null) */}
-                {maxPoints !== null && (
-                    <Typography sx={{ pb: 1 }}>
-                        Max Points: {maxPoints}
-                    </Typography>
-                )}
+
+                <Typography sx={{ pb: 2 }}>
+                    Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
+                </Typography>
+
                 <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
-                    <Table>
+                    <Table stickyHeader>
                         <TableHead>
                             <TableRow>
                                 <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
                                 {/* new rule button */}
                                 {requirementType === 'criteria' ? (
-                                    <>
-                                        <TableCell />
-                                    </>
+                                    <TableCell />
                                 ) : (
-                                    <>
-                                        <TableCell align='right'>
-                                            <IconButton sx={{ color: '#08A045' }}>
-                                                <AddCircleOutlineIcon />
-                                            </IconButton>
-                                        </TableCell>
-                                    </>
+                                    <TableCell align="right">
+                                        <Button
+                                            startIcon={<AddCircleOutlineIcon />}
+                                            sx={{ color: '#08A045', justifyContent: 'center' }}
+                                            onClick={() => setAddRuleOpen(true)}
+                                        >
+                                            Add Rule
+                                        </Button>
+                                    </TableCell>
                                 )}
                             </TableRow>
                         </TableHead>
@@ -303,12 +415,18 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     </Table>
                 </Paper>
 
-                {/* Edit Options */}
+                {/* Edit Rule Form */}
                 {open && (
-                    <Box sx={{ width: '100%' }}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
-                            Updating Rule: {selectedRule.ruleID}
-                        </Typography>
+                    <Box sx={{ width: '100%', pt: 2 }}>
+                        <Divider />
+                        <Box sx={{ pb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Typography variant="h6">
+                                Updating Rule: {selectedRule.ruleID}
+                            </Typography>
+                            <Button onClick={handleOpenDeleteDialog} startIcon={<DeleteIcon />} sx={{ color: '#d32f2f' }}>
+                                Delete Rule
+                            </Button>
+                        </Box>
 
                         <FormControl>
                             <InputLabel id="criteria-select-label">Criteria Type</InputLabel>
@@ -356,7 +474,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                                 newCriteriaType === "minimum threshold hours" && <> "Attend event for at least 5 hours"</>
                             ) : (
                                 newCriteriaType === "one off" && <> "Earn 1 point for your first attendance"</> ||
-                                newCriteriaType === "per attendance" && <> "Earn 1 point per attendance"</> ||
+                                newCriteriaType === "attendance" && <> "Earn 1 point per attendance"</> ||
                                 newCriteriaType === "minimum threshold percentage" && <> "Earn 1 point for 50% attendance"</> ||
                                 newCriteriaType === "minimum threshold hours" && <> "Earn 1 point for 3 hours attended"</>
                             )}
@@ -371,6 +489,79 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                         </Box>
                     </Box>
                 )}
+
+                {/* Add Rule Form */}
+                {addRuleOpen && (
+                    <Box sx={{ width: '100%', pt: 2 }}>
+                        <Divider />
+                        <Typography variant="h6" sx={{ pb: 2 }}>
+                            Add New Rule
+                        </Typography>
+                        <FormControl fullWidth>
+                            <InputLabel id="new-rule-criteria-select-label">Criteria Type</InputLabel>
+                            <Select
+                                labelId="new-rule-criteria-select-label"
+                                label="Criteria Type"
+                                value={newRuleCriteriaType}
+                                onChange={(e) => setNewRuleCriteriaType(e.target.value)}
+                                sx={{ mb: 2 }}
+                            >
+                                <MenuItem value="attendance">Per Attendance</MenuItem>
+                                <MenuItem value="one off">One Off</MenuItem>
+                                <MenuItem value="minimum threshold percentage">Minimum Threshold Percentage</MenuItem>
+                                <MenuItem value="minimum threshold hours">Minimum Threshold Hours</MenuItem>
+                            </Select>
+                        </FormControl>
+                        {newRuleCriteriaType !== 'attendance' && newRuleCriteriaType !== 'one off' && (
+                            <TextField
+                                label="Criteria Value"
+                                value={newRuleCriteriaValue}
+                                onChange={(e) => setNewRuleCriteriaValue(e.target.value)}
+                                fullWidth
+                                sx={{ mb: 2 }}
+                                error={!!addPercentError}
+                                helperText={addPercentError}
+                            />
+                        )}
+                        <TextField
+                            label="Point Value"
+                            value={newRulePointValue}
+                            onChange={(e) => setNewRulePointValue(e.target.value)}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                            error={!!addPointError}
+                            helperText={addPointError}
+                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
+                            <Button variant="contained" color="primary" onClick={handleSaveNewRule}>
+                                Save
+                            </Button>
+                            <Button variant="outlined" onClick={() => setAddRuleOpen(false)}>
+                                Cancel
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
+
+                <Dialog
+                    open={deleteDialogOpen}
+                    onClose={handleCloseDeleteDialog}
+                >
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this rule?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDeleteDialog} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteRule} color="secondary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Paper>
         </Container>
     );

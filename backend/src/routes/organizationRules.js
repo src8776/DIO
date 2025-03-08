@@ -54,6 +54,56 @@ router.put('/updateRule', async (req, res) => {
 });
 
 
+router.delete('/deleteRule', async (req, res) => {
+    console.log('Received request at /deleteRule (DELETE)');
+
+    const { ruleID } = req.body;
+
+    if (!ruleID) {
+        return res.status(400).json({ error: 'Missing ruleID parameter' });
+    }
+
+    try {
+        const query = `
+            DELETE FROM EventRules
+            WHERE RuleID = ?
+        `;
+        const [result] = await db.query(query, [ruleID]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'RuleID not found' });
+        }
+
+        res.json({ success: true, message: 'Rule deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting rule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.post('/addRule', async (req, res) => {
+    console.log('Received POST to /addRule:', req.body);
+    const { orgID, eventTypeID, criteria, criteriaValue, pointValue } = req.body;
+
+    if (!orgID || !eventTypeID || !criteria || criteriaValue === undefined || pointValue === undefined) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    try {
+        const insertQuery = `
+            INSERT INTO EventRules (OrganizationID, EventTypeID, Criteria, CriteriaValue, PointValue)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        await db.query(insertQuery, [orgID, eventTypeID, criteria, criteriaValue, pointValue]);
+        res.status(201).json({ message: 'Rule added successfully' });
+    } catch (error) {
+        console.error('Error adding rule:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.put('/updateOccurrences', async (req, res) => {
     console.log('Received request at /updateOccurrences (PUT)');
 

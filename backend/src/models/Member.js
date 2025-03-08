@@ -102,6 +102,19 @@ class Member {
       throw err;
     }
   }
+
+  static async getMemberByEmail(Email) {
+    try {
+      const [[member]] = await db.query(
+        'SELECT * FROM users WHERE Email = $1',
+        [Email]
+      );
+      return member?.Email || null;
+    } catch (err) {
+      console.error('Error fetching member email:', err);
+      throw err;
+    }
+  }
 }
 
 module.exports = Member;

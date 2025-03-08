@@ -1,6 +1,6 @@
 const SamlStrategy = require('@node-saml/passport-saml').Strategy;
 const fs = require('fs');
-
+const db = require('./db');
 
 const BASE_URL = 'https://dio.gccis.rit.edu';
 const SP_ENTITY_ID = 'https://dio.gccis.rit.edu/saml2';
@@ -28,6 +28,7 @@ const defaultSamlStrategy = new SamlStrategy(
         disableRequestedAuthnContext: true
     },
     /* acs callback */
+    /*
     (profile, done) => {
         console.log(profile);
         // Called after successful authentication, parse
@@ -35,6 +36,31 @@ const defaultSamlStrategy = new SamlStrategy(
         // or update a local user. Then return that user.
         return done(null, profile.attributes)
     }
+        */
+
+    async (profile, done) => {
+        try {
+            console.log("SAML Profile:", profile);
+
+            // Extract the email from profile attributes
+            const userEmail = profile.attributes['urn:oid:0.9.2342.19200300.100.1.3'];
+
+            // Check if the user exists in the database
+            const user = await db.getUserByEmail(userEmail);
+
+            if (!user) {
+                console.log(`Unauthorized login attempt by ${userEmail}`);
+                return done(null, false, { message: 'User not authorized' });
+            }
+
+            console.log(`User ${userEmail} authenticated successfully.`);
+            return done(null, user);
+        } catch (error) {
+            console.error("Error during SAML authentication:", error);
+            return done(error);
+        }
+    }
+
     /* end acs callback */
 )
 

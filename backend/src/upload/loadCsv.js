@@ -6,6 +6,7 @@ const Member = require('../models/Member');
 const OrganizationMember = require('../models/OrganizationMember');
 const Attendance = require('../models/Attendance');
 const EventInstance = require('../models/EventInstance');
+const Semester = require('../models/Semester');
 const useAccountStatus = require('../services/useAccountStatus');
 require('dotenv').config({ path: '.env' });
 
@@ -130,11 +131,13 @@ const processCsv = async (filePath, eventType, organizationID) => {
           await connection.beginTransaction();
 
           const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
+          // Fetch TermCode
+          const termCode = await Semester.getOrCreateTermCode(checkInDate);
           // Fetch EventID once
           const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
 
-          if (!eventID) {
-            console.warn(`No EventID found for ${eventType}, skipping attendance insert.`);
+          if (!eventID || !termCode) {
+            console.warn(`No EventID found for ${eventType} and ${termCode}, skipping attendance insert.`);
             await connection.rollback();
             return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
           }

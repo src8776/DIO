@@ -22,11 +22,11 @@ class OrganizationMember {
 
       if (!exists) {
         await db.query(
-          `INSERT INTO OrganizationMembers (OrganizationID, MemberID, Role, RoleID)
-           VALUES (?, ?, ?, ?)`,
-          [organizationID, memberID, role, roleID]
+          `INSERT INTO OrganizationMembers (OrganizationID, MemberID, RoleID)
+           VALUES (?, ?, ?)`,
+          [organizationID, memberID, roleID]
         );
-        console.log(`Added to OrganizationMembers: MemberID ${memberID}, Role ${role}`);
+        console.log(`Added to OrganizationMembers: MemberID ${memberID}, RoleID ${roleID}`);
       }
     } catch (err) {
       console.error('Error inserting into OrganizationMembers:', err);

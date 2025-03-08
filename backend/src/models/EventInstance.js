@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const Semester = require('./Semester');
 
 class EventInstance {
     // Get EventID for that CSV file based on Selected EventType and Date
@@ -6,6 +7,15 @@ class EventInstance {
         try {
             const eventDate = checkInDate; // Extract only the date
             console.log(`[@EventInstance] Looking up EventID: EventType = ${eventType}, EventDate = ${eventDate}, OrgID = ${organizationID}`);
+
+            // Check if Semester exists for the given checkInDate
+            const termCode = await Semester.getOrCreateTermCode(checkInDate);
+            if (!termCode) {
+                console.error(`[@EventInstance] Failed to get or create Semester for checkInDate: ${checkInDate}`);
+                return null;
+            }
+            console.log(`[@EventInstance] Looking up EventID for: ${eventType} on ${checkInDate}, OrgID: ${organizationID}, TermCode: ${termCode}`);
+
 
             // First, check if the event already exists
             const [existingEvents] = await db.query(
@@ -16,8 +26,9 @@ class EventInstance {
                  WHERE DATE(e.EventDate) = ? 
                  AND et.EventType = ? 
                  AND e.OrganizationID = ?
+                 AND e.TermCode = ?
                  LIMIT 1`,
-                [eventDate, eventType, organizationID]
+                [eventDate, eventType, organizationID, termCode]
             );
 
             if (existingEvents.length > 0) {
@@ -43,8 +54,8 @@ class EventInstance {
             // Insert new event instance and return the new EventID
             const eventTitle = `${eventType}`; // Example title, adjust as needed
             const [insertResult] = await db.query(
-                `INSERT INTO EventInstances (EventDate, EventTypeID, OrganizationID, EventTitle) VALUES (?, ?, ?, ?)`,
-                [eventDate, eventTypeID, organizationID, eventTitle]
+                `INSERT INTO EventInstances (EventDate, TermCode, EventTypeID, OrganizationID, EventTitle) VALUES (?, ?, ?, ?, ?)`,
+                [eventDate, termCode, eventTypeID, organizationID, eventTitle]
             );
 
             console.log(`[@EventInstance] New EventID created: ${insertResult.insertId}`);

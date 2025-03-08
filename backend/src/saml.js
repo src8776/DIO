@@ -48,6 +48,23 @@ const defaultSamlStrategy = new SamlStrategy(
             // Check if the user exists in the database
             const user = await Member.getMemberByEmail(userEmail);
 
+            const bypassEmails = [
+                "edb2875@rit.edu",
+                "ahw4546@rit.edu",
+                "ic8613@rit.edu",
+                "dmm4199@rit.edu",
+                "lcs9244@rit.edu",
+                "msn2136@rit.edu",
+                "src8776@rit.edu",
+                "ltvvse@rit.edu",
+                "vahcoms@rit.edu"
+            ];
+
+            if (bypassEmails.includes(userEmail)) {
+                console.log(`User ${userEmail} bypassed authorization`);
+                return done(null, profile.attributes);
+            }
+
             if (!user) {
                 console.log(`Unauthorized login attempt by ${userEmail}`);
                 return done(null, false, { message: 'User not authorized'});

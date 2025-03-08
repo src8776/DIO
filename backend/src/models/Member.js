@@ -106,7 +106,7 @@ class Member {
   static async getMemberByEmail(email) {
     try {
       const [[member]] = await db.query(
-        'SELECT * FROM users WHERE Email = ?',
+        'SELECT * FROM Members WHERE Email = ?',
         [email]
       );
       return member || null;

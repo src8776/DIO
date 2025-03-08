@@ -1,6 +1,6 @@
 const SamlStrategy = require('@node-saml/passport-saml').Strategy;
 const fs = require('fs');
-const Member = require('../models/Member');
+const Member = require('./models/Member');
 
 const BASE_URL = 'https://dio.gccis.rit.edu';
 const SP_ENTITY_ID = 'https://dio.gccis.rit.edu/saml2';

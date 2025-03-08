@@ -62,7 +62,9 @@ function AdminDash() {
   // Function to fetch member data
   const fetchData = (termCode = null) => {
     setIsLoading(true);
-    const endpoint = termCode ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}` : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
+    const endpoint = termCode ? 
+    `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}` : 
+    `/api/admin/datatableAllTerms?organizationID=${orgID}`;
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {

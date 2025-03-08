@@ -48,11 +48,11 @@ const App = () => {
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/admin/:org" element={<ProtectedRoute element={<AdminLayout />} />}>
-          <Route index element={<ProtectedRoute element={<AdminDash />} />} />
-          <Route path="memberDetails" element={<ProtectedRoute element={<MemberDetailsModal />} />} />
-          <Route path="organizationSetup" element={<ProtectedRoute element={<OrgSetup />} />} />
-          <Route path="officersList" element={<ProtectedRoute element={<OfficersList />} />} />
+        <Route path="/admin/:org" element={<AdminLayout />}>
+          <Route index element={<AdminDash />} />
+          <Route path="memberDetails" element={<MemberDetailsModal />} />
+          <Route path="organizationSetup" element={<OrgSetup />} />
+          <Route path="officersList" element={<OfficersList />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />

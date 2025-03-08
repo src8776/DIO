@@ -14,6 +14,7 @@ import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import Login from './pages/LoginPage/login';
+import UnauthorizedPage from './pages/Unauthorized/unauthorized.jsx';
 
 const App = () => {
   // dark/light mode based on system preference
@@ -55,6 +56,7 @@ const App = () => {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
       </Routes>
     </ThemeProvider>
   );

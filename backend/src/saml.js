@@ -46,7 +46,7 @@ const defaultSamlStrategy = new SamlStrategy(
             const userEmail = profile.attributes['urn:oid:0.9.2342.19200300.100.1.3'];
 
             // Check if the user exists in the database
-            const user = await db.getUserByEmail(userEmail);
+            const user = await db.getMemberByEmail(userEmail);
 
             if (!user) {
                 console.log(`Unauthorized login attempt by ${userEmail}`);
@@ -60,7 +60,6 @@ const defaultSamlStrategy = new SamlStrategy(
             return done(error);
         }
     }
-
     /* end acs callback */
 )
 

@@ -59,19 +59,7 @@ if (process.env.NODE_ENV === "production") {
     app.set('trust proxy', true);
 
     /* login example */
-    //siteRoot.get('/login', passport.authenticate('saml'));
-    app.post('/login', passport.authenticate('saml', {
-        failureRedirect: '/login',
-        failureFlash: true,
-    }), (req, res) => {
-    });
-    
-    app.use((err, req, res, next) => {
-        if (err && err.message === 'User not authorized') {
-            return res.redirect('/unauthorized'); // Redirect to unauthorized page
-        }
-        next(err);
-    });
+    siteRoot.get('/login', passport.authenticate('saml'));
     /* end login example */
 
     /* acs example */
@@ -79,7 +67,7 @@ if (process.env.NODE_ENV === "production") {
         "/acs",
         bodyParser.urlencoded({ extended: false }),
         passport.authenticate("saml", {
-            failureRedirect: "/login",
+            failureRedirect: "/unauthorized",
             failureFlash: true,
         }),
         function (req, res) {

@@ -74,8 +74,8 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID }) {
-    const [open, setOpen] = React.useState(false);
+export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, refetchEventRules }) {
+    const [editRuleOpen, setEditRuleOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [requirementType, setRequirementType] = React.useState('');
     const [selectedRule, setSelectedRule] = React.useState(null);
@@ -122,16 +122,16 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
         setNewOccurrenceTotal(occurrenceTotal);
     }, [occurrenceTotal]);
 
-    const handleOpen = (rule) => {
+    const handleEditRuleOpen = (rule) => {
         setSelectedRule(rule);
         setNewCriteriaType(rule.criteria);
         setNewCriteriaValue(rule.criteriaValue);
         setNewPointValue(rule.pointValue);
-        setOpen(true);
+        setEditRuleOpen(true);
     };
 
-    const handleClose = () => {
-        setOpen(false);
+    const handleEditRuleClose = () => {
+        setEditRuleOpen(false);
         setSelectedRule(null);
         setNewCriteriaValue('');
         setNewPointValue('');
@@ -167,11 +167,8 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    // Update the rule in the local state
-                    selectedRule.criteria = newCriteriaType;
-                    selectedRule.criteriaValue = newCriteriaValue;
-                    selectedRule.pointValue = newPointValue;
-                    handleClose();
+                    refetchEventRules();
+                    handleEditRuleClose();
                 } else {
                     console.error('Error updating rule:', data.error);
                 }
@@ -194,10 +191,9 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    // Remove the rule from the local state
-                    const updatedRules = rules.filter(rule => rule.ruleID !== selectedRule.ruleID);
+                    refetchEventRules();
                     setSelectedRule(null);
-                    setOpen(false);
+                    setEditRuleOpen(false);
                     setDeleteDialogOpen(false);
                 } else {
                     console.error('Error deleting rule:', data.error);
@@ -249,6 +245,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     setCurrentOccurrenceTotal(parsedValue); // Update displayed value
                     setEditOccurrences(false);
                     setOccurrenceError('');
+                    refetchEventRules();
                 } else {
                     setOccurrenceError('Failed to update occurrences');
                 }
@@ -263,13 +260,13 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
         // Reset errors
         setAddPercentError('');
         setAddPointError('');
-    
+
         // Validate criteria type
         if (!newRuleCriteriaType) {
             setAddPercentError('Please select a criteria type');
             return;
         }
-    
+
         // Handle criteria value
         let criteriaValue = null;
         if (newRuleCriteriaType === 'minimum threshold percentage' || newRuleCriteriaType === 'minimum threshold hours') {
@@ -283,14 +280,14 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 return;
             }
         }
-    
+
         // Validate point value
         const pointValue = parseInt(newRulePointValue, 10);
         if (isNaN(pointValue) || pointValue < 1) {
             setAddPointError('Point value must be at least 1');
             return;
         }
-    
+
         // Add New Rule
         fetch('/api/organizationRules/addRule', {
             method: 'POST',
@@ -315,7 +312,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     setNewRulePointValue(1);
                     setAddPercentError('');
                     setAddPointError('');
-                    // Note: Rules list won't update automatically since `rules` is a prop
+                    refetchEventRules();
                 } else {
                     console.error('Error adding rule:', data.error);
                 }
@@ -364,10 +361,11 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     )}
                 </Box>
                 {/* display max points if it exists (not null) */}
-
-                <Typography sx={{ pb: 2 }}>
-                    Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
-                </Typography>
+                {requirementType === 'points' && (
+                    <Typography sx={{ pb: 2 }}>
+                        Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
+                    </Typography>
+                )}
 
                 <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
                     <Table stickyHeader>
@@ -376,14 +374,17 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                                 <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
                                 {/* new rule button */}
-                                {requirementType === 'criteria' ? (
+                                {requirementType === 'criteria' && rules.length === 1 ? (
                                     <TableCell />
                                 ) : (
                                     <TableCell align="right">
                                         <Button
                                             startIcon={<AddCircleOutlineIcon />}
                                             sx={{ color: '#08A045', justifyContent: 'center' }}
-                                            onClick={() => setAddRuleOpen(true)}
+                                            onClick={() => {
+                                                setEditRuleOpen(false);
+                                                setAddRuleOpen(true);
+                                            }}
                                         >
                                             Add Rule
                                         </Button>
@@ -398,7 +399,13 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                                         <TableCell>{rule.ruleID}</TableCell>
                                         <TableCell>{generateRuleDescription(rule, ruleType)}</TableCell>
                                         <TableCell align='right'>
-                                            <IconButton onClick={() => handleOpen(rule)} sx={{ color: '#015aa2' }}>
+                                            <IconButton onClick={() => {
+                                                setAddRuleOpen(false);
+                                                handleEditRuleOpen(rule);
+                                            }
+                                            }
+                                                sx={{ color: '#015aa2' }}
+                                            >
                                                 <EditIcon />
                                             </IconButton>
                                         </TableCell>
@@ -416,10 +423,10 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 </Paper>
 
                 {/* Edit Rule Form */}
-                {open && (
+                {editRuleOpen && (
                     <Box sx={{ width: '100%', pt: 2 }}>
                         <Divider />
-                        <Box sx={{ pb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Box sx={{ pt: 2, pb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Typography variant="h6">
                                 Updating Rule: {selectedRule.ruleID}
                             </Typography>
@@ -480,11 +487,11 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                             )}
                         </Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
+                            <Button variant="outlined" onClick={handleEditRuleClose}>
+                                Cancel
+                            </Button>
                             <Button variant="contained" color="primary" onClick={handleSaveRule}>
                                 Save
-                            </Button>
-                            <Button variant="outlined" onClick={handleClose}>
-                                Cancel
                             </Button>
                         </Box>
                     </Box>
@@ -494,7 +501,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 {addRuleOpen && (
                     <Box sx={{ width: '100%', pt: 2 }}>
                         <Divider />
-                        <Typography variant="h6" sx={{ pb: 2 }}>
+                        <Typography variant="h6" sx={{ pt: 2, pb: 2 }}>
                             Add New Rule
                         </Typography>
                         <FormControl fullWidth>
@@ -533,11 +540,11 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                             helperText={addPointError}
                         />
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
-                            <Button variant="contained" color="primary" onClick={handleSaveNewRule}>
-                                Save
-                            </Button>
                             <Button variant="outlined" onClick={() => setAddRuleOpen(false)}>
                                 Cancel
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleSaveNewRule}>
+                                Save
                             </Button>
                         </Box>
                     </Box>

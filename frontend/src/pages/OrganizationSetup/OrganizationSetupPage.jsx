@@ -141,6 +141,7 @@ export default function OrganizationSetup() {
                                     key={`rule-${index}`}
                                     {...eventObj}
                                     orgID={orgID}
+                                    refetchEventRules={fetchEventRules}
                                 />
                             ))
                         )}

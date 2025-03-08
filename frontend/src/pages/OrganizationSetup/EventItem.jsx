@@ -3,7 +3,7 @@ import { Box, ListItemButton, ListItemText, Modal } from '@mui/material';
 import EventItemRules from './EventItemRules';
 
 
-export default function RuleListItem({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID }) {
+export default function RuleListItem({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, refetchEventRules }) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -23,6 +23,7 @@ export default function RuleListItem({ name, rules, ruleType, maxPoints, orgID, 
                         orgID={orgID}
                         occurrenceTotal={occurrenceTotal}
                         eventTypeID={eventTypeID}
+                        refetchEventRules={refetchEventRules}
                     />
                 </Box>
             </Modal>

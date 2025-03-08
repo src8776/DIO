@@ -62,11 +62,11 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                                         </Box>
 
                                         {rule.criteria === "minimum threshold hours" && rule.isMet && rule.criteriaValue === eventType.highestAchievedTier ? (
-                                            <Typography sx={{ color: 'green' }}>
+                                            <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>
                                                 {`+${rule.value}`}
                                             </Typography>
                                         ) : rule.criteria === "attendance" ? (
-                                            <Typography sx={{ color: 'green' }}>
+                                            <Typography sx={{ color: rule.isMet ? 'green' : 'black' }}>
                                                 {`+${rule.value * eventType.progress.attended}`}
                                             </Typography>
                                         ) : (

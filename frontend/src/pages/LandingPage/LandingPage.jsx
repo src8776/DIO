@@ -7,7 +7,7 @@ import AddClubCard from "./AddClubCard";
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
 const fetchUserProfileData = async () => {
     try {
-      const response = await fetch('/api/user/profile');
+      const response = await fetch('/api/user/memberID');
       if (!response.ok) throw new Error('Failed to fetch user profile');
       return await response.json();
     } catch (error) {

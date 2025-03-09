@@ -30,11 +30,15 @@ router.get('/profile', async (req, res) => {
 
     // Ensure member exists before accessing properties
     const userProfile = {
+      username: member?.UserName || user.username || 'Unknown',
       firstName: member?.FirstName || user.firstName || 'Unknown',
+      lastName: member?.lastName || user.lastName || 'Unknown',
       email: user.email,
-      studentYear: member?.AcademicYear || 'Unknown',
-      graduationDate: member?.GraduationYear || 'Unknown',
+      fullName: member?.fullName || `${user.firstName} ${user.lastName}` || 'Unknown',
+      //studentYear: member?.AcademicYear || 'Unknown',
       major: member?.Major || 'Unknown',
+      graduationDate: member?.GraduationYear || 'Unknown',
+      academicYear: member?.AcademicYear,
       shirtSize: member?.ShirtSize || 'Unknown',
       pantSize: member?.PantSize || 'Unknown'
     };
@@ -63,17 +67,14 @@ router.post('/profile', async (req, res) => {
 */
     // Prepare member object
     const memberData = {
-      //firstName: updatedProfile.firstName,
-      //lastName: updatedProfile.lastName,
-      //fullName: `${updatedProfile.firstName} ${updatedProfile.lastName}`,
-      //email: updatedProfile.email,
-      email: member.email || user.email,
-      firtName: member.FirstName || user.firstName,
-      lastName: member.LastName || 'Unknown',
-      GraduationDate: updatedProfile.graduationDate,
+      username: user.username,
+      firtName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      fullName: `${user.firstName} ${user.lastName}`,
       Major: updatedProfile.major,
-      //graduationYear: updatedProfile.graduationDate,
-      //academicYear: updatedProfile.studentYear,
+      GraduationYear: updatedProfile.graduationDate,
+      AcademicYear: updatedProfile.studentYear,
       ShirtSize: updatedProfile.shirtSize,
       PantSize: updatedProfile.pantSize
     };

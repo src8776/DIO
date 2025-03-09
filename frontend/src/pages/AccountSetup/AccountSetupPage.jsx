@@ -67,7 +67,7 @@ export default function AccountSetup() {
   const [email, setEmail] = useState('');
   const [race, setRace] = useState('');
   const [gender, setGender] = useState('');
-  const [genders, setGenders] = useState('');  
+  const [genders, setGenders] = useState([]);  
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   useEffect(() => {

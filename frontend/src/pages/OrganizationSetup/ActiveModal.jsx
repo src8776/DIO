@@ -25,7 +25,7 @@ const modalStyle = {
 };
 
 
-export default function ActiveModal({ orgID, numberOfRules }) {
+export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditable }) {
     const [open, setOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
@@ -36,23 +36,18 @@ export default function ActiveModal({ orgID, numberOfRules }) {
 
     // fetch current requirement info
     React.useEffect(() => {
-        fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    setActiveRequirement(data[0].ActiveRequirement); // Extract ActiveRequirement directly
-                    setRequirementType(data[0].Description); // Extract RequirementType directly (either 'points' or 'criteria')
-                } else {
-                    setActiveRequirement(null);
-                    setRequirementType(null);
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setActiveRequirement(null);
-                setRequirementType(null);
-            });
-    }, [orgID]);
+        if (orgID && semesterID) {
+            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semesterID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        setActiveRequirement(data[0].ActiveRequirement);
+                        setRequirementType(data[0].Description);
+                    }
+                })
+                .catch(error => console.error('Error fetching active requirement:', error));
+        }
+    }, [orgID, semesterID]);
 
     const handleOpen = () => {
         setNewActiveRequirement(activeRequirement);
@@ -77,28 +72,23 @@ export default function ActiveModal({ orgID, numberOfRules }) {
 
         fetch('/api/organizationInfo/updateActiveRequirement', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 organizationID: orgID,
+                semesterID,
                 activeRequirement: newActiveRequirement,
                 requirementType: newRequirementType
-            }),
+            })
         })
-            .then((response) => response.json())
-            .then((data) => {
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) {
                     setActiveRequirement(newActiveRequirement);
                     setRequirementType(newRequirementType);
                     handleClose();
-                } else {
-                    console.error('Error updating active requirement:', data.error);
                 }
             })
-            .catch((error) => {
-                console.error('Error updating active requirement:', error);
-            });
+            .catch(error => console.error('Error updating active requirement:', error));
     };
 
     return (
@@ -108,9 +98,11 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                     <Typography variant="h5">
                         'Active' status requirements
                     </Typography>
-                    <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
-                        <EditIcon />
-                    </IconButton>
+                    {isEditable && (
+                        <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
+                            <EditIcon />
+                        </IconButton>
+                    )}
                 </Box>
                 {/* Form Elements */}
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
@@ -137,7 +129,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                 </Box>
 
                 {/* Edit Options */}
-                {open && (
+                {open && isEditable && (
                     <Box sx={{ width: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 2 }}>
                             Updating {requirementType == 'criteria' ? 'Criteria' : 'Points'} Requirement

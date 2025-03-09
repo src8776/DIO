@@ -165,15 +165,15 @@ export default function AccountSetup() {
                   <Select
                     required
                     labelId="graduation-year-select-label"
-                    value={graduationDate}
+                    value={graduationDate || ''}
                     label="Graduation Year"
                     onChange={(e) => setGraduationDate(e.target.value)}
                   >
-                    {Array.from({ length: 20 }, (_, i) => {
-                      const currentYear = new Date().getFullYear();
-                      const year = currentYear - 20 + i; // Generates 20 past years and 10 future years
-                      return <MenuItem key={year} value={year}>{year}</MenuItem>;
-                    })}
+                    {Array.from({ length: 88 }, (_, i) => 1990 + i).map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
                   </Select>
               </FormControl>
         
@@ -232,46 +232,48 @@ export default function AccountSetup() {
                 </Select>
               </FormControl>
             </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="race-select-label">Race</InputLabel>
+                <Select
+                  required
+                  labelId="race-select-label"
+                  value={race}
+                  label="Race"
+                  onChange={(e) => setRace(e.target.value)}
+                >
+                  <MenuItem value={'asian'}>Asian</MenuItem>
+                  <MenuItem value={'black'}>Black or African American</MenuItem>
+                  <MenuItem value={'eastern'}>Middle Eastern or North African</MenuItem>
+                  <MenuItem value={'hispanic'}>Hispanic or Latino</MenuItem>
+                  <MenuItem value={'native'}>American Indian or Alaska Native</MenuItem>
+                  <MenuItem value={'islander'}>Native Hawaiian or other Pacific Islander</MenuItem>
+                  <MenuItem value={'white'}>White</MenuItem>
+                  <MenuItem value={'other'}>Other</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="gender-select-label">Gender</InputLabel>
+                <Select
+                  required
+                  labelId="gender-select-label"
+                  value={gender}
+                  label="Gender"
+                  onChange={(e) => setGender(e.target.value)}
+                >
+                  {genders.map((genderItem) => (
+                    <MenuItem key={genderItem.id} value={genderItem.id}>
+                      {genderItem.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel id="race-select-label">Race</InputLabel>
-              <Select
-                required
-                labelId="race-select-label"
-                value={race}
-                label="Race"
-                onChange={(e) => setRace(e.target.value)}
-              >
-                <MenuItem value={'asian'}>Asian</MenuItem>
-                <MenuItem value={'black'}>Black or African American</MenuItem>
-                <MenuItem value={'eastern'}>Middle Eastern or North African</MenuItem>
-                <MenuItem value={'hispanic'}>Hispanic or Latino</MenuItem>
-                <MenuItem value={'native'}>American Indian or Alaska Native</MenuItem>
-                <MenuItem value={'islander'}>Native Hawaiian or other Pacific Islander</MenuItem>
-                <MenuItem value={'white'}>White</MenuItem>
-                <MenuItem value={'other'}>Other</MenuItem>
-              </Select>
-            </FormControl>
 
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel id="gender-select-label">Gender</InputLabel>
-              <Select
-                required
-                labelId="gender-select-label"
-                value={gender}
-                label="Gender"
-                onChange={(e) => setGender(e.target.value)}
-              >
-                {genders.map((genderItem) => (
-                  <MenuItem key={genderItem.id} value={genderItem.id}>
-                    {genderItem.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
         </Paper>
 
         <Box sx={{ display: "flex", justifyContent: "end" }}>

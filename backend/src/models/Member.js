@@ -124,6 +124,7 @@ class Member {
     }
   }
 
+  /*
   static async getEnumValues(columnName) {
     try {
       const [result] = await db.query(`SHOW COLUMNS FROM Members LIKE ?`, [columnName]);
@@ -142,6 +143,7 @@ class Member {
       throw err;
     }
   }
+  */
 
 }
 

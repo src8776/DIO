@@ -4,7 +4,7 @@ const passport = require('passport');
 const Member = require('../models/Member');
 
 
-//TODO: get data from database
+
 const majors = [
   { id: 'computer_science', name: 'Computer Science' },
   { id: 'information_technology', name: 'Information Technology' },
@@ -13,7 +13,13 @@ const majors = [
   { id: 'data_science', name: 'Data Science' }
 ];
 
-
+const genders = [
+  { id: 'Male', name: 'Male' },
+  { id: 'Female', name: 'Female' },
+  { id: 'Transgender', name: 'Transgender' },
+  { id: 'Nonbinary', name: 'Nonbinary' },
+  { id: 'Unknown', name: 'Other' }
+];
 
 
 // profile route
@@ -98,8 +104,7 @@ router.get('/majors', (req, res) => {
   res.json(majors);
 });
 
-router.get('/genders', async (req, res) => {
-  const genders = await Member.getEnumValues('Gender');
+router.get('/genders', (req, res) => {
   res.json(genders);
 });
 

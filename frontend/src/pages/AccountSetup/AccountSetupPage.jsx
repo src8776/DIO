@@ -54,6 +54,8 @@ export default function AccountSetup() {
   const [majors, setMajors] = useState([]);
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
+  const [race, setRace] = useState('');
+  const [gender, setGender] = useState('');  
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   useEffect(() => {
@@ -66,6 +68,8 @@ export default function AccountSetup() {
       setMajor(profileData.major);
       setShirtSize(profileData.shirtSize);
       setPantSize(profileData.pantSize);
+      setRace(profileData.race);
+      setGender(profileData.gender)
     };
 
     const loadMajors = async () => {
@@ -99,7 +103,9 @@ export default function AccountSetup() {
       graduationDate,
       major,
       shirtSize,
-      pantSize
+      pantSize,
+      race,
+      gender
     });
   };
 
@@ -134,15 +140,24 @@ export default function AccountSetup() {
                 </Select>
               </FormControl>
 
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Graduation Date"
-                  views={['year']}
-                  value={graduationDate ? dayjs(graduationDate) : null}
-                  onChange={(newDate) => { setGraduationDate(newDate.year()) }}
-                  sx={{ flex: 1 }}
-                />
-              </LocalizationProvider>
+
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="graduation-year-select-label">Graduation Year</InputLabel>
+                  <Select
+                    required
+                    labelId="graduation-year-select-label"
+                    value={graduationDate}
+                    label="Graduation Year"
+                    onChange={(e) => setGraduationDate(e.target.value)}
+                  >
+                    {Array.from({ length: 20 }, (_, i) => {
+                      const currentYear = new Date().getFullYear();
+                      const year = currentYear - 20 + i; // Generates 20 past years and 10 future years
+                      return <MenuItem key={year} value={year}>{year}</MenuItem>;
+                    })}
+                  </Select>
+              </FormControl>
+        
             </Box>
 
             <FormControl fullWidth>
@@ -198,6 +213,45 @@ export default function AccountSetup() {
                 </Select>
               </FormControl>
             </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <FormControl sx={{ flex: 1 }}>
+              <InputLabel id="race-select-label">Race</InputLabel>
+              <Select
+                required
+                labelId="race-select-label"
+                value={race}
+                label="Race"
+                onChange={(e) => setRace(e.target.value)}
+              >
+                <MenuItem value={'asian'}>Asian</MenuItem>
+                <MenuItem value={'black'}>Black or African American</MenuItem>
+                <MenuItem value={'eastern'}>Middle Eastern or North African</MenuItem>
+                <MenuItem value={'hispanic'}>Hispanic or Latino</MenuItem>
+                <MenuItem value={'native'}>American Indian or Alaska Native</MenuItem>
+                <MenuItem value={'islander'}>Native Hawaiian or other Pacific Islander</MenuItem>
+                <MenuItem value={'white'}>White</MenuItem>
+                <MenuItem value={'other'}>Other</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl sx={{ flex: 1 }}>
+              <InputLabel id="gender-select-label">Gender</InputLabel>
+              <Select
+                required
+                labelId="gender-select-label"
+                value={gender}
+                label="Gender"
+                onChange={(e) => setGender(e.target.value)}
+              >
+                <MenuItem value={'male'}>Male</MenuItem>
+                <MenuItem value={'female'}>Female</MenuItem>
+                <MenuItem value={'non_binary'}>Non-binary</MenuItem>
+                <MenuItem value={'other'}>Other</MenuItem>
+                <MenuItem value={'prefer_not_say'}>Prefer Not to Say</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
         </Paper>
 

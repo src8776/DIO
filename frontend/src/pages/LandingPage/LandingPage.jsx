@@ -8,10 +8,14 @@ import AddClubCard from "./AddClubCard";
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
 
 function LandingPage() {
+    // FOR LOCAL DEVELOPMENT: HARDCODE DESIRED MEMBERID
+    //                                    HERE V
     const [memberID, setMemberID] = useState(null);
     const [organizationIDs, setOrganizationIDs] = useState([]);
     const [error, setError] = useState(null);
 
+
+    // FOR LOCAL DEVELOPMENT: COMMENT OUT THIS FETCH
     useEffect(() => {
         fetch('/api/user/memberID')
             .then(response => response.json())

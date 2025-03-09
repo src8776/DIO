@@ -19,7 +19,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
                 <Box>
                     <Typography variant="h6">Status</Typography>
                     <Typography variant="h5" sx={{ color: statusObject.status === 'active' ? 'green' : 'red' }}>
-                        {statusObject.status || 'inactive'}
+                        {statusObject.status || 'Inactive'}
                     </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem />

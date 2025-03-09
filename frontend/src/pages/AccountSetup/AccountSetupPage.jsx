@@ -14,7 +14,6 @@ const fetchUserProfileData = async () => {
   try {
     const response = await fetch('/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');
-    console.log('fetching user profile',response.json());
     return await response.json();
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -61,6 +60,7 @@ export default function AccountSetup() {
   useEffect(() => {
     const loadUserData = async () => {
       const profileData = await fetchUserProfileData();
+      console.log("Profile Data:", profileData);
       setFirstName(profileData.firstName);
       setEmail(profileData.email);
       setStudentYear(profileData.studentYear);

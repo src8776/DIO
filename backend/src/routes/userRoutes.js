@@ -13,6 +13,8 @@ const majors = [
   { id: 'data_science', name: 'Data Science' }
 ];
 
+const genders = await Member.getEnumValues('Gender');
+
 
 
 
@@ -28,7 +30,7 @@ router.get('/profile', async (req, res) => {
     // Fetch member data from the database
     const member = await Member.getMemberByEmail(user.email);
     console.log("Grabbing Member Data:", member);
-    
+
     // Ensure member exists before accessing properties
     const userProfile = {
       username: member?.UserName || user.username || 'Unknown',
@@ -96,6 +98,10 @@ router.post('/profile', async (req, res) => {
 
 router.get('/majors', (req, res) => {
   res.json(majors);
+});
+
+router.get('/genders', (req, res) => {
+  res.json(genders);
 });
 
 module.exports = router;

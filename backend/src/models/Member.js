@@ -123,6 +123,26 @@ class Member {
       throw err;
     }
   }
+
+  static async getEnumValues(columnName) {
+    try {
+      const [result] = await db.query(`SHOW COLUMNS FROM Members LIKE ?`, [columnName]);
+      if (!result.length) {
+        throw new Error(`Column ${columnName} not found in Members table`);
+      }
+  
+      // Extract ENUM values from the result
+      const enumValues = result[0].Type.match(/enum\((.*)\)/)[1]
+        .split(',')
+        .map(value => value.replace(/'/g, '')); // Remove quotes
+  
+      return enumValues;
+    } catch (err) {
+      console.error(`Error fetching ENUM values for ${columnName}:`, err);
+      throw err;
+    }
+  }
+
 }
 
 module.exports = Member;

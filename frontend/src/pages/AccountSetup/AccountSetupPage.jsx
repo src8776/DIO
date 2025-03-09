@@ -33,6 +33,18 @@ const fetchMajorData = async () => {
   }
 };
 
+//Fetch selectable genders from the genders api defined in userRoutes
+const fetchGenderData = async () => {
+  try {
+    const response = await fetch('/api/user/genders');
+    if (!response.ok) throw new Error('Failed to fetch genders');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching genders:', error);
+    return [];
+  }
+};
+
 //Pushes profile data to backend to save using the profile api
 const saveProfileData = async (data) => {
   const response = await fetch('/api/user/profile', {
@@ -77,8 +89,14 @@ export default function AccountSetup() {
       setMajors(majorList);
     };
 
+    const loadGenders = async () => {
+      const genderList = await fetchGenderData();
+      setGenders(genderList);
+    };
+
     loadUserData();
     loadMajors();
+    loadGenders();
   }, []);
 
   //when something changes, check if fields are filled, if so make true; if not, false
@@ -245,11 +263,11 @@ export default function AccountSetup() {
                 label="Gender"
                 onChange={(e) => setGender(e.target.value)}
               >
-                <MenuItem value={'male'}>Male</MenuItem>
-                <MenuItem value={'female'}>Female</MenuItem>
-                <MenuItem value={'non_binary'}>Non-binary</MenuItem>
-                <MenuItem value={'other'}>Other</MenuItem>
-                <MenuItem value={'prefer_not_say'}>Prefer Not to Say</MenuItem>
+                {genders.map((genderItem) => (
+                  <MenuItem key={genderItem.id} value={genderItem.id}>
+                    {genderItem.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>

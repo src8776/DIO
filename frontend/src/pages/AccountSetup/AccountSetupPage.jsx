@@ -66,6 +66,7 @@ export default function AccountSetup() {
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [race, setRace] = useState('');
+  const [gender, setGender] = useState('');
   const [genders, setGenders] = useState('');  
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 

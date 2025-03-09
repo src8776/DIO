@@ -17,7 +17,7 @@ const fetchUserProfileData = async () => {
   };
 
 function LandingPage() {
-    const [memberID, setMemberID] = useState(null);
+    const [memberID, setMemberID] = useState([]);
     const [organizationIDs, setOrganizationIDs] = useState([]);
 
     useEffect(() => {

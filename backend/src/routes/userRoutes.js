@@ -27,7 +27,8 @@ router.get('/profile', async (req, res) => {
 
     // Fetch member data from the database
     const member = await Member.getMemberByEmail(user.email);
-
+    console.log("Grabbing Member Data:", member);
+    
     // Ensure member exists before accessing properties
     const userProfile = {
       username: member?.UserName || user.username || 'Unknown',
@@ -82,6 +83,7 @@ router.post('/profile', async (req, res) => {
       race: updatedProfile.race,
     };
 
+    console.log("Inserting Member:", memberData);
     // Insert or update member in the database
     const memberId = await Member.insertMember(memberData);
 

@@ -14,6 +14,7 @@ const fetchUserProfileData = async () => {
   try {
     const response = await fetch('/api/user/profile');
     if (!response.ok) throw new Error('Failed to fetch user profile');
+    console.log('fetching user profile',response);
     return await response.json();
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -40,9 +41,8 @@ const saveProfileData = async (data) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
-
-  const result = await response.json();
-  console.log(result.message);
+  //const result = await response.json();
+  //console.log(result.message);
 };
 
 export default function AccountSetup() {

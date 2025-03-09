@@ -10,7 +10,7 @@ import AddClubCard from "./AddClubCard";
 function LandingPage() {
     const [memberID, setMemberID] = useState(null);
     const [organizationIDs, setOrganizationIDs] = useState([]);
-    const [error, setError] = useState(null); 
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetch('/api/user/memberID')
@@ -26,12 +26,25 @@ function LandingPage() {
     useEffect(() => {
         if (memberID !== null) {
             fetch(`/api/organizationInfo/organizationIDsByMemberID?memberID=${memberID}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (Array.isArray(data)) {
-                        setOrganizationIDs(data);
-                    } else {
-                        setOrganizationIDs([]);
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Network response was not ok:', response.status, response.statusText);
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text(); // Get the response as text
+                })
+                .then(text => {
+                    console.log('Response text:', text); // Log the response text
+                    try {
+                        const data = JSON.parse(text); // Try to parse the text as JSON
+                        if (Array.isArray(data)) {
+                            setOrganizationIDs(data);
+                        } else {
+                            setOrganizationIDs([]);
+                        }
+                    } catch (error) {
+                        console.error('Failed to parse JSON:', error);
+                        throw new Error('Failed to parse JSON');
                     }
                 })
                 .catch(error => {
@@ -59,17 +72,17 @@ function LandingPage() {
             ) : (
                 <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                     <Box sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                        You are not affiliated with any organizations yet.
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                        Please contact support or check your credentials.
-                    </Typography>
-                    <Box sx={{ mt: 4 }}>
-                        <Button variant="contained" color="primary" component={Link} to="/login">
-                        Login
-                        </Button>
-                    </Box>
+                        <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                            You are not affiliated with any organizations yet.
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                            Please contact support or check your credentials.
+                        </Typography>
+                        <Box sx={{ mt: 4 }}>
+                            <Button variant="contained" color="primary" component={Link} to="/login">
+                                Login
+                            </Button>
+                        </Box>
                     </Box>
                 </Container>
             )}

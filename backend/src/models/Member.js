@@ -38,10 +38,10 @@ class Member {
           member.major || null,
           member.graduationYear || null,
           member.academicYear || null,
-          member.ShirtSize || null,
-          member.PantSize || null,
-          member.Race || null,
-          member.Gender || null
+          member.shirtSize || null,
+          member.pantSize || null,
+          member.race || null,
+          member.gender || null
         ]
       );
 

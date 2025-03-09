@@ -63,7 +63,7 @@ export default function AccountSetup() {
       console.log("Profile Data:", profileData);
       setFirstName(profileData.firstName);
       setEmail(profileData.email);
-      setStudentYear(profileData.studentYear);
+      setStudentYear(profileData.academicYear);
       setGraduationDate(profileData.graduationDate);
       setMajor(profileData.major);
       setShirtSize(profileData.shirtSize);

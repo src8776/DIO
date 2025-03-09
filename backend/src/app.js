@@ -35,12 +35,12 @@ if (process.env.NODE_ENV === "production") {
     passport.use('saml', defaultSamlStrategy);
 
     passport.serializeUser(function (user, done) {
-        console.log("Serializing:", user);
+        //console.log("Serializing:", user);
         done(null, user);
     });
 
     passport.deserializeUser(function (user, done) {
-        console.log("Deserializing:", user);
+        //console.log("Deserializing:", user);
         done(null, {
             email: user['urn:oid:0.9.2342.19200300.100.1.3'],
             firstName: user['urn:oid:2.5.4.42'],

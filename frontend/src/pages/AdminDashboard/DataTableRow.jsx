@@ -9,8 +9,8 @@ const cellStyles = {
     pb: '0px'
 };
 
-const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
-    const [memberStatus, setMemberStatus] = React.useState(null);
+const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester }) => {
+    const [memberStatus, setMemberStatus] = React.useState('');
 
     const statusColor = memberStatus === 'Inactive' ? 'red' : 'green';
 
@@ -68,7 +68,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID }) => {
                 {formattedDate}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={memberStatus} />
+                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={memberStatus} selectedSemester={selectedSemester} />
             </TableCell>
         </TableRow>
     );

@@ -24,21 +24,31 @@ const style = {
   maxHeight: '95%',
 };
 
-const StatusChip = styled(Chip)(({ memberStatus }) => ({
-  backgroundColor: memberStatus === 'Active' ? '#e6ffe6' : '#ffe6e6',
-  color: memberStatus === 'Active' ? '#2e7d32' : '#c62828',
-}));
+const StatusChip = ({ memberStatus, ...props }) => (
+  <Chip
+    sx={{
+      backgroundColor: memberStatus === 'Active' ? '#e6ffe6' : '#ffe6e6',
+      color: memberStatus === 'Active' ? '#2e7d32' : '#c62828',
+    }}
+    {...props}
+  />
+);
 
-export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAdmin = false }) {
+export default function MemberDetailsModal({ memberID, orgID, memberStatus, selectedSemester }) {
   const [memberInfo, setMemberInfo] = React.useState();
 
   React.useEffect(() => {
     if (!memberID || !orgID) return;
-    fetch(`/api/memberDetails/allDetails?memberID=${memberID}&organizationID=${orgID}`)
+    let url = `/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}`;
+    if (selectedSemester) {
+      url += `&termCode=${selectedSemester.TermCode}`;
+    }
+    fetch(url)
       .then(response => response.json())
       .then(data => setMemberInfo(data))
       .catch(error => console.error('Error fetching data for MemberInfo:', error));
-  }, [memberID, orgID]);
+  }, [memberID, orgID, selectedSemester]);
+
 
   if (!memberInfo || memberInfo.length === 0) {
     return (
@@ -121,9 +131,14 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, isAd
 
             {/* Attendance History */}
             <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 1 }}>
-              <Typography variant="h6">
-                Attendance History
-              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Typography variant="h6">
+                  Attendance History
+                </Typography>
+                <Typography variant="h6">
+                  {selectedSemester ? selectedSemester.TermName : "all semesters"}
+                </Typography>
+              </Box>
               <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 200 }}>
                 <Table stickyHeader size="small">
                   <TableHead>

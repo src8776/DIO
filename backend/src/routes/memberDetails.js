@@ -48,6 +48,63 @@ router.get('/allDetails', async (req, res) => {
 });
 
 
+router.get('/detailsBySemester', async (req, res) => {
+    let memberID = parseInt(req.query.memberID, 10);
+    let organizationID = parseInt(req.query.organizationID, 10);
+    let termCode = req.query.termCode; // Optional, null if not provided
+
+    if (isNaN(memberID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
+    }
+
+    try {
+        let query = `
+            SELECT 
+                m.*, 
+                r.RoleName,
+                (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'AttendanceID', a.AttendanceID,
+                            'MemberID', a.MemberID,
+                            'EventID', a.EventID,
+                            'Hours', a.Hours,
+                            'CheckInTime', a.CheckInTime,
+                            'EventType', et.EventType
+                        )
+                    ) 
+                    FROM Attendance a
+                    LEFT JOIN EventInstances ei ON a.EventID = ei.EventID
+                    LEFT JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
+                    WHERE a.MemberID = m.MemberID AND a.OrganizationID = ?
+        `;
+
+        let subqueryParams = [organizationID];
+        if (termCode) {
+            query += ` AND ei.TermCode = ?`;
+            subqueryParams.push(termCode);
+        }
+
+        query += `
+                ) AS attendanceRecords
+            FROM Members m
+            JOIN OrganizationMembers om ON m.MemberID = om.MemberID
+            JOIN Roles r ON om.RoleID = r.RoleID
+            WHERE m.MemberID = ? AND om.OrganizationID = ?;
+        `;
+
+        let mainParams = [memberID, organizationID];
+        let params = [...subqueryParams, ...mainParams];
+
+        const [rows] = await db.query(query, params);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching member details by semester:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/name', async (req, res) => {
     console.log('Received request at /name');
 

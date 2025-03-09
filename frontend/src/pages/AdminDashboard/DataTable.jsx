@@ -177,7 +177,7 @@ function EnhancedTableToolbar(props) {
 
 EnhancedTableToolbar.propTypes = { numSelected: PropTypes.number.isRequired };
 
-export default function DataTable({ orgID, memberData, isLoading }) {
+export default function DataTable({ orgID, memberData, isLoading, selectedSemester }) {
     const [order, setOrder] = React.useState('desc');
     const [orderBy, setOrderBy] = React.useState('LastUpdated');
     const [selected, setSelected] = React.useState([]);
@@ -279,6 +279,7 @@ export default function DataTable({ orgID, memberData, isLoading }) {
                                         labelId={labelId}
                                         handleClick={handleClick}
                                         orgID={orgID}
+                                        selectedSemester={selectedSemester}
                                     />
                                 );
                             })

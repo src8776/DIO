@@ -13,13 +13,17 @@ function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
-  const [semester, setSemester] = React.useState('');
+  const [selectedSemester, setSelectedSemester] = React.useState(null);
   const [semesters, setSemesters] = React.useState([]);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   if (!allowedTypes.includes(org)) {
-    return <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>Organization Doesn't Exist</Typography>;
+    return (
+      <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
+        Organization Doesn't Exist
+      </Typography>
+    );
   }
 
   // Grab oranization ID from the abbreviation value
@@ -44,7 +48,7 @@ function AdminDash() {
         setSemesters(data);
         const activeSemester = data.find(semester => semester.IsActive === 1);
         if (activeSemester) {
-          setSemester(activeSemester.TermName);
+          setSelectedSemester(activeSemester || null);
         }
       })
       .catch((error) => {
@@ -52,19 +56,51 @@ function AdminDash() {
       });
   }, []);
 
-  // Fetch data on component mount
+  // Fetch member data when orgID or selectedSemester changes
   React.useEffect(() => {
-    if (orgID !== null) {
-      fetchData();
+    if (orgID !== null && selectedSemester !== undefined) {
+      setIsLoading(true);
+      const endpoint = selectedSemester
+        ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${selectedSemester.TermCode}`
+        : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
+      fetch(endpoint)
+        .then((response) => response.json())
+        .then((data) => {
+          setMemberData(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching member data:', error);
+          setIsLoading(false);
+        });
     }
-  }, [orgID]);
+  }, [orgID, selectedSemester]);
 
-  // Function to fetch member data
+  // Handle semester selection change
+  const handleSemesterChange = (event) => {
+    const value = event.target.value;
+    if (value === 0) {
+      setSelectedSemester(null);
+    } else {
+      const newSemester = semesters.find(sem => sem.SemesterID === value);
+      setSelectedSemester(newSemester);
+    }
+  };
+
+  // Callback to refresh data after upload
+  const handleUploadSuccess = () => {
+    if (selectedSemester === null) {
+      fetchData();
+    } else {
+      fetchData(selectedSemester.TermCode);
+    }
+  };
+
   const fetchData = (termCode = null) => {
     setIsLoading(true);
-    const endpoint = termCode ? 
-    `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}` : 
-    `/api/admin/datatableAllTerms?organizationID=${orgID}`;
+    const endpoint = termCode
+      ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}`
+      : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
     fetch(endpoint)
       .then((response) => response.json())
       .then((data) => {
@@ -77,29 +113,12 @@ function AdminDash() {
       });
   };
 
-  // Callback to refresh data after upload
-  const handleUploadSuccess = () => {
-    fetchData();
-  };
-
-  const handleSemesterChange = (event) => {
-    const selectedSemester = event.target.value;
-    setSemester(selectedSemester);
-    if (selectedSemester === "All Semesters") {
-      fetchData();
-    } else {
-      const selectedTermCode = semesters.find(sem => sem.TermName === selectedSemester)?.TermCode;
-      fetchData(selectedTermCode);
-    }
-  };
 
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-      {/* Dashboard Content */}
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-
-        {/* Header: Organization Flavor Text & Close Button */}
+        {/* Header */}
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           {/* Flavor Text */}
           <Box>
@@ -112,16 +131,16 @@ function AdminDash() {
           </Box>
           {/* Semester Select */}
           <Select
-            value={semester}
+            value={selectedSemester ? selectedSemester.SemesterID : 0}
             onChange={handleSemesterChange}
             displayEmpty
             inputProps={{ 'aria-label': 'Select Semester' }}
             size='small'
             sx={{ width: 150 }}
           >
-            <MenuItem value="All Semesters">All Semesters</MenuItem>
+            <MenuItem value={0}>All Semesters</MenuItem>
             {semesters.map((sem) => (
-              <MenuItem key={sem.SemesterID} value={sem.TermName}>
+              <MenuItem key={sem.SemesterID} value={sem.SemesterID}>
                 {sem.TermName}
               </MenuItem>
             ))}
@@ -139,7 +158,7 @@ function AdminDash() {
 
         {/* Data Table */}
         <Paper elevation={0}>
-          <DataTable orgID={orgID} memberData={memberData} isLoading={isLoading} />
+          <DataTable orgID={orgID} memberData={memberData} isLoading={isLoading} selectedSemester={selectedSemester} />
         </Paper>
       </Box>
     </Container>

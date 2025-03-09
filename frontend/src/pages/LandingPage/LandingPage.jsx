@@ -17,14 +17,15 @@ const fetchUserProfileData = async () => {
   };
 
 function LandingPage() {
-    const [memberID, setMemberID] = useState(89);
+    const [memberID, setMemberID] = useState();
     const [organizationIDs, setOrganizationIDs] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             const profileData = await fetchUserProfileData();
             console.log("Profile Data:", profileData);
-            setMemberID(profileData.memberID);
+            //setMemberID(profileData.memberID);
+            setMemberID(87);
         };
         fetchData();
     }, []);

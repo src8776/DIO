@@ -56,10 +56,11 @@ router.post('/profile', async (req, res) => {
     const user = req.user;
     const updatedProfile = req.body;
 
+    /*
     if (updatedProfile.email !== user.email) {
       return res.status(403).json({ message: 'Email cannot be changed' });
     }
-
+*/
     // Prepare member object
     const memberData = {
       //firstName: updatedProfile.firstName,
@@ -82,6 +83,10 @@ router.post('/profile', async (req, res) => {
     console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+router.get('/majors', (req, res) => {
+  res.json(majors);
 });
 
 module.exports = router;

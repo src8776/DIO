@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Skeleton } from "@mui/material";
+import { Box, Container, Skeleton, Button, Typography } from "@mui/material";
 import ClubCard from './ClubCard';
 import AddClubCard from "./AddClubCard";
 
@@ -56,7 +56,21 @@ function LandingPage() {
                     <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} />
                 ))
             ) : (
-                <Box>No organizations found.</Box> // Display message if no organizations found
+                <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                        You are not affiliated with any organizations yet.
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                        Please contact support or check your credentials.
+                    </Typography>
+                    <Box sx={{ mt: 4 }}>
+                        <Button variant="contained" color="primary" component={Link} to="/login">
+                        Login
+                        </Button>
+                    </Box>
+                    </Box>
+                </Container>
             )}
             {/* Setting up for expandability */}
             {/* <AddClubCard/> */}

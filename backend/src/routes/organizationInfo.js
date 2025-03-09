@@ -128,74 +128,34 @@ router.get('/name', async (req, res) => {
 
 
 router.get('/activeRequirement', async (req, res) => {
-    console.log('Received request at /organizationInfo/activeRequirement');
-
-    let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
-
-    if (isNaN(organizationID)) {
-        return res.status(400).json({ error: 'Invalid organizationID parameter' });
-    }
-
+    const { organizationID, semesterID } = req.query;
     try {
-        const rows = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
-        res.json(rows);
+        const [rows] = await db.query(
+            `SELECT ActiveRequirement, Description 
+            FROM OrganizationSettings 
+            WHERE OrganizationID = ? AND SemesterID = ?
+            `,
+            [organizationID, semesterID]
+        );
+        res.json(rows.length > 0 ? rows : [{ ActiveRequirement: null, Description: null }]);
     } catch (error) {
-        console.error('Error fetching Organization Info data:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 
-// endpoint to insert a new ActiveRequirement value
 router.post('/updateActiveRequirement', async (req, res) => {
-    console.log('Received request at /organizationInfo/updateActiveRequirement (POST)');
-    const { organizationID, activeRequirement, requirementType } = req.body;
-    
-    if (!organizationID || (!activeRequirement && !requirementType)) {
-        return res.status(400).json({ error: 'Missing organizationID or activeRequirement/requirementType parameter' });
-    }
-
-    console.log('Updating ActiveRequirement and/or requirementType:', { organizationID, activeRequirement, requirementType });
-
+    const { organizationID, semesterID, activeRequirement, requirementType } = req.body;
     try {
-        // Check if the record exists
-        const checkQuery = `
-            SELECT ConfigID
-            FROM OrganizationSettings
-            WHERE OrganizationID = ?
-        `;
-        const [checkResult] = await db.query(checkQuery, [organizationID]);
-
-        if (checkResult.length > 0) {
-            // Record exists, update it
-            if (activeRequirement) {
-                const updateRequirementQuery = `
-                    UPDATE OrganizationSettings
-                    SET ActiveRequirement = ?
-                    WHERE OrganizationID = ?
-                `;
-                await db.query(updateRequirementQuery, [activeRequirement, organizationID]);
-            }
-            if (requirementType) {
-                const updateRequirementTypeQuery = `
-                    UPDATE OrganizationSettings
-                    SET Description = ?
-                    WHERE OrganizationID = ?
-                `;
-                await db.query(updateRequirementTypeQuery, [requirementType, organizationID]);
-            }
-            res.json({ success: true, message: 'ActiveRequirement and/or requirementType value updated successfully' });
-        } else {
-            // Record does not exist, insert it
-            const insertQuery = `
-                INSERT INTO OrganizationSettings (OrganizationID, ActiveRequirement, requirementType)
-                VALUES (?, ?, ?)
-            `;
-            await db.query(insertQuery, [organizationID, activeRequirement || null, requirementType || null]);
-            res.json({ success: true, message: 'ActiveRequirement and/or requirementType value inserted successfully' });
-        }
+        await db.query(`
+            INSERT INTO OrganizationSettings (OrganizationID, SemesterID, ActiveRequirement, Description) 
+            VALUES (?, ?, ?, ?) 
+            ON DUPLICATE KEY UPDATE ActiveRequirement = ?, Description = ?
+            `,
+            [organizationID, semesterID, activeRequirement, requirementType, activeRequirement, requirementType]
+        );
+        res.json({ success: true });
     } catch (error) {
-        console.error('Error updating ActiveRequirement and/or requirementType:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

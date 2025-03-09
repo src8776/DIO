@@ -30,7 +30,8 @@ const modalStyle = {
     p: 4,
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
-    maxHeight: '90%'
+    maxHeight: '90%',
+    overflowY: 'auto'
 };
 
 // Helper function to generate a readable description for a given rule
@@ -74,7 +75,7 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, refetchEventRules }) {
+export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, refetchEventRules, isEditable }) {
     const [editRuleOpen, setEditRuleOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [requirementType, setRequirementType] = React.useState('');
@@ -99,23 +100,18 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
 
 
     React.useEffect(() => {
-        fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    setActiveRequirement(data[0].ActiveRequirement); // Extract ActiveRequirement directly
-                    setRequirementType(data[0].Description); // Extract RequirementType directly (either 'points' or 'criteria')
-                } else {
-                    setActiveRequirement(null);
-                    setRequirementType(null);
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setActiveRequirement(null);
-                setRequirementType(null);
-            });
-    }, [orgID]);
+            if (orgID && semesterID) {
+                fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semesterID}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            setActiveRequirement(data[0].ActiveRequirement);
+                            setRequirementType(data[0].Description);
+                        }
+                    })
+                    .catch(error => console.error('Error fetching active requirement:', error));
+            }
+        }, [orgID, semesterID]);
 
     React.useEffect(() => {
         setCurrentOccurrenceTotal(occurrenceTotal);
@@ -295,31 +291,14 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                orgID,
-                eventTypeID,
+                orgID, eventTypeID, semesterID,
                 criteria: newRuleCriteriaType,
                 criteriaValue,
                 pointValue,
             }),
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.message === 'Rule added successfully') {
-                    // Close form and reset fields
-                    setAddRuleOpen(false);
-                    setNewRuleCriteriaType('');
-                    setNewRuleCriteriaValue('');
-                    setNewRulePointValue(1);
-                    setAddPercentError('');
-                    setAddPointError('');
-                    refetchEventRules();
-                } else {
-                    console.error('Error adding rule:', data.error);
-                }
-            })
-            .catch((error) => {
-                console.error('Error adding rule:', error);
-            });
+            .then(response => response.json())
+            .then(data => data.message === 'Rule added successfully' && (setAddRuleOpen(false), refetchEventRules()));
     };
 
     return (
@@ -367,7 +346,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     </Typography>
                 )}
 
-                <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
+                <Paper component="form" sx={{ minHeight: '143px', width: '100%', overflowX: 'auto' }}>
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>

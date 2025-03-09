@@ -13,8 +13,6 @@ const majors = [
   { id: 'data_science', name: 'Data Science' }
 ];
 
-const genders = await Member.getEnumValues('Gender');
-
 
 
 
@@ -100,7 +98,8 @@ router.get('/majors', (req, res) => {
   res.json(majors);
 });
 
-router.get('/genders', (req, res) => {
+router.get('/genders', async (req, res) => {
+  const genders = await Member.getEnumValues('Gender');
   res.json(genders);
 });
 

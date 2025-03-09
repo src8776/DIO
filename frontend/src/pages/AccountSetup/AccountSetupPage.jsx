@@ -137,8 +137,9 @@ export default function AccountSetup() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Graduation Date"
+                  views={['year']}
                   value={graduationDate ? dayjs(graduationDate) : null}
-                  onChange={(newDate) => { setGraduationDate(newDate) }}
+                  onChange={(newDate) => { setGraduationDate(newDate.year()) }}
                   sx={{ flex: 1 }}
                 />
               </LocalizationProvider>

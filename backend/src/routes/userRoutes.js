@@ -34,7 +34,7 @@ router.get('/profile', async (req, res) => {
       firstName: member?.FirstName || user.firstName || 'Unknown',
       lastName: member?.LastName || user.lastName || 'Unknown',
       email: user.email,
-      fullName: member?.fullName || `${user.firstName} ${user.lastName}` || 'Unknown',
+      fullName: member?.FullName || `${user.firstName} ${user.lastName}` || 'Unknown',
       major: member?.Major || 'Unknown',
       graduationDate: member?.GraduationYear || 'Unknown',
       academicYear: member?.AcademicYear,
@@ -69,7 +69,7 @@ router.post('/profile', async (req, res) => {
     // Prepare member object
     const memberData = {
       username: user.username,
-      firtName: user.firstName,
+      firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       fullName: `${user.firstName} ${user.lastName}`,

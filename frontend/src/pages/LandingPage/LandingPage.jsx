@@ -5,9 +5,20 @@ import AddClubCard from "./AddClubCard";
 
 // TODO: Role based access control
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
+const fetchUserProfileData = async () => {
+    try {
+      const response = await fetch('/api/user/profile');
+      if (!response.ok) throw new Error('Failed to fetch user profile');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
 
 function LandingPage() {
-    const [memberID, setMemberID] = useState(89);
+    const profileData = fetchUserProfileData();
+    const [memberID, setMemberID] = useState(profileData?.memberID || null);
     const [organizationIDs, setOrganizationIDs] = useState([]);
 
     React.useEffect(() => {

@@ -19,7 +19,7 @@ const fetchUserProfileData = async () => {
 function LandingPage() {
     const profileData = fetchUserProfileData();
     console.log("LandingPage data:",profileData);
-    const [memberID, setMemberID] = useState(89);
+    const [memberID, setMemberID] = useState(profileData.memberID);
     const [organizationIDs, setOrganizationIDs] = useState([]);
 
     React.useEffect(() => {

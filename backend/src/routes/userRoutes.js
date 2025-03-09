@@ -104,7 +104,7 @@ router.get('/genders', (req, res) => {
 });
 
 router.get('/memberID', attachMemberData, (req, res) => {
-  const memberID = req.user.memberID;
+  const memberID = req.member.memberID;
   res.json({ memberID });
 })
 

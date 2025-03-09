@@ -32,7 +32,7 @@ router.get('/profile', async (req, res) => {
     const userProfile = {
       username: member?.UserName || user.username || 'Unknown',
       firstName: member?.FirstName || user.firstName || 'Unknown',
-      lastName: member?.lastName || user.lastName || 'Unknown',
+      lastName: member?.LastName || user.lastName || 'Unknown',
       email: user.email,
       fullName: member?.fullName || `${user.firstName} ${user.lastName}` || 'Unknown',
       major: member?.Major || 'Unknown',

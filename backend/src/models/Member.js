@@ -16,7 +16,7 @@ class Member {
       // Insert the member
       const [result] = await db.query(
         `INSERT INTO Members (UserName, FirstName, LastName, Email, fullName, Major, GraduationYear, AcademicYear, ShirtSize, PantSize, Gender, Race)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE 
            UserName = VALUES(UserName),
            FirstName = VALUES(FirstName),

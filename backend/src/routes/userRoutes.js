@@ -35,12 +35,13 @@ router.get('/profile', async (req, res) => {
       lastName: member?.lastName || user.lastName || 'Unknown',
       email: user.email,
       fullName: member?.fullName || `${user.firstName} ${user.lastName}` || 'Unknown',
-      //studentYear: member?.AcademicYear || 'Unknown',
       major: member?.Major || 'Unknown',
       graduationDate: member?.GraduationYear || 'Unknown',
       academicYear: member?.AcademicYear,
       shirtSize: member?.ShirtSize || 'Unknown',
-      pantSize: member?.PantSize || 'Unknown'
+      pantSize: member?.PantSize || 'Unknown',
+      gender: member?.Gender || 'Unknown',
+      race: member?.Race || 'Unknown',
     };
 
     res.json(userProfile);
@@ -72,11 +73,13 @@ router.post('/profile', async (req, res) => {
       lastName: user.lastName,
       email: user.email,
       fullName: `${user.firstName} ${user.lastName}`,
-      Major: updatedProfile.major,
-      GraduationYear: updatedProfile.graduationDate,
-      AcademicYear: updatedProfile.studentYear,
-      ShirtSize: updatedProfile.shirtSize,
-      PantSize: updatedProfile.pantSize
+      major: updatedProfile.major,
+      graduationYear: updatedProfile.graduationDate,
+      academicYear: updatedProfile.studentYear,
+      shirtSize: updatedProfile.shirtSize,
+      pantSize: updatedProfile.pantSize,
+      gender: updatedProfile.gender,
+      race: updatedProfile.race,
     };
 
     // Insert or update member in the database

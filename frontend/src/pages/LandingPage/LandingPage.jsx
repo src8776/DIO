@@ -17,10 +17,20 @@ const fetchUserProfileData = async () => {
   };
 
 function LandingPage() {
-    const profileData = fetchUserProfileData();
-    console.log("LandingPage data:",profileData);
-    const [memberID, setMemberID] = useState(profileData.memberID);
+    const [memberID, setMemberID] = useState(null);
     const [organizationIDs, setOrganizationIDs] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const profileData = await fetchUserProfileData();
+            if (profileData && profileData.memberID) {
+                setMemberID(profileData.memberID);
+            } else {
+                console.error('No member ID found');
+            }
+        };
+        fetchData();
+    }, []);
 
     React.useEffect(() => {
         fetch(`/api/organizationInfo/organizationIDsByMemberID?memberID=${memberID}`)

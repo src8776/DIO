@@ -5,7 +5,6 @@ import {
   TableHead, TableRow, Paper, Box,
   Chip,
 } from "@mui/material";
-import { styled } from '@mui/material/styles';
 
 // TODO: Option to delete attendance records from the attendance history table here if they are an admin
 //       - user feedback for deleting records ('this action cannot be undone', 'deleted successfully', etc.)?

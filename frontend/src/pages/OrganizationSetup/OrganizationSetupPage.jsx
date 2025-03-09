@@ -5,7 +5,7 @@ import {
     Typography, List,
     ListItemText,
     ListItemButton, Skeleton,
-    Snackbar, Alert
+    Snackbar, Alert, Select, MenuItem
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
@@ -19,6 +19,8 @@ export default function OrganizationSetup() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];
     const [orgID, setOrgID] = React.useState(null);
+    const [selectedSemester, setSelectedSemester] = React.useState(null);
+    const [semesters, setSemesters] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [formOpen, setFormOpen] = React.useState(false);
     const [successMessage, setSuccessMessage] = React.useState(null);
@@ -30,7 +32,11 @@ export default function OrganizationSetup() {
     const handleFormClose = () => setFormOpen(false);
 
     if (!allowedTypes.includes(org)) {
-        return <Typography component={Paper} variant='h1' sx={{alignContent: 'center', p: 6, m: 'auto'}}>Organization Doesn't Exist</Typography>;
+        return (
+            <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
+                Organization Doesn't Exist
+            </Typography>
+        );
     }
 
     React.useEffect(() => {
@@ -46,6 +52,22 @@ export default function OrganizationSetup() {
                 console.error('Error fetching orgID:', error);
             });
     }, [org]);
+
+    // Fetch semesters on component mount
+    React.useEffect(() => {
+        fetch('/api/admin/getSemesters')
+            .then((response) => response.json())
+            .then((data) => {
+                setSemesters(data);
+                const activeSemester = data.find(semester => semester.IsActive === 1);
+                if (activeSemester) {
+                    setSelectedSemester(activeSemester || null);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching semesters:', error);
+            });
+    }, []);
 
     // Function to fetch event rules
     const fetchEventRules = React.useCallback(() => {
@@ -69,6 +91,17 @@ export default function OrganizationSetup() {
     }, [fetchEventRules]);
 
     const handleCloseSnackbar = () => setSuccessMessage(null);
+
+    // Handle semester selection change
+    const handleSemesterChange = (event) => {
+        const value = event.target.value;
+        if (value === 0) {
+            setSelectedSemester(null);
+        } else {
+            const newSemester = semesters.find(sem => sem.SemesterID === value);
+            setSelectedSemester(newSemester);
+        }
+    };
 
     // Extract the number of rules
     const numberOfRules = orgRules ? orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0) : 0;
@@ -94,8 +127,22 @@ export default function OrganizationSetup() {
                             </>
                         )}
                     </Box>
-                    {/* TODO: Reflect current semester, need to figure out this system */}
-                    <Typography>Spring Semester, 2025</Typography>
+                    {/* Semester Select */}
+                    <Select
+                        value={selectedSemester ? selectedSemester.SemesterID : 0}
+                        onChange={handleSemesterChange}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Select Semester' }}
+                        size='small'
+                        sx={{ width: 150 }}
+                    >
+                        <MenuItem value={0}>All Semesters</MenuItem>
+                        {semesters.map((sem) => (
+                            <MenuItem key={sem.SemesterID} value={sem.SemesterID}>
+                                {sem.TermName}
+                            </MenuItem>
+                        ))}
+                    </Select>
                 </Box>
 
                 {/* RULES CONTAINER */}

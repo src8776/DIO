@@ -18,25 +18,31 @@ export default function ClubCard({ memberID, orgID }) {
         if (!orgID) return;
         fetch(`/api/organizationInfo/abbreviationByOrganizationID?organizationID=${orgID}`)
             .then(response => response.json())
-            .then(data => setOrgAbbreviation(data[0].Abbreviation))
+            .then(data => {
+                if (data && data[0]) {
+                    setOrgAbbreviation(data[0].Abbreviation);
+                } else {
+                    setOrgAbbreviation('Unknown');
+                }
+            })
             .catch(error => console.error('Error fetching data for MemberName:', error));
     }, [orgID]);
 
     React.useEffect(() => {
-        if (!memberID) return;
+        if (!memberID || !orgID) return;
         fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}`)
             .then(response => response.json())
-            .then(data => setMemberStatus(data.status))
+            .then(data => setMemberStatus(data.status || 'No status available'))
             .catch(error => console.error('Error fetching data for MemberName:', error));
-    }, [memberID]);
+    }, [memberID, orgID]);
 
     React.useEffect(() => {
-        if (!memberID) return;
+        if (!memberID || !orgID) return;
         fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
             .then(response => response.json())
-            .then(data => setMemberRole(data.role))
+            .then(data => setMemberRole(data.role || 'No role assigned'))
             .catch(error => console.error('Error fetching data for MemberName:', error));
-    }, [memberID]);
+    }, [memberID, orgID]);
 
 
 

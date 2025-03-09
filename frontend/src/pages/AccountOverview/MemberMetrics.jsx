@@ -18,8 +18,8 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
                 <Box>
                     <Typography variant="h6">Status</Typography>
-                    <Typography variant="h5" sx={{ color: statusObject.status === 'inactive' ? 'red' : 'green' }}>
-                        {statusObject.status || 'No status'}
+                    <Typography variant="h5" sx={{ color: statusObject.status === 'active' ? 'green' : 'red' }}>
+                        {statusObject.status || 'inactive'}
                     </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem />

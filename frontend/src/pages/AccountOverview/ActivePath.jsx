@@ -92,8 +92,8 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                                     >
                                         {eventType.progress.uncappedPoints >
                                             eventType.progress.points
-                                            ? `Points earned: ${statusObject.breakdown[eventType.name]} (capped from ${eventType.progress.uncappedPoints})`
-                                            : `Points earned: ${statusObject.breakdown[eventType.name]}`}
+                                            ? `Points earned: ${statusObject.breakdown && statusObject.breakdown[eventType.name] ? statusObject.breakdown[eventType.name] : 0} (capped from ${eventType.progress.uncappedPoints})`
+                                            : `Points earned: ${statusObject.breakdown && statusObject.breakdown[eventType.name] ? statusObject.breakdown[eventType.name] : 0}`}
                                     </Typography>
                                 </ListItem>
 

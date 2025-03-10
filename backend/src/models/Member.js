@@ -15,14 +15,14 @@ class Member {
 
       // Insert the member
       const [result] = await db.query(
-        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, Major, GraduationYear, AcademicYear, ShirtSize, PantSize, Race, Gender)
+        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationYear, AcademicYear, ShirtSize, PantSize, Race, Gender)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE 
            UserName = VALUES(UserName),
            FirstName = VALUES(FirstName),
            LastName = VALUES(LastName),
            FullName = VALUES(FullName),
-           Major = VALUES(Major),
+           MajorID = VALUES(Major),
            GraduationYear = VALUES(GraduationYear),
            AcademicYear = VALUES(AcademicYear),
            ShirtSize = VALUES(ShirtSize),
@@ -35,7 +35,7 @@ class Member {
           lastName,
           member.email,
           fullName,
-          member.major || null,
+          member.majorID || null,
           member.graduationYear || null,
           member.academicYear || null,
           member.shirtSize || null,
@@ -120,6 +120,43 @@ class Member {
       return member || null;
     } catch (err) {
       console.error('Error fetching member email:', err);
+      throw err;
+    }
+  }
+
+  static async getMajorById(majorID) {
+    try {
+      const [[major]] = await db.query(
+        'SELECT Title FROM major WHERE MajorID = ?',
+        [majorID],
+      );
+      return major || null;
+    } catch (err) {
+      console.error('Error fetching major:', err);
+      throw err;
+    }
+  }
+
+  static async getMajorIdByTitle(majorTitle) {
+    try {
+      const [[major]] = await db.query(
+        'SELECT MajorID FROM major WHERE Title = ?',
+        [majorID],
+      );
+      return major || null;
+    } catch (err) {
+      console.error('Error fetching major:', err);
+      throw err;
+    }
+  }
+
+  static async getMajors() {
+    try {
+      const [[major]] = await db.query(
+        'SELECT Title FROM major');
+      return major || null;
+    } catch (err) {
+      console.error('Error fetching major:', err);
       throw err;
     }
   }

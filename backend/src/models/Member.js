@@ -127,7 +127,7 @@ class Member {
   static async getMajorById(majorID) {
     try {
       const [[major]] = await db.query(
-        'SELECT Title FROM major WHERE MajorID = ?',
+        'SELECT Title FROM Majors WHERE MajorID = ?',
         [majorID],
       );
       return major || null;
@@ -140,7 +140,7 @@ class Member {
   static async getMajorIdByTitle(majorTitle) {
     try {
       const [[major]] = await db.query(
-        'SELECT MajorID FROM major WHERE Title = ?',
+        'SELECT MajorID FROM Majors WHERE Title = ?',
         [majorID],
       );
       return major || null;
@@ -153,7 +153,7 @@ class Member {
   static async getMajors() {
     try {
       const [[major]] = await db.query(
-        'SELECT Title FROM major');
+        'SELECT Title FROM Majors');
       return major || null;
     } catch (err) {
       console.error('Error fetching major:', err);

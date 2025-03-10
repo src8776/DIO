@@ -150,9 +150,9 @@ router.post('/updateActiveRequirement', async (req, res) => {
         await db.query(`
             INSERT INTO OrganizationSettings (OrganizationID, SemesterID, ActiveRequirement, Description) 
             VALUES (?, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE ActiveRequirement = ?, Description = ?
+            ON DUPLICATE KEY UPDATE ActiveRequirement = VALUES(ActiveRequirement), Description = VALUES(Description)
             `,
-            [organizationID, semesterID, activeRequirement, requirementType, activeRequirement, requirementType]
+            [organizationID, semesterID, activeRequirement, requirementType]
         );
         res.json({ success: true });
     } catch (error) {

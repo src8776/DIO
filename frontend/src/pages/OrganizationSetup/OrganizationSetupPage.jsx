@@ -4,7 +4,8 @@ import {
     Modal, Paper, Typography,
     List, ListItemText, ListItemButton,
     Skeleton, Snackbar, Alert,
-    Select, MenuItem
+    Select, MenuItem, Dialog, DialogTitle,
+    DialogContent, DialogActions,
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import ActiveModal from './ActiveModal';
@@ -20,13 +21,13 @@ export default function OrganizationSetup() {
     const [orgID, setOrgID] = React.useState(null);
     const [selectedSemester, setSelectedSemester] = React.useState(null);
     const [semesters, setSemesters] = React.useState([]);
-    const [isEditable, setIsEditable] = React.useState(false);
+    const [isEditable, setIsEditable] = React.useState(true);
     const [openCopyDialog, setOpenCopyDialog] = React.useState(false);
     const [sourceSemester, setSourceSemester] = React.useState(null);
     const [open, setOpen] = React.useState(false);
     const [formOpen, setFormOpen] = React.useState(false);
     const [successMessage, setSuccessMessage] = React.useState(null);
-    const [orgRules, setOrgRules] = React.useState();
+    const [orgRules, setOrgRules] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
 
     const handleOpen = () => setOpen(true);
@@ -72,15 +73,17 @@ export default function OrganizationSetup() {
             });
     }, []);
 
-    React.useEffect(() => {
-        if (selectedSemester) {
-            const today = new Date();
-            const semesterStart = new Date(selectedSemester.StartDate);
-            setIsEditable(semesterStart >= today || selectedSemester.IsActive === 1);
-        } else {
-            setIsEditable(false);
-        }
-    }, [selectedSemester]);
+// Uncomment this once the clients have confirmed past semester rules are correct
+    // determine if a semester is editable
+    // React.useEffect(() => {
+    //     if (selectedSemester) {
+    //         const today = new Date();
+    //         const semesterStart = new Date(selectedSemester.StartDate);
+    //         setIsEditable(semesterStart >= today || selectedSemester.IsActive === 1);
+    //     } else {
+    //         setIsEditable(false);
+    //     }
+    // }, [selectedSemester]);
 
     const fetchEventRules = React.useCallback(() => {
         if (orgID && selectedSemester) {
@@ -117,24 +120,25 @@ export default function OrganizationSetup() {
 
     const handleCopyRules = () => {
         fetch('/api/organizationRules/copyRules', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            organizationID: orgID,
-            sourceSemesterID: sourceSemester.SemesterID,
-            targetSemesterID: selectedSemester.SemesterID,
-          }),
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                organizationID: orgID,
+                sourceSemesterID: sourceSemester.SemesterID,
+                targetSemesterID: selectedSemester.SemesterID,
+            }),
         })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              setSuccessMessage('Rules copied successfully!');
-              fetchRules(selectedSemester.SemesterID).then(rules => setOrgRules(rules)); // Refresh rules
-              setOpenCopyDialog(false);
-            }
-          })
-          .catch(error => console.error('Error copying rules:', error));
-      };
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setSuccessMessage('Rules copied successfully!');
+                    fetchEventRules();  // Refresh rules
+                    setOpenCopyDialog(false);
+                }
+            })
+            .catch(error => console.error('Error copying rules:', error));
+    };
+
 
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
@@ -173,8 +177,16 @@ export default function OrganizationSetup() {
                         ))}
                     </Select>
                 </Box>
+
+                {/* Copy Rules Button */}
+                {isEditable && (
+                    <Button variant="outlined" onClick={() => setOpenCopyDialog(true)}>
+                        Copy Rules from Previous Semester
+                    </Button>
+                )}
+
                 {!isEditable && selectedSemester && (
-                    <Typography color="textSecondary">Rules for past semesters are read-only.</Typography>
+                    <Typography color="red">Rules for past semesters are read-only.</Typography>
                 )}
                 {/* Organization Rules Table */}
                 <Paper>
@@ -231,6 +243,45 @@ export default function OrganizationSetup() {
                     </List>
                 </Paper>
             </Box>
+
+            {/* Copy Rules Dialog */}
+            <Dialog open={openCopyDialog} onClose={() => setOpenCopyDialog(false)}>
+                <DialogTitle>Copy Rules from Previous Semester</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        Copying Rules from:
+                    </Typography>
+                    <Select
+                        fullWidth
+                        value={sourceSemester ? sourceSemester.SemesterID : ''}
+                        onChange={e => setSourceSemester(semesters.find(sem => sem.SemesterID === e.target.value))}
+                    >
+                        {semesters
+                            .filter(sem => sem.SemesterID !== selectedSemester?.SemesterID)
+                            .map(sem => (
+                                <MenuItem key={sem.SemesterID} value={sem.SemesterID}>{sem.TermName}</MenuItem>
+                            ))}
+                    </Select>
+                    <Typography variant="body1" sx={{ mt: 2, mb: 2 }}>
+                        Copying Rules to:
+                    </Typography>
+                    <Select
+                        fullWidth
+                        value={selectedSemester ? selectedSemester.SemesterID : ''}
+                        disabled
+                    >
+                        {semesters
+                            .filter(sem => sem.SemesterID === selectedSemester?.SemesterID)
+                            .map(sem => (
+                                <MenuItem key={sem.SemesterID} value={sem.SemesterID}>{sem.TermName}</MenuItem>
+                            ))}
+                    </Select>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenCopyDialog(false)}>Cancel</Button>
+                    <Button onClick={handleCopyRules} disabled={!sourceSemester}>Copy Rules</Button>
+                </DialogActions>
+            </Dialog>
             {/* Success Snackbar */}
             <Snackbar
                 open={!!successMessage}

@@ -4,7 +4,7 @@ import {
     FormControl, IconButton,
     InputLabel, MenuItem, Paper,
     Select, Table, TableBody, TableCell,
-    TableHead, TextField, Typography
+    TableHead, TableRow, TextField, Typography
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -108,22 +108,26 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
                     <Table>
                         <TableHead>
-                            <TableCell><strong>Rule</strong></TableCell>
-                            <TableCell><strong>{requirementType == 'criteria' ? 'Criteria' : 'Points'}</strong></TableCell>
+                            <TableRow>
+                                <TableCell><strong>Rule</strong></TableCell>
+                                <TableCell><strong>{requirementType == 'criteria' ? 'Criteria' : 'Points'}</strong></TableCell>
+                            </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableCell>To achieve active status:</TableCell>
-                            <TableCell>
-                                {activeRequirement ? (
-                                    requirementType == 'criteria' ? (
-                                        activeRequirement == numberOfRules ? 'Meet all criteria' : `Meet at least ${activeRequirement} criteria`
+                            <TableRow>
+                                <TableCell>To achieve active status:</TableCell>
+                                <TableCell>
+                                    {activeRequirement ? (
+                                        requirementType == 'criteria' ? (
+                                            activeRequirement == numberOfRules ? 'Meet all criteria' : `Meet at least ${activeRequirement} criteria`
+                                        ) : (
+                                            `earn ${activeRequirement} points.`
+                                        )
                                     ) : (
-                                        `earn ${activeRequirement} points.`
-                                    )
-                                ) : (
-                                    'no rule defined'
-                                )}
-                            </TableCell>
+                                        'no rule defined'
+                                    )}
+                                </TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </Box>
@@ -138,7 +142,7 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
                         <FormControl>
                             <InputLabel id="requiremen-type-select-label">Requirement Type</InputLabel>
                             <Select
-                                labelID="requiremen-type-select-label"
+                                labelId="requiremen-type-select-label"
                                 label="Requirement Type"
                                 value={newRequirementType}
                                 onChange={(e) => setNewRequirementType(e.target.value)}

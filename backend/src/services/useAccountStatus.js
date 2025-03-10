@@ -8,11 +8,11 @@ const { sendActiveStatusEmail } = require('../utils/email');
 
 
 // TODO: Update to take in semester
-const updateMemberStatus = async (memberID, organizationID) => {
+const updateMemberStatus = async (memberID, organizationID, semester) => {
     try {
-        const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
-        const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
-        const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
+        const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID, semester.SemesterID);
+        const orgRulesData = await EventRule.getEventRulesByOrgAndSemester(organizationID, semester.SemesterID);
+        const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID, semester.TermCode);
         const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
 
         const memberName = await Member.getMemberNameById(memberID);

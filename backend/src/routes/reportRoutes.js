@@ -14,16 +14,27 @@ router.post('/', async (req, res) => {
 
 const generateReport = (res, members) => {
     // Create a new PDF document
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({
+        margins: { // Set margins in points (1 point = 1/72 inch)
+            top: 50,
+            bottom: 50,
+            left: 50,
+            right: 50
+        },
+        autoFirstPage: false
+    });
     res.header('Content-Type', 'application/pdf');
     res.header('Content-Disposition', 'attachment; filename="report.pdf"');
 
     doc.pipe(res);
-
-    // Add title
-    doc.fontSize(20).text('RIT DIO Member Dashboard', { align: 'center' });
-    doc.fontSize(16).text('Computing Organization for Multicultural Students (COMMS) Report', { align: 'center' });
-    doc.fontSize(14).text('Spring Semester 2025\n\n', { align: 'center' });
+    doc.on('pageAdded', () => {
+        doc.image('src/assets/images/RIT_logo.png', { width: 25 });
+        doc.font("Helvetica-Bold").fontSize(12).text(' | DIO Member Dashboard', 75, 50);
+        doc.fontSize(16).text('Computing Organization for Multicultural Students (COMMS) Report', 50);
+        doc.fontSize(14).text('Spring Semester 2025\n\n');
+    });
+    // First page
+    doc.addPage();
 
     // Organization Summary
     doc.fontSize(12).text('Organization Summary:', { underline: true });
@@ -52,6 +63,11 @@ const generateReport = (res, members) => {
     doc.text('Maddie Thompson  | Active | mt2442@rit.edu | Large      | 16');
     doc.text('Lindsey Rubenstein | Active | lcr1758@rit.edu | Small      | 6');
 
+    // Second page
+    doc.addPage();
+    doc.text('second page');
+
+    // End the document
     doc.end();
 }
 

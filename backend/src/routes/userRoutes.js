@@ -75,7 +75,7 @@ router.post('/profile', attachMemberData, async (req, res) => {
     const updatedProfile = req.body;
     const member = req.member;
 
-    let majorID = await Member.getMajorIdByTitle(updatedProfile.majorID);
+    let majorID = await Member.getMajorIdByTitle(updatedProfile.major);
     console.log("Major ID:", majorID);
     // Prepare member object
     const memberData = {
@@ -120,7 +120,6 @@ router.get('/memberID', attachMemberData, (req, res) => {
 router.get('/majors', attachMemberData, async (req, res) => {
   try {
       const majors = await Member.getMajors();
-      console.log("Majors:", majors);
       res.json(majors);
   } catch (error) {
       console.error('Error fetching majors:', error);

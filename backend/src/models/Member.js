@@ -130,7 +130,7 @@ class Member {
         'SELECT Title FROM Majors WHERE MajorID = ?',
         [majorID],
       );
-      return major || null;
+      return major ? major.Title : null;
     } catch (err) {
       console.error('Error fetching major:', err);
       throw err;
@@ -143,7 +143,7 @@ class Member {
         'SELECT MajorID FROM Majors WHERE Title = ?',
         [majorTitle],
       );
-      return major || null;
+      return major ? major.MajorID : null;
     } catch (err) {
       console.error('Error fetching major:', err);
       throw err;

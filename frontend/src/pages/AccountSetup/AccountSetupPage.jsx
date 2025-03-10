@@ -74,7 +74,7 @@ export default function AccountSetup() {
       setEmail(profileData.email);
       setStudentYear(profileData.academicYear);
       setGraduationDate(profileData.graduationDate);
-      setMajor(profileData.major);
+      setMajor(profileData.majorID);
       setShirtSize(profileData.shirtSize);
       setPantSize(profileData.pantSize);
       setRace(profileData.race);

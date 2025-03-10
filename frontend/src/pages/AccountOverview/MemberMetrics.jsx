@@ -6,14 +6,17 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 /**
  * Displays member metrics such as status, points/requirements, and events attended.
  */
-export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance }) {
+export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance, memberName }) {
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
 
     return (
         <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <PeopleAltIcon />
-                <Typography variant="h5">Member Metrics</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                <Box sx={{display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1}}>
+                    <PeopleAltIcon />
+                    <Typography variant="h5">Member Metrics</Typography>
+                </Box>
+                <Typography variant="h6">{memberName.fullName || 'Unknown Member'}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
                 <Box>

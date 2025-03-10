@@ -13,7 +13,7 @@ const majors = [
   { id: 'data_science', name: 'Data Science' }
 ];
 
-router.get('/majors', async (req, res) => {
+router.get('/majors', attachMemberData, async (req, res) => {
   try {
       const majors = await Member.getMajors();
       console.log("Majors:", majors);
@@ -117,7 +117,7 @@ router.get('/majors', (req, res) => {
   res.json(majors);
 });
 */
-router.get('/genders', (req, res) => {
+router.get('/genders', attachMemberData, (req, res) => {
   res.json(genders);
 });
 

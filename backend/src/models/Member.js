@@ -152,9 +152,9 @@ class Member {
 
   static async getMajors() {
     try {
-      const [[major]] = await db.query(
+      const [majors] = await db.query(
         'SELECT Title FROM Majors');
-      return major || null;
+      return majors || null;
     } catch (err) {
       console.error('Error fetching major:', err);
       throw err;

@@ -8,20 +8,26 @@ import AddClubCard from "./AddClubCard";
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
 
 function LandingPage() {
-    const [memberID, setMemberID] = useState(null);
+    if (process.env.NODE_ENV === "production") {
+        const [memberID, setMemberID] = useState(null);
+    } else{
+        const [memberID, setMemberID] = useState(89);
+    }
+    
     const [organizationIDs, setOrganizationIDs] = useState([]);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetch('/api/user/memberID')
-            .then(response => response.json())
-            .then(data => setMemberID(data.memberID))
-            .catch(error => {
-                setError("Error fetching member ID.");
-                console.error('Error fetching memberID:', error);
-            });
-    }, []);
-
+    if (process.env.NODE_ENV === "production") {
+        useEffect(() => {
+            fetch('/api/user/memberID')
+                .then(response => response.json())
+                .then(data => setMemberID(data.memberID))
+                .catch(error => {
+                    setError("Error fetching member ID.");
+                    console.error('Error fetching memberID:', error);
+                });
+        }, []);
+    }
 
     useEffect(() => {
         if (memberID !== null) {

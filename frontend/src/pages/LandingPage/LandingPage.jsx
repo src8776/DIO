@@ -3,6 +3,8 @@ import { Box, Container, Skeleton, Button, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
 import ClubCard from './ClubCard';
 import AddClubCard from "./AddClubCard";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
 // TODO: Role based access control
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
@@ -10,7 +12,7 @@ import AddClubCard from "./AddClubCard";
 function LandingPage() {
     // FOR LOCAL DEVELOPMENT: HARDCODE DESIRED MEMBERID
     //                                    HERE V
-    if (process.env.NODE_ENV === "production") {
+    if (isProduction) {
         const [memberID, setMemberID] = useState(null);
     } else{
         const [memberID, setMemberID] = useState(89);
@@ -21,7 +23,7 @@ function LandingPage() {
 
 
     // FOR LOCAL DEVELOPMENT: COMMENT OUT THIS FETCH
-    if (process.env.NODE_ENV === "production") {
+    if (isProduction) {
         useEffect(() => {
             fetch('/api/user/memberID')
                 .then(response => response.json())

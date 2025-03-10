@@ -97,20 +97,22 @@ function AdminDash() {
   };
 
   const fetchData = (termCode = null) => {
-    setIsLoading(true);
-    const endpoint = termCode
-      ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}`
-      : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
-    fetch(endpoint)
-      .then((response) => response.json())
-      .then((data) => {
-        setMemberData(data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setIsLoading(false);
-      });
+    if (orgID !== null && selectedSemester !== undefined) {
+      setIsLoading(true);
+      const endpoint = termCode
+        ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}`
+        : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
+      fetch(endpoint)
+        .then((response) => response.json())
+        .then((data) => {
+          setMemberData(data);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setIsLoading(false);
+        });
+    }
   };
 
 

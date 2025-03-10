@@ -8,6 +8,8 @@ import AddClubCard from "./AddClubCard";
 // TODO: fetch user's club affiliations (WiC? COMS? Both?)
 
 function LandingPage() {
+    // FOR LOCAL DEVELOPMENT: HARDCODE DESIRED MEMBERID
+    //                                    HERE V
     if (process.env.NODE_ENV === "production") {
         const [memberID, setMemberID] = useState(null);
     } else{
@@ -17,6 +19,8 @@ function LandingPage() {
     const [organizationIDs, setOrganizationIDs] = useState([]);
     const [error, setError] = useState(null);
 
+
+    // FOR LOCAL DEVELOPMENT: COMMENT OUT THIS FETCH
     if (process.env.NODE_ENV === "production") {
         useEffect(() => {
             fetch('/api/user/memberID')

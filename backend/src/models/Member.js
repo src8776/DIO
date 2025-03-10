@@ -22,7 +22,7 @@ class Member {
            FirstName = VALUES(FirstName),
            LastName = VALUES(LastName),
            FullName = VALUES(FullName),
-           MajorID = VALUES(Major),
+           MajorID = VALUES(MajorID),
            GraduationYear = VALUES(GraduationYear),
            AcademicYear = VALUES(AcademicYear),
            ShirtSize = VALUES(ShirtSize),

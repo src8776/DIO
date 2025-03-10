@@ -100,18 +100,18 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
 
 
     React.useEffect(() => {
-            if (orgID && semesterID) {
-                fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semesterID}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.length > 0) {
-                            setActiveRequirement(data[0].ActiveRequirement);
-                            setRequirementType(data[0].Description);
-                        }
-                    })
-                    .catch(error => console.error('Error fetching active requirement:', error));
-            }
-        }, [orgID, semesterID]);
+        if (orgID && semesterID) {
+            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semesterID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        setActiveRequirement(data[0].ActiveRequirement);
+                        setRequirementType(data[0].Description);
+                    }
+                })
+                .catch(error => console.error('Error fetching active requirement:', error));
+        }
+    }, [orgID, semesterID]);
 
     React.useEffect(() => {
         setCurrentOccurrenceTotal(occurrenceTotal);
@@ -309,36 +309,38 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                         {name}
                     </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {editOccurrences ? (
-                        <>
-                            <TextField
-                                label="Total Occurrences"
-                                value={newOccurrenceTotal}
-                                onChange={(e) => setNewOccurrenceTotal(e.target.value)}
-                                size="small"
-                                error={!!occurrenceError}
-                                helperText={occurrenceError}
-                                sx={{}}
-                            />
-                            <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
-                                <SaveIcon />
-                            </IconButton>
-                            <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
-                                <CancelIcon />
-                            </IconButton>
-                        </>
-                    ) : (
-                        <>
-                            <Typography>
-                                Occurences Per Semester: {currentOccurrenceTotal}
-                            </Typography>
-                            <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
-                                <EditIcon />
-                            </IconButton>
-                        </>
-                    )}
-                </Box>
+                {isEditable && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {editOccurrences ? (
+                            <>
+                                <TextField
+                                    label="Total Occurrences"
+                                    value={newOccurrenceTotal}
+                                    onChange={(e) => setNewOccurrenceTotal(e.target.value)}
+                                    size="small"
+                                    error={!!occurrenceError}
+                                    helperText={occurrenceError}
+                                    sx={{}}
+                                />
+                                <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
+                                    <SaveIcon />
+                                </IconButton>
+                                <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
+                                    <CancelIcon />
+                                </IconButton>
+                            </>
+                        ) : (
+                            <>
+                                <Typography>
+                                    Occurences Per Semester: {currentOccurrenceTotal}
+                                </Typography>
+                                <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
+                                    <EditIcon />
+                                </IconButton>
+                            </>
+                        )}
+                    </Box>
+                )}
                 {/* display max points if it exists (not null) */}
                 {requirementType === 'points' && (
                     <Typography sx={{ pb: 2 }}>
@@ -346,20 +348,20 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     </Typography>
                 )}
 
-                <Paper component="form" sx={{ minHeight: '143px', width: '100%', overflowX: 'auto' }}>
+                <Paper component="form" sx={{ width: '100%' }}>
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
                                 <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
                                 {/* new rule button */}
-                                {requirementType === 'criteria' && rules.length === 1 ? (
+                                {isEditable && (requirementType === 'criteria' && rules.length === 1 ? (
                                     <TableCell />
                                 ) : (
                                     <TableCell align="right">
                                         <Button
                                             startIcon={<AddCircleOutlineIcon />}
-                                            sx={{ color: '#08A045', justifyContent: 'center' }}
+                                            sx={{ color: '#08A045', justifyContent: 'center', minWidth: '120px' }}
                                             onClick={() => {
                                                 setEditRuleOpen(false);
                                                 setAddRuleOpen(true);
@@ -368,7 +370,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                                             Add Rule
                                         </Button>
                                     </TableCell>
-                                )}
+                                ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>

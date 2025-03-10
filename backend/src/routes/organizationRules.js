@@ -161,50 +161,59 @@ router.post('/addEventType', async (req, res) => {
 
 router.post('/copyRules', async (req, res) => {
     const { organizationID, sourceSemesterID, targetSemesterID } = req.body;
-  
+
     // Validate input
     if (!organizationID || !sourceSemesterID || !targetSemesterID) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+        return res.status(400).json({ error: 'Missing required parameters' });
     }
-  
-    try {
-      // Start a transaction for data consistency
-      await db.beginTransaction();
-  
-      // Copy active requirement from OrganizationSettings
-      const [activeReq] = await db.query(
-        'SELECT ActiveRequirement, Description FROM OrganizationSettings WHERE OrganizationID = ? AND SemesterID = ?',
-        [organizationID, sourceSemesterID]
-      );
-      if (activeReq.length > 0) {
-        await db.query(
-          'INSERT INTO OrganizationSettings (OrganizationID, SemesterID, ActiveRequirement, Description) VALUES (?, ?, ?, ?)',
-          [organizationID, targetSemesterID, activeReq[0].ActiveRequirement, activeReq[0].Description]
-        );
-      }
-  
-      // Copy rules from EventRules
-      const [rules] = await db.query(
-        'SELECT EventTypeID, Criteria, CriteriaValue, PointValue FROM EventRules WHERE OrganizationID = ? AND SemesterID = ?',
-        [organizationID, sourceSemesterID]
-      );
-      for (const rule of rules) {
-        await db.query(
-          'INSERT INTO EventRules (OrganizationID, EventTypeID, SemesterID, Criteria, CriteriaValue, PointValue) VALUES (?, ?, ?, ?, ?, ?)',
-          [organizationID, rule.EventTypeID, targetSemesterID, rule.Criteria, rule.CriteriaValue, rule.PointValue]
-        );
-      }
-  
-      // Commit the transaction
-      await db.commit();
-      res.json({ success: true, message: 'Rules copied successfully' });
-    } catch (error) {
-      // Roll back on error
-      await db.rollback();
-      console.error('Error copying rules:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
 
+    let connection;
+    try {
+        // Get a connection from the pool
+        connection = await db.getConnection();
+
+        // Start a transaction for data consistency
+        await connection.beginTransaction();
+
+        // Copy active requirement from OrganizationSettings
+        const [activeReq] = await connection.query(
+            'SELECT ActiveRequirement, Description FROM OrganizationSettings WHERE OrganizationID = ? AND SemesterID = ?',
+            [organizationID, sourceSemesterID]
+        );
+        if (activeReq.length > 0) {
+            await connection.query(
+                `INSERT INTO OrganizationSettings (OrganizationID, SemesterID, ActiveRequirement, Description) 
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE ActiveRequirement = VALUES(ActiveRequirement), Description = VALUES(Description)`,
+                [organizationID, targetSemesterID, activeReq[0].ActiveRequirement, activeReq[0].Description]
+            );
+        }
+
+        // Copy rules from EventRules
+        const [rules] = await connection.query(
+            'SELECT EventTypeID, Criteria, COALESCE(CriteriaValue, 0) AS CriteriaValue, PointValue FROM EventRules WHERE OrganizationID = ? AND SemesterID = ?',
+            [organizationID, sourceSemesterID]
+        );
+        for (const rule of rules) {
+            await connection.query(
+                `INSERT INTO EventRules (OrganizationID, EventTypeID, SemesterID, Criteria, CriteriaValue, PointValue) 
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE Criteria = VALUES(Criteria), CriteriaValue = VALUES(CriteriaValue), PointValue = VALUES(PointValue)`,
+                [organizationID, rule.EventTypeID, targetSemesterID, rule.Criteria, rule.CriteriaValue, rule.PointValue]
+            );
+        }
+
+        // Commit the transaction
+        await connection.commit();
+        res.json({ success: true, message: 'Rules copied successfully' });
+    } catch (error) {
+        // Roll back on error
+        if (connection) await connection.rollback();
+        console.error('Error copying rules:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
 
 module.exports = router;

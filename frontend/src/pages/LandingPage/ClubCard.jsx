@@ -5,7 +5,7 @@ import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
 
 
-export default function ClubCard({ memberID, orgID }) {
+export default function ClubCard({ memberID, orgID, semesters, activeSemester }) {
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
@@ -30,7 +30,7 @@ export default function ClubCard({ memberID, orgID }) {
 
     React.useEffect(() => {
         if (!memberID || !orgID) return;
-        fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}`)
+        fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
             .then(response => response.json())
             .then(data => setMemberStatus(data.status || 'No status available'))
             .catch(error => console.error('Error fetching data for MemberName:', error));
@@ -38,7 +38,7 @@ export default function ClubCard({ memberID, orgID }) {
 
     React.useEffect(() => {
         if (!memberID || !orgID) return;
-        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
+        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
             .then(response => response.json())
             .then(data => setMemberRole(data.role || 'No role assigned'))
             .catch(error => console.error('Error fetching data for MemberName:', error));

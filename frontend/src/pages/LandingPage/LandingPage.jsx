@@ -9,6 +9,8 @@ const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 function LandingPage() {
     const [memberID, setMemberID] = useState(isProduction ? null : 89);
     const [organizationIDs, setOrganizationIDs] = useState([]);
+    const [semesters, setSemesters] = React.useState([]);
+    const [activeSemester, setActiveSemester] = React.useState(null);
     const [error, setError] = useState(null);
 
     if (isProduction) {
@@ -23,6 +25,7 @@ function LandingPage() {
         }, []);
     }
 
+    // grab all the organizations the member is in
     useEffect(() => {
         if (memberID !== null) {
             fetch(`/api/organizationInfo/organizationIDsByMemberID?memberID=${memberID}`)
@@ -53,6 +56,24 @@ function LandingPage() {
         }
     }, [memberID]);
 
+
+    // Fetch semesters on component mount
+    React.useEffect(() => {
+        fetch('/api/admin/getSemesters')
+            .then((response) => response.json())
+            .then((data) => {
+                setSemesters(data);
+                const activeSemester = data.find(semester => semester.IsActive === 1);
+                if (activeSemester) {
+                    setActiveSemester(activeSemester);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching semesters:', error);
+            });
+    }, []);
+
+
     if (error) {
         return (
             <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -66,7 +87,7 @@ function LandingPage() {
             {/* Generate ClubCard components for each organizationID */}
             {organizationIDs.length > 0 ? (
                 organizationIDs.map(org => (
-                    <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} />
+                    <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} semesters={semesters} activeSemester={activeSemester} />
                 ))
             ) : (
                 <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

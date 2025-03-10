@@ -34,7 +34,6 @@ function LandingPage() {
                     return response.text(); // Get the response as text
                 })
                 .then(text => {
-                    console.log('Response text:', text); // Log the response text
                     try {
                         const data = JSON.parse(text); // Try to parse the text as JSON
                         if (Array.isArray(data)) {

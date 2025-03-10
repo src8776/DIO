@@ -159,7 +159,7 @@ export default function OrganizationSetup() {
                     </Box>
                     {/* Semester Select */}
                     <Select
-                        value={selectedSemester ? selectedSemester.SemesterID : 0}
+                        value={selectedSemester ? selectedSemester.SemesterID : ''}
                         onChange={handleSemesterChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Select Semester' }}

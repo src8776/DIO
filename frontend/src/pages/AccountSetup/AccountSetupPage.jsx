@@ -83,7 +83,6 @@ export default function AccountSetup() {
 
     const loadMajors = async () => {
       const majorList = await fetchMajorData();
-      console.log("Major List:", majorList);
       setMajors(majorList);
     };
 

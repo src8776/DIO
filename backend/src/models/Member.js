@@ -141,7 +141,7 @@ class Member {
     try {
       const [[major]] = await db.query(
         'SELECT MajorID FROM Majors WHERE Title = ?',
-        [majorID],
+        [majorTitle],
       );
       return major || null;
     } catch (err) {

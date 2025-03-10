@@ -13,16 +13,7 @@ const majors = [
   { id: 'data_science', name: 'Data Science' }
 ];
 
-router.get('/majors', attachMemberData, async (req, res) => {
-  try {
-      const majors = await Member.getMajors();
-      console.log("Majors:", majors);
-      res.json(majors);
-  } catch (error) {
-      console.error('Error fetching majors:', error);
-      res.status(500).json({ message: 'Server error' });
-  }
-});
+
 
 
 const genders = [
@@ -125,5 +116,16 @@ router.get('/memberID', attachMemberData, (req, res) => {
   const memberID = req.member.MemberID;
   res.json({ memberID });
 })
+
+router.get('/majors', attachMemberData, async (req, res) => {
+  try {
+      const majors = await Member.getMajors();
+      console.log("Majors:", majors);
+      res.json(majors);
+  } catch (error) {
+      console.error('Error fetching majors:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;

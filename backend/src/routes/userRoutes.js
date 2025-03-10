@@ -16,6 +16,7 @@ const majors = [
 router.get('/majors', async (req, res) => {
   try {
       const majors = await Member.getMajors();
+      console.log("Majors:", majors);
       res.json(majors);
   } catch (error) {
       console.error('Error fetching majors:', error);
@@ -56,6 +57,7 @@ router.get('/profile', attachMemberData, async (req, res) => {
     console.log("Grabbing Member Data:", member);
 
     let majorTitle = await Member.getMajorById(member?.MajorID);
+    console.log("Major Title:", majorTitle);
 
     // Ensure member exists before accessing properties
     const userProfile = {
@@ -83,6 +85,7 @@ router.post('/profile', attachMemberData, async (req, res) => {
     const member = req.member;
 
     let majorID = await Member.getMajorIdByTitle(updatedProfile.majorID);
+    console.log("Major ID:", majorID);
     // Prepare member object
     const memberData = {
       username: user.username,

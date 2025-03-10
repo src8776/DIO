@@ -57,7 +57,7 @@ class Attendance {
     }
   }
 
-  static async getAttendanceByMemberAndOrg(memberID, organizationID) {
+  static async getAttendanceByMemberAndOrg(memberID, organizationID, termCode) {
     try {
       const query = `
           SELECT JSON_ARRAYAGG(
@@ -74,10 +74,11 @@ class Attendance {
               JOIN EventTypes AS et ON ei.EventTypeID = et.EventTypeID
               WHERE a.OrganizationID = ? 
               AND a.MemberID = ?
+              AND ei.TermCode = ?
               ORDER BY ei.EventDate
           ) AS t;
       `;
-      const [rows] = await db.query(query, [organizationID, memberID]);
+      const [rows] = await db.query(query, [organizationID, memberID, termCode]);
       return rows;
   } catch (error) {
       console.error('Error fetching Organization Info data:', error);

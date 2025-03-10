@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 class OrganizationSetting {
-  static async getActiveRequirementByOrg(organizationID) {
+  static async getActiveRequirementByOrg(organizationID, semesterID) {
     try {
       const query = `
             SELECT 
@@ -9,9 +9,9 @@ class OrganizationSetting {
                 Description
             FROM 
                 OrganizationSettings
-            WHERE OrganizationID = ?
+            WHERE OrganizationID = ? AND SemesterID = ?
         `;
-      const [rows] = await db.query(query, [organizationID]);
+      const [rows] = await db.query(query, [organizationID, semesterID]);
       return rows;
     } catch (error) {
       console.error('Error fetching Organization Info data:', error);

@@ -9,49 +9,65 @@ const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 function LandingPage() {
     const [memberID, setMemberID] = useState(isProduction ? null : 89);
     const [organizationIDs, setOrganizationIDs] = useState([]);
+    const [semesters, setSemesters] = React.useState([]);
+    const [activeSemester, setActiveSemester] = React.useState(null);
     const [error, setError] = useState(null);
-
-    if (isProduction) {
-        useEffect(() => {
-            fetch('/api/user/memberID')
-                .then(response => response.json())
-                .then(data => setMemberID(data.memberID))
-                .catch(error => {
-                    setError("Error fetching member ID.");
-                    console.error('Error fetching memberID:', error);
-                });
-        }, []);
-    }
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (memberID !== null) {
-            fetch(`/api/organizationInfo/organizationIDsByMemberID?memberID=${memberID}`)
-                .then(response => {
-                    if (!response.ok) {
-                        console.error('Network response was not ok:', response.status, response.statusText);
+        const fetchData = async () => {
+            try {
+                if (isProduction) {
+                    const memberIDResponse = await fetch('/api/user/memberID');
+                    const memberIDData = await memberIDResponse.json();
+                    setMemberID(memberIDData.memberID);
+                }
+
+                if (memberID !== null) {
+                    const orgResponse = await fetch(`/api/organizationInfo/organizationIDsByMemberID?memberID=${memberID}`);
+                    if (!orgResponse.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.text(); // Get the response as text
-                })
-                .then(text => {
-                    try {
-                        const data = JSON.parse(text); // Try to parse the text as JSON
-                        if (Array.isArray(data)) {
-                            setOrganizationIDs(data);
-                        } else {
-                            setOrganizationIDs([]);
-                        }
-                    } catch (error) {
-                        console.error('Failed to parse JSON:', error);
-                        throw new Error('Failed to parse JSON');
-                    }
-                })
-                .catch(error => {
-                    setError("Error fetching organizations.");
-                    console.error('Error fetching data for MemberName:', error);
-                });
-        }
+                    const orgText = await orgResponse.text();
+                    const orgData = JSON.parse(orgText);
+                    setOrganizationIDs(Array.isArray(orgData) ? orgData : []);
+                }
+
+                const semestersResponse = await fetch('/api/admin/getSemesters');
+                const semestersData = await semestersResponse.json();
+                setSemesters(semestersData);
+                const activeSemester = semestersData.find(semester => semester.IsActive === 1);
+                if (activeSemester) {
+                    setActiveSemester(activeSemester);
+                }
+
+                setLoading(false);
+            } catch (error) {
+                setError("Error fetching data.");
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [memberID]);
+
+
+    if (error) {
+        return (
+            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Box sx={{ color: 'red' }}>{error}</Box> {/* Display error message */}
+            </Container>
+        );
+    }
+
+    if (loading) {
+        return (
+            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Skeleton variant="rectangular" width={210} height={118} />
+            </Container>
+        );
+    }
 
     if (error) {
         return (
@@ -66,7 +82,7 @@ function LandingPage() {
             {/* Generate ClubCard components for each organizationID */}
             {organizationIDs.length > 0 ? (
                 organizationIDs.map(org => (
-                    <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} />
+                    <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} semesters={semesters} activeSemester={activeSemester} />
                 ))
             ) : (
                 <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

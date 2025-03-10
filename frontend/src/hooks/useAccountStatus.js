@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { determineMembershipStatusModular } from '../utils/membershipStatus';
 
-const useAccountStatus = (orgID, memberID) => {
+const useAccountStatus = (orgID, memberID, semester) => {
     const [activeRequirement, setActiveRequirement] = useState('');
     const [requirementType, setRequirementType] = useState('');
     const [userAttendance, setUserAttendance] = useState([]);
@@ -10,9 +10,9 @@ const useAccountStatus = (orgID, memberID) => {
     useEffect(() => {
         // Fetch all required data concurrently.
         Promise.all([
-            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`).then(res => res.json()),
-            fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`).then(res => res.json()),
-            fetch(`/api/memberDetails/attendance?memberID=${memberID}&organizationID=${orgID}`).then(res => res.json())
+            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semester.SemesterID}`).then(res => res.json()),
+            fetch(`/api/organizationRules/eventRules?organizationID=${orgID}&semesterID=${semester.SemesterID}`).then(res => res.json()),
+            fetch(`/api/memberDetails/attendance?memberID=${memberID}&organizationID=${orgID}&termCode=${semester.TermCode}`).then(res => res.json())
         ])
             .then(([activeReqData, orgRulesData, attendanceData]) => {
                 // Process activeRequirement data.

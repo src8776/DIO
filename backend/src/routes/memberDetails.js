@@ -51,7 +51,7 @@ router.get('/allDetails', async (req, res) => {
 router.get('/detailsBySemester', async (req, res) => {
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);
-    let termCode = req.query.termCode; // Optional, null if not provided
+    let termCode = req.query.termCode; 
 
     if (isNaN(memberID) || isNaN(organizationID)) {
         return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
@@ -136,14 +136,16 @@ router.get('/attendance', async (req, res) => {
     console.log('Received request at /attendance');
 
     let memberID = parseInt(req.query.memberID, 10); 
-    let organizationID = parseInt(req.query.organizationID, 10); 
+    let organizationID = parseInt(req.query.organizationID, 10);
+    let termCode = req.query.termCode;
+     
 
     if (isNaN(memberID) || isNaN(organizationID)) {
         return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
     }
 
     try {
-        const rows = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
+        const rows = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID, termCode);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Organization Info data:', error);
@@ -157,13 +159,14 @@ router.get('/status', async (req, res) => {
 
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);
+    let semesterID = parseInt(req.query.semesterID, 10);
 
-    if (isNaN(memberID) || isNaN(organizationID)) {
-        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
+    if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID or semesterID parameter' });
     }
 
     try {
-        const status = await OrganizationMember.getMemberStatus(memberID, organizationID);
+        const status = await OrganizationMember.getMemberStatus(memberID, organizationID, semesterID);
         if (!status) {
             return res.status(404).json({ error: 'Member not found' });
         }
@@ -180,13 +183,14 @@ router.get('/role', async (req, res) => {
 
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);
+    let semesterID = parseInt(req.query.semesterID, 10);
 
-    if (isNaN(memberID) || isNaN(organizationID)) {
-        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
+    if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID or semesterID parameter' });
     }
 
     try {
-        const role = await OrganizationMember.getMemberRole(memberID, organizationID);
+        const role = await OrganizationMember.getMemberRole(memberID, organizationID, semesterID);
         if (!role) {
             return res.status(404).json({ error: 'Member not found' });
         }

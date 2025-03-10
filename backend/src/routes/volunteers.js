@@ -1,6 +1,7 @@
 const express = require('express');
 const Attendance = require('../models/Attendance');
 const EventInstance = require('../models/EventInstance');
+const Semester = require('../models/Semester');
 const useAccountStatus = require('../services/useAccountStatus');
 const db = require('../config/db'); // Add this line to import the database connection
 const router = express.Router();
@@ -10,32 +11,36 @@ router.post('/hours', async (req, res) => {
     const data = req.body;
     const organizationID = data.orgID;
     const eventType = data.eventType;
-    
+
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        
+
         for (const member of data.members) {
             try {
                 console.log("processing hours volunteers.js member " + member.FullName + member.MemberID);
                 const eventDate = member.date;
                 const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID);
-                
+                // Fetch TermCode
+                const termCode = await Semester.getOrCreateTermCode(eventDate);
+                // Fetch Semester object
+                const semester = await Semester.getSemesterByTermCode(termCode);
+
                 await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate);
-                
-                await useAccountStatus.updateMemberStatus(member.MemberID, organizationID);
+
+                await useAccountStatus.updateMemberStatus(member.MemberID, organizationID, semester);
 
             } catch (error) {
                 console.error('Failed to insert volunteer hours into database', error);
                 await connection.rollback();
-                return res.status(500).json({ 
-                    success: false, 
-                    message: 'Failed to insert volunteer hours into database', 
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to insert volunteer hours into database',
                     error: error.message
                 });
             }
         };
-        
+
         await connection.commit();
         return res.json({
             success: true,
@@ -44,9 +49,9 @@ router.post('/hours', async (req, res) => {
     } catch (error) {
         await connection.rollback();
         console.error('Transaction failed, rolled back:', error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Transaction failed, rolled back', 
+        return res.status(500).json({
+            success: false,
+            message: 'Transaction failed, rolled back',
             error: error.message
         });
     } finally {

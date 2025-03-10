@@ -30,7 +30,8 @@ const modalStyle = {
     p: 4,
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
-    maxHeight: '90%'
+    maxHeight: '90%',
+    overflowY: 'auto'
 };
 
 // Helper function to generate a readable description for a given rule
@@ -74,7 +75,7 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, refetchEventRules }) {
+export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, refetchEventRules, isEditable }) {
     const [editRuleOpen, setEditRuleOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [requirementType, setRequirementType] = React.useState('');
@@ -99,23 +100,18 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
 
 
     React.useEffect(() => {
-        fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    setActiveRequirement(data[0].ActiveRequirement); // Extract ActiveRequirement directly
-                    setRequirementType(data[0].Description); // Extract RequirementType directly (either 'points' or 'criteria')
-                } else {
-                    setActiveRequirement(null);
-                    setRequirementType(null);
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setActiveRequirement(null);
-                setRequirementType(null);
-            });
-    }, [orgID]);
+        if (orgID && semesterID) {
+            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semesterID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        setActiveRequirement(data[0].ActiveRequirement);
+                        setRequirementType(data[0].Description);
+                    }
+                })
+                .catch(error => console.error('Error fetching active requirement:', error));
+        }
+    }, [orgID, semesterID]);
 
     React.useEffect(() => {
         setCurrentOccurrenceTotal(occurrenceTotal);
@@ -295,31 +291,14 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                orgID,
-                eventTypeID,
+                orgID, eventTypeID, semesterID,
                 criteria: newRuleCriteriaType,
                 criteriaValue,
                 pointValue,
             }),
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.message === 'Rule added successfully') {
-                    // Close form and reset fields
-                    setAddRuleOpen(false);
-                    setNewRuleCriteriaType('');
-                    setNewRuleCriteriaValue('');
-                    setNewRulePointValue(1);
-                    setAddPercentError('');
-                    setAddPointError('');
-                    refetchEventRules();
-                } else {
-                    console.error('Error adding rule:', data.error);
-                }
-            })
-            .catch((error) => {
-                console.error('Error adding rule:', error);
-            });
+            .then(response => response.json())
+            .then(data => data.message === 'Rule added successfully' && (setAddRuleOpen(false), refetchEventRules()));
     };
 
     return (
@@ -330,36 +309,38 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                         {name}
                     </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {editOccurrences ? (
-                        <>
-                            <TextField
-                                label="Total Occurrences"
-                                value={newOccurrenceTotal}
-                                onChange={(e) => setNewOccurrenceTotal(e.target.value)}
-                                size="small"
-                                error={!!occurrenceError}
-                                helperText={occurrenceError}
-                                sx={{}}
-                            />
-                            <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
-                                <SaveIcon />
-                            </IconButton>
-                            <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
-                                <CancelIcon />
-                            </IconButton>
-                        </>
-                    ) : (
-                        <>
-                            <Typography>
-                                Occurences Per Semester: {currentOccurrenceTotal}
-                            </Typography>
-                            <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
-                                <EditIcon />
-                            </IconButton>
-                        </>
-                    )}
-                </Box>
+                {isEditable && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {editOccurrences ? (
+                            <>
+                                <TextField
+                                    label="Total Occurrences"
+                                    value={newOccurrenceTotal}
+                                    onChange={(e) => setNewOccurrenceTotal(e.target.value)}
+                                    size="small"
+                                    error={!!occurrenceError}
+                                    helperText={occurrenceError}
+                                    sx={{}}
+                                />
+                                <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
+                                    <SaveIcon />
+                                </IconButton>
+                                <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
+                                    <CancelIcon />
+                                </IconButton>
+                            </>
+                        ) : (
+                            <>
+                                <Typography>
+                                    Occurences Per Semester: {currentOccurrenceTotal}
+                                </Typography>
+                                <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
+                                    <EditIcon />
+                                </IconButton>
+                            </>
+                        )}
+                    </Box>
+                )}
                 {/* display max points if it exists (not null) */}
                 {requirementType === 'points' && (
                     <Typography sx={{ pb: 2 }}>
@@ -367,20 +348,20 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                     </Typography>
                 )}
 
-                <Paper component="form" sx={{ width: '100%', overflowX: 'auto' }}>
+                <Paper component="form" sx={{ width: '100%' }}>
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
                                 <TableCell><strong>ID</strong></TableCell>
                                 <TableCell><strong>Rule Description</strong></TableCell>
                                 {/* new rule button */}
-                                {requirementType === 'criteria' && rules.length === 1 ? (
+                                {isEditable && (requirementType === 'criteria' && rules.length === 1 ? (
                                     <TableCell />
                                 ) : (
                                     <TableCell align="right">
                                         <Button
                                             startIcon={<AddCircleOutlineIcon />}
-                                            sx={{ color: '#08A045', justifyContent: 'center' }}
+                                            sx={{ color: '#08A045', justifyContent: 'center', minWidth: '120px' }}
                                             onClick={() => {
                                                 setEditRuleOpen(false);
                                                 setAddRuleOpen(true);
@@ -389,7 +370,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                                             Add Rule
                                         </Button>
                                     </TableCell>
-                                )}
+                                ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>

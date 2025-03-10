@@ -133,6 +133,8 @@ const processCsv = async (filePath, eventType, organizationID) => {
           const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
           // Fetch TermCode
           const termCode = await Semester.getOrCreateTermCode(checkInDate);
+          // Fetch Semester object
+          const semester = await Semester.getSemesterByTermCode(termCode);
           // Fetch EventID once
           const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
 
@@ -158,17 +160,18 @@ const processCsv = async (filePath, eventType, organizationID) => {
                 return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
               }
 
-              // insert in OrganizationMembers if new member
+              // insert in OrganizationMembers if new member or new semester
               await OrganizationMember.insertOrganizationMember(
                 attendance.organizationID,
                 memberID,
+                semester.SemesterID,
                 'Member'
               );
 
               // Insert attendance
               console.log(`Before Insert attendence: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
               await Attendance.insertAttendance(attendance, eventID, organizationID);
-              await useAccountStatus.updateMemberStatus(memberID, organizationID);
+              await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
             } catch (err) {
               console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
               await connection.rollback();

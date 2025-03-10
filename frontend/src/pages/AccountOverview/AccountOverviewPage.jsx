@@ -138,7 +138,7 @@ function calculateProgress(eventType, rules, occurrenceTotal, userAttendance, re
 /**
  * Main component displaying a member's account overview, including metrics, active path, and attendance history.
  */
-const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, userAttendance, statusObject }) => {
+const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, userAttendance, statusObject, semesters, activeSemester }) => {
     const [memberName, setMemberName] = React.useState('');
     const [orgRules, setOrgRules] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
@@ -163,7 +163,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
 
     // Fetch organization rules
     React.useEffect(() => {
-        fetch(`/api/organizationRules/eventRules?organizationID=${orgID}`)
+        fetch(`/api/organizationRules/eventRules?organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
             .then(response => response.json())
             .then(data => {
                 setOrgRules(data);
@@ -208,11 +208,12 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                         {loading ? (
                             <Skeleton variant="text" width={100} height={30} />
                         ) : (
-                            <Typography variant="h6">{memberName.fullName || 'Unknown Member'}</Typography>
+                            <Typography variant="h6">{activeSemester.TermName}</Typography>
                         )}
                     </Box>
                     {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
                     <MemberMetrics
+                        memberName={memberName}
                         statusObject={statusObject}
                         requirementType={requirementType}
                         activeRequirement={activeRequirement}

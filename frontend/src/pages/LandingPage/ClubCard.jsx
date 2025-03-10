@@ -6,7 +6,7 @@ import useAccountStatus from "../../hooks/useAccountStatus";
 
 
 export default function ClubCard({ memberID, orgID, semesters, activeSemester }) {
-    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
+    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID, activeSemester);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
     const [memberRole, setMemberRole] = React.useState('');
@@ -106,7 +106,7 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                         <AccountOverview
                             memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
                             requirementType={requirementType} userAttendance={userAttendance}
-                            statusObject={statusObject}
+                            statusObject={statusObject} semesters={semesters} activeSemester={activeSemester}
                         />
                     </Box>
                 </Modal>

@@ -6,6 +6,8 @@ const Member = require('../models/Member');
 const OrganizationMember = require('../models/OrganizationMember');
 const { sendActiveStatusEmail } = require('../utils/email');
 
+
+// TODO: Update to take in semester
 const updateMemberStatus = async (memberID, organizationID) => {
     try {
         const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);

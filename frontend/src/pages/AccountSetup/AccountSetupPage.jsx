@@ -186,8 +186,8 @@ export default function AccountSetup() {
                 onChange={(e) => setMajor(e.target.value)}
               >
                 {majors.map((majorItem) => (
-                  <MenuItem key={majorItem.id} value={majorItem.id}>
-                    {majorItem.name}
+                  <MenuItem key={majorItem.Title} value={majorItem.Title}>
+                    {majorItem.Title}
                   </MenuItem>
                 ))}
               </Select>

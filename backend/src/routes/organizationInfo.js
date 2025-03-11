@@ -34,7 +34,7 @@ router.get('/organizationIDsByMemberID', async (req, res) => {
 
     try {
         const query = `
-            SELECT 
+            SELECT DISTINCT
                 OrganizationID
             FROM 
                 OrganizationMembers

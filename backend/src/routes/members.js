@@ -11,13 +11,17 @@ router.get('/names', async (req, res) => {
     try {
         const query = `
             SELECT
-                Members.MemberID,
-                Members.FullName
+                m.MemberID,
+                m.FullName
             FROM
-                Members
-            JOIN
-                OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
-            WHERE OrganizationMembers.OrganizationID = ?;
+                Members m
+            WHERE
+                EXISTS (
+                    SELECT 1
+                    FROM OrganizationMembers om
+                    WHERE om.MemberID = m.MemberID
+                    AND om.OrganizationID = ?
+                );
         `;
         const [rows] = await db.query(query, [organizationID]);
         res.json(rows);

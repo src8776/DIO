@@ -163,6 +163,9 @@ const processCsv = async (filePath, eventType, organizationID) => {
             }
           }
 
+          // Insert file info into UploadedFilesHistory
+          await insertFileInfo(filePath, connection);
+
           await connection.commit();
           console.log('Transaction committed successfully');
           resolve();

@@ -74,7 +74,7 @@ export default function AccountSetup() {
       setEmail(profileData.email);
       setStudentYear(profileData.academicYear);
       setGraduationDate(profileData.graduationDate);
-      setMajor(profileData.major);
+      setMajor(profileData.majorID);
       setShirtSize(profileData.shirtSize);
       setPantSize(profileData.pantSize);
       setRace(profileData.race);
@@ -185,8 +185,8 @@ export default function AccountSetup() {
                 onChange={(e) => setMajor(e.target.value)}
               >
                 {majors.map((majorItem) => (
-                  <MenuItem key={majorItem.id} value={majorItem.id}>
-                    {majorItem.name}
+                  <MenuItem key={majorItem.Title} value={majorItem.Title}>
+                    {majorItem.Title}
                   </MenuItem>
                 ))}
               </Select>

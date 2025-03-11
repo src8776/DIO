@@ -13,6 +13,9 @@ const majors = [
   { id: 'data_science', name: 'Data Science' }
 ];
 
+
+
+
 const genders = [
   { id: 'Male', name: 'Male' },
   { id: 'Female', name: 'Female' },
@@ -39,10 +42,13 @@ const attachMemberData = async (req, res, next) => {
 
 
 // profile route
-router.get('/profile', attachMemberData, (req, res) => {
+router.get('/profile', attachMemberData, async (req, res) => {
     const member = req.member;
     const user = req.user;
     console.log("Grabbing Member Data:", member);
+
+    let majorTitle = await Member.getMajorById(member?.MajorID);
+    console.log("Major Title:", majorTitle);
 
     // Ensure member exists before accessing properties
     const userProfile = {
@@ -51,7 +57,7 @@ router.get('/profile', attachMemberData, (req, res) => {
       lastName: member?.LastName || user.lastName || 'Unknown',
       email: user.email,
       fullName: member?.FullName || `${user.firstName} ${user.lastName}` || 'Unknown',
-      major: member?.Major || 'Unknown',
+      majorID: majorTitle || 'Unknown',
       graduationDate: member?.GraduationYear || 'Unknown',
       academicYear: member?.AcademicYear,
       shirtSize: member?.ShirtSize || 'Unknown',
@@ -69,6 +75,8 @@ router.post('/profile', attachMemberData, async (req, res) => {
     const updatedProfile = req.body;
     const member = req.member;
 
+    let majorID = await Member.getMajorIdByTitle(updatedProfile.major);
+    console.log("Major ID:", majorID);
     // Prepare member object
     const memberData = {
       username: user.username,
@@ -76,7 +84,7 @@ router.post('/profile', attachMemberData, async (req, res) => {
       lastName: user.lastName,
       email: user.email,
       fullName: `${user.firstName} ${user.lastName}`,
-      major: updatedProfile.major,
+      majorID: majorID,
       graduationYear: updatedProfile.graduationDate,
       academicYear: updatedProfile.studentYear,
       shirtSize: updatedProfile.shirtSize,
@@ -95,11 +103,12 @@ router.post('/profile', attachMemberData, async (req, res) => {
     }
 });
 
+/*
 router.get('/majors', (req, res) => {
   res.json(majors);
 });
-
-router.get('/genders', (req, res) => {
+*/
+router.get('/genders', attachMemberData, (req, res) => {
   res.json(genders);
 });
 
@@ -107,5 +116,15 @@ router.get('/memberID', attachMemberData, (req, res) => {
   const memberID = req.member.MemberID;
   res.json({ memberID });
 })
+
+router.get('/majors', attachMemberData, async (req, res) => {
+  try {
+      const majors = await Member.getMajors();
+      res.json(majors);
+  } catch (error) {
+      console.error('Error fetching majors:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;

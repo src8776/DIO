@@ -124,6 +124,43 @@ class Member {
     }
   }
 
+  static async getMajorById(majorID) {
+    try {
+      const [[major]] = await db.query(
+        'SELECT Title FROM Majors WHERE MajorID = ?',
+        [majorID],
+      );
+      return major ? major.Title : null;
+    } catch (err) {
+      console.error('Error fetching major:', err);
+      throw err;
+    }
+  }
+
+  static async getMajorIdByTitle(majorTitle) {
+    try {
+      const [[major]] = await db.query(
+        'SELECT MajorID FROM Majors WHERE Title = ?',
+        [majorTitle],
+      );
+      return major ? major.MajorID : null;
+    } catch (err) {
+      console.error('Error fetching major:', err);
+      throw err;
+    }
+  }
+
+  static async getMajors() {
+    try {
+      const [majors] = await db.query(
+        'SELECT Title FROM Majors');
+      return majors || null;
+    } catch (err) {
+      console.error('Error fetching major:', err);
+      throw err;
+    }
+  }
+
   /*
   static async getEnumValues(columnName) {
     try {

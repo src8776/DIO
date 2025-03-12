@@ -90,4 +90,34 @@ router.get('/overallAttendance', async (req, res) => {
     }
 });
 
+
+router.get('/membersByMajor', async (req, res) => {
+    const { organizationID, semesterID } = req.query;
+
+    if (!organizationID || !semesterID) {
+        return res.status(400).json({ error: 'Missing organizationID or semesterID' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                COALESCE(m.Title, 'No Major') AS major,
+                c.Name AS college,
+                COUNT(om.MemberID) AS memberCount
+            FROM OrganizationMembers om
+            JOIN Members mem ON om.MemberID = mem.MemberID
+            LEFT JOIN Majors m ON mem.MajorID = m.MajorID
+            LEFT JOIN Colleges c ON m.CollegeID = c.CollegeID
+            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            GROUP BY m.Title, c.Name
+            ORDER BY memberCount DESC`,
+            [organizationID, semesterID]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

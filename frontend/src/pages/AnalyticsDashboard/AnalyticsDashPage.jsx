@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import TotalMembersChart from './TotalMembersChart';
 import AverageEventAttendanceChart from './AverageEventAttendanceChart';
 import OverAllAttendanceChart from './OverallAttendanceChart';
+import MajorTalliesChart from './MajorTalliesChart';
 
 export default function AnalyticsDash() {
   const { org } = useParams();
@@ -115,9 +116,7 @@ export default function AnalyticsDash() {
 
             <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
               <AverageEventAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                <Typography>Majors</Typography>
-              </Paper>
+              <MajorTalliesChart organizationID={orgID} selectedSemester={selectedSemester} />
             </Box>
           </Box>
         )}

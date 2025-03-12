@@ -114,16 +114,14 @@ export default function AnalyticsDash() {
               </Box>
             }
 
-            <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
-              <AverageEventAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
-              <MajorTalliesChart organizationID={orgID} selectedSemester={selectedSemester} />
-            </Box>
+            {selectedSemester &&
+              <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
+                <AverageEventAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
+                <MajorTalliesChart organizationID={orgID} selectedSemester={selectedSemester} />
+              </Box>
+            }
           </Box>
         )}
-
-        <Paper elevation={0}>
-          {/* Add your analytics content here */}
-        </Paper>
       </Box>
     </Container>
   );

@@ -46,7 +46,8 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                 ]}
                 series={[
                     {
-                        data: [memberTallies.activeMembers, memberTallies.inactiveMembers]
+                        data: [memberTallies.activeMembers, memberTallies.inactiveMembers],
+                        color: ['#21BDE5', '#7D55C7']
                         // data: [2, 3]
                     },
                 ]}

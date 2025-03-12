@@ -28,7 +28,7 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Overall Attendance Rate</Typography>
-            <Typography variant='h2' sx={{ display: 'flex', justifyContent: 'left', alignItems: 'center' }}>
+            <Typography variant='h3' sx={{ display: 'flex', justifyContent: 'left', alignItems: 'center' }}>
                 {attendanceRate}%
                 {attendanceRate < 50 ? <TrendingDownIcon color="error" fontSize="large" /> : <TrendingUpIcon color="success" fontSize="large" />}
             </Typography>

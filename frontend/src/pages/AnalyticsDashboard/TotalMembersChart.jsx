@@ -18,18 +18,19 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
         }
     }, [selectedSemester]);
 
-    // console.log(memberTallies);
-
     if (!memberTallies) {
         return <div>Loading...</div>;
     }
+
+    const totalMembers = memberTallies.totalMembers;
+    const activePercentage = Math.floor((memberTallies.activeMembers / totalMembers) * 100);
+    const inactivePercentage = Math.floor((memberTallies.inactiveMembers / totalMembers) * 100);
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Total Members</Typography>
             <Typography variant='h2'>{memberTallies.totalMembers}</Typography>
             <BarChart
-                
                 xAxis={[
                     {
                         id: 'barCategories',
@@ -53,8 +54,5 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                 height={200}
             />
         </Paper>
-
-
-
     );
 }

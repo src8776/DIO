@@ -29,7 +29,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Average Attendance per Event Type</Typography>
             <BarChart
-                
                 xAxis={[
                     {
                         id: 'barCategories',
@@ -56,8 +55,5 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 height={255}
             />
         </Paper>
-
-
-
     );
 }

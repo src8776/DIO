@@ -67,8 +67,8 @@ export default function AnalyticsDash() {
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-      {/* TODO: Need to figure out width and standardize across pages */}
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 832 }}>
+      {/* TODO: Need to figure out width and standardize across pages maxWidth: 832? */}
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <Box>
             <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
@@ -95,8 +95,8 @@ export default function AnalyticsDash() {
           </Select>
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2, border: 'solid red' }}>
-          <Box sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', gap: 2, border: 'solid blue' }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
+          <Box sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', gap: 2}}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
               <Typography>Total Members</Typography>
             </Paper>
@@ -105,7 +105,7 @@ export default function AnalyticsDash() {
             </Paper>
           </Box>
 
-          <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2, border: 'solid blue' }}>
+          <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
               <Typography>Average Attendance per Event Type</Typography>
             </Paper>

@@ -29,7 +29,6 @@ const formatDateToMySQL = (dateString) => {
   return formattedDate;
 };
 
-
 // Generate File Hash
 const generateFileHash = (filePath) => {
   return new Promise((resolve, reject) => {
@@ -52,22 +51,22 @@ const isFileDuplicate = async (filePath) => {
     return existingFile.length > 0;
   } catch (error) {
     console.error('Error checking file duplicate:', error);
-    reject(error);
+    throw error;
   }
 };
 
 // Insert File Info into UploadedFilesHistory
-const insertFileInfo = async (filePath) => {
+const insertFileInfo = async (filePath, connection) => {
   try {
     const fileHash = await generateFileHash(filePath);
-    await db.query(
+    await connection.query(
       `INSERT INTO UploadedFilesHistory (FileName, FileHash) VALUES (?, ?)`,
       [filePath, fileHash]
     );
     console.log(`File saved: ${filePath}`);
   } catch (error) {
     console.error('Error saving file record:', error);
-    reject(error);
+    throw error;
   }
 };
 
@@ -86,7 +85,6 @@ const processCsv = async (filePath, eventType, organizationID) => {
         });
         return reject(new Error("File already uploaded before!")); 
       }
-      await insertFileInfo(filePath);
     } catch (error) {
       console.error('Error processing CSV file:', error);
       reject(error);
@@ -100,7 +98,6 @@ const processCsv = async (filePath, eventType, organizationID) => {
           console.warn('Skipping row due to missing Email or Checked-In Date:', row);
           return;
         }
-
 
         console.log(`Raw CSV Date in Row: ${row['Checked-In Date']}`);
         const checkInDate = formatDateToMySQL(row['Checked-In Date']);
@@ -179,12 +176,16 @@ const processCsv = async (filePath, eventType, organizationID) => {
             }
           }
 
+          // Insert file info into UploadedFilesHistory
+          await insertFileInfo(filePath, connection);
+
           await connection.commit();
           console.log('Transaction committed successfully');
 
         } catch (error) {
           await connection.rollback();
           console.error('Transaction failed, rolled back:', error);
+          reject(error);
         } finally {
           connection.release();
           fs.unlink(filePath, (err) => {

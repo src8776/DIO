@@ -37,15 +37,21 @@ class OrganizationMember {
   }
 
   static async updateMemberStatus(memberID, organizationID, status, semesterID) {
-    try {
-      const query = `
-            UPDATE OrganizationMembers
-            SET Status = ?
-            WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`;
-      await db.query(query, [status, memberID, organizationID, semesterID]);
-    } catch (error) {
-      console.error('Error updating member status in OrganizationMembers:', error);
-      throw error;
+    // Update if exists, insert if not (upsert logic might be needed)
+    const [existing] = await db.query(
+      `SELECT 1 FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
+      [memberID, organizationID, semesterID]
+    );
+    if (existing.length > 0) {
+      await db.query(
+        `UPDATE OrganizationMembers SET Status = ? WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
+        [status, memberID, organizationID, semesterID]
+      );
+    } else {
+      await db.query(
+        `INSERT INTO OrganizationMembers (MemberID, OrganizationID, status, semesterID) VALUES (?, ?, ?, ?)`,
+        [memberID, organizationID, status, semesterID ]
+      );
     }
   }
 

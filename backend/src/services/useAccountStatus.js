@@ -16,12 +16,12 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
         const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
 
         const memberName = await Member.getMemberNameById(memberID);
-        const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID);
+        const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID);
         const memberEmail = await Member.getMemberEmailById(memberID);
 
         // only update if newly active
         if (currentStatus !== 'Exempt' && currentStatus !== 'Active') {
-            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status);
+            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID);
             if (statusObject.status === 'Active') {
                 // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disable for now so we don't spam students :)
                 console.log(`Would send email to ${memberEmail} (disabled)`);

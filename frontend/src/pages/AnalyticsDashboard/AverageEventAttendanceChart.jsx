@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { Typography, Paper } from '@mui/material';
 
-export default function TotalMembersChart({ organizationID, selectedSemester }) {
+export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
 
     React.useEffect(() => {
@@ -17,8 +17,6 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                 });
         }
     }, [selectedSemester]);
-
-    // console.log(averages);
 
     if (!averages) {
         return <div>Loading...</div>;

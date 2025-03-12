@@ -6,7 +6,8 @@ import {
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import TotalMembersChart from './TotalMembersChart';
-import AverageEventAttendance from './AverageEventAttendanceChart';
+import AverageEventAttendanceChart from './AverageEventAttendanceChart';
+import OverAllAttendanceChart from './OverallAttendanceChart';
 
 export default function AnalyticsDash() {
   const { org } = useParams();
@@ -105,15 +106,15 @@ export default function AnalyticsDash() {
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {selectedSemester && <TotalMembersChart organizationID={orgID} selectedSemester={selectedSemester} />}
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                <Typography>Overall Attendance</Typography>
-              </Paper>
-            </Box>
+            {selectedSemester &&
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TotalMembersChart organizationID={orgID} selectedSemester={selectedSemester} />
+                <OverAllAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
+              </Box>
+            }
 
             <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
-              <AverageEventAttendance organizationID={orgID} selectedSemester={selectedSemester} />
+              <AverageEventAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
               <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                 <Typography>Majors</Typography>
               </Paper>

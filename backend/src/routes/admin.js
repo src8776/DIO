@@ -4,7 +4,7 @@ const db = require('../config/db');
 const router = express.Router();
 
 router.get('/datatableAllTerms', async (req, res) => {
-    console.log('Received request at /admin/datatable');
+    console.log('Received request at /admin/datatableAllTerms');
 
     let organizationID = parseInt(req.query.organizationID, 10);
 
@@ -12,48 +12,34 @@ router.get('/datatableAllTerms', async (req, res) => {
         const query = `
             SELECT
                 Members.MemberID,
-                OrganizationMembers.Status,
                 Members.FullName,
-                COUNT(Attendance.MemberID) AS AttendanceRecord,
-                MAX(Attendance.LastUpdated) AS LastUpdated
+                'N/A' AS Status,
+                (
+                    SELECT COUNT(*)
+                    FROM Attendance
+                    WHERE Attendance.MemberID = Members.MemberID
+                    AND Attendance.OrganizationID = ?
+                ) AS AttendanceRecord,
+                (
+                    SELECT MAX(Attendance.LastUpdated)
+                    FROM Attendance
+                    WHERE Attendance.MemberID = Members.MemberID
+                    AND Attendance.OrganizationID = ?
+                ) AS LastUpdated
             FROM
                 Members
-            JOIN
-                OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
-            JOIN
-                Organizations ON OrganizationMembers.OrganizationID = Organizations.OrganizationID
-            LEFT JOIN
-                Attendance ON Members.MemberID = Attendance.MemberID 
-                           AND Attendance.OrganizationID = ?
-            LEFT JOIN
-                Roles ON OrganizationMembers.RoleID = Roles.RoleID
             WHERE
-                OrganizationMembers.OrganizationID = ?
+                EXISTS (
+                    SELECT 1
+                    FROM OrganizationMembers
+                    WHERE OrganizationMembers.MemberID = Members.MemberID
+                    AND OrganizationMembers.OrganizationID = ?
+                )
             GROUP BY
                 Members.MemberID,
-                Members.FullName,
-                OrganizationMembers.Status;
+                Members.FullName;
         `;
-        const [rows] = await db.query(query, [organizationID, organizationID]);
-        res.json(rows);
-    } catch (error) {
-        console.error('Database query error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-
-router.get('/getSemesters', async (req, res) => {
-    console.log('Received request at /admin/getSemesters');
-
-    try {
-        const query = `
-            SELECT
-                *
-            FROM
-                Semesters;
-        `;
-        const [rows] = await db.query(query);
+        const [rows] = await db.query(query, [organizationID, organizationID, organizationID]);
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);
@@ -74,30 +60,52 @@ router.get('/datatableByTerm', async (req, res) => {
                 Members.MemberID,
                 OrganizationMembers.Status,
                 Members.FullName,
-                COUNT(Attendance.MemberID) AS AttendanceRecord,
-                MAX(Attendance.LastUpdated) AS LastUpdated
+                (
+                    SELECT COUNT(*)
+                    FROM Attendance
+                    JOIN EventInstances ON Attendance.EventID = EventInstances.EventID
+                    WHERE Attendance.MemberID = Members.MemberID
+                    AND Attendance.OrganizationID = ?
+                    AND EventInstances.TermCode = ?
+                ) AS AttendanceRecord,
+                (
+                    SELECT MAX(Attendance.LastUpdated)
+                    FROM Attendance
+                    JOIN EventInstances ON Attendance.EventID = EventInstances.EventID
+                    WHERE Attendance.MemberID = Members.MemberID
+                    AND Attendance.OrganizationID = ?
+                    AND EventInstances.TermCode = ?
+                ) AS LastUpdated
             FROM
                 Members
             JOIN
                 OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
             JOIN
-                Organizations ON OrganizationMembers.OrganizationID = Organizations.OrganizationID
-            LEFT JOIN
-                Attendance ON Members.MemberID = Attendance.MemberID 
-                           AND Attendance.OrganizationID = ?
-            LEFT JOIN
-                EventInstances ON Attendance.EventID = EventInstances.EventID
-            LEFT JOIN
-                Roles ON OrganizationMembers.RoleID = Roles.RoleID
+                Semesters ON OrganizationMembers.SemesterID = Semesters.SemesterID
             WHERE
                 OrganizationMembers.OrganizationID = ?
-                AND EventInstances.TermCode = ?
-            GROUP BY
-                Members.MemberID,
-                Members.FullName,
-                OrganizationMembers.Status;
+                AND Semesters.TermCode = ?;
         `;
-        const [rows] = await db.query(query, [organizationID, organizationID, termCode]);
+        const [rows] = await db.query(query, [organizationID, termCode, organizationID, termCode, organizationID, termCode]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/getSemesters', async (req, res) => {
+    console.log('Received request at /admin/getSemesters');
+
+    try {
+        const query = `
+            SELECT
+                *
+            FROM
+                Semesters;
+        `;
+        const [rows] = await db.query(query);
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);

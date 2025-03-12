@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Button, Typography, IconButton } from '@mui/material';
+import { shouldForwardProp } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import SnackbarAlert from '../../components/SnackbarAlert';
@@ -18,7 +19,9 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-const DropZone = styled(Box)(({ isDragging, hasFile }) => ({
+const DropZone = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'isDragging' && prop !== 'hasFile',
+})(({ isDragging, hasFile }) => ({
   border: `2px dashed ${isDragging ? '#1976d2' : '#ccc'}`,
   borderRadius: '8px',
   padding: '20px',

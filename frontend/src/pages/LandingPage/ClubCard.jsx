@@ -5,8 +5,8 @@ import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
 
 
-export default function ClubCard({ memberID, orgID }) {
-    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID);
+export default function ClubCard({ memberID, orgID, semesters, activeSemester }) {
+    const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID, activeSemester);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
     const [memberRole, setMemberRole] = React.useState('');
@@ -30,7 +30,7 @@ export default function ClubCard({ memberID, orgID }) {
 
     React.useEffect(() => {
         if (!memberID || !orgID) return;
-        fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}`)
+        fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
             .then(response => response.json())
             .then(data => setMemberStatus(data.status || 'No status available'))
             .catch(error => console.error('Error fetching data for MemberName:', error));
@@ -38,7 +38,7 @@ export default function ClubCard({ memberID, orgID }) {
 
     React.useEffect(() => {
         if (!memberID || !orgID) return;
-        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
+        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
             .then(response => response.json())
             .then(data => setMemberRole(data.role || 'No role assigned'))
             .catch(error => console.error('Error fetching data for MemberName:', error));
@@ -106,7 +106,7 @@ export default function ClubCard({ memberID, orgID }) {
                         <AccountOverview
                             memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
                             requirementType={requirementType} userAttendance={userAttendance}
-                            statusObject={statusObject}
+                            statusObject={statusObject} semesters={semesters} activeSemester={activeSemester}
                         />
                     </Box>
                 </Modal>

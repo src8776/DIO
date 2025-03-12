@@ -112,6 +112,7 @@ const determineMembershipStatusModular = (attendanceData, config, requiredPoints
     console.log(requiredPoints + " required points");
     console.log(totalPoints + " total points");
     const status = totalPoints >= requiredPoints ? "Active" : "Inactive";
+    console.log("updated status: " + status)
 
     return { status, totalPoints, breakdown };
 }

@@ -15,6 +15,7 @@ function AdminDash() {
   const [orgID, setOrgID] = React.useState(null);
   const [selectedSemester, setSelectedSemester] = React.useState(null);
   const [semesters, setSemesters] = React.useState([]);
+  const [activeSemester, setActiveSemester] = React.useState(null);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -48,7 +49,8 @@ function AdminDash() {
         setSemesters(data);
         const activeSemester = data.find(semester => semester.IsActive === 1);
         if (activeSemester) {
-          setSelectedSemester(activeSemester || null);
+          setSelectedSemester(activeSemester);
+          setActiveSemester(activeSemester);
         }
       })
       .catch((error) => {
@@ -115,7 +117,7 @@ function AdminDash() {
     }
   };
 
-
+  // console.log(memberData[0].AttendanceRecord)
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
@@ -160,7 +162,7 @@ function AdminDash() {
 
         {/* Data Table */}
         <Paper elevation={0}>
-          <DataTable orgID={orgID} memberData={memberData} isLoading={isLoading} selectedSemester={selectedSemester} />
+          <DataTable orgID={orgID} memberData={memberData} isLoading={isLoading} selectedSemester={selectedSemester} activeSemester={activeSemester} />
         </Paper>
       </Box>
     </Container>

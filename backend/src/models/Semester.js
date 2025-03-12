@@ -10,13 +10,13 @@ class Semester {
         let termCode, season;
 
         // Determine if it's Fall or Spring and set the academic year correctly
-        if (month >= 8) { 
+        if (month >= 8) {
             // Fall semester 
             academicYearStart = year;
             academicYearEnd = year + 1;
             termCode = `2${String(year).slice(-2)}1`; // Fall is '1'
             season = 'Fall';
-        } else { 
+        } else {
             // Spring semester
             academicYearStart = year - 1;
             academicYearEnd = year;
@@ -56,6 +56,21 @@ class Semester {
             return termCode;
         } catch (error) {
             console.error(`[@Semester] Error getting or creating Semester for TermCode ${termCode}:`, error);
+            return null;
+        }
+    }
+
+    static async getSemesterByTermCode(termCode) {
+        try {
+            const [rows] = await db.query(`SELECT * FROM Semesters WHERE TermCode = ?`, [termCode]);
+            if (rows.length > 0) {
+                return rows[0];
+            } else {
+                console.log(`[@Semester] No Semester found for TermCode: ${termCode}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`[@Semester] Error fetching Semester for TermCode ${termCode}:`, error);
             return null;
         }
     }

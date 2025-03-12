@@ -9,10 +9,10 @@ const cellStyles = {
     pb: '0px'
 };
 
-const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester }) => {
+const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester }) => {
     const [memberStatus, setMemberStatus] = React.useState('');
 
-    const statusColor = memberStatus === 'Inactive' ? 'red' : 'green';
+    const statusColor = (memberStatus === 'Inactive' || memberStatus === 'N/A') ? 'red' : 'green';
 
     const formattedDate = row.LastUpdated
         ? new Date(row.LastUpdated).toLocaleString('en-US', {
@@ -24,13 +24,18 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
             hour12: true
         }) : 'N/A';
 
-    React.useEffect(() => {
-        if (!row.MemberID) return;
-        fetch(`/api/memberDetails/status?memberID=${row.MemberID}&organizationID=${orgID}`)
-            .then(response => response.json())
-            .then(data => setMemberStatus(data.status))
-            .catch(error => console.error('Error fetching data for MemberName:', error));
-    }, [row.MemberID]);
+        React.useEffect(() => {
+            if (!row.MemberID) return;
+            if (selectedSemester === null) {
+                setMemberStatus('N/A');
+                return;
+            }
+            const semesterID = selectedSemester.SemesterID;
+            fetch(`/api/memberDetails/status?memberID=${row.MemberID}&organizationID=${orgID}&semesterID=${semesterID}`)
+                .then(response => response.json())
+                .then(data => setMemberStatus(data.status))
+                .catch(error => console.error('Error fetching data for MemberName:', error));
+        }, [row.MemberID, selectedSemester]);
 
     return (
         <TableRow
@@ -68,7 +73,13 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
                 {formattedDate}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                <MemberDetailsModal memberID={row.MemberID} orgID={orgID} memberStatus={memberStatus} selectedSemester={selectedSemester} />
+                <MemberDetailsModal
+                    memberID={row.MemberID}
+                    orgID={orgID}
+                    memberStatus={memberStatus}
+                    selectedSemester={selectedSemester}
+                    activeSemester={activeSemester}
+                />
             </TableCell>
         </TableRow>
     );

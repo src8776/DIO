@@ -6,20 +6,22 @@ const Member = require('../models/Member');
 const OrganizationMember = require('../models/OrganizationMember');
 const { sendActiveStatusEmail } = require('../utils/email');
 
-const updateMemberStatus = async (memberID, organizationID) => {
+
+// TODO: Update to take in semester
+const updateMemberStatus = async (memberID, organizationID, semester) => {
     try {
-        const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID);
-        const orgRulesData = await EventRule.getEventRulesByOrg(organizationID);
-        const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID);
+        const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID, semester.SemesterID);
+        const orgRulesData = await EventRule.getEventRulesByOrgAndSemester(organizationID, semester.SemesterID);
+        const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID, semester.TermCode);
         const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
 
         const memberName = await Member.getMemberNameById(memberID);
-        const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID);
+        const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID);
         const memberEmail = await Member.getMemberEmailById(memberID);
 
         // only update if newly active
         if (currentStatus !== 'Exempt' && currentStatus !== 'Active') {
-            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status);
+            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID);
             if (statusObject.status === 'Active') {
                 // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disable for now so we don't spam students :)
                 console.log(`Would send email to ${memberEmail} (disabled)`);

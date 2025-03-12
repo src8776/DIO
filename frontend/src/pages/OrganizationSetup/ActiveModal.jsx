@@ -4,7 +4,7 @@ import {
     FormControl, IconButton,
     InputLabel, MenuItem, Paper,
     Select, Table, TableBody, TableCell,
-    TableHead, TextField, Typography
+    TableHead, TableRow, TextField, Typography
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -25,7 +25,7 @@ const modalStyle = {
 };
 
 
-export default function ActiveModal({ orgID, numberOfRules }) {
+export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditable }) {
     const [open, setOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [newActiveRequirement, setNewActiveRequirement] = React.useState('');
@@ -36,23 +36,18 @@ export default function ActiveModal({ orgID, numberOfRules }) {
 
     // fetch current requirement info
     React.useEffect(() => {
-        fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    setActiveRequirement(data[0].ActiveRequirement); // Extract ActiveRequirement directly
-                    setRequirementType(data[0].Description); // Extract RequirementType directly (either 'points' or 'criteria')
-                } else {
-                    setActiveRequirement(null);
-                    setRequirementType(null);
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-                setActiveRequirement(null);
-                setRequirementType(null);
-            });
-    }, [orgID]);
+        if (orgID && semesterID) {
+            fetch(`/api/organizationInfo/activeRequirement?organizationID=${orgID}&semesterID=${semesterID}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        setActiveRequirement(data[0].ActiveRequirement);
+                        setRequirementType(data[0].Description);
+                    }
+                })
+                .catch(error => console.error('Error fetching active requirement:', error));
+        }
+    }, [orgID, semesterID]);
 
     const handleOpen = () => {
         setNewActiveRequirement(activeRequirement);
@@ -77,28 +72,23 @@ export default function ActiveModal({ orgID, numberOfRules }) {
 
         fetch('/api/organizationInfo/updateActiveRequirement', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 organizationID: orgID,
+                semesterID,
                 activeRequirement: newActiveRequirement,
                 requirementType: newRequirementType
-            }),
+            })
         })
-            .then((response) => response.json())
-            .then((data) => {
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) {
                     setActiveRequirement(newActiveRequirement);
                     setRequirementType(newRequirementType);
                     handleClose();
-                } else {
-                    console.error('Error updating active requirement:', data.error);
                 }
             })
-            .catch((error) => {
-                console.error('Error updating active requirement:', error);
-            });
+            .catch(error => console.error('Error updating active requirement:', error));
     };
 
     return (
@@ -108,36 +98,42 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                     <Typography variant="h5">
                         'Active' status requirements
                     </Typography>
-                    <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
-                        <EditIcon />
-                    </IconButton>
+                    {isEditable && (
+                        <IconButton onClick={handleOpen} sx={{ color: '#015aa2' }}>
+                            <EditIcon />
+                        </IconButton>
+                    )}
                 </Box>
                 {/* Form Elements */}
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
                     <Table>
                         <TableHead>
-                            <TableCell><strong>Rule</strong></TableCell>
-                            <TableCell><strong>{requirementType == 'criteria' ? 'Criteria' : 'Points'}</strong></TableCell>
+                            <TableRow>
+                                <TableCell><strong>Rule</strong></TableCell>
+                                <TableCell><strong>{requirementType == 'criteria' ? 'Criteria' : 'Points'}</strong></TableCell>
+                            </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableCell>To achieve active status:</TableCell>
-                            <TableCell>
-                                {activeRequirement ? (
-                                    requirementType == 'criteria' ? (
-                                        activeRequirement == numberOfRules ? 'Meet all criteria' : `Meet at least ${activeRequirement} criteria`
+                            <TableRow>
+                                <TableCell>To achieve active status:</TableCell>
+                                <TableCell>
+                                    {activeRequirement ? (
+                                        requirementType == 'criteria' ? (
+                                            activeRequirement == numberOfRules ? 'Meet all criteria' : `Meet at least ${activeRequirement} criteria`
+                                        ) : (
+                                            `earn ${activeRequirement} points.`
+                                        )
                                     ) : (
-                                        `earn ${activeRequirement} points.`
-                                    )
-                                ) : (
-                                    'no rule defined'
-                                )}
-                            </TableCell>
+                                        'no rule defined'
+                                    )}
+                                </TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </Box>
 
                 {/* Edit Options */}
-                {open && (
+                {open && isEditable && (
                     <Box sx={{ width: '100%' }}>
                         <Typography variant="h6" sx={{ mb: 2 }}>
                             Updating {requirementType == 'criteria' ? 'Criteria' : 'Points'} Requirement
@@ -146,7 +142,7 @@ export default function ActiveModal({ orgID, numberOfRules }) {
                         <FormControl>
                             <InputLabel id="requiremen-type-select-label">Requirement Type</InputLabel>
                             <Select
-                                labelID="requiremen-type-select-label"
+                                labelId="requiremen-type-select-label"
                                 label="Requirement Type"
                                 value={newRequirementType}
                                 onChange={(e) => setNewRequirementType(e.target.value)}

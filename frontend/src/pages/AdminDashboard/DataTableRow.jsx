@@ -10,8 +10,7 @@ const cellStyles = {
 };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester }) => {
-    const [memberStatus, setMemberStatus] = React.useState('');
-
+    const memberStatus = row.Status || 'N/A';
     const statusColor = (memberStatus === 'Inactive' || memberStatus === 'N/A') ? 'red' : 'green';
 
     const formattedDate = row.LastUpdated
@@ -23,19 +22,6 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
             minute: '2-digit',
             hour12: true
         }) : 'N/A';
-
-        React.useEffect(() => {
-            if (!row.MemberID) return;
-            if (selectedSemester === null) {
-                setMemberStatus('N/A');
-                return;
-            }
-            const semesterID = selectedSemester.SemesterID;
-            fetch(`/api/memberDetails/status?memberID=${row.MemberID}&organizationID=${orgID}&semesterID=${semesterID}`)
-                .then(response => response.json())
-                .then(data => setMemberStatus(data.status))
-                .catch(error => console.error('Error fetching data for MemberName:', error));
-        }, [row.MemberID, selectedSemester]);
 
     return (
         <TableRow
@@ -52,24 +38,23 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
                 <Checkbox
                     color="primary"
                     checked={isItemSelected}
-                    inputProps={{
-                        'aria-labelledby': labelId,
-                    }}
+                    inputProps={{ 'aria-labelledby': labelId }}
                 />
             </TableCell>
-            <TableCell align="left" sx={{ cellStyles }}>
+            <TableCell align="left" sx={{ ...cellStyles }}>
                 {row.FullName}
             </TableCell>
             <TableCell
                 align="left"
                 id={labelId}
-                sx={{ ...cellStyles, color: statusColor }}>
+                sx={{ ...cellStyles, color: statusColor }}
+            >
                 {memberStatus}
             </TableCell>
-            <TableCell align="left" sx={{ cellStyles }}>
+            <TableCell align="left" sx={{ ...cellStyles }}>
                 {row.AttendanceRecord} meetings
             </TableCell>
-            <TableCell sx={{ cellStyles }}>
+            <TableCell sx={{ ...cellStyles }}>
                 {formattedDate}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>

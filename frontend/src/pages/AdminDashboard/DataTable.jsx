@@ -265,8 +265,10 @@ export default function DataTable({ orgID, memberData, isLoading, selectedSemest
                     />
                     <TableBody>
                         {isLoading ? (
-                            Array.from(new Array(5)).map((_, index) => <SkeletonRow key={`skeleton-${index}`} index={index} />)
-                        ) : (
+                            Array.from(new Array(5)).map((_, index) => (
+                                <SkeletonRow key={`skeleton-${index}`} index={index} />
+                            ))
+                        ) : visibleRows.length > 0 ? (
                             visibleRows.map((row, index) => {
                                 const isItemSelected = selected.includes(row.MemberID);
                                 const labelId = `enhanced-table-checkbox-${index}`;
@@ -284,6 +286,12 @@ export default function DataTable({ orgID, memberData, isLoading, selectedSemest
                                     />
                                 );
                             })
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} align="center">
+                                    <Typography variant="subtitle1">No records found</Typography>
+                                </TableCell>
+                            </TableRow>
                         )}
                         {!isLoading && emptyRows > 0 && (
                             <TableRow style={{ height: 53 * emptyRows }}>

@@ -13,8 +13,8 @@ function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
-  const [selectedSemester, setSelectedSemester] = React.useState(null);
   const [semesters, setSemesters] = React.useState([]);
+  const [selectedSemester, setSelectedSemester] = React.useState(null);
   const [activeSemester, setActiveSemester] = React.useState(null);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -122,9 +122,7 @@ function AdminDash() {
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {/* Header */}
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-          {/* Flavor Text */}
           <Box>
             <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
               Member Database -

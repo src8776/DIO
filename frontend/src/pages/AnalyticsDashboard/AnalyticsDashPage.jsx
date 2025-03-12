@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {
   Box, Container, Paper,
-  Typography, Select, MenuItem
+  Typography, Select, MenuItem,
+  CircularProgress
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
-
-
-
+import TotalMembersChart from './TotalMembersChart';
+import AverageEventAttendance from './AverageEventAttendanceChart';
 
 export default function AnalyticsDash() {
   const { org } = useParams();
@@ -15,6 +15,7 @@ export default function AnalyticsDash() {
   const [semesters, setSemesters] = React.useState([]);
   const [selectedSemester, setSelectedSemester] = React.useState(null);
   const [activeSemester, setActiveSemester] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   if (!allowedTypes.includes(org)) {
     return (
@@ -48,9 +49,11 @@ export default function AnalyticsDash() {
           setSelectedSemester(activeSemester);
           setActiveSemester(activeSemester);
         }
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching semesters:', error);
+        setIsLoading(false);
       });
   }, []);
 
@@ -65,8 +68,9 @@ export default function AnalyticsDash() {
     }
   };
 
+  // console.log(selectedSemester);
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { md: 'column', lg: 'row' }, gap: 2 }}>
       {/* TODO: Need to figure out width and standardize across pages maxWidth: 832? */}
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
@@ -95,25 +99,27 @@ export default function AnalyticsDash() {
           </Select>
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
-          <Box sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', gap: 2}}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Typography>Total Members</Typography>
-            </Paper>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Typography>Overall Attendance</Typography>
-            </Paper>
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress />
           </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {selectedSemester && <TotalMembersChart organizationID={orgID} selectedSemester={selectedSemester} />}
+              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                <Typography>Overall Attendance</Typography>
+              </Paper>
+            </Box>
 
-          <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Typography>Average Attendance per Event Type</Typography>
-            </Paper>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Typography>Majors</Typography>
-            </Paper>
+            <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
+              <AverageEventAttendance organizationID={orgID} selectedSemester={selectedSemester} />
+              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                <Typography>Majors</Typography>
+              </Paper>
+            </Box>
           </Box>
-        </Box>
+        )}
 
         <Paper elevation={0}>
           {/* Add your analytics content here */}

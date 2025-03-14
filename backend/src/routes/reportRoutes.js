@@ -1,5 +1,7 @@
 const PDFDocument = require('pdfkit');
-
+const OrganizationMember = require('../models/OrganizationMember');
+const OrganizationSetting = require('../models/OrganizationSetting');
+const EventInstance = require('../models/EventInstance');
 const express = require('express');
 const router = express.Router();
 
@@ -8,14 +10,19 @@ router.post('/', async (req, res) => {
     const data = req.body;
     console.log(data);
     //TODO: Retrieve data from database
+
+    const organizationName = await OrganizationSetting.getOrganizationName(data.orgID);
+    const memberStats = await OrganizationMember.getMemberStatsByOrgAndSemester(data.orgID, data.selectedSemester.SemesterID);
+    const eventCount = await EventInstance.getNumberOfEventInstances(data.orgID, data.selectedSemester.TermCode);
+
     const reportDetails = {
-        reportName: "Computing Organization for Multicultural Students (COMS) Report",
-        semesterName: "Spring Semester 2025",
+        reportName: organizationName + " Report",
+        semesterName: data.selectedSemester.TermName,
         orgSummary: {
-            totalMembers: 32,
-            activeMembers: 23,
-            inactiveMembers: 9,
-            totalEvents: 10
+            totalMembers: memberStats.activeMembers + memberStats.inactiveMembers,
+            activeMembers: memberStats.activeMembers,
+            inactiveMembers: memberStats.inactiveMembers,
+            totalEvents: eventCount,
         },
         clothingSummary: {
             shirtSizes: {

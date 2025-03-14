@@ -66,6 +66,23 @@ class EventInstance {
             return null;
         }
     }
+
+    static async getNumberOfEventInstances(organizationID, termCode) {
+        try {
+            const [result] = await db.query(
+                `SELECT COUNT(*) as EventCount
+                 FROM EventInstances
+                 WHERE OrganizationID = ?
+                 AND TermCode = ?`,
+                [organizationID, termCode]
+            );
+
+            return result[0].EventCount;
+        } catch (error) {
+            console.error("[@EventInstance] Error fetching EventInstance count:", error);
+            return null;
+        }
+    }
 }
 
 module.exports = EventInstance;

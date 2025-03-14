@@ -51,22 +51,7 @@ const isFileDuplicate = async (filePath) => {
     return existingFile.length > 0;
   } catch (error) {
     console.error('Error checking file duplicate:', error);
-    throw error;
-  }
-};
-
-// Insert File Info into UploadedFilesHistory
-const insertFileInfo = async (filePath, connection) => {
-  try {
-    const fileHash = await generateFileHash(filePath);
-    await connection.query(
-      `INSERT INTO UploadedFilesHistory (FileName, FileHash) VALUES (?, ?)`,
-      [filePath, fileHash]
-    );
-    console.log(`File saved: ${filePath}`);
-  } catch (error) {
-    console.error('Error saving file record:', error);
-    throw error;
+    return Promise.reject(error); // Use reject instead of throw
   }
 };
 
@@ -87,16 +72,20 @@ const processCsv = async (filePath, eventType, organizationID) => {
       }
     } catch (error) {
       console.error('Error processing CSV file:', error);
-      reject(error);
-      return;
+      return reject(error);
     }
 
-    fs.createReadStream(filePath)
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const stream = fs.createReadStream(filePath)
       .pipe(csvParser())
       .on('data', (row) => {
         if (!row['Email'] || !row['Checked-In Date']) {
           console.warn('Skipping row due to missing Email or Checked-In Date:', row);
-          return;
+          stream.destroy(); // Stops further processing
+          return reject(new Error('Missing Email or Checked-In Date rows in CSV file.'));
         }
 
         console.log(`Raw CSV Date in Row: ${row['Checked-In Date']}`);
@@ -116,6 +105,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
 
         if (attendanceRecords.length === 0) {
           console.warn('No attendance records found, skipping.');
+          await connection.rollback();
           fs.unlink(filePath, (err) => {
             if (err) console.error('Error removing file:', err);
             else console.log('File removed successfully');
@@ -123,10 +113,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
           return resolve(); 
         }
 
-        const connection = await db.getConnection();
         try {
-          await connection.beginTransaction();
-
           const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
           // Fetch TermCode
           const termCode = await Semester.getOrCreateTermCode(checkInDate);
@@ -166,7 +153,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
               );
 
               // Insert attendance
-              console.log(`Before Insert attendence: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
+              console.log(`Before Insert attendance: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
               await Attendance.insertAttendance(attendance, eventID, organizationID);
               await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
             } catch (err) {
@@ -176,12 +163,9 @@ const processCsv = async (filePath, eventType, organizationID) => {
             }
           }
 
-          // Insert file info into UploadedFilesHistory
-          await insertFileInfo(filePath, connection);
-
           await connection.commit();
           console.log('Transaction committed successfully');
-
+          resolve();
         } catch (error) {
           await connection.rollback();
           console.error('Transaction failed, rolled back:', error);
@@ -192,9 +176,25 @@ const processCsv = async (filePath, eventType, organizationID) => {
             if (err) console.error('Error removing file:', err);
             else console.log('File removed successfully');
           });
-          resolve();
         }
-      });
+      })
+      .on('error', async (error) => {
+        console.error('Error reading CSV:', error);
+        await connection.rollback();
+        reject(error);
+        fs.unlink(filePath, (err) => {
+            if (err) console.error('Error removing file:', err);
+            else console.log('File removed successfully');
+        });
+    });
+
+} catch (error) {
+await connection.rollback();
+console.error('Transaction failed, rolled back:', error);
+reject(error);
+} finally {
+connection.release();
+}
   });
 };
 

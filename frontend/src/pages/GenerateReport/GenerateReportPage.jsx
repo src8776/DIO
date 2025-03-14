@@ -5,9 +5,6 @@ import {
   Checkbox, Paper,
   Container, Divider
 } from "@mui/material";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
 const style = {
@@ -27,7 +24,7 @@ const style = {
 };
 
 
-function GenerateReportPage({ filters, handleFilterChange, handleDateChange, handleClose, handleGenerateReport }) {
+function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGenerateReport }) {
 
   return (
     <Container>
@@ -40,7 +37,7 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
           <FormControlLabel
             control={
               <Checkbox
-                checked={filters.includeActivestatus}
+                checked={filters.includeActiveStatus}
                 onChange={handleFilterChange}
                 name="includeActiveStatus"
               />
@@ -50,7 +47,7 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
           <FormControlLabel
             control={
               <Checkbox
-                checked={filters.includeInactivestatus}
+                checked={filters.includeInactiveStatus}
                 onChange={handleFilterChange}
                 name="includeInactiveStatus"
               />
@@ -67,9 +64,9 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={filters.includeFullname}
+                    checked={filters.includeFullName}
                     onChange={handleFilterChange}
-                    name="includeFullname"
+                    name="includeFullName"
                   />
                 }
                 label="Full Name"
@@ -87,9 +84,9 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={filters.includeClothingsize}
+                    checked={filters.includeClothingSize}
                     onChange={handleFilterChange}
-                    name="includeClothingsize"
+                    name="includeClothingSize"
                   />
                 }
                 label="Clothing Sizes"
@@ -112,33 +109,6 @@ function GenerateReportPage({ filters, handleFilterChange, handleDateChange, han
                 }
                 label="Graduation Year"
               />
-            </FormGroup>
-          </Box>
-
-          <Box>
-            {/* To be repalced with semester selector once that is added to the database */}
-            <Typography variant="h6">
-              Date Range
-            </Typography>
-            <FormGroup>
-              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Start Date"
-                    name="dateRangeStart"
-                    value={filters.dateRangeStart}
-                    onChange={(newValue) => handleDateChange("dateRangeStart", newValue)}
-                    sx={{ flex: 1 }}
-                  />
-                  <DatePicker
-                    label="End Date"
-                    name="dateRangeEnd"
-                    value={filters.dateRangeEnd}
-                    onChange={(newValue) => handleDateChange("dateRangeEnd", newValue)}
-                    sx={{ flex: 1 }}
-                  />
-                </LocalizationProvider>
-              </Box>
             </FormGroup>
           </Box>
         </Box>

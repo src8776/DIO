@@ -153,7 +153,7 @@ function AdminDash() {
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <UploadFileModal onUploadSuccess={handleUploadSuccess} />
-            <GenerateReportButton orgID={orgID} />
+            <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
           </Box>
           <AddMemberModal />
         </Box>

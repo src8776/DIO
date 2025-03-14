@@ -6,7 +6,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     const [averages, setAverages] = React.useState(null);
 
     React.useEffect(() => {
-        if (selectedSemester) {
+        // Only fetch if selectedSemester exists and has a valid SemesterID
+        if (selectedSemester && selectedSemester.SemesterID) {
             fetch(`/api/analytics/averageAttendance?organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
                 .then((response) => response.json())
                 .then((data) => {
@@ -16,7 +17,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     console.error('Error fetching data:', error);
                 });
         }
-    }, [selectedSemester]);
+    }, [organizationID, selectedSemester?.SemesterID]);
 
     if (!averages) {
         return <div>Loading...</div>;
@@ -35,6 +36,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                         data: eventTypes,
                         scaleType: 'band',
                         label: 'Event Type',
+                        
                     },
                 ]}
                 yAxis={[
@@ -49,10 +51,23 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     {
                         data: attendanceRates,
                         color: '#F76902',
+                        valueFormatter: (value) => `${Math.floor(value)}%`, 
                     },
                 ]}
+                barLabel={(item, context) => {
+                    if ((item.value ?? 0) > 10) {
+                        return (Math.floor(item.value) + '%').toString();
+                    }
+                    return null;
+                }}
                 width={730}
                 height={255}
+                sx={{
+                    '& .MuiBarLabel-root': {
+                        fontSize: '1.8rem', 
+                        fill: '#fff', 
+                    },
+                }}
             />
         </Paper>
     );

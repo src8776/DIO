@@ -51,7 +51,7 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
                         },
                     ]}
                     width={500}
-                    height={255}
+                    height={155}
                     layout="horizontal"
                     // Optional: Customize label appearance
                     sx={{

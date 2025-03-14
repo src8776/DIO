@@ -22,37 +22,55 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
         return <div>Loading...</div>;
     }
 
-    const totalMembers = memberTallies.totalMembers;
-    const activePercentage = Math.floor((memberTallies.activeMembers / totalMembers) * 100);
-    const inactivePercentage = Math.floor((memberTallies.inactiveMembers / totalMembers) * 100);
 
+    // converting to numbers
+    const activeMembers = Number(memberTallies.activeMembers);
+    const inactiveMembers = Number(memberTallies.inactiveMembers);
+    const totalMembers = Number(memberTallies.totalMembers);
+
+    const activePercentage = Math.floor((activeMembers / totalMembers) * 100);
+    const inactivePercentage = Math.floor((inactiveMembers / totalMembers) * 100);
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Total Members</Typography>
-            <Typography variant='h2'>{memberTallies.totalMembers}</Typography>
+            <Typography variant='h2'>{totalMembers}</Typography>
             <BarChart
                 xAxis={[
                     {
                         id: 'barCategories',
                         data: ['Active', 'Inactive'],
                         scaleType: 'band',
-                        // label: 'Status'
+                        colorMap: {
+                            type: 'ordinal',
+                            colors: ['#21BDE5', '#7D55C7'],
+                        }
                     },
                 ]}
                 yAxis={[
                     {
                         // label: 'Count',
-                    }
+                    },
                 ]}
                 series={[
                     {
-                        data: [memberTallies.activeMembers, memberTallies.inactiveMembers],
-                        color: ['#21BDE5', '#7D55C7']
-                        // data: [2, 3]
+                        data: [activeMembers, inactiveMembers],
+                        // color: ['#21BDE5', '#7D55C7'],
+                        valueFormatter: (value) => `${Math.floor((value / totalMembers) * 100)}%`,                  
                     },
                 ]}
+                barLabel={(item, context) => {
+                    if ((item.value ?? 0) > 10) {
+                        return ((Math.floor((item.value / totalMembers) * 100)) + '%').toString();
+                    }
+                    return null;
+                }}
                 width={240}
                 height={200}
+                sx={{
+                    '& .MuiBarLabel-root': {
+                        fill: '#fff', 
+                    },
+                }}
             />
         </Paper>
     );

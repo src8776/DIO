@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {
   Box, Container, Paper,
-  Typography, CircularProgress, 
+  Typography, CircularProgress,
   Tabs, Tab
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import SemesterOverviewTab from './SemesterOverviewTab';
+import SemesterVsSemesterTab from './SemesterVsSemesterTab';
+import YearVsYearTab from './YearVsYearTab';
 
 export default function AnalyticsDash() {
   const { org } = useParams();
@@ -68,8 +70,8 @@ export default function AnalyticsDash() {
         ) : (
           <Box>
             {tabValue === 0 && <SemesterOverviewTab organizationID={orgID} />}
-            {tabValue === 1 && <SemesterVsSemesterTab />}
-            {tabValue === 2 && <YearVsYearTab />}
+            {tabValue === 1 && <SemesterVsSemesterTab organizationID={orgID} />}
+            {tabValue === 2 && <YearVsYearTab organizationID={orgID} />}
           </Box>
         )}
       </Box>

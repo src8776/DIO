@@ -90,11 +90,10 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                     <Typography
                         sx={{
                             fontWeight: 'bold',
-                            color: memberStatus === 'Inactive' ? 'red' : memberStatus ? 'green' : 'system'
+                            color: memberStatus === 'Inactive' ? '#7C8796' : memberStatus ? '#2DD4BF' : 'system'
                         }}
                     >
-                        {memberStatus || 'no status'}
-                    </Typography>
+                        {memberStatus === 'Inactive' ? 'General Member' : memberStatus === 'Active' ? 'Active' : 'no status'}                    </Typography>
                 </Box>
             </CardContent>
             <CardActions sx={{ justifyContent: "space-between" }}>

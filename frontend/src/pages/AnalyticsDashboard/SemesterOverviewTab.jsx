@@ -1,10 +1,8 @@
 import * as React from 'react';
 import {
-    Box, Container, Paper,
-    Typography, Select, MenuItem,
-    CircularProgress, Tabs, Tab
+    Box, Select, MenuItem,
+    CircularProgress, 
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
 import TotalMembersChart from './TotalMembersChart';
 import AverageEventAttendanceChart from './AverageEventAttendanceChart';
 import OverAllAttendanceChart from './OverallAttendanceChart';
@@ -48,7 +46,7 @@ export default function SemesterOverviewTab({ organizationID }) {
     };
 
     return (
-        <Box sx={{}}>
+        <Box>
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mb: 2 }}>
                 <Select
                     value={selectedSemester ? selectedSemester.SemesterID : 0}

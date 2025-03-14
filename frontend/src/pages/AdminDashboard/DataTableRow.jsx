@@ -10,8 +10,8 @@ const cellStyles = {
 };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester }) => {
-    const memberStatus = row.Status || 'N/A';
-    const statusColor = (memberStatus === 'Inactive' || memberStatus === 'N/A') ? 'red' : 'green';
+    const memberStatus = row.Status === 'Inactive' ? 'General' : 'Active';
+    const statusColor = memberStatus === 'General' ? '#7C8796' : '#2DD4BF';
 
     const formattedDate = row.LastUpdated
         ? new Date(row.LastUpdated).toLocaleString('en-US', {

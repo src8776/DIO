@@ -36,7 +36,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                         data: eventTypes,
                         scaleType: 'band',
                         label: 'Event Type',
-                        
+
                     },
                 ]}
                 yAxis={[
@@ -51,11 +51,11 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     {
                         data: attendanceRates,
                         color: '#F76902',
-                        valueFormatter: (value) => `${Math.floor(value)}%`, 
+                        valueFormatter: (value) => `${value.toFixed(3)}%`,
                     },
                 ]}
                 barLabel={(item, context) => {
-                    if ((item.value ?? 0) > 10) {
+                    if ((item.value ?? 0) > 30) {
                         return (Math.floor(item.value) + '%').toString();
                     }
                     return null;
@@ -64,8 +64,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 height={255}
                 sx={{
                     '& .MuiBarLabel-root': {
-                        fontSize: '1.8rem', 
-                        fill: '#fff', 
+                        fontSize: '1.8rem',
+                        fill: '#fff',
                     },
                 }}
             />

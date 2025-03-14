@@ -1,23 +1,18 @@
 import * as React from 'react';
 import {
   Box, Container, Paper,
-  Typography, Select, MenuItem,
-  CircularProgress
+  Typography, CircularProgress, 
+  Tabs, Tab
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import TotalMembersChart from './TotalMembersChart';
-import AverageEventAttendanceChart from './AverageEventAttendanceChart';
-import OverAllAttendanceChart from './OverallAttendanceChart';
-import MajorTalliesChart from './MajorTalliesChart';
+import SemesterOverviewTab from './SemesterOverviewTab';
 
 export default function AnalyticsDash() {
   const { org } = useParams();
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
-  const [semesters, setSemesters] = React.useState([]);
-  const [selectedSemester, setSelectedSemester] = React.useState(null);
-  const [activeSemester, setActiveSemester] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [tabValue, setTabValue] = React.useState(0);
 
   if (!allowedTypes.includes(org)) {
     return (
@@ -33,6 +28,7 @@ export default function AnalyticsDash() {
       .then((data) => {
         if (data.length > 0) {
           setOrgID(data[0].OrganizationID);
+          setIsLoading(false);
         }
       })
       .catch((error) => {
@@ -40,41 +36,14 @@ export default function AnalyticsDash() {
       });
   }, [org]);
 
-  // Fetch semesters on component mount
-  React.useEffect(() => {
-    fetch('/api/admin/getSemesters')
-      .then((response) => response.json())
-      .then((data) => {
-        setSemesters(data);
-        const activeSemester = data.find(semester => semester.IsActive === 1);
-        if (activeSemester) {
-          setSelectedSemester(activeSemester);
-          setActiveSemester(activeSemester);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching semesters:', error);
-        setIsLoading(false);
-      });
-  }, []);
-
-  // Handle semester selection change
-  const handleSemesterChange = (event) => {
-    const value = event.target.value;
-    if (value === 0) {
-      setSelectedSemester(null);
-    } else {
-      const newSemester = semesters.find(sem => sem.SemesterID === value);
-      setSelectedSemester(newSemester);
-    }
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
 
-  // console.log(selectedSemester);
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { md: 'column', lg: 'row' }, gap: 2 }}>
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { md: 'column', lg: 'row' } }}>
       {/* TODO: Need to figure out width and standardize across pages maxWidth: 832? */}
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 0, width: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <Box>
             <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
@@ -83,22 +52,13 @@ export default function AnalyticsDash() {
             <Typography variant="h6" sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
               {org ? org.toUpperCase() : "Loading..."}
             </Typography>
+            {/* add links here to different tabs ('semester vs. semester', 'year vs. year') may need to think of better names. This page should become the default tab called something like 'semester overview'*/}
+            <Tabs value={tabValue} onChange={handleTabChange} aria-label="analytics tabs">
+              <Tab label="Semester Overview" />
+              <Tab label="Semester vs. Semester" />
+              <Tab label="Year vs. Year" />
+            </Tabs>
           </Box>
-          <Select
-            value={selectedSemester ? selectedSemester.SemesterID : 0}
-            onChange={handleSemesterChange}
-            displayEmpty
-            inputProps={{ 'aria-label': 'Select Semester' }}
-            size='small'
-            sx={{ width: 150 }}
-          >
-            <MenuItem value={0}>All Semesters</MenuItem>
-            {semesters.map((sem) => (
-              <MenuItem key={sem.SemesterID} value={sem.SemesterID}>
-                {sem.TermName}
-              </MenuItem>
-            ))}
-          </Select>
         </Box>
 
         {isLoading ? (
@@ -106,20 +66,10 @@ export default function AnalyticsDash() {
             <CircularProgress />
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
-            {selectedSemester &&
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TotalMembersChart organizationID={orgID} selectedSemester={selectedSemester} />
-                <OverAllAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
-              </Box>
-            }
-
-            {selectedSemester &&
-              <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
-                <AverageEventAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
-                <MajorTalliesChart organizationID={orgID} selectedSemester={selectedSemester} />
-              </Box>
-            }
+          <Box>
+            {tabValue === 0 && <SemesterOverviewTab organizationID={orgID} />}
+            {tabValue === 1 && <SemesterVsSemesterTab />}
+            {tabValue === 2 && <YearVsYearTab />}
           </Box>
         )}
       </Box>

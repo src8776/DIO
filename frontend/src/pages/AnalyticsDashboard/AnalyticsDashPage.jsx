@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import SemesterOverviewTab from './SemesterOverviewTab';
 import SemesterVsSemesterTab from './SemesterVsSemesterTab';
 import YearVsYearTab from './YearVsYearTab';
+import DemographicsTab from './DemographicsTab';
 
 export default function AnalyticsDash() {
   const { org } = useParams();
@@ -59,6 +60,7 @@ export default function AnalyticsDash() {
               <Tab label="Semester Overview" />
               <Tab label="Semester vs. Semester" />
               <Tab label="Year vs. Year" />
+              <Tab label="Demographics" />
             </Tabs>
           </Box>
         </Box>
@@ -72,6 +74,7 @@ export default function AnalyticsDash() {
             {tabValue === 0 && <SemesterOverviewTab organizationID={orgID} />}
             {tabValue === 1 && <SemesterVsSemesterTab organizationID={orgID} />}
             {tabValue === 2 && <YearVsYearTab organizationID={orgID} />}
+            {tabValue === 3 && <DemographicsTab organizationID={orgID} />}
           </Box>
         )}
       </Box>

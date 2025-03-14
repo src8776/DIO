@@ -33,12 +33,14 @@ router.get('/averageAttendance', async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT 
+                EventTypeID,
                 EventType,
                 AVG(attendance_rate) AS averageAttendanceRate
             FROM (
                 SELECT 
                     ei.EventID,
                     et.EventType,
+                    et.EventTypeID,
                     COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) / 
                     GREATEST((SELECT COUNT(*) FROM OrganizationMembers WHERE OrganizationID = ? AND SemesterID = ?), 1) AS attendance_rate
                 FROM EventInstances ei
@@ -46,11 +48,62 @@ router.get('/averageAttendance', async (req, res) => {
                 JOIN Attendance a ON ei.EventID = a.EventID
                 JOIN Semesters s ON ei.TermCode = s.TermCode
                 WHERE ei.OrganizationID = ? AND s.SemesterID = ?
-                GROUP BY ei.EventID, et.EventType
+                GROUP BY ei.EventID, et.EventType, et.EventTypeID
             ) AS event_rates
-            GROUP BY EventType`,
+            GROUP BY EventTypeID, EventType`,
             [organizationID, semesterID, organizationID, semesterID]
         );
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/eventInstanceAttendance', async (req, res) => {
+    const { eventTypeID, semesterID, organizationID } = req.query;
+
+    // Validate all required parameters are present
+    if (!eventTypeID || !semesterID || !organizationID) {
+        return res.status(400).json({ 
+            error: 'Missing required parameters: eventTypeID, semesterID, or organizationID' 
+        });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                ei.EventID,
+                ei.EventTitle,
+                ei.EventDate,
+                et.EventType,
+                COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) AS attendedCount,
+                (SELECT COUNT(*) 
+                 FROM OrganizationMembers 
+                 WHERE OrganizationID = ?) AS totalMembers,
+                COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) / 
+                    GREATEST((SELECT COUNT(*) 
+                             FROM OrganizationMembers 
+                             WHERE OrganizationID = ?), 1) AS attendanceRate
+            FROM EventInstances ei
+            JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
+            LEFT JOIN Attendance a ON ei.EventID = a.EventID
+            JOIN Semesters s ON ei.TermCode = s.TermCode
+            WHERE ei.EventTypeID = ?
+                AND s.SemesterID = ?
+                AND ei.OrganizationID = ?
+            GROUP BY ei.EventID, ei.EventTitle, ei.EventDate, et.EventType
+            ORDER BY ei.EventDate`,
+            [organizationID, organizationID, eventTypeID, semesterID, organizationID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ 
+                message: 'No event instances found for the specified parameters' 
+            });
+        }
+
         res.json(rows);
     } catch (error) {
         console.error('Query Error:', error);

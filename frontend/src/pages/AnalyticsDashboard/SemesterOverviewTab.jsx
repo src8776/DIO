@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Box, Select, MenuItem,
-    CircularProgress, 
+    CircularProgress,
 } from '@mui/material';
 import TotalMembersChart from './TotalMembersChart';
 import AverageEventAttendanceChart from './AverageEventAttendanceChart';
@@ -72,17 +72,19 @@ export default function SemesterOverviewTab({ organizationID }) {
             ) : (
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
                     {selectedSemester &&
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <TotalMembersChart organizationID={organizationID} selectedSemester={selectedSemester} />
-                            <OverAllAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
-                        </Box>
-                    }
+                        <>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <TotalMembersChart organizationID={organizationID} selectedSemester={selectedSemester} />
+                                <OverAllAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
+                            </Box>
 
-                    {selectedSemester &&
-                        <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
-                            <AverageEventAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
-                            <MajorTalliesChart organizationID={organizationID} selectedSemester={selectedSemester} />
-                        </Box>
+
+
+                            <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
+                                <AverageEventAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
+                                <MajorTalliesChart organizationID={organizationID} selectedSemester={selectedSemester} />
+                            </Box>
+                        </>
                     }
                 </Box>
             )}

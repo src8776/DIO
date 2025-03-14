@@ -50,7 +50,7 @@ class OrganizationMember {
     } else {
       await db.query(
         `INSERT INTO OrganizationMembers (MemberID, OrganizationID, status, semesterID) VALUES (?, ?, ?, ?)`,
-        [memberID, organizationID, status, semesterID ]
+        [memberID, organizationID, status, semesterID]
       );
     }
   }
@@ -83,6 +83,26 @@ class OrganizationMember {
     } catch (error) {
       console.error('Error fetching member role:', error);
       throw error;
+    }
+  }
+
+  static async getMemberStatsByOrgAndSemester(organizationID, semesterID) {
+    try {
+        const query = `
+            SELECT 
+                SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
+                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+            FROM OrganizationMembers
+            WHERE OrganizationID = ? AND SemesterID = ?
+        `;
+        const [[result]] = await db.query(query, [organizationID, semesterID]);
+        return {
+            activeMembers: parseInt(result.activeMembers),
+            inactiveMembers: parseInt(result.inactiveMembers)
+        };
+    } catch (error) {
+        console.error('Error fetching member stats:', error);
+        throw error;
     }
   }
 }

@@ -148,5 +148,8 @@ app.use('/api/admin/report', reportRoutes);
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/user', userRoutes);
 
+const analyticsRoutes = require('./routes/analytics');
+app.use('/api/analytics', analyticsRoutes);
+
 // TODO: Add more REST endpoints here
 module.exports = app;

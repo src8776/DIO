@@ -1,22 +1,22 @@
 import * as React from 'react';
 import {
   Box, Container, Paper,
-  Typography, Select, MenuItem
+  Typography, Select, MenuItem,
+  CircularProgress
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import GenerateReportButton from './GenerateReportButton';
-import AddMemberModal from '../../components/AddMemberModal';
-import UploadFileModal from './UploadFileModal';
-import DataTable from './DataTable';
+import TotalMembersChart from './TotalMembersChart';
+import AverageEventAttendanceChart from './AverageEventAttendanceChart';
+import OverAllAttendanceChart from './OverallAttendanceChart';
+import MajorTalliesChart from './MajorTalliesChart';
 
-function AdminDash() {
-  const { org } = useParams(); //"wic" or "coms"
+export default function AnalyticsDash() {
+  const { org } = useParams();
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
   const [semesters, setSemesters] = React.useState([]);
   const [selectedSemester, setSelectedSemester] = React.useState(null);
   const [activeSemester, setActiveSemester] = React.useState(null);
-  const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   if (!allowedTypes.includes(org)) {
@@ -27,7 +27,6 @@ function AdminDash() {
     );
   }
 
-  // Grab oranization ID from the abbreviation value
   React.useEffect(() => {
     fetch(`/api/organizationInfo/organizationIDByAbbreviation?abbreviation=${org}`)
       .then((response) => response.json())
@@ -52,31 +51,13 @@ function AdminDash() {
           setSelectedSemester(activeSemester);
           setActiveSemester(activeSemester);
         }
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching semesters:', error);
+        setIsLoading(false);
       });
   }, []);
-
-  // Fetch member data when orgID or selectedSemester changes
-  React.useEffect(() => {
-    if (orgID !== null && selectedSemester !== undefined) {
-      setIsLoading(true);
-      const endpoint = selectedSemester
-        ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${selectedSemester.TermCode}`
-        : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
-      fetch(endpoint)
-        .then((response) => response.json())
-        .then((data) => {
-          setMemberData(data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching member data:', error);
-          setIsLoading(false);
-        });
-    }
-  }, [orgID, selectedSemester]);
 
   // Handle semester selection change
   const handleSemesterChange = (event) => {
@@ -89,49 +70,20 @@ function AdminDash() {
     }
   };
 
-  // Callback to refresh data after upload
-  const handleUploadSuccess = () => {
-    if (selectedSemester === null) {
-      fetchData();
-    } else {
-      fetchData(selectedSemester.TermCode);
-    }
-  };
-
-  const fetchData = (termCode = null) => {
-    if (orgID !== null && selectedSemester !== undefined) {
-      setIsLoading(true);
-      const endpoint = termCode
-        ? `/api/admin/datatableByTerm?organizationID=${orgID}&termCode=${termCode}`
-        : `/api/admin/datatableAllTerms?organizationID=${orgID}`;
-      fetch(endpoint)
-        .then((response) => response.json())
-        .then((data) => {
-          setMemberData(data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-          setIsLoading(false);
-        });
-    }
-  };
-
-  // console.log(memberData[0].AttendanceRecord)
-
+  // console.log(selectedSemester);
   return (
-    <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Container sx={{ p: 2, display: 'flex', flexDirection: { md: 'column', lg: 'row' }, gap: 2 }}>
+      {/* TODO: Need to figure out width and standardize across pages maxWidth: 832? */}
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <Box>
             <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
-              Member Database -
+              Analytics Dashboard -
             </Typography>
             <Typography variant="h6" sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
               {org ? org.toUpperCase() : "Loading..."}
             </Typography>
           </Box>
-          {/* Semester Select */}
           <Select
             value={selectedSemester ? selectedSemester.SemesterID : 0}
             onChange={handleSemesterChange}
@@ -149,22 +101,28 @@ function AdminDash() {
           </Select>
         </Box>
 
-        {/* User Action Buttons */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            <UploadFileModal onUploadSuccess={handleUploadSuccess} />
-            <GenerateReportButton orgID={orgID} />
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress />
           </Box>
-          <AddMemberModal />
-        </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 4 }}>
+            {selectedSemester &&
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TotalMembersChart organizationID={orgID} selectedSemester={selectedSemester} />
+                <OverAllAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
+              </Box>
+            }
 
-        {/* Data Table */}
-        <Paper elevation={0}>
-          <DataTable orgID={orgID} memberData={memberData} isLoading={isLoading} selectedSemester={selectedSemester} activeSemester={activeSemester} />
-        </Paper>
+            {selectedSemester &&
+              <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
+                <AverageEventAttendanceChart organizationID={orgID} selectedSemester={selectedSemester} />
+                <MajorTalliesChart organizationID={orgID} selectedSemester={selectedSemester} />
+              </Box>
+            }
+          </Box>
+        )}
       </Box>
     </Container>
   );
 }
-
-export default AdminDash;

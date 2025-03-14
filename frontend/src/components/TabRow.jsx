@@ -18,6 +18,7 @@ export default function HorizontalNavTabs({ orgType }) {
     { text: "Member Database", path: `/admin/${orgType}` },
     { text: "Officers", path: `/admin/${orgType}/officersList` },
     { text: "Organization Setup", path: `/admin/${orgType}/organizationSetup` },
+    { text: "Analytics Dashboard", path: `/admin/${orgType}/analyticsDash` }
   ];
 
   React.useEffect(() => {

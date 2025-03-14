@@ -10,6 +10,7 @@ import OrgSetup from './pages/OrganizationSetup/OrganizationSetupPage.jsx';
 import OfficersList from './pages/OfficersList/OfficersPage.jsx';
 import MemberDetailsModal from './pages/MemberDetails/MemberDetailsPage.jsx';
 import AdminLayout from './components/AdminLayout.jsx';
+import AnalyticsDash from './pages/AnalyticsDashboard/AnalyticsDashPage.jsx';
 import lightTheme from './theme/themeLight.js';
 import darkTheme from './theme/themeDark.js';
 import ProtectedRoute from './ProtectedRoute.jsx';
@@ -40,7 +41,7 @@ const App = () => {
   }, []);
 
   // TODO: Protect all paths (except for "/").
-  // Only to be accessible by ADMIN USERS 
+  // Only to be accessible by ADMIN / EBOARD? USERS 
 
   return (
     <ThemeProvider theme={mode === 'light' ? lightTheme : darkTheme}>
@@ -53,6 +54,7 @@ const App = () => {
           <Route path="memberDetails" element={<MemberDetailsModal />} />
           <Route path="organizationSetup" element={<OrgSetup />} />
           <Route path="officersList" element={<OfficersList />} />
+          <Route path="analyticsDash" element={<AnalyticsDash />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />

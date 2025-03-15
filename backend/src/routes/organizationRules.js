@@ -175,6 +175,12 @@ router.post('/copyRules', async (req, res) => {
         // Start a transaction for data consistency
         await connection.beginTransaction();
 
+        // Delete existing rules for the target semester
+        await connection.query(
+            'DELETE FROM EventRules WHERE OrganizationID = ? AND SemesterID = ?',
+            [organizationID, targetSemesterID]
+        );
+
         // Copy active requirement from OrganizationSettings
         const [activeReq] = await connection.query(
             'SELECT ActiveRequirement, Description FROM OrganizationSettings WHERE OrganizationID = ? AND SemesterID = ?',
@@ -195,10 +201,10 @@ router.post('/copyRules', async (req, res) => {
             [organizationID, sourceSemesterID]
         );
         for (const rule of rules) {
+            // Using INSERT instead of INSERT ... ON DUPLICATE KEY since we deleted existing rules
             await connection.query(
                 `INSERT INTO EventRules (OrganizationID, EventTypeID, SemesterID, Criteria, CriteriaValue, PointValue) 
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE Criteria = VALUES(Criteria), CriteriaValue = VALUES(CriteriaValue), PointValue = VALUES(PointValue)`,
+                VALUES (?, ?, ?, ?, ?, ?)`,
                 [organizationID, rule.EventTypeID, targetSemesterID, rule.Criteria, rule.CriteriaValue, rule.PointValue]
             );
         }

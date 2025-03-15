@@ -293,7 +293,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 eventTypeID,
                 semesterID,
                 criteria: newRuleCriteriaType,
-                criteriaValue, // Will now be 0.00 for "attendance" or "one off"
+                criteriaValue, 
                 pointValue,
             }),
         })

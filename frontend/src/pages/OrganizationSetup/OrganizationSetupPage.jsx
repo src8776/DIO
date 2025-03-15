@@ -181,7 +181,7 @@ export default function OrganizationSetup() {
                 {/* Copy Rules Button */}
                 {isEditable && (
                     <Button variant="outlined" onClick={() => setOpenCopyDialog(true)}>
-                        Copy Rules from Previous Semester
+                        Copy from Existing Semester
                     </Button>
                 )}
 
@@ -217,7 +217,14 @@ export default function OrganizationSetup() {
                         {isEditable && (
                             <>
                                 <Button variant="contained" color="primary" onClick={handleFormOpen}>Add New Event</Button>
-                                <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules} setSuccessMessage={setSuccessMessage} />
+                                <AddEventModal
+                                    open={formOpen}
+                                    onClose={handleFormClose}
+                                    orgID={orgID}
+                                    refetchEventRules={fetchEventRules}
+                                    setSuccessMessage={setSuccessMessage}
+                                    semesterID={selectedSemester?.SemesterID}
+                                />
                             </>
                         )}
                     </Box>

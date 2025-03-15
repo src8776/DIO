@@ -3,7 +3,7 @@ import { Box, Modal } from '@mui/material';
 import AddEventForm from './AddEventForm';
 
 
-export default function AddEventModal({ open, onClose, orgID, refetchEventRules, setSuccessMessage }) {
+export default function AddEventModal({ open, onClose, orgID, refetchEventRules, setSuccessMessage, semesterID }) {
 
     return (
         <Modal open={open} onClose={onClose}>
@@ -13,6 +13,7 @@ export default function AddEventModal({ open, onClose, orgID, refetchEventRules,
                     orgID={orgID}
                     refetchEventRules={refetchEventRules}
                     setSuccessMessage={setSuccessMessage}
+                    semesterID={semesterID}
                 />
             </Box>
         </Modal>

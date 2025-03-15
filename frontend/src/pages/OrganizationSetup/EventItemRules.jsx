@@ -231,6 +231,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             body: JSON.stringify({
                 eventTypeID,
                 occurrences: parsedValue,
+                semesterID,
             }),
         })
             .then((response) => response.json())

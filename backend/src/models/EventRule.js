@@ -23,9 +23,11 @@ class EventRule {
                 LEFT JOIN OrganizationSettings os
                     ON et.OrganizationID = os.OrganizationID
                     AND os.SemesterID = ?
-                WHERE et.OrganizationID = ? AND (er.SemesterID = ? OR er.SemesterID IS NULL);
+                WHERE et.OrganizationID = ? 
+                AND et.SemesterID = ? 
+                AND (er.SemesterID = ? OR er.SemesterID IS NULL);
             `;
-            const [rows] = await db.query(query, [semesterID, semesterID, organizationID, semesterID]);
+            const [rows] = await db.query(query, [semesterID, semesterID, organizationID, semesterID, semesterID]);
 
             // Transform the flat array into a nested structure
             const eventTypesMap = {};

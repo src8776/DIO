@@ -23,7 +23,7 @@ const modalStyle = {
     maxHeight: '90%'
 };
 
-export default function AddEventForm({ onClose, orgID, refetchEventRules, setSuccessMessage }) {
+export default function AddEventForm({ onClose, orgID, refetchEventRules, setSuccessMessage, semesterID }) {
     const [eventTypeName, setEventTypeName] = useState('');
     const [occurrences, setOccurrences] = useState('');
     const [trackingType, setTrackingType] = useState('Attendance');
@@ -39,7 +39,8 @@ export default function AddEventForm({ onClose, orgID, refetchEventRules, setSuc
                     organizationID: orgID,
                     EventTypeName: eventTypeName,
                     TrackingType: trackingType,
-                    occurrences: parseInt(occurrences, 10) || 0
+                    occurrences: parseInt(occurrences, 10) || 0,
+                    semesterID: semesterID
                 }),
             });
     

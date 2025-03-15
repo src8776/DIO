@@ -16,6 +16,18 @@ class EventInstance {
             }
             console.log(`[@EventInstance] Looking up EventID for: ${eventType} on ${checkInDate}, OrgID: ${organizationID}, TermCode: ${termCode}`);
 
+            // Get SemesterID from TermCode
+            const [semesterRow] = await db.query(
+                `SELECT SemesterID FROM Semesters WHERE TermCode = ? LIMIT 1`,
+                [termCode]
+            );
+
+            if (semesterRow.length === 0) {
+                console.error(`[@EventInstance] No SemesterID found for TermCode: ${termCode}`);
+                return null;
+            }
+
+            const semesterID = semesterRow[0].SemesterID;
 
             // First, check if the event already exists
             const [existingEvents] = await db.query(
@@ -38,14 +50,15 @@ class EventInstance {
 
             console.warn(`[@EventInstance] No EventID found for ${eventType} on ${eventDate}, inserting new event...`);
 
-            // Retrieve EventTypeID first
+            // Retrieve EventTypeID first - now filtering by SemesterID
             const [eventTypeRows] = await db.query(
-                `SELECT EventTypeID FROM EventTypes WHERE EventType = ? AND OrganizationID = ? LIMIT 1`,
-                [eventType, organizationID]
+                `SELECT EventTypeID FROM EventTypes 
+             WHERE EventType = ? AND OrganizationID = ? AND SemesterID = ? LIMIT 1`,
+                [eventType, organizationID, semesterID]
             );
 
             if (eventTypeRows.length === 0) {
-                console.error(`[@EventInstance] No matching EventTypeID found for ${eventType} under OrgID ${organizationID}`);
+                console.error(`[@EventInstance] No matching EventTypeID found for ${eventType} under OrgID ${organizationID} and SemesterID ${semesterID}`);
                 return null;
             }
 

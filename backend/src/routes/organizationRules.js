@@ -123,34 +123,34 @@ router.put('/updateOccurrences', async (req, res) => {
 
 router.post('/addEventType', async (req, res) => {
     console.log('Received POST to /api/events/addEventType:', req.body);
-    const { organizationID, EventTypeName, TrackingType, occurrences } = req.body;
+    const { organizationID, EventTypeName, TrackingType, occurrences, semesterID } = req.body;
 
-    if (!organizationID || !EventTypeName || !TrackingType || !occurrences) {
+    if (!organizationID || !EventTypeName || !TrackingType || !occurrences || !semesterID) {
         return res.status(400).json({ error: 'Missing required parameters' });
     }
 
     try {
-        // Check if an event type with the same name already exists
+        // Check if an event type with the same name already exists in this semester
         const checkQuery = `
             SELECT 
                 EventTypeID 
             FROM 
                 EventTypes 
             WHERE 
-                OrganizationID = ? AND EventType = ?
+                OrganizationID = ? AND EventType = ? AND SemesterID = ?
         `;
-        const [existingEventTypes] = await db.query(checkQuery, [organizationID, EventTypeName]);
+        const [existingEventTypes] = await db.query(checkQuery, [organizationID, EventTypeName, semesterID]);
 
         if (existingEventTypes.length > 0) {
-            return res.status(400).json({ error: 'Event type with the same name already exists' });
+            return res.status(400).json({ error: 'Event type with the same name already exists in this semester' });
         }
 
-        // Insert the new event type
+        // Insert the new event type with SemesterID
         const insertQuery = `
-            INSERT INTO EventTypes (OrganizationID, EventType, RuleType, OccurrenceTotal)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO EventTypes (OrganizationID, EventType, RuleType, OccurrenceTotal, SemesterID)
+            VALUES (?, ?, ?, ?, ?)
         `;
-        await db.query(insertQuery, [organizationID, EventTypeName, TrackingType, occurrences]);
+        await db.query(insertQuery, [organizationID, EventTypeName, TrackingType, occurrences, semesterID]);
         res.status(201).json({ message: 'Event type added successfully' });
     } catch (error) {
         console.error('Error adding event type:', error);
@@ -180,7 +180,31 @@ router.post('/copyRules', async (req, res) => {
             'DELETE FROM EventRules WHERE OrganizationID = ? AND SemesterID = ?',
             [organizationID, targetSemesterID]
         );
-
+        
+        // Copy event types from source semester to target semester
+        const [eventTypes] = await connection.query(
+            `SELECT EventType, RuleType, MaxPoints, MinPoints, OccurrenceTotal 
+             FROM EventTypes 
+             WHERE OrganizationID = ? AND SemesterID = ?`,
+            [organizationID, sourceSemesterID]
+        );
+        
+        // Keep track of old to new EventTypeID mappings
+        const eventTypeIdMap = {};
+        
+        // Insert event types for target semester and store mapping
+        for (const et of eventTypes) {
+            const [result] = await connection.query(
+                `INSERT INTO EventTypes 
+                (OrganizationID, EventType, RuleType, MaxPoints, MinPoints, OccurrenceTotal, SemesterID)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [organizationID, et.EventType, et.RuleType, et.MaxPoints, et.MinPoints, et.OccurrenceTotal, targetSemesterID]
+            );
+            
+            // Store mapping from source event type name to new ID
+            eventTypeIdMap[et.EventType] = result.insertId;
+        }
+        
         // Copy active requirement from OrganizationSettings
         const [activeReq] = await connection.query(
             'SELECT ActiveRequirement, Description FROM OrganizationSettings WHERE OrganizationID = ? AND SemesterID = ?',
@@ -195,23 +219,33 @@ router.post('/copyRules', async (req, res) => {
             );
         }
 
-        // Copy rules from EventRules
+        // Copy rules from EventRules with updated EventTypeIDs
         const [rules] = await connection.query(
-            'SELECT EventTypeID, Criteria, COALESCE(CriteriaValue, 0) AS CriteriaValue, PointValue FROM EventRules WHERE OrganizationID = ? AND SemesterID = ?',
+            `SELECT er.EventTypeID, et.EventType, er.Criteria, 
+             COALESCE(er.CriteriaValue, 0) AS CriteriaValue, er.PointValue 
+             FROM EventRules er
+             JOIN EventTypes et ON er.EventTypeID = et.EventTypeID
+             WHERE er.OrganizationID = ? AND er.SemesterID = ?`,
             [organizationID, sourceSemesterID]
         );
+        
         for (const rule of rules) {
-            // Using INSERT instead of INSERT ... ON DUPLICATE KEY since we deleted existing rules
-            await connection.query(
-                `INSERT INTO EventRules (OrganizationID, EventTypeID, SemesterID, Criteria, CriteriaValue, PointValue) 
-                VALUES (?, ?, ?, ?, ?, ?)`,
-                [organizationID, rule.EventTypeID, targetSemesterID, rule.Criteria, rule.CriteriaValue, rule.PointValue]
-            );
+            // Get new EventTypeID from map
+            const newEventTypeId = eventTypeIdMap[rule.EventType];
+            
+            if (newEventTypeId) {
+                await connection.query(
+                    `INSERT INTO EventRules 
+                    (OrganizationID, EventTypeID, SemesterID, Criteria, CriteriaValue, PointValue) 
+                    VALUES (?, ?, ?, ?, ?, ?)`,
+                    [organizationID, newEventTypeId, targetSemesterID, rule.Criteria, rule.CriteriaValue, rule.PointValue]
+                );
+            }
         }
 
         // Commit the transaction
         await connection.commit();
-        res.json({ success: true, message: 'Rules copied successfully' });
+        res.json({ success: true, message: 'Rules and event types copied successfully' });
     } catch (error) {
         // Roll back on error
         if (connection) await connection.rollback();

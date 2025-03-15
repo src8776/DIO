@@ -131,6 +131,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 </Paper>
             );
         }
+
+        const maxAttendance = Math.max(...instanceRates);
     
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -152,10 +154,10 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     series={[{
                         data: instanceRates,
                         color: '#F76902',
-                        valueFormatter: (value) => value != null ? value : 'N/A'
+                        valueFormatter: (value) => value != null ? `${value} attended` : 'N/A'
                         // valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
                     }]}
-                    barLabel={(item) => (item.value ?? 0) > 20 ? item.value : null}
+                    barLabel={(item) => (item.value ?? 0) > 0.2 * maxAttendance ? item.value : null}
                     // switch to this for percentages
                     // barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
                     width={730}

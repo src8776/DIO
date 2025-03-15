@@ -54,13 +54,14 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                 series={[
                     {
                         data: [activeMembers, inactiveMembers],
-                        // color: ['#21BDE5', '#7D55C7'],
-                        valueFormatter: (value) => `${Math.floor((value / totalMembers) * 100)}%`,                  
+                        valueFormatter: (value) => `${value} members`,                  
+                        // valueFormatter: (value) => `${Math.floor((value / totalMembers) * 100)}%`,                  
                     },
                 ]}
                 barLabel={(item, context) => {
-                    if ((item.value ?? 0) > 10) {
-                        return ((Math.floor((item.value / totalMembers) * 100)) + '%').toString();
+                    if ((item.value ?? 0) > 20) {
+                        return item.value;
+                        // return ((Math.floor((item.value / totalMembers) * 100)) + '%').toString();
                     }
                     return null;
                 }}

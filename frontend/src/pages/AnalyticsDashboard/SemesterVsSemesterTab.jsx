@@ -35,7 +35,7 @@ export default function SemesterVsSemesterTab({ organizationID }) {
     // Handle first semester selection change
     const handleFirstSemesterChange = (event) => {
         const value = event.target.value;
-        if (value === 0) {
+        if (value === '') { // Changed from 0 to ''
             setFirstSemester(null);
         } else {
             const newSemester = semesters.find(sem => sem.SemesterID === value);
@@ -50,7 +50,7 @@ export default function SemesterVsSemesterTab({ organizationID }) {
     // Handle second semester selection change
     const handleSecondSemesterChange = (event) => {
         const value = event.target.value;
-        if (value === 0) {
+        if (value === '') { // Changed from 0 to ''
             setSecondSemester(null);
         } else {
             const newSemester = semesters.find(sem => sem.SemesterID === value);
@@ -66,14 +66,14 @@ export default function SemesterVsSemesterTab({ organizationID }) {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', gap: 2, mb: 2 }}>
                 <Select
-                    value={firstSemester ? firstSemester.SemesterID : 0}
+                    value={firstSemester ? firstSemester.SemesterID : ''} // Changed from 0 to ''
                     onChange={handleFirstSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select First Semester' }}
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    {/* <MenuItem value={0}>Select First</MenuItem> */}
+                    <MenuItem value="">Select First</MenuItem> {/* Added placeholder */}
                     {semesters.map((sem) => (
                         <MenuItem
                             key={sem.SemesterID}
@@ -87,16 +87,15 @@ export default function SemesterVsSemesterTab({ organizationID }) {
 
                 <Typography>vs</Typography>
 
-
                 <Select
-                    value={secondSemester ? secondSemester.SemesterID : 0}
+                    value={secondSemester ? secondSemester.SemesterID : ''} // Changed from 0 to ''
                     onChange={handleSecondSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select Second Semester' }}
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    {/* <MenuItem value={0} disabled>Select Second</MenuItem> */}
+                    <MenuItem value="">Select Second</MenuItem> {/* Added placeholder */}
                     {semesters.map((sem) => (
                         <MenuItem
                             key={sem.SemesterID}
@@ -120,7 +119,6 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                     justifyContent: 'space-between',
                     gap: 4
                 }}>
-                    {/* Chart components will go here */}
                     {(firstSemester || secondSemester) && (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {/* Comparison charts will be added here */}

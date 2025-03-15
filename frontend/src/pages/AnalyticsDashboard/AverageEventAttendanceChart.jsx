@@ -116,8 +116,11 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             return `${month}\n${day}`;
         });
         const instanceRates = eventInstances.map(instance => {
-            const rate = instance.attendanceRate;
-            return rate != null && !isNaN(rate) ? rate * 100 : 0;
+            const rate = instance.attendanceCount;
+            console.log(rate);
+            return rate;
+            // us this if you want percentages
+            // return rate != null && !isNaN(rate) ? rate * 100 : 0; 
         });
     
         if (instanceLabels.length !== instanceRates.length) {
@@ -144,13 +147,17 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                         scaleType: 'band',
                         tickLabelStyle: { fontSize: 12, textAnchor: 'middle' }
                     }]}
-                    yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
+                    yAxis={[{ label: 'Attendance Count' }]}
+                    // yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
                     series={[{
                         data: instanceRates,
                         color: '#F76902',
-                        valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
+                        valueFormatter: (value) => value != null ? value : 'N/A'
+                        // valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
                     }]}
-                    barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
+                    barLabel={(item) => (item.value ?? 0) > 20 ? item.value : null}
+                    // switch to this for percentages
+                    // barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
                     width={730}
                     height={255}
                     sx={{

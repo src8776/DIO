@@ -40,6 +40,21 @@ const generateFileHash = (filePath) => {
   });
 };
 
+// Insert File Info into UploadedFilesHistory
+const insertFileInfo = async (filePath, connection) => {
+  try {
+    const fileHash = await generateFileHash(filePath);
+    await connection.query(
+      `INSERT INTO UploadedFilesHistory (FileName, FileHash) VALUES (?, ?)`,
+      [filePath, fileHash]
+    );
+    console.log(`File saved: ${filePath}`);
+  } catch (error) {
+    console.error('Error saving file record:', error);
+    throw error;
+  }
+};
+
 // Check if file has already been uploaded
 const isFileDuplicate = async (filePath) => {
   try {

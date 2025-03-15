@@ -8,6 +8,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     const [viewMode, setViewMode] = React.useState('averages');
     const [selectedEventType, setSelectedEventType] = React.useState(null);
     const [eventInstances, setEventInstances] = React.useState(null);
+    const [isFetchingInstances, setIsFetchingInstances] = React.useState(false);
 
     // Fetch average attendance data
     React.useEffect(() => {
@@ -15,6 +16,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             fetch(`/api/analytics/averageAttendance?organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
                 .then((response) => response.json())
                 .then((data) => {
+                    // console.log('Average attendance data:', data);
                     setAverages(data);
                 })
                 .catch((error) => {
@@ -27,30 +29,57 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
 
     // Fetch event instance attendance data when an event type is selected
     React.useEffect(() => {
-        if (viewMode === 'instances' && selectedEventType) {
-            fetch(`/api/analytics/eventInstanceAttendance?eventTypeID=${selectedEventType.EventTypeID}&semesterID=${selectedSemester.SemesterID}&organizationID=${organizationID}`)
+        const controller = new AbortController();
+        const signal = controller.signal;
+    
+        if (viewMode === 'instances' && selectedEventType && !isFetchingInstances) {
+            setIsFetchingInstances(true);
+            fetch(`/api/analytics/eventInstanceAttendance?eventTypeID=${selectedEventType.EventTypeID}&semesterID=${selectedSemester.SemesterID}&organizationID=${organizationID}`, { signal })
                 .then((response) => response.json())
                 .then((data) => {
                     setEventInstances(data);
+                    setIsFetchingInstances(false);
                 })
                 .catch((error) => {
-                    console.error('Error fetching event instances:', error);
+                    if (error.name !== 'AbortError') {
+                        console.error('Error fetching event instances:', error);
+                        setIsFetchingInstances(false);
+                    }
                 });
-        } else {
-            setEventInstances(null); // Reset eventInstances if conditions aren't met
+        } else if (viewMode === 'averages' && eventInstances !== null) {
+            setEventInstances(null);
+            setIsFetchingInstances(false);
         }
+    
+        return () => controller.abort();
     }, [viewMode, selectedEventType, organizationID, selectedSemester?.SemesterID]);
 
-    // Loading state for averages
+    // Initial loading state for averages
     if (!selectedSemester || !averages) {
-        return <div>Loading...</div>;
+        return (
+            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Typography>Loading...</Typography>
+            </Paper>
+        );
     }
 
     // Averages view
-    if (viewMode === 'averages' && Array.isArray(averages)) {
-        const eventTypes = averages.map(item => item.EventType);
-        const attendanceRates = averages.map(item => parseFloat(item.averageAttendanceRate) * 100);
-
+    if (viewMode === 'averages' && Array.isArray(averages) && averages.length > 0) {
+        const eventTypes = averages.map(item => item.EventType || 'Unknown');
+        const attendanceRates = averages.map(item => {
+            const rate = parseFloat(item.averageAttendanceRate);
+            return isNaN(rate) ? 0 : rate * 100;
+        });
+    
+        if (eventTypes.length !== attendanceRates.length) {
+            console.error('Mismatch between eventTypes and attendanceRates:', { eventTypes, attendanceRates });
+            return (
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Typography>Error: Data mismatch in averages chart</Typography>
+                </Paper>
+            );
+        }
+    
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Typography>Average Attendance per Event Type</Typography>
@@ -67,38 +96,45 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                         setSelectedEventType(selectedItem);
                         setViewMode('instances');
                     }}
-                    barLabel={(item) => {
-                        if ((item.value ?? 0) > 30) {
-                            return `${Math.floor(item.value)}%`;
-                        }
-                        return null;
-                    }}
+                    barLabel={(item) => (item.value ?? 0) > 30 ? `${Math.floor(item.value)}%` : null}
                     width={730}
                     height={255}
                     sx={{
-                        '& .MuiBarLabel-root': {
-                            fontSize: '1.8rem',
-                            fill: '#fff',
-                        },
+                        '& .MuiBarLabel-root': { fontSize: '1.8rem', fill: '#fff' },
                     }}
                 />
             </Paper>
         );
     }
-    // Instances view
-    else if (viewMode === 'instances' && eventInstances) {
+
+    // Instances view (show previous averages view while fetching, then switch when ready)
+    if (viewMode === 'instances' && !isFetchingInstances && Array.isArray(eventInstances) && eventInstances.length > 0) {
         const instanceLabels = eventInstances.map(instance => {
             const date = new Date(instance.EventDate);
             const month = date.toLocaleDateString('en-US', { month: 'short' });
             const day = date.getDate();
-            return `${month}\n${day}`; // Add newline between month and day
+            return `${month}\n${day}`;
         });
-        const instanceRates = eventInstances.map(instance => instance.attendanceRate * 100);
-
+        const instanceRates = eventInstances.map(instance => {
+            const rate = instance.attendanceRate;
+            return rate != null && !isNaN(rate) ? rate * 100 : 0;
+        });
+    
+        if (instanceLabels.length !== instanceRates.length) {
+            console.error('Mismatch between instanceLabels and instanceRates:', { instanceLabels, instanceRates });
+            return (
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Typography>Error: Data mismatch in instances chart</Typography>
+                </Paper>
+            );
+        }
+    
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
-                    <Button variant='outlined' size='small' startIcon={<KeyboardBackspaceRoundedIcon />} onClick={() => setViewMode('averages')}>Back to Averages</Button>
+                    <Button variant='outlined' size='small' startIcon={<KeyboardBackspaceRoundedIcon />} onClick={() => setViewMode('averages')}>
+                        Back to Averages
+                    </Button>
                     <Typography>Attendance for {selectedEventType.EventType}s, {selectedSemester.TermName}</Typography>
                 </Box>
                 <BarChart
@@ -114,26 +150,21 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                         color: '#F76902',
                         valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
                     }]}
-                    barLabel={(item) => {
-                        if ((item.value ?? 0) > 20) {
-                            return `${Math.floor(item.value)}%`;
-                        }
-                        return null;
-                    }}
+                    barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
                     width={730}
                     height={255}
                     sx={{
-                        '& .MuiBarLabel-root': {
-                            fontSize: '.8rem',
-                            fill: '#fff',
-                        },
+                        '& .MuiBarLabel-root': { fontSize: '.8rem', fill: '#fff' },
                     }}
                 />
             </Paper>
         );
     }
-    // Loading state for event instances
-    else {
-        return <div>Loading event instances...</div>;
-    }
+
+    // Fallback (shouldn't reach here with proper conditions)
+    return (
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography>Loading...</Typography>
+        </Paper>
+    );
 }

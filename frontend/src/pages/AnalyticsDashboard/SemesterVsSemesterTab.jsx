@@ -117,8 +117,8 @@ export default function SemesterVsSemesterTab({ organizationID }) {
             ) : (
                 <Box sx={{
                     display: 'flex',
-                    flexDirection: { xs: 'column', md: 'row' },
-                    justifyContent: 'space-between',
+                    flexDirection: 'column',  // Changed from row to column
+                    width: '100%',            // Added explicit width
                     gap: 4
                 }}>
                     {(firstSemester || secondSemester) && (

@@ -56,7 +56,7 @@ export default function SemesterOverviewTab({ organizationID }) {
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    <MenuItem value={0}>All Semesters</MenuItem>
+                    
                     {semesters.map((sem) => (
                         <MenuItem key={sem.SemesterID} value={sem.SemesterID}>
                             {sem.TermName}

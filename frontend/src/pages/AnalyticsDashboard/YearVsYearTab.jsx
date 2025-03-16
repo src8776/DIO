@@ -132,6 +132,7 @@ export default function YearVsYearTab({ organizationID }) {
                             {/* Comparison charts will be added here */}
                             {/* You can use getYearSemesters(firstYear) and getYearSemesters(secondYear) */}
                             {/* to get the semester data for each selected year */}
+                            <Typography>This is where year vs year graphs would go... IF I HAD ANY</Typography>
                         </Box>
                     )}
                 </Box>

@@ -1,9 +1,10 @@
+const express = require('express');
+const router = express.Router();
 const PDFDocument = require('pdfkit');
 const OrganizationMember = require('../models/OrganizationMember');
 const OrganizationSetting = require('../models/OrganizationSetting');
 const EventInstance = require('../models/EventInstance');
-const express = require('express');
-const router = express.Router();
+const Member = require('../models/Member');
 
 router.post('/', async (req, res) => {
     console.log('Received request at /api/admin/report');
@@ -14,6 +15,10 @@ router.post('/', async (req, res) => {
     const organizationName = await OrganizationSetting.getOrganizationName(data.orgID);
     const memberStats = await OrganizationMember.getMemberStatsByOrgAndSemester(data.orgID, data.selectedSemester.SemesterID);
     const eventCount = await EventInstance.getNumberOfEventInstances(data.orgID, data.selectedSemester.TermCode);
+    const shirtSizes = await Member.getShirtSizeCount(data.orgID, data.selectedSemester.SemesterID);
+    const pantSizes = await Member.getPantSizeCount(data.orgID, data.selectedSemester.SemesterID);
+    const memberReportData = await Member.getMemberReportData(data.orgID, data.selectedSemester.SemesterID); // Add this line
+    console.log(shirtSizes, pantSizes);
 
     const reportDetails = {
         reportName: organizationName + " Report",
@@ -25,20 +30,10 @@ router.post('/', async (req, res) => {
             totalEvents: eventCount,
         },
         clothingSummary: {
-            shirtSizes: {
-                small: 9,
-                medium: 5,
-                large: 9,
-                xlarge: 9
-            },
-            pantSizes: {
-                size6: 9,
-                size8: 5,
-                size16: 9,
-                size24: 9
-            }
+            shirtSizes,
+            pantSizes
         },
-        members: [],
+        members: memberReportData,
     };
     generateReport(res, reportDetails);
 });
@@ -84,28 +79,35 @@ const generateReport = (res, reportDetails) => {
     // Clothing Size Summary
     const clothingSummary = [
         { label: 'Shirt Size', value: 'Quantity (Members)', type: 'header' },
-        { label: 'Small', value: reportDetails.clothingSummary.shirtSizes.small },
-        { label: 'Medium', value: reportDetails.clothingSummary.shirtSizes.medium },
-        { label: 'Large', value: reportDetails.clothingSummary.shirtSizes.large },
-        { label: 'X-Large', value: reportDetails.clothingSummary.shirtSizes.xlarge },
+        { label: 'X-Small', value: reportDetails.clothingSummary.shirtSizes['XS'] },
+        { label: 'Small', value: reportDetails.clothingSummary.shirtSizes['S'] },
+        { label: 'Medium', value: reportDetails.clothingSummary.shirtSizes['M'] },
+        { label: 'Large', value: reportDetails.clothingSummary.shirtSizes['L'] },
+        { label: 'X-Large', value: reportDetails.clothingSummary.shirtSizes['XL'] },
+        { label: '2X-Large', value: reportDetails.clothingSummary.shirtSizes['2XL'] },
+        { label: '3X-Large', value: reportDetails.clothingSummary.shirtSizes['3XL'] },
+        { label: 'Not set', value: reportDetails.clothingSummary.shirtSizes['null'] },
         { label: '', value: '' },
         { label: 'Pants Size', value: 'Quantity (Members)', type: 'header' },
-        { label: 'Size 6', value: reportDetails.clothingSummary.pantSizes.size6 },
-        { label: 'Size 8', value: reportDetails.clothingSummary.pantSizes.size8 },
-        { label: 'Size 16', value: reportDetails.clothingSummary.pantSizes.size16 },
-        { label: 'Size 24', value: reportDetails.clothingSummary.pantSizes.size24 }
+        ...Object.entries(reportDetails.clothingSummary.pantSizes).map(([size, count]) => ({
+            label: size === 'null' ? 'Not set' : `Size ${size}`,
+            value: count
+        }))
     ];
     drawClothingSummaryTable(doc, 'Clothing Size Summary', clothingSummary, 50, doc.y + 10, 200, 100, 20);
 
-    doc.moveDown(2);
+    doc.addPage();
 
     // List of Members
-    const membersList = [
-        { label: 'Full Name', value: 'Status | Email | Shirt Size | Pants Size' },
-        { label: 'Maddie Thompson', value: 'Active | mt2442@rit.edu | Large | 16' },
-        { label: 'Lindsey Rubenstein', value: 'Active | lcr1758@rit.edu | Small | 6' }
-    ];
-    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [100, 50, 150, 50, 50], 20);
+    const membersList = reportDetails.members.map(member => ({
+        FullName: member.FullName,
+        Email: member.Email,
+        GraduationYear: member.GraduationYear,
+        AcademicYear: member.AcademicYear,
+        ShirtSize: member.ShirtSize,
+        PantSize: member.PantSize
+    }));
+    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [100, 150, 100, 100, 50, 50], 20);
 
     // Second page
     doc.addPage();
@@ -165,7 +167,7 @@ const drawMembersTable = (doc, title, data, startX, startY, colWidths, rowHeight
 
     // Draw table header
     doc.fillColor('#000000').fontSize(12).font("Helvetica-Bold");
-    const headers = ['Full Name', 'Status', 'Email', 'Shirt Size', 'Pants Size'];
+    const headers = ['Full Name', 'Email', 'Graduation Year', 'Academic Year', 'Shirt Size', 'Pants Size'];
     headers.forEach((header, index) => {
         doc.text(header, startX + colWidths.slice(0, index).reduce((a, b) => a + b, 0), startY);
     });
@@ -174,10 +176,9 @@ const drawMembersTable = (doc, title, data, startX, startY, colWidths, rowHeight
     doc.font("Helvetica");
     data.forEach((item, index) => {
         const y = startY + rowHeight * (index + 1);
-        const values = item.value.split(' | ');
-        doc.text(item.label, startX, y);
+        const values = [item.FullName, item.Email, item.GraduationYear, item.AcademicYear, item.ShirtSize, item.PantSize];
         values.forEach((value, colIndex) => {
-            doc.text(value, startX + colWidths.slice(0, colIndex + 1).reduce((a, b) => a + b, 0), y);
+            doc.text(value, startX + colWidths.slice(0, colIndex).reduce((a, b) => a + b, 0), y);
         });
         // Draw line beneath the row
         doc.strokeColor('#CCCCCC') // Set stroke color to gray

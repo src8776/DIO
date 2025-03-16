@@ -14,14 +14,20 @@ class EventRule {
                     er.RuleID,
                     er.Criteria,
                     er.CriteriaValue,
-                    er.PointValue
+                    er.PointValue,
+                    os.Description AS RequirementType
                 FROM EventTypes et
                 LEFT JOIN EventRules er 
                     ON et.EventTypeID = er.EventTypeID 
                     AND er.SemesterID = ?
-                WHERE et.OrganizationID = ? AND (er.SemesterID = ? OR er.SemesterID IS NULL);
+                LEFT JOIN OrganizationSettings os
+                    ON et.OrganizationID = os.OrganizationID
+                    AND os.SemesterID = ?
+                WHERE et.OrganizationID = ? 
+                AND et.SemesterID = ? 
+                AND (er.SemesterID = ? OR er.SemesterID IS NULL);
             `;
-            const [rows] = await db.query(query, [semesterID, organizationID, semesterID]);
+            const [rows] = await db.query(query, [semesterID, semesterID, organizationID, semesterID, semesterID]);
 
             // Transform the flat array into a nested structure
             const eventTypesMap = {};
@@ -36,6 +42,7 @@ class EventRule {
                         ruleType: row.RuleType,
                         maxPoints: row.MaxPoints,
                         occurrenceTotal: row.OccurrenceTotal,
+                        requirementType: row.RequirementType,
                         rules: []
                     };
                 }

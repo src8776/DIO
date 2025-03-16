@@ -73,7 +73,7 @@ export default function OrganizationSetup() {
             });
     }, []);
 
-// Uncomment this once the clients have confirmed past semester rules are correct
+    // Uncomment this once the clients have confirmed past semester rules are correct
     // determine if a semester is editable
     // React.useEffect(() => {
     //     if (selectedSemester) {
@@ -181,7 +181,7 @@ export default function OrganizationSetup() {
                 {/* Copy Rules Button */}
                 {isEditable && (
                     <Button variant="outlined" onClick={() => setOpenCopyDialog(true)}>
-                        Copy Rules from Previous Semester
+                        Copy from Existing Semester
                     </Button>
                 )}
 
@@ -217,7 +217,14 @@ export default function OrganizationSetup() {
                         {isEditable && (
                             <>
                                 <Button variant="contained" color="primary" onClick={handleFormOpen}>Add New Event</Button>
-                                <AddEventModal open={formOpen} onClose={handleFormClose} orgID={orgID} refetchEventRules={fetchEventRules} setSuccessMessage={setSuccessMessage} />
+                                <AddEventModal
+                                    open={formOpen}
+                                    onClose={handleFormClose}
+                                    orgID={orgID}
+                                    refetchEventRules={fetchEventRules}
+                                    setSuccessMessage={setSuccessMessage}
+                                    semesterID={selectedSemester?.SemesterID}
+                                />
                             </>
                         )}
                     </Box>
@@ -229,16 +236,18 @@ export default function OrganizationSetup() {
                                 <Skeleton key={index} variant="rectangular" height={50} sx={{ mb: 1 }} />
                             ))
                         ) : (
-                            orgRules.eventTypes.map((eventObj, index) => (
-                                <EventItem
-                                    key={`rule-${index}`}
-                                    {...eventObj}
-                                    orgID={orgID}
-                                    semesterID={selectedSemester?.SemesterID}
-                                    refetchEventRules={fetchEventRules}
-                                    isEditable={isEditable}
-                                />
-                            ))
+                            orgRules.eventTypes
+                                .sort((a, b) => b.rules.length - a.rules.length)
+                                .map((eventObj, index) => (
+                                    <EventItem
+                                        key={`rule-${index}`}
+                                        {...eventObj}
+                                        orgID={orgID}
+                                        semesterID={selectedSemester?.SemesterID}
+                                        refetchEventRules={fetchEventRules}
+                                        isEditable={isEditable}
+                                    />
+                                ))
                         )}
                     </List>
                 </Paper>

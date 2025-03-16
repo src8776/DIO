@@ -62,6 +62,7 @@ router.get('/detailsBySemester', async (req, res) => {
             SELECT 
                 m.*, 
                 r.RoleName,
+                ma.Title AS Major,
                 (
                     SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
@@ -90,6 +91,7 @@ router.get('/detailsBySemester', async (req, res) => {
             FROM Members m
             JOIN OrganizationMembers om ON m.MemberID = om.MemberID
             JOIN Roles r ON om.RoleID = r.RoleID
+            LEFT JOIN Majors ma ON m.MajorID = ma.MajorID
             WHERE m.MemberID = ? AND om.OrganizationID = ?;
         `;
 

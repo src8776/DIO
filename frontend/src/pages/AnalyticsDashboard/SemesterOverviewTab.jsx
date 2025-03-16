@@ -78,8 +78,6 @@ export default function SemesterOverviewTab({ organizationID }) {
                                 <OverAllAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
                             </Box>
 
-
-
                             <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>
                                 <AverageEventAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
                                 <MajorTalliesChart organizationID={organizationID} selectedSemester={selectedSemester} />

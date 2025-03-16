@@ -65,7 +65,8 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, sele
 
   const {
     MemberID, UserName, FirstName, LastName, Email,
-    Major, GraduationYear, AcademicYear, attendanceRecords, RoleName
+    Major, GraduationYear, AcademicYear, attendanceRecords, 
+    RoleName, ShirtSize, PantSize, Gender, Race
   } = memberInfo[0];
 
   return (
@@ -77,7 +78,7 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, sele
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               {FirstName} {LastName} • <StatusChip
                 label={memberStatus}
-                memberStatus={memberStatus} // Changed from active to memberStatus
+                memberStatus={memberStatus}
                 size="medium"
               />
             </Typography>
@@ -103,10 +104,10 @@ export default function MemberDetailsModal({ memberID, orgID, memberStatus, sele
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
                   <Typography variant="body2">
-                    <strong>Shirt Size:</strong> n/a
+                    <strong>Shirt Size:</strong> {ShirtSize || "N/A"}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Pant Size:</strong> n/a
+                    <strong>Pant Size:</strong> {PantSize || "N/A"}
                   </Typography>
                 </Box>
               </Paper>

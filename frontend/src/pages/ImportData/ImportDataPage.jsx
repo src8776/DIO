@@ -35,7 +35,7 @@ const style = {
     maxWidth: '100%',
 };
 
-export default function ImportDataPage({ onUploadSuccess, onClose }) {
+export default function ImportDataPage({ onUploadSuccess, onClose, semesterID }) {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
     const [eventTypeItems, setEventTypeItems] = React.useState([]);
@@ -114,11 +114,14 @@ export default function ImportDataPage({ onUploadSuccess, onClose }) {
     };
 
     React.useEffect(() => {
-        fetch(`/api/admin/events?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => setEventTypeItems(data))
-            .catch((error) => console.error('Error fetching data:', error));
-    }, [orgID]);
+        // Only fetch if we have both orgID and semesterID
+        if (orgID && semesterID) {
+            fetch(`/api/admin/events?organizationID=${orgID}&semesterID=${semesterID}`)
+                .then((response) => response.json())
+                .then((data) => setEventTypeItems(data))
+                .catch((error) => console.error('Error fetching events:', error));
+        }
+    }, [orgID, semesterID]); // Add semesterID to dependency array
 
     React.useEffect(() => {
         fetch(`/api/admin/members/names?organizationID=${orgID}`)

@@ -152,7 +152,7 @@ function AdminDash() {
         {/* User Action Buttons */}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            <UploadFileModal onUploadSuccess={handleUploadSuccess} />
+            <UploadFileModal onUploadSuccess={handleUploadSuccess} selectedSemester={selectedSemester} />
             <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
           </Box>
           <AddMemberModal />

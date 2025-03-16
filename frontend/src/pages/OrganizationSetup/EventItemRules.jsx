@@ -35,12 +35,12 @@ const modalStyle = {
 };
 
 // Helper function to generate a readable description for a given rule
-function generateRuleDescription(rule, ruleType) {
+function generateRuleDescription(rule, requirementType) {
     const { criteria, criteriaValue, pointValue } = rule;
 
     // Use a switch-case (or if-else) to handle different rule types
-    switch (ruleType) {
-        case 'Threshold':
+    switch (requirementType) {
+        case 'criteria':
             switch (criteria) {
                 case 'minimum threshold percentage': {
                     // e.g., { criteria: "minimum threshold percentage", criteriaValue: 0.5, pointValue: 1 }
@@ -51,7 +51,7 @@ function generateRuleDescription(rule, ruleType) {
                     return `attend at least one event`;
                 }
             }
-        case 'Points':
+        case 'points':
             switch (criteria) {
                 case 'attendance':
                     // e.g., { criteria: "attendance", criteriaValue: null, pointValue: 1 }
@@ -75,13 +75,12 @@ function generateRuleDescription(rule, ruleType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, refetchEventRules, isEditable }) {
+export default function EventItemRules({ name, rules, ruleType, requirementType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, refetchEventRules, isEditable }) {
     const [editRuleOpen, setEditRuleOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
-    const [requirementType, setRequirementType] = React.useState('');
     const [selectedRule, setSelectedRule] = React.useState(null);
     const [newCriteriaType, setNewCriteriaType] = React.useState(null);
-    const [newCriteriaValue, setNewCriteriaValue] = React.useState(null);
+    const [newCriteriaValue, setNewCriteriaValue] = React.useState(0.00);
     const [newPointValue, setNewPointValue] = React.useState(1);
     const [editOccurrences, setEditOccurrences] = React.useState(false);
     const [currentOccurrenceTotal, setCurrentOccurrenceTotal] = React.useState(occurrenceTotal);
@@ -106,7 +105,6 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 .then(data => {
                     if (data.length > 0) {
                         setActiveRequirement(data[0].ActiveRequirement);
-                        setRequirementType(data[0].Description);
                     }
                 })
                 .catch(error => console.error('Error fetching active requirement:', error));
@@ -233,6 +231,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
             body: JSON.stringify({
                 eventTypeID,
                 occurrences: parsedValue,
+                semesterID,
             }),
         })
             .then((response) => response.json())
@@ -256,15 +255,15 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
         // Reset errors
         setAddPercentError('');
         setAddPointError('');
-
+    
         // Validate criteria type
         if (!newRuleCriteriaType) {
             setAddPercentError('Please select a criteria type');
             return;
         }
-
+    
         // Handle criteria value
-        let criteriaValue = null;
+        let criteriaValue = 0.00; // Default to 0.00
         if (newRuleCriteriaType === 'minimum threshold percentage' || newRuleCriteriaType === 'minimum threshold hours') {
             criteriaValue = parseFloat(newRuleCriteriaValue);
             if (isNaN(criteriaValue) || criteriaValue <= 0) {
@@ -276,14 +275,14 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 return;
             }
         }
-
+    
         // Validate point value
         const pointValue = parseInt(newRulePointValue, 10);
         if (isNaN(pointValue) || pointValue < 1) {
             setAddPointError('Point value must be at least 1');
             return;
         }
-
+    
         // Add New Rule
         fetch('/api/organizationRules/addRule', {
             method: 'POST',
@@ -291,9 +290,11 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                orgID, eventTypeID, semesterID,
+                orgID,
+                eventTypeID,
+                semesterID,
                 criteria: newRuleCriteriaType,
-                criteriaValue,
+                criteriaValue, 
                 pointValue,
             }),
         })
@@ -378,7 +379,7 @@ export default function EventItemRules({ name, rules, ruleType, maxPoints, orgID
                                 rules.map((rule, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{rule.ruleID}</TableCell>
-                                        <TableCell>{generateRuleDescription(rule, ruleType)}</TableCell>
+                                        <TableCell>{generateRuleDescription(rule, requirementType)}</TableCell>
                                         <TableCell align='right'>
                                             <IconButton onClick={() => {
                                                 setAddRuleOpen(false);

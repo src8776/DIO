@@ -110,7 +110,6 @@ export default function EventTypeComparisonChart({ organizationID, firstSemester
                         label: 'Attendance Count'
                     }]}
                     layout="vertical"
-                    barStacking="stacked"
                 />
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', height: 300, alignItems: 'center' }}>

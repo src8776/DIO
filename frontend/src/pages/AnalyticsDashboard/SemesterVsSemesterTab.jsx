@@ -36,14 +36,8 @@ export default function SemesterVsSemesterTab({ organizationID }) {
     // Handle first semester selection change
     const handleFirstSemesterChange = (event) => {
         const value = event.target.value;
-        if (value === '') { // Changed from 0 to ''
-            setFirstSemester(null);
-        } else {
-            const newSemester = semesters.find(sem => sem.SemesterID === value);
-            // Prevent selecting the same semester as secondSemester
-            if (secondSemester && newSemester.SemesterID === secondSemester.SemesterID) {
-                return;
-            }
+        const newSemester = semesters.find(sem => sem.SemesterID === value);
+        if (newSemester && (!secondSemester || newSemester.SemesterID !== secondSemester.SemesterID)) {
             setFirstSemester(newSemester);
         }
     };
@@ -51,14 +45,8 @@ export default function SemesterVsSemesterTab({ organizationID }) {
     // Handle second semester selection change
     const handleSecondSemesterChange = (event) => {
         const value = event.target.value;
-        if (value === '') { // Changed from 0 to ''
-            setSecondSemester(null);
-        } else {
-            const newSemester = semesters.find(sem => sem.SemesterID === value);
-            // Prevent selecting the same semester as firstSemester
-            if (firstSemester && newSemester.SemesterID === firstSemester.SemesterID) {
-                return;
-            }
+        const newSemester = semesters.find(sem => sem.SemesterID === value);
+        if (newSemester && (!firstSemester || newSemester.SemesterID !== firstSemester.SemesterID)) {
             setSecondSemester(newSemester);
         }
     };
@@ -68,14 +56,14 @@ export default function SemesterVsSemesterTab({ organizationID }) {
             {/* Semester Selectors */}
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', gap: 2, mb: 2 }}>
                 <Select
-                    value={firstSemester ? firstSemester.SemesterID : ''} // Changed from 0 to ''
+                    value={firstSemester ? firstSemester.SemesterID : ''} 
                     onChange={handleFirstSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select First Semester' }}
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    <MenuItem value="">Select First</MenuItem> {/* Added placeholder */}
+                    
                     {semesters.map((sem) => (
                         <MenuItem
                             key={sem.SemesterID}
@@ -90,14 +78,14 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                 <Typography>vs</Typography>
 
                 <Select
-                    value={secondSemester ? secondSemester.SemesterID : ''} // Changed from 0 to ''
+                    value={secondSemester ? secondSemester.SemesterID : ''} 
                     onChange={handleSecondSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select Second Semester' }}
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    <MenuItem value="">Select Second</MenuItem> {/* Added placeholder */}
+                    
                     {semesters.map((sem) => (
                         <MenuItem
                             key={sem.SemesterID}
@@ -114,22 +102,19 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                     <CircularProgress />
                 </Box>
+            ) : firstSemester && secondSemester ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 4 }}>
+                    <EventTypeComparisonChart
+                        organizationID={organizationID}
+                        firstSemester={firstSemester}
+                        secondSemester={secondSemester}
+                    />
+                </Box>
             ) : (
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',  // Changed from row to column
-                    width: '100%',            // Added explicit width
-                    gap: 4
-                }}>
-                    {(firstSemester || secondSemester) && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <EventTypeComparisonChart
-                                organizationID={organizationID}
-                                firstSemester={firstSemester}
-                                secondSemester={secondSemester}
-                            />
-                        </Box>
-                    )}
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Typography variant="body1" color="text.secondary">
+                        Please select both semesters to compare
+                    </Typography>
                 </Box>
             )}
         </Box>

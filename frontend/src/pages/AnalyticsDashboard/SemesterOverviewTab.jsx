@@ -37,7 +37,7 @@ export default function SemesterOverviewTab({ organizationID }) {
     // Handle semester selection change
     const handleSemesterChange = (event) => {
         const value = event.target.value;
-        if (value === 0) {
+        if (value === '') {
             setSelectedSemester(null);
         } else {
             const newSemester = semesters.find(sem => sem.SemesterID === value);
@@ -49,7 +49,7 @@ export default function SemesterOverviewTab({ organizationID }) {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', mb: 2 }}>
                 <Select
-                    value={selectedSemester ? selectedSemester.SemesterID : 0}
+                    value={selectedSemester ? selectedSemester.SemesterID : ''}
                     onChange={handleSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select Semester' }}

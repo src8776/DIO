@@ -31,7 +31,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     React.useEffect(() => {
         const controller = new AbortController();
         const signal = controller.signal;
-    
+
         if (viewMode === 'instances' && selectedEventType && !isFetchingInstances) {
             setIsFetchingInstances(true);
             fetch(`/api/analytics/eventInstanceAttendance?eventTypeID=${selectedEventType.EventTypeID}&semesterID=${selectedSemester.SemesterID}&organizationID=${organizationID}`, { signal })
@@ -50,7 +50,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             setEventInstances(null);
             setIsFetchingInstances(false);
         }
-    
+
         return () => controller.abort();
     }, [viewMode, selectedEventType, organizationID, selectedSemester?.SemesterID]);
 
@@ -70,7 +70,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             const rate = parseFloat(item.averageAttendanceRate);
             return isNaN(rate) ? 0 : rate * 100;
         });
-    
+
         if (eventTypes.length !== attendanceRates.length) {
             console.error('Mismatch between eventTypes and attendanceRates:', { eventTypes, attendanceRates });
             return (
@@ -79,7 +79,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 </Paper>
             );
         }
-    
+
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Typography>Average Attendance per Event Type</Typography>
@@ -122,7 +122,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             // us this if you want percentages
             // return rate != null && !isNaN(rate) ? rate * 100 : 0; 
         });
-    
+
         if (instanceLabels.length !== instanceRates.length) {
             console.error('Mismatch between instanceLabels and instanceRates:', { instanceLabels, instanceRates });
             return (
@@ -133,7 +133,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         }
 
         const maxAttendance = Math.max(...instanceRates);
-    
+
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
@@ -173,7 +173,13 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     // Fallback (shouldn't reach here with proper conditions)
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography>Loading...</Typography>
+            <Typography>Average Attendance per Event Type</Typography>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', height: 300, alignItems: 'center' }}>
+                <Typography variant="body1" color="text.secondary">
+                    No data to display
+                </Typography>
+            </Box>
         </Paper>
     );
 }

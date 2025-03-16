@@ -161,6 +161,64 @@ class Member {
     }
   }
 
+  static async getShirtSizeCount(orgID, selectedSemester) {
+    try {
+      const [sizes] = await db.query(
+        `SELECT ShirtSize, COUNT(*) as count 
+         FROM Members 
+         JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
+         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?
+         GROUP BY ShirtSize`,
+        [orgID, selectedSemester]
+      );
+      const defaultSizes = { XS: 0, S: 0, M: 0, L: 0, XL: 0, '2XL': 0, '3XL': 0, null: 0 };
+      return sizes.reduce((acc, size) => {
+        acc[size.ShirtSize] = size.count;
+        return acc;
+      }, defaultSizes);
+    } catch (err) {
+      console.error('Error fetching shirt sizes:', err);
+      throw err;
+    }
+  }
+
+  static async getPantSizeCount(orgID, selectedSemester) {
+    try {
+      const [sizes] = await db.query(
+        `SELECT PantSize, COUNT(*) as count 
+         FROM Members 
+         JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
+         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?
+         GROUP BY PantSize`,
+        [orgID, selectedSemester]
+      );
+      return sizes.reduce((acc, size) => {
+        acc[size.PantSize] = size.count;
+        return acc;
+      }, {});
+    } catch (err) {
+      console.error('Error fetching pant sizes:', err);
+      throw err;
+    }
+  }
+
+  static async getMemberReportData(orgID, selectedSemester) {
+    try {
+      const [members] = await db.query(
+        `SELECT Members.FullName, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize
+        FROM Members
+        JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
+        WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?`,
+        [orgID, selectedSemester]
+      );
+      return members || null;
+    } catch (err) {
+      console.error('Error fetching member report data:', err);
+      throw err;
+    }
+  }
+
+
   /*
   static async getEnumValues(columnName) {
     try {

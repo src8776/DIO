@@ -3,6 +3,7 @@ import {
     Box, Select, MenuItem,
     CircularProgress, Typography
 } from '@mui/material';
+import EventTypeComparisonChart from './EventTypeComparisonChart';
 
 export default function SemesterVsSemesterTab({ organizationID }) {
     const [semesters, setSemesters] = React.useState([]);
@@ -64,6 +65,7 @@ export default function SemesterVsSemesterTab({ organizationID }) {
 
     return (
         <Box>
+            {/* Semester Selectors */}
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', gap: 2, mb: 2 }}>
                 <Select
                     value={firstSemester ? firstSemester.SemesterID : ''} // Changed from 0 to ''
@@ -121,7 +123,11 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                 }}>
                     {(firstSemester || secondSemester) && (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {/* Comparison charts will be added here */}
+                            <EventTypeComparisonChart
+                                organizationID={organizationID}
+                                firstSemester={firstSemester}
+                                secondSemester={secondSemester}
+                            />
                         </Box>
                     )}
                 </Box>

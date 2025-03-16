@@ -166,4 +166,210 @@ router.get('/membersByMajor', async (req, res) => {
     }
 });
 
+
+router.get('/eventTypeComparison', async (req, res) => {
+    const { organizationID, firstSemesterID, secondSemesterID, eventTypeID } = req.query;
+
+    // Validate all required parameters
+    if (!organizationID || !firstSemesterID || !secondSemesterID || !eventTypeID) {
+        return res.status(400).json({
+            error: 'Missing required parameters: organizationID, firstSemesterID, secondSemesterID, or eventTypeID'
+        });
+    }
+
+    try {
+        // First, get the EventType name from the second semester's EventTypeID
+        const [eventTypeInfo] = await db.query(
+            `SELECT EventType 
+             FROM EventTypes 
+             WHERE EventTypeID = ? AND OrganizationID = ? AND SemesterID = ?`,
+            [eventTypeID, organizationID, secondSemesterID]
+        );
+
+        if (eventTypeInfo.length === 0) {
+            return res.status(404).json({
+                error: 'Event type not found for the second semester'
+            });
+        }
+
+        const eventTypeName = eventTypeInfo[0].EventType;
+
+        // Now find the corresponding EventTypeID in the first semester
+        const [firstSemesterEventType] = await db.query(
+            `SELECT EventTypeID 
+             FROM EventTypes 
+             WHERE EventType = ? AND OrganizationID = ? AND SemesterID = ?`,
+            [eventTypeName, organizationID, firstSemesterID]
+        );
+
+        if (firstSemesterEventType.length === 0) {
+            return res.status(404).json({
+                error: 'Matching event type not found for the first semester'
+            });
+        }
+
+        const firstSemesterEventTypeID = firstSemesterEventType[0].EventTypeID;
+        const secondSemesterEventTypeID = eventTypeID;
+
+        // First query: Get events from first semester
+        const [firstSemesterEvents] = await db.query(
+            `SELECT 
+                ei.EventID,
+                ei.EventTitle,
+                ei.EventDate,
+                s.TermName as semesterName,
+                s.SemesterID as semesterID,
+                COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) AS attendanceCount,
+                ROW_NUMBER() OVER (ORDER BY ei.EventDate) as eventNumber
+            FROM EventInstances ei
+            JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
+            LEFT JOIN Attendance a ON ei.EventID = a.EventID
+            JOIN Semesters s ON ei.TermCode = s.TermCode
+            WHERE ei.EventTypeID = ?
+                AND s.SemesterID = ?
+                AND ei.OrganizationID = ?
+            GROUP BY ei.EventID, ei.EventTitle, ei.EventDate, s.TermName, s.SemesterID
+            ORDER BY ei.EventDate`,
+            [firstSemesterEventTypeID, firstSemesterID, organizationID]
+        );
+
+        // Second query: Get events from second semester
+        const [secondSemesterEvents] = await db.query(
+            `SELECT 
+                ei.EventID,
+                ei.EventTitle,
+                ei.EventDate,
+                s.TermName as semesterName,
+                s.SemesterID as semesterID,
+                COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) AS attendanceCount,
+                ROW_NUMBER() OVER (ORDER BY ei.EventDate) as eventNumber
+            FROM EventInstances ei
+            JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
+            LEFT JOIN Attendance a ON ei.EventID = a.EventID
+            JOIN Semesters s ON ei.TermCode = s.TermCode
+            WHERE ei.EventTypeID = ?
+                AND s.SemesterID = ?
+                AND ei.OrganizationID = ?
+            GROUP BY ei.EventID, ei.EventTitle, ei.EventDate, s.TermName, s.SemesterID
+            ORDER BY ei.EventDate`,
+            [secondSemesterEventTypeID, secondSemesterID, organizationID]
+        );
+
+        // Get semester details for labels
+        const [semesterDetails] = await db.query(
+            `SELECT SemesterID, TermName 
+             FROM Semesters 
+             WHERE SemesterID IN (?, ?)`,
+            [firstSemesterID, secondSemesterID]
+        );
+        
+        const semesterLabels = {};
+        semesterDetails.forEach(sem => {
+            semesterLabels[sem.SemesterID] = sem.TermName;
+        });
+
+        // Include eventType name in the response
+        const eventTypeLabel = eventTypeName;
+
+        // Organize the data for stacked bar chart comparison
+        const maxEvents = Math.max(firstSemesterEvents.length, secondSemesterEvents.length);
+        const comparisonData = [];
+        
+        for (let i = 0; i < maxEvents; i++) {
+            const eventComparison = {
+                eventNumber: i + 1,
+                firstSemester: i < firstSemesterEvents.length ? {
+                    eventID: firstSemesterEvents[i].EventID,
+                    eventTitle: firstSemesterEvents[i].EventTitle, 
+                    eventDate: firstSemesterEvents[i].EventDate,
+                    attendanceCount: firstSemesterEvents[i].attendanceCount
+                } : null,
+                secondSemester: i < secondSemesterEvents.length ? {
+                    eventID: secondSemesterEvents[i].EventID,
+                    eventTitle: secondSemesterEvents[i].EventTitle,
+                    eventDate: secondSemesterEvents[i].EventDate,
+                    attendanceCount: secondSemesterEvents[i].attendanceCount
+                } : null
+            };
+            comparisonData.push(eventComparison);
+        }
+
+        res.json({
+            eventTypeLabel,
+            semesterLabels,
+            comparisonData
+        });
+
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/commonEventTypes', async (req, res) => {
+    const { organizationID, firstSemesterID, secondSemesterID } = req.query;
+
+    // Validate all required parameters
+    if (!organizationID || !firstSemesterID || !secondSemesterID) {
+        return res.status(400).json({
+            error: 'Missing required parameters: organizationID, firstSemesterID, or secondSemesterID'
+        });
+    }
+
+    try {
+        // Query to find event types that exist in both semesters
+        const [rows] = await db.query(
+            `SELECT 
+                et1.EventTypeID AS firstSemesterEventTypeID,
+                et2.EventTypeID AS secondSemesterEventTypeID,
+                et1.EventType,
+                et1.RuleType,
+                et1.MaxPoints,
+                et1.MinPoints,
+                et1.OccurrenceTotal
+            FROM EventTypes et1
+            JOIN EventTypes et2 
+                ON et1.EventType = et2.EventType 
+                AND et1.OrganizationID = et2.OrganizationID
+            WHERE et1.OrganizationID = ?
+                AND et1.SemesterID = ?
+                AND et2.SemesterID = ?
+            ORDER BY et1.EventType`,
+            [organizationID, firstSemesterID, secondSemesterID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: 'No common event types found between the specified semesters'
+            });
+        }
+
+        // Get semester names for better context in the response
+        const [semesterDetails] = await db.query(
+            `SELECT SemesterID, TermName 
+             FROM Semesters 
+             WHERE SemesterID IN (?, ?)`,
+            [firstSemesterID, secondSemesterID]
+        );
+
+        const semesterLabels = {};
+        semesterDetails.forEach(sem => {
+            semesterLabels[sem.SemesterID] = sem.TermName;
+        });
+
+        res.json({
+            semesterLabels: {
+                firstSemester: semesterLabels[firstSemesterID],
+                secondSemester: semesterLabels[secondSemesterID]
+            },
+            commonEventTypes: rows
+        });
+
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

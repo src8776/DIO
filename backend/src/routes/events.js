@@ -7,9 +7,14 @@ router.get('/', async (req, res) => {
     console.log('Received request at /events');
 
     let organizationID = parseInt(req.query.organizationID, 10); // Convert to an integer
-
+    let semesterID = parseInt(req.query.semesterID, 10); // Get and convert semesterID
+    
     if (isNaN(organizationID)) {
         return res.status(400).json({ error: 'Invalid organizationID parameter' });
+    }
+    
+    if (isNaN(semesterID)) {
+        return res.status(400).json({ error: 'Invalid or missing semesterID parameter' });
     }
 
     try {
@@ -19,9 +24,10 @@ router.get('/', async (req, res) => {
             FROM 
                 EventTypes
             WHERE 
-                OrganizationID = ?
+                OrganizationID = ? AND
+                SemesterID = ?
         `;
-        const [rows] = await db.query(query, [organizationID]);
+        const [rows] = await db.query(query, [organizationID, semesterID]);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching Events data:', error);

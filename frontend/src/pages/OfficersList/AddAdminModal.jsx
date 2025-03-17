@@ -13,10 +13,6 @@ export default function AddMemberModal({orgID}) {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-
-
-
-
   const handleSave = () => {
     console.log("Adding new member with info:", memberData);
     // TODO: Implement backend call to save member data

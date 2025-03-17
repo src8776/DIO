@@ -8,25 +8,43 @@ import { useParams } from 'react-router-dom';
 import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
 import AddAdminModal from './AddAdminModal';
 
-
-// TODO: pull admin list from database to display here
 // TODO: add ability to add/remove admins
-
-const users = [
-    { name: "John Doe", email: "john@example.com" },
-    { name: "Jane Smith", email: "jane@example.com" },
-    { name: "Mark Johnson", email: "mark@example.com" },
-    { name: "Emily Davis", email: "emily@example.com" },
-];
 
 function OfficersList() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];
     const orgID = org === 'wic' ? 1 : 2;
+    const [adminData, setAdminData] = React.useState([]);
 
     if (!allowedTypes.includes(org)) {
         return <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>Organization Doesn't Exist</Typography>;
     }
+
+    // Grab oranization ID from the abbreviation value
+    React.useEffect(() => {
+        fetch(`/api/organizationInfo/organizationIDByAbbreviation?abbreviation=${org}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.length > 0) {
+                    setOrgID(data[0].OrganizationID);
+                }
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+        });
+    }, [org]);
+
+    React.useEffect(() => {
+        fetch(`/api/admin/getOfficersAndAdmin?organizationID=${orgID}`)
+            .then((response) => response.json())
+            .then((data) => {
+                setMemberData(data);
+                setIsLoading(false);
+        })
+        .catch((error) => {
+            console.error('Error fetching member data:', error);
+        });
+    }, [org]);
 
     return (
 
@@ -49,7 +67,7 @@ function OfficersList() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {users.map((user, index) => (
+                            {adminData.map((user, index) => (
                                 <TableRow key={index}>
                                     <TableCell>{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>

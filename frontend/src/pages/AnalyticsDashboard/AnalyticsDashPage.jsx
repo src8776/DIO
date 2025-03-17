@@ -47,16 +47,21 @@ export default function AnalyticsDash() {
     <Container sx={{ p: 2, display: 'flex', flexDirection: { md: 'column', lg: 'row' } }}>
       {/* TODO: Need to figure out width and standardize across pages maxWidth: 832? */}
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-          <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{}}>
             <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
               Analytics Dashboard -
             </Typography>
             <Typography variant="h6" sx={{ textAlign: 'left', display: 'inline', ml: 1 }}>
               {org ? org.toUpperCase() : "Loading..."}
             </Typography>
-            {/* add links here to different tabs ('semester vs. semester', 'year vs. year') may need to think of better names. This page should become the default tab called something like 'semester overview'*/}
-            <Tabs value={tabValue} onChange={handleTabChange} aria-label="analytics tabs">
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'left', alignItems: 'center' }}>
+            <Tabs
+              variant="scrollable"
+              scrollButtons
+              allowScrollButtonsMobile
+              value={tabValue} onChange={handleTabChange} aria-label="analytics tabs">
               <Tab label="Semester Overview" />
               <Tab label="Semester vs. Semester" />
               <Tab label="Year vs. Year" />

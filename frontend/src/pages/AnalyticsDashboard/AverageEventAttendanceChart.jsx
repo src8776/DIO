@@ -83,26 +83,28 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Typography>Average Attendance per Event Type</Typography>
-                <BarChart
-                    xAxis={[{ id: 'barCategories', data: eventTypes, scaleType: 'band', label: 'Event Type' }]}
-                    yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
-                    series={[{
-                        data: attendanceRates,
-                        color: '#F76902',
-                        valueFormatter: (value) => value != null ? `${value.toFixed(3)}%` : 'N/A'
-                    }]}
-                    onAxisClick={(event, params) => {
-                        const selectedItem = averages[params.dataIndex];
-                        setSelectedEventType(selectedItem);
-                        setViewMode('instances');
-                    }}
-                    barLabel={(item) => (item.value ?? 0) > 30 ? `${Math.floor(item.value)}%` : null}
-                    width={730}
-                    height={255}
-                    sx={{
-                        '& .MuiBarLabel-root': { fontSize: '1.8rem', fill: '#fff' },
-                    }}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', overflowX: 'auto' }}>
+                    <BarChart
+                        xAxis={[{ id: 'barCategories', data: eventTypes, scaleType: 'band', label: 'Event Type' }]}
+                        yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
+                        series={[{
+                            data: attendanceRates,
+                            color: '#F76902',
+                            valueFormatter: (value) => value != null ? `${value.toFixed(3)}%` : 'N/A'
+                        }]}
+                        onAxisClick={(event, params) => {
+                            const selectedItem = averages[params.dataIndex];
+                            setSelectedEventType(selectedItem);
+                            setViewMode('instances');
+                        }}
+                        barLabel={(item) => (item.value ?? 0) > 30 ? `${Math.floor(item.value)}%` : null}
+                        width={730}
+                        height={255}
+                        sx={{
+                            '& .MuiBarLabel-root': { fontSize: '1.8rem', fill: '#fff' },
+                        }}
+                    />
+                </Box>
             </Paper>
         );
     }
@@ -142,30 +144,32 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     </Button>
                     <Typography>Attendance for {selectedEventType.EventType}s, {selectedSemester.TermName}</Typography>
                 </Box>
-                <BarChart
-                    xAxis={[{
-                        id: 'instanceCategories',
-                        data: instanceLabels,
-                        scaleType: 'band',
-                        tickLabelStyle: { fontSize: 12, textAnchor: 'middle' }
-                    }]}
-                    yAxis={[{ label: 'Attendance Count' }]}
-                    // yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
-                    series={[{
-                        data: instanceRates,
-                        color: '#F76902',
-                        valueFormatter: (value) => value != null ? `${value} attended` : 'N/A'
-                        // valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
-                    }]}
-                    barLabel={(item) => (item.value ?? 0) > 0.2 * maxAttendance ? item.value : null}
-                    // switch to this for percentages
-                    // barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
-                    width={730}
-                    height={255}
-                    sx={{
-                        '& .MuiBarLabel-root': { fontSize: '.8rem', fill: '#fff' },
-                    }}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', overflowX: 'auto' }}>
+                    <BarChart
+                        xAxis={[{
+                            id: 'instanceCategories',
+                            data: instanceLabels,
+                            scaleType: 'band',
+                            tickLabelStyle: { fontSize: 12, textAnchor: 'middle' }
+                        }]}
+                        yAxis={[{ label: 'Attendance Count' }]}
+                        // yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
+                        series={[{
+                            data: instanceRates,
+                            color: '#F76902',
+                            valueFormatter: (value) => value != null ? `${value} attended` : 'N/A'
+                            // valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
+                        }]}
+                        barLabel={(item) => (item.value ?? 0) > 0.2 * maxAttendance ? item.value : null}
+                        // switch to this for percentages
+                        // barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
+                        width={730}
+                        height={255}
+                        sx={{
+                            '& .MuiBarLabel-root': { fontSize: '.8rem', fill: '#fff' },
+                        }}
+                    />
+                </Box>
             </Paper>
         );
     }

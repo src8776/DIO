@@ -11,23 +11,21 @@ router.post('/hours', async (req, res) => {
     const data = req.body;
     const organizationID = data.orgID;
     const eventType = data.eventType;
+    const eventTitle = data.eventTitle;
+    const eventDate = data.members[0].date;
 
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
+        
+        const termCode = await Semester.getOrCreateTermCode(eventDate);
+        const semester = await Semester.getSemesterByTermCode(termCode);
+        const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID, eventTitle);
 
         for (const member of data.members) {
             try {
-                console.log("processing hours volunteers.js - Member: " + member.FullName + " MemberID:" + member.MemberID);
-                const eventDate = member.date;
-                const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID);
-                // Fetch TermCode
-                const termCode = await Semester.getOrCreateTermCode(eventDate);
-                // Fetch Semester object
-                const semester = await Semester.getSemesterByTermCode(termCode);
-
+                console.log("processing hours volunteers.js - Member: " + member.FullName + " MemberID: " + member.MemberID);
                 await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate);
-
                 await useAccountStatus.updateMemberStatus(member.MemberID, organizationID, semester);
 
             } catch (error) {

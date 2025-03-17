@@ -31,12 +31,14 @@ const handleFileUpload = async (req, res) => {
     const filePath = req.file.path;
     const eventType = req.body.eventType;
     const orgID = req.body.orgID;
+    const customEventTitle = req.body.eventTitle;
     console.log("Filepath is " + filePath);
     console.log("eventType is " + eventType);
     console.log("orgID is " + orgID);
+    console.log("customEventTitle is " + customEventTitle);
 
     try {
-       await csvProcessor.processCsv(filePath, eventType, orgID);
+       await csvProcessor.processCsv(filePath, eventType, orgID, customEventTitle);
         return res.json({
             success: true,
             message: 'File uploaded and processed successfully',

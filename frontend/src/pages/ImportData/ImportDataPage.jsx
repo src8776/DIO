@@ -40,6 +40,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
     const orgID = org === 'wic' ? 1 : 2;
     const [eventTypeItems, setEventTypeItems] = React.useState([]);
     const [eventType, setEventType] = React.useState('');
+    const [eventTitle, setEventTitle] = React.useState('');
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
     const [allMembers, setAllMembers] = React.useState([]);
@@ -73,7 +74,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
 
     const handleVolunteerHoursChange = (event) => setVolunteerHours(event.target.value);
 
-    
+
 
     const showAlert = (message, severity) => {
         setAlertMessage(message);
@@ -108,6 +109,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
         const data = {
             orgID: orgID,
             eventType: eventType,
+            eventTitle: eventTitle,
             members: selectedMembers,
         };
 
@@ -208,6 +210,16 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                             </FormControl>
                         )}
                     </Box>
+
+                    {eventType === "Volunteer Event" && (
+                        <TextField
+                            label="Event Title (optional)"
+                            value={eventTitle}
+                            onChange={(e) => setEventTitle(e.target.value)}
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
+                    )}
 
 
                     {/* Conditionally render Volunteer Hours input */}

@@ -35,7 +35,7 @@ const style = {
     maxWidth: '100%',
 };
 
-export default function ImportDataPage({ onUploadSuccess, onClose, semesterID }) {
+export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemester }) {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;
     const [eventTypeItems, setEventTypeItems] = React.useState([]);
@@ -55,6 +55,10 @@ export default function ImportDataPage({ onUploadSuccess, onClose, semesterID })
     const handleDateChange = (date) => setEventDate(dayjs(date).startOf('day'));
 
     const handleVolunteerHoursChange = (event) => setVolunteerHours(event.target.value);
+
+    const semesterID = selectedSemester?.SemesterID || null;
+    const semesterStart = selectedSemester?.StartDate || null;
+    const semesterEnd = selectedSemester?.EndDate || null;
 
     const showAlert = (message, severity) => {
         setAlertMessage(message);
@@ -135,9 +139,9 @@ export default function ImportDataPage({ onUploadSuccess, onClose, semesterID })
             <Paper elevation={0} sx={style}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                     <Typography variant="h5">
-                        Data Import Form
+                        Data Import Form <Typography variant='h6'>{selectedSemester?.TermName}</Typography>
                     </Typography>
-                    <Button onClick={onClose} variant="outlined" color="secondary">
+                    <Button onClick={onClose} variant="outlined" color="secondary" sx={{ alignSelf: 'flex-start' }}>
                         Close
                     </Button>
                 </Box>
@@ -174,6 +178,8 @@ export default function ImportDataPage({ onUploadSuccess, onClose, semesterID })
                                             id="event-date-select"
                                             value={eventDate}
                                             onChange={handleDateChange}
+                                            minDate={dayjs(semesterStart)}
+                                            maxDate={dayjs(semesterEnd)}
                                         />
                                     </LocalizationProvider>
                                 </FormControl>

@@ -29,7 +29,7 @@ export default function UploadAttendanceModal({ onUploadSuccess, selectedSemeste
             <ImportDataPage
               onUploadSuccess={onUploadSuccess}
               onClose={handleClose}
-              semesterID={selectedSemester.SemesterID}
+              selectedSemester={selectedSemester}
             />
           )}
         </Box>

@@ -30,10 +30,6 @@ const ProtectedRoute = ({ element }) => {
     check();  // Check authentication on component mount
   }, []);
 
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;  // Loading state while checking auth status
-  }
-
   return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
 

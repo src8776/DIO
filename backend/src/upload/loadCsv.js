@@ -82,7 +82,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
           if (err) console.error('Error removing duplicate file:', err);
           else console.log('Duplicate file removed successfully.');
         });
-        return reject(new Error("File already uploaded before!")); 
+        return reject(new Error("File already uploaded before!"));
       }
     } catch (error) {
       console.error('Error processing CSV file:', error);
@@ -91,127 +91,175 @@ const processCsv = async (filePath, eventType, organizationID) => {
 
     const connection = await db.getConnection();
     try {
-        await connection.beginTransaction();
+      await connection.beginTransaction();
 
-        const stream = fs.createReadStream(filePath)
-      .pipe(csvParser())
-      .on('data', (row) => {
-        if (!row['Email'] || !row['Checked-In Date']) {
-          console.warn('Skipping row due to missing Email or Checked-In Date:', row);
-          stream.destroy(); // Stops further processing
-          return reject(new Error('Missing Email or Checked-In Date rows in CSV file.'));
-        }
-
-        console.log(`Raw CSV Date in Row: ${row['Checked-In Date']}`);
-        const checkInDate = formatDateToMySQL(row['Checked-In Date']);
-
-        attendanceRecords.push({
-          firstName: row['First Name'],
-          lastName: row['Last Name'],
-          email: row['Email'],
-          fullName: `${row['First Name']} ${row['Last Name']}`,
-          checkInDate,
-          organizationID,
-        });
-      })
-      .on('end', async () => {
-        console.log('CSV file successfully processed');
-
-        if (attendanceRecords.length === 0) {
-          console.warn('No attendance records found, skipping.');
-          await connection.rollback();
-          fs.unlink(filePath, (err) => {
-            if (err) console.error('Error removing file:', err);
-            else console.log('File removed successfully');
-          });
-          return resolve(); 
-        }
-
-        try {
-          const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
-          // Fetch TermCode
-          const termCode = await Semester.getOrCreateTermCode(checkInDate);
-          // Fetch Semester object
-          const semester = await Semester.getSemesterByTermCode(termCode);
-          // Fetch EventID once
-          const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
-
-          if (!eventID || !termCode) {
-            console.warn(`No EventID found for ${eventType} and ${termCode}, skipping attendance insert.`);
-            await connection.rollback();
-            return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
+      const stream = fs.createReadStream(filePath)
+        .pipe(csvParser())
+        .on('data', (row) => {
+          // Debug: Log raw headers to identify any issues
+          if (!attendanceRecords.length) {
+            console.log('CSV Headers:', Object.keys(row));
           }
 
-          for (const attendance of attendanceRecords) {
-            try {
-              const memberID = await Member.insertMember({
-                username: attendance.email.split('@')[0],
-                email: attendance.email,
-                firstName: attendance.firstName,
-                lastName: attendance.lastName,
-                fullName: attendance.fullName
-              });
-
-              if (!memberID) {
-                console.warn(`Skipping ${attendance.email} due to missing MemberID`);
-                await connection.rollback();
-                return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
-              }
-
-              // insert in OrganizationMembers if new member or new semester
-              await OrganizationMember.insertOrganizationMember(
-                attendance.organizationID,
-                memberID,
-                semester.SemesterID,
-                'Member'
-              );
-
-              // Insert attendance
-              console.log(`Before Insert attendance: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
-              await Attendance.insertAttendance(attendance, eventID, organizationID);
-              await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
-            } catch (err) {
-              console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
-              await connection.rollback();
-              return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
+          // Normalize column lookup with fallback options
+          const getColumnValue = (possibleNames) => {
+            // Log actual column names for debugging
+            if (!attendanceRecords.length) {
+              console.log('Available columns:', Object.keys(row).map(key => `"${key}"`));
             }
+
+            // First try exact match
+            for (const name of possibleNames) {
+              if (row[name] !== undefined) return row[name];
+            }
+
+            // If no exact match, try normalized comparison (case-insensitive, trimmed)
+            const normalizedKeys = Object.keys(row).map(key => ({
+              original: key,
+              normalized: key.toLowerCase().trim()
+            }));
+
+            for (const name of possibleNames) {
+              const normalizedName = name.toLowerCase().trim();
+              const match = normalizedKeys.find(k => k.normalized === normalizedName);
+              if (match && row[match.original] !== undefined) {
+                if (!attendanceRecords.length) {
+                  console.log(`Found column "${name}" as "${match.original}"`);
+                }
+                return row[match.original];
+              }
+            }
+
+            return null;
+          };
+
+          const email = getColumnValue(['Email', 'email']);
+          const checkInDateStr = getColumnValue(['Checked-In Date', 'Checked-In Date ', 'CheckedInDate']);
+          const firstName = getColumnValue(['First Name', 'FirstName', 'first name']);
+          const lastName = getColumnValue(['Last Name', 'LastName', 'last name']);
+
+          if (!email || !checkInDateStr) {
+            console.warn('Skipping row due to missing Email or Checked-In Date:', row);
+            stream.destroy(); // Stops further processing
+            return reject(new Error('Missing Email or Checked-In Date rows in CSV file.'));
           }
 
-          // Insert file info into UploadedFilesHistory
-          await insertFileInfo(filePath, connection);
+          // Check for required fields after column normalization
+          if (!firstName || !lastName) {
+            console.warn('Skipping row due to missing First Name or Last Name:', row);
+            return; // Skip this row but continue processing others
+          }
 
-          await connection.commit();
-          console.log('Transaction committed successfully');
-          resolve();
-        } catch (error) {
+          // console.log(`Raw CSV Date in Row: ${row[checkInDateStr]}`);
+          const checkInDate = formatDateToMySQL(checkInDateStr);
+
+          attendanceRecords.push({
+            firstName,
+            lastName,
+            email,
+            fullName: `${firstName} ${lastName}`,
+            checkInDate,
+            organizationID,
+          });
+        })
+        .on('end', async () => {
+          console.log('CSV file successfully processed');
+
+          if (attendanceRecords.length === 0) {
+            console.warn('No attendance records found, skipping.');
+            await connection.rollback();
+            fs.unlink(filePath, (err) => {
+              if (err) console.error('Error removing file:', err);
+              else console.log('File removed successfully');
+            });
+            return resolve();
+          }
+
+          try {
+            const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
+            // Fetch TermCode
+            const termCode = await Semester.getOrCreateTermCode(checkInDate);
+            // Fetch Semester object
+            const semester = await Semester.getSemesterByTermCode(termCode);
+            // Fetch EventID once
+            const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
+
+            if (!eventID || !termCode) {
+              console.warn(`No EventID found for ${eventType} and ${termCode}, skipping attendance insert.`);
+              await connection.rollback();
+              return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
+            }
+
+            for (const attendance of attendanceRecords) {
+              try {
+                const memberID = await Member.insertMember({
+                  username: attendance.email.split('@')[0],
+                  email: attendance.email,
+                  firstName: attendance.firstName,
+                  lastName: attendance.lastName,
+                  fullName: attendance.fullName
+                });
+
+                if (!memberID) {
+                  console.warn(`Skipping ${attendance.email} due to missing MemberID`);
+                  await connection.rollback();
+                  return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
+                }
+
+                // insert in OrganizationMembers if new member or new semester
+                await OrganizationMember.insertOrganizationMember(
+                  attendance.organizationID,
+                  memberID,
+                  semester.SemesterID,
+                  'Member'
+                );
+
+                // Insert attendance
+                console.log(`Before Insert attendance: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
+                await Attendance.insertAttendance(attendance, eventID, organizationID);
+                await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
+              } catch (err) {
+                console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
+                await connection.rollback();
+                return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
+              }
+            }
+
+            // Insert file info into UploadedFilesHistory
+            await insertFileInfo(filePath, connection);
+
+            await connection.commit();
+            console.log('Transaction committed successfully');
+            resolve();
+          } catch (error) {
+            await connection.rollback();
+            console.error('Transaction failed, rolled back:', error);
+            reject(error);
+          } finally {
+            connection.release();
+            fs.unlink(filePath, (err) => {
+              if (err) console.error('Error removing file:', err);
+              else console.log('File removed successfully');
+            });
+          }
+        })
+        .on('error', async (error) => {
+          console.error('Error reading CSV:', error);
           await connection.rollback();
-          console.error('Transaction failed, rolled back:', error);
           reject(error);
-        } finally {
-          connection.release();
           fs.unlink(filePath, (err) => {
             if (err) console.error('Error removing file:', err);
             else console.log('File removed successfully');
           });
-        }
-      })
-      .on('error', async (error) => {
-        console.error('Error reading CSV:', error);
-        await connection.rollback();
-        reject(error);
-        fs.unlink(filePath, (err) => {
-            if (err) console.error('Error removing file:', err);
-            else console.log('File removed successfully');
         });
-    });
 
-} catch (error) {
-await connection.rollback();
-console.error('Transaction failed, rolled back:', error);
-reject(error);
-} finally {
-connection.release();
-}
+    } catch (error) {
+      await connection.rollback();
+      console.error('Transaction failed, rolled back:', error);
+      reject(error);
+    } finally {
+      connection.release();
+    }
   });
 };
 

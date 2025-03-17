@@ -12,6 +12,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
 
     // Fetch average attendance data
     React.useEffect(() => {
+        setViewMode('averages'); // Reset view mode when semester changes
         if (selectedSemester && selectedSemester.SemesterID) {
             fetch(`/api/analytics/averageAttendance?organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
                 .then((response) => response.json())

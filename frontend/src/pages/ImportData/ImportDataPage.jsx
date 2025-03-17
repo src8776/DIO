@@ -40,13 +40,30 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
     const orgID = org === 'wic' ? 1 : 2;
     const [eventTypeItems, setEventTypeItems] = React.useState([]);
     const [eventType, setEventType] = React.useState('');
-    const [eventDate, setEventDate] = React.useState(dayjs()); // eventDate defaults to today's date
     const [volunteerHours, setVolunteerHours] = React.useState('');
     const [selectedMembers, setSelectedMembers] = React.useState([]);
     const [allMembers, setAllMembers] = React.useState([]);
     const [alertMessage, setAlertMessage] = React.useState('');
     const [alertSeverity, setAlertSeverity] = React.useState('success');
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
+    const semesterID = selectedSemester?.SemesterID || null;
+    const semesterStart = selectedSemester?.StartDate || null;
+    const semesterEnd = selectedSemester?.EndDate || null;
+    const [eventDate, setEventDate] = React.useState(() => {
+        const today = dayjs();
+        if (semesterStart && semesterEnd) {
+            const start = dayjs(semesterStart);
+            const end = dayjs(semesterEnd);
+            if (today.isBefore(start)) {
+                return start;
+            } else if (today.isAfter(end)) {
+                return end;
+            } else {
+                return today;
+            }
+        }
+        return today; // Fallback if semester dates are unavailable
+    }); // eventDate defaults to today's date
 
     const handleCloseSnackbar = () => setOpenSnackbar(false);
 
@@ -56,9 +73,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
 
     const handleVolunteerHoursChange = (event) => setVolunteerHours(event.target.value);
 
-    const semesterID = selectedSemester?.SemesterID || null;
-    const semesterStart = selectedSemester?.StartDate || null;
-    const semesterEnd = selectedSemester?.EndDate || null;
+    
 
     const showAlert = (message, severity) => {
         setAlertMessage(message);

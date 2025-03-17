@@ -13,7 +13,7 @@ require('dotenv').config({ path: '.env' });
 // Format both date and time for check-in for attendance record
 const formatDateToMySQL = (dateString) => {
   if (!dateString) return null;
-  console.log(`Raw date from CSV: "${dateString}"`);
+  // console.log(`Raw date from CSV: "${dateString}"`);
   const parts = dateString.trim().split(/[/ :]/);
   if (parts.length < 5) {
     console.warn(`Invalid date format: "${dateString}"`);
@@ -25,11 +25,10 @@ const formatDateToMySQL = (dateString) => {
   if (period === 'PM' && hours !== 12) hours += 12;
   if (period === 'AM' && hours === 12) hours = 0;
   const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
-  console.log(`Formatted MySQL DateTime: "${formattedDate}"`);
+  // console.log(`Formatted MySQL DateTime: "${formattedDate}"`);
   return formattedDate;
 };
 
-// Generate File Hash
 const generateFileHash = (filePath) => {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
@@ -55,7 +54,7 @@ const insertFileInfo = async (filePath, connection) => {
   }
 };
 
-// Check if file has already been uploaded
+
 const isFileDuplicate = async (filePath) => {
   try {
     const fileHash = await generateFileHash(filePath);
@@ -177,6 +176,9 @@ const processCsv = async (filePath, eventType, organizationID) => {
               return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
             }
           }
+
+          // Insert file info into UploadedFilesHistory
+          await insertFileInfo(filePath, connection);
 
           await connection.commit();
           console.log('Transaction committed successfully');

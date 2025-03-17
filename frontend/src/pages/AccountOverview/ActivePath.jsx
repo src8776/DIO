@@ -13,6 +13,14 @@ import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
  */
 export default function ActivePath({ progressByType, loading, requirementType, activeRequirement, statusObject }) {
 
+    // Sort event types by number of rules (descending)
+    const sortedProgressByType = React.useMemo(() => {
+        if (!progressByType || progressByType.length === 0) return [];
+        return [...progressByType].sort((a, b) => 
+            (b.progress?.progressDetails?.length || 0) - (a.progress?.progressDetails?.length || 0)
+        );
+    }, [progressByType]);
+
     return (
         <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', p: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -27,9 +35,9 @@ export default function ActivePath({ progressByType, loading, requirementType, a
             <Box sx={{ overflowY: 'auto' }}>
                 {loading ? (
                     Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} variant="rectangular" height={60} sx={{ m: 1 }} />)
-                ) : progressByType.length > 0 ? (
+                ) : sortedProgressByType.length > 0 ? (
                     <List disablePadding>
-                        {progressByType.map((eventType, index) => (
+                        {sortedProgressByType.map((eventType, index) => (
                             <React.Fragment key={index}>
                                 <ListItem sx={{ justifyContent: 'space-between' }}>
                                     <Typography variant="h6">{eventType.name}s</Typography>

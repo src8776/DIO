@@ -83,11 +83,11 @@ export default function EventTypeComparisonChart({ organizationID, firstSemester
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2, alignItems: 'center' }}>
                 <Typography>
                     {comparisonData?.eventTypeLabel ? `${comparisonData.eventTypeLabel} Attendance Comparison` : 'Event Type Comparison'}
                 </Typography>
-                <FormControl sx={{ minWidth: 200 }}>
+                <FormControl sx={{ minWidth: {xs: 100, md: 200}, flex: 1 }} fullWidth>
                     <InputLabel>Event Type</InputLabel>
                     <Select
                         value={selectedEventType}

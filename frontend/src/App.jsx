@@ -17,6 +17,9 @@ import ProtectedRoute from './ProtectedRoute.jsx';
 import Login from './pages/LoginPage/login';
 import UnauthorizedPage from './pages/Unauthorized/unauthorized.jsx';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
+
 const App = () => {
   // dark/light mode based on system preference
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -42,22 +45,25 @@ const App = () => {
 
   // TODO: Protect all paths (except for "/").
   // Only to be accessible by ADMIN / EBOARD? USERS 
+  const wrapWithProtectedRoute = (element) => {
+    return isProduction ? <ProtectedRoute element={element} /> : element;
+  };
 
   return (
     <ThemeProvider theme={mode === 'light' ? lightTheme : darkTheme}>
       <CssBaseline />
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/admin/:org" element={<AdminLayout />}>
-          <Route index element={<AdminDash />} />
-          <Route path="memberDetails" element={<MemberDetailsModal />} />
-          <Route path="organizationSetup" element={<OrgSetup />} />
-          <Route path="officersList" element={<OfficersList />} />
-          <Route path="analyticsDash" element={<AnalyticsDash />} />
+        <Route path="/" element={wrapWithProtectedRoute(<LandingPage />)} />
+        <Route path="/admin/:org" element={wrapWithProtectedRoute(<AdminLayout />)}>
+          <Route index element={wrapWithProtectedRoute(<AdminDash />)} />
+          <Route path="memberDetails" element={wrapWithProtectedRoute(<MemberDetailsModal />)} />
+          <Route path="organizationSetup" element={wrapWithProtectedRoute(<OrgSetup />)} />
+          <Route path="officersList" element={wrapWithProtectedRoute(<OfficersList />)} />
+          <Route path="analyticsDash" element={wrapWithProtectedRoute(<AnalyticsDash />)} />
         </Route>
         <Route path="/login" element={<Login />} />
-        <Route path="/acctSetup" element={<ProtectedRoute element={<AcctSetup />} />} />
+        <Route path="/acctSetup" element={wrapWithProtectedRoute(<AcctSetup />)} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
       </Routes>
     </ThemeProvider>

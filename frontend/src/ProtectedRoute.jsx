@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { Box, CircularProgress } from '@mui/material';
+
 
 // Function to check if the user is authenticated by making a request to the backend
-const checkAuth = async () => {
+export const checkAuth = async () => {
   try {
     const response = await fetch('/saml2/api/me', {
       method: 'GET',
@@ -31,7 +33,8 @@ const ProtectedRoute = ({ element }) => {
   }, []);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;  // Loading state while checking auth status
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}> <CircularProgress />
+            </Box>;
   }
 
   return isAuthenticated ? element : <Navigate to="/login" replace />;

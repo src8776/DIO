@@ -4,7 +4,7 @@ import { Box, CircularProgress } from '@mui/material';
 
 
 // Function to check if the user is authenticated by making a request to the backend
-const checkAuth = async () => {
+export const checkAuth = async () => {
   try {
     const response = await fetch('/saml2/api/me', {
       method: 'GET',

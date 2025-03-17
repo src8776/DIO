@@ -31,7 +31,8 @@ const ProtectedRoute = ({ element }) => {
   }, []);
 
   if (isAuthenticated === null) {
-    return null;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}> <CircularProgress />
+            </Box>;
   }
 
   return isAuthenticated ? element : <Navigate to="/login" replace />;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { Box, CircularProgress } from '@mui/material';
+
 
 // Function to check if the user is authenticated by making a request to the backend
 const checkAuth = async () => {

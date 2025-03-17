@@ -18,7 +18,7 @@ router.post('/hours', async (req, res) => {
 
         for (const member of data.members) {
             try {
-                console.log("processing hours volunteers.js member " + member.FullName + member.MemberID);
+                console.log("processing hours volunteers.js - Member: " + member.FullName + " MemberID:" + member.MemberID);
                 const eventDate = member.date;
                 const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID);
                 // Fetch TermCode

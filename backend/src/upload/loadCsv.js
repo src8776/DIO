@@ -70,7 +70,7 @@ const isFileDuplicate = async (filePath) => {
 };
 
 // Process CSV with File Check
-const processCsv = async (filePath, eventType, organizationID) => {
+const processCsv = async (filePath, eventType, organizationID, customEventTitle) => {
   const attendanceRecords = [];
 
   return new Promise(async (resolve, reject) => {
@@ -182,7 +182,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
             // Fetch Semester object
             const semester = await Semester.getSemesterByTermCode(termCode);
             // Fetch EventID once
-            const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
+            const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID, customEventTitle);
 
             if (!eventID || !termCode) {
               console.warn(`No EventID found for ${eventType} and ${termCode}, skipping attendance insert.`);

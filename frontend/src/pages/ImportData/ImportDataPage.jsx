@@ -27,7 +27,7 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     bgcolor: 'background.paper',
-    p: 4,
+    p: 3,
     height: 'auto',
     overflow: 'auto',
     maxHeight: '90%',
@@ -134,13 +134,23 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
             .catch((error) => console.error('Error fetching data:', error));
     }, [orgID]);
 
+    // individual hours adjustment inside the table
+    const handleMemberHoursChange = (memberId, newHours) => {
+        setSelectedMembers(selectedMembers.map(member =>
+            member.MemberID === memberId ? { ...member, hours: newHours } : member
+        ));
+    };
+
     return (
         <Container >
             <Paper elevation={0} sx={style}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                    <Typography variant="h5">
-                        Data Import Form <Typography variant='h6'>{selectedSemester?.TermName}</Typography>
-                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <Typography variant="h5">
+                            Data Import Form
+                        </Typography>
+                        <Typography variant='h6'>{selectedSemester?.TermName}</Typography>
+                    </Box>
                     <Button onClick={onClose} variant="outlined" color="secondary" sx={{ alignSelf: 'flex-start' }}>
                         Close
                     </Button>
@@ -148,40 +158,66 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
 
                 {/* Form Elements */}
                 <Box component={"form"} sx={{ display: 'flex', flexWrap: 'wrap', width: '100%' }}>
-                    <FormControl required fullWidth >
-                        <InputLabel id="event-type-select-label">Event Type</InputLabel>
-                        <Select
-                            labelId="event-type-select-label"
-                            id="event-type-select"
-                            value={eventType}
-                            onChange={handleEventTypeChange}
-                            label="Event Type"
-                            sx={{ minWidth: '200px' }}
-                        >
-                            {eventTypeItems.map((item) => (
-                                <MenuItem key={item.EventTypeID} value={item.EventType}>
-                                    {item.EventType}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, width: '100%' }}>
+                        <FormControl required fullWidth sx={{ flex: 1 }} >
+                            <InputLabel id="event-type-select-label">Event Type</InputLabel>
+                            <Select
+                                labelId="event-type-select-label"
+                                id="event-type-select"
+                                value={eventType}
+                                onChange={handleEventTypeChange}
+                                label="Event Type"
+                                sx={{ minWidth: '200px' }}
+                            >
+                                {eventTypeItems.map((item) => (
+                                    <MenuItem key={item.EventTypeID} value={item.EventType}>
+                                        {item.EventType}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        {eventType === "Volunteer Event" && (
+                            <FormControl required sx={{ flex: 1 }} >
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label="Event Date"
+                                        id="event-date-select"
+                                        value={eventDate}
+                                        onChange={handleDateChange}
+                                        minDate={dayjs(semesterStart)}
+                                        maxDate={dayjs(semesterEnd)}
+
+                                    />
+                                </LocalizationProvider>
+                            </FormControl>
+                        )}
+                    </Box>
 
 
                     {/* Conditionally render Volunteer Hours input */}
                     {eventType === "Volunteer Event" && (
                         <Container disableGutters sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}>
+                            <Typography variant="h6" sx={{ flex: 1 }}>
+                                Selected Members: <span style={{ color: '#0366F2' }}>{selectedMembers.length}</span>
+                            </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, justifyContent: 'space-evenly' }}>
-                                <FormControl required sx={{ flex: 1 }} >
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            label="Event Date"
-                                            id="event-date-select"
-                                            value={eventDate}
-                                            onChange={handleDateChange}
-                                            minDate={dayjs(semesterStart)}
-                                            maxDate={dayjs(semesterEnd)}
-                                        />
-                                    </LocalizationProvider>
+                                <FormControl required fullWidth sx={{ flex: 1 }}>
+                                    {/* Autocomplete for Member Selection */}
+                                    <Autocomplete
+                                        size='small'
+                                        options={allMembers}
+                                        getOptionLabel={(option) => option.FullName}
+                                        onChange={(event, value) => {
+                                            // Only add to the list if value is not null or undefined
+                                            if (value) {
+                                                addMemberToList(value);
+                                            }
+                                        }}
+                                        renderInput={(params) => <TextField {...params} label="Add Member" />}
+                                        isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
+                                        disabled={!volunteerHours}
+                                    />
                                 </FormControl>
 
                                 <FormControl required sx={{ flex: 1 }}>
@@ -192,6 +228,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                                         value={volunteerHours}
                                         onChange={handleVolunteerHoursChange}
                                         label="Volunteer Hours"
+                                        size='small'
                                     >
                                         {[...Array(9)].map((_, index) => (
                                             <MenuItem key={index} value={index + 1}>
@@ -200,30 +237,13 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                                         ))}
                                     </Select>
                                 </FormControl>
+
+
                             </Box>
 
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1, justifyContent: 'space-evenly' }}>
-                                    <Typography variant="h6" sx={{ flex: 1 }}>
-                                        Selected Members: {selectedMembers.length}
-                                    </Typography>
-                                    <FormControl required fullWidth sx={{ flex: 1 }}>
-                                        {/* Autocomplete for Member Selection */}
-                                        <Autocomplete
-                                            size='small'
-                                            options={allMembers}
-                                            getOptionLabel={(option) => option.FullName}
-                                            onChange={(event, value) => {
-                                                // Only add to the list if value is not null or undefined
-                                                if (value) {
-                                                    addMemberToList(value);
-                                                }
-                                            }}
-                                            renderInput={(params) => <TextField {...params} label="Add Member" />}
-                                            isOptionEqualToValue={(option, value) => option.MemberID === value.MemberID}
-                                            disabled={!volunteerHours}
-                                        />
-                                    </FormControl>
+
 
                                 </Box>
                                 <TableContainer component={Paper} sx={{ maxHeight: 300, overflow: 'auto' }}>
@@ -233,7 +253,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                                                 <TableCell sx={{ fontWeight: 600 }}>Member</TableCell>
                                                 <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                                                 <TableCell sx={{ fontWeight: 600 }}>Hours</TableCell>
-                                                <TableCell align="center" sx={{ fontWeight: 600 }}>Remove</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 600 }}></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -248,17 +268,38 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                                                     <TableRow key={member.MemberID}>
                                                         <TableCell>{member.FullName}</TableCell>
                                                         <TableCell>{dayjs(member.date).format("MM/DD/YYYY")}</TableCell>
-                                                        <TableCell>{member.hours}</TableCell>
+                                                        <TableCell>
+                                                            <FormControl required>
+                                                                <Select
+                                                                    value={member.hours}
+                                                                    onChange={(e) => handleMemberHoursChange(member.MemberID, e.target.value)}
+                                                                    size="small"
+                                                                >
+                                                                    {[...Array(9)].map((_, index) => (
+                                                                        <MenuItem key={index} value={index + 1}>
+                                                                            {index + 1}
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                        </TableCell>
                                                         <TableCell align="center">
-                                                            <IconButton onClick={() => removeMemberFromList(member.MemberID)}
+                                                            <Button
+                                                                onClick={() => removeMemberFromList(member.MemberID)}
+                                                                variant="outlined"
+                                                                color="secondary"
                                                                 sx={{
+                                                                    textTransform: 'none',
                                                                     color: 'red',
+                                                                    borderColor: 'red',
                                                                     '&:hover': {
-                                                                        backgroundColor: 'rgba(255, 0, 0, 0.1)'
+                                                                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                                                        borderColor: 'red',
                                                                     },
-                                                                }}>
-                                                                <Remove />
-                                                            </IconButton>
+                                                                }}
+                                                            >
+                                                                Remove
+                                                            </Button>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))

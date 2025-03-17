@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Button, Typography, IconButton } from '@mui/material';
+import { Box, Button, Typography, IconButton, TextField } from '@mui/material';
 import { shouldForwardProp } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
@@ -37,6 +37,7 @@ const DropZone = styled(Box, {
 export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [eventTitle, setEventTitle] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
@@ -112,6 +113,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     formData.append('csv_file', file);
     formData.append('eventType', eventType);
     formData.append('orgID', orgID);
+    formData.append('eventTitle', eventTitle);
 
     fetch(`/api/upload`, {
       method: 'POST',
@@ -163,6 +165,13 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Box>
+            <TextField
+              label="Event Title (optional)"
+              value={eventTitle}
+              onChange={(e) => setEventTitle(e.target.value)}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
             <Button
               variant="contained"
               color="primary"

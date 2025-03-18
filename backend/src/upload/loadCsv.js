@@ -29,7 +29,6 @@ const formatDateToMySQL = (dateString) => {
   return formattedDate;
 };
 
-// Generate File Hash
 const generateFileHash = (filePath) => {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
@@ -40,7 +39,22 @@ const generateFileHash = (filePath) => {
   });
 };
 
-// Check if file has already been uploaded
+// Insert File Info into UploadedFilesHistory
+const insertFileInfo = async (filePath, connection) => {
+  try {
+    const fileHash = await generateFileHash(filePath);
+    await connection.query(
+      `INSERT INTO UploadedFilesHistory (FileName, FileHash) VALUES (?, ?)`,
+      [filePath, fileHash]
+    );
+    console.log(`File saved: ${filePath}`);
+  } catch (error) {
+    console.error('Error saving file record:', error);
+    throw error;
+  }
+};
+
+
 const isFileDuplicate = async (filePath) => {
   try {
     const fileHash = await generateFileHash(filePath);
@@ -56,7 +70,7 @@ const isFileDuplicate = async (filePath) => {
 };
 
 // Process CSV with File Check
-const processCsv = async (filePath, eventType, organizationID) => {
+const processCsv = async (filePath, eventType, organizationID, customEventTitle) => {
   const attendanceRecords = [];
 
   return new Promise(async (resolve, reject) => {
@@ -136,7 +150,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
             return; // Skip this row but continue processing others
           }
 
-          // console.log(`Raw CSV Date in Row: ${row['Checked-In Date']}`);
+          // console.log(`Raw CSV Date in Row: ${row[checkInDateStr]}`);
           const checkInDate = formatDateToMySQL(checkInDateStr);
 
           attendanceRecords.push({
@@ -168,7 +182,7 @@ const processCsv = async (filePath, eventType, organizationID) => {
             // Fetch Semester object
             const semester = await Semester.getSemesterByTermCode(termCode);
             // Fetch EventID once
-            const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID);
+            const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID, customEventTitle);
 
             if (!eventID || !termCode) {
               console.warn(`No EventID found for ${eventType} and ${termCode}, skipping attendance insert.`);
@@ -210,6 +224,9 @@ const processCsv = async (filePath, eventType, organizationID) => {
                 return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
               }
             }
+
+            // Insert file info into UploadedFilesHistory
+            await insertFileInfo(filePath, connection);
 
             await connection.commit();
             console.log('Transaction committed successfully');

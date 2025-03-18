@@ -15,12 +15,13 @@ export default function GenerateReport({orgID, selectedSemester}) {
   const handleClose = () => setOpen(false);
 
   const [filters, setFilters] = React.useState({
-    includeActiveStatus: false,
-    includeInactiveStatus: false,
-    includeFullName: false,
-    includeEmail: false,
+    memberStatus: 'both', // Default to 'both'
+    includeRace: false,
+    includeGender: false,
     includeClothingSize: false,
     includeGraduationYear: false,
+    includeMajor: false,
+    includeAcademicYear: false,
   });
 
   const handleFilterChange = (event) => {

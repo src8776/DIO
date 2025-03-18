@@ -16,6 +16,7 @@ import darkTheme from './theme/themeDark.js';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import Login from './pages/LoginPage/login';
 import UnauthorizedPage from './pages/Unauthorized/unauthorized.jsx';
+import WelcomePage from './pages/welcome.jsx';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
@@ -54,6 +55,10 @@ const App = () => {
       <CssBaseline />
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <Routes>
+        <Route path="/" element={<WelcomePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
         <Route path="/" element={wrapWithProtectedRoute(<LandingPage />)} />
         <Route path="/admin/:org" element={wrapWithProtectedRoute(<AdminLayout />)}>
           <Route index element={wrapWithProtectedRoute(<AdminDash />)} />
@@ -62,9 +67,7 @@ const App = () => {
           <Route path="officersList" element={wrapWithProtectedRoute(<OfficersList />)} />
           <Route path="analyticsDash" element={wrapWithProtectedRoute(<AnalyticsDash />)} />
         </Route>
-        <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={wrapWithProtectedRoute(<AcctSetup />)} />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
       </Routes>
     </ThemeProvider>
   );

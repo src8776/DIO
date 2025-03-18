@@ -39,6 +39,8 @@ router.post('/', async (req, res) => {
 });
 
 const generateReport = (res, reportDetails) => {
+    let currentPageNumber = 0;
+
     // Create a new PDF document
     const doc = new PDFDocument({
         margins: { // Set margins in points (1 point = 1/72 inch)
@@ -54,6 +56,7 @@ const generateReport = (res, reportDetails) => {
 
     doc.pipe(res);
     doc.on('pageAdded', () => {
+        currentPageNumber++;
         doc.image('src/assets/images/RIT_logo.png', { width: 25 });
         doc.font("Helvetica-Bold").fontSize(12).text(' | DIO Member Dashboard', 75, 50);
         doc.fontSize(12).font("Helvetica").text(reportDetails.semesterName, {align: 'right'});
@@ -61,6 +64,10 @@ const generateReport = (res, reportDetails) => {
         doc.moveDown(1);
         doc.fontSize(10).text('Generated on: ' + new Date().toLocaleString(), 50, doc.y);
         doc.moveDown(1);
+        const startY = doc.y;
+        const footerText = `Page ${currentPageNumber}`;
+        doc.fontSize(10).text(footerText, 50, 730, {align: 'right'});
+        doc.y = startY;
     });
     // First page
     doc.addPage();

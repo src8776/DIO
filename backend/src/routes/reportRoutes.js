@@ -74,7 +74,7 @@ const generateReport = (res, reportDetails) => {
     ];
     drawOrgSummaryTable(doc, 'Organization Summary', orgSummary, 50, doc.y + 10, 200, 100, 20);
 
-    doc.moveDown(2);
+    doc.addPage();
 
     // Clothing Size Summary
     const clothingSummary = [
@@ -107,11 +107,7 @@ const generateReport = (res, reportDetails) => {
         ShirtSize: member.ShirtSize,
         PantSize: member.PantSize
     }));
-    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [100, 150, 100, 100, 50, 50], 20);
-
-    // Second page
-    doc.addPage();
-    doc.text('second page');
+    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [125, 125, 80, 80, 51, 51], 20);
 
     // End the document
     doc.end();
@@ -139,53 +135,99 @@ const drawOrgSummaryTable = (doc, title, data, startX, startY, col1Width, col2Wi
 }
 
 const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, col2Width, rowHeight) => {
-    // Draw table title
-    doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(title, startX, startY);
-    startY += rowHeight / 2; // Adjust startY to account for the title
+    let currentY = startY;
+    let isFirstPage = true;
 
-    // Draw table rows
-    doc.fillColor('#000000').fontSize(12).font("Helvetica");
+    // Draw table title on the first page
+    doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(title, startX, currentY);
+    currentY += rowHeight * 1.5; // Adjust Y position to account for title
+
     data.forEach((item, index) => {
-        const y = startY + rowHeight * (index + 1);
-        doc.text(item.label, startX, y);
-        doc.text(item.value, startX + col1Width, y);
+        // If the Y position exceeds 730, add a new page
+        if (currentY + rowHeight > 730) {
+            doc.addPage();
+            currentY = doc.y + 10; // Reset to start position on new page
+            isFirstPage = false;
 
-        // Draw line beneath the row
-        if(item.value !== '' && item.label !== '') {
+            // Draw table title on the new page
+            doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(title + " (Cont.)", startX, currentY);
+            currentY += rowHeight * 1.5;
+        }
+
+        // Draw text for the current row
+        doc.fillColor('#000000').fontSize(12).font("Helvetica");
+        doc.text(item.label, startX, currentY);
+        doc.text(item.value, startX + col1Width, currentY);
+
+        // Draw line beneath the row if label and value are not empty
+        if (item.value !== '' && item.label !== '') {
             doc.strokeColor('#CCCCCC') // Set stroke color to gray
-            .moveTo(startX, y + rowHeight - 5)
-            .lineTo(startX + col1Width + col2Width, y + rowHeight - 5)
+            .moveTo(startX, currentY + rowHeight - 5)
+            .lineTo(startX + col1Width + col2Width, currentY + rowHeight - 5)
             .stroke();
         }
+
+        // Move to the next row
+        currentY += rowHeight;
     });
-}
+};
+
 
 const drawMembersTable = (doc, title, data, startX, startY, colWidths, rowHeight) => {
-    // Draw table title
-    doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(title, startX, startY);
-    startY += rowHeight; // Adjust startY to account for the title
+    let currentY = startY;
 
-    // Draw table header
-    doc.fillColor('#000000').fontSize(12).font("Helvetica-Bold");
-    const headers = ['Full Name', 'Email', 'Graduation Year', 'Academic Year', 'Shirt Size', 'Pants Size'];
-    headers.forEach((header, index) => {
-        doc.text(header, startX + colWidths.slice(0, index).reduce((a, b) => a + b, 0), startY);
-    });
+    // Function to draw table headers
+    const drawTableHeader = (index) => {
+        printedTitle = index > 0 ? `${title} (Cont.)` : title;
+        doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(printedTitle, startX, currentY);
+        currentY += rowHeight * 1.5; // Adjust Y for title
 
-    // Draw table rows
-    doc.font("Helvetica");
-    data.forEach((item, index) => {
-        const y = startY + rowHeight * (index + 1);
-        const values = [item.FullName, item.Email, item.GraduationYear, item.AcademicYear, item.ShirtSize, item.PantSize];
-        values.forEach((value, colIndex) => {
-            doc.text(value, startX + colWidths.slice(0, colIndex).reduce((a, b) => a + b, 0), y);
+        doc.fillColor('#000000').fontSize(12).font("Helvetica-Bold");
+        const headers = ['Full Name', 'Email', 'Graduation Year', 'Academic Year', 'Shirt Size', 'Pants Size'];
+        headers.forEach((header, index) => {
+            doc.text(header, startX + colWidths.slice(0, index).reduce((a, b) => a + b, 0), currentY, { width: colWidths[index], align: 'left' });
         });
+
+        currentY += rowHeight * 2; // Adjust Y for rows
+    };
+
+    drawTableHeader(0); // Draw header for the first page
+
+    data.forEach((item, index) => {
+        // Check if new page is needed based on Y position
+        if (currentY + rowHeight >= 730) {
+            doc.addPage();
+            currentY = startY; // Reset Y position
+            drawTableHeader(index); // Draw table header on new page
+        }
+
+        // Draw row content with text wrapping
+        doc.fillColor('#000000').fontSize(12).font("Helvetica");
+        const values = [item.FullName, item.Email, item.GraduationYear, item.AcademicYear, item.ShirtSize, item.PantSize];
+        let rowHeightUsed = rowHeight; // Track max height used in a row
+
+        values.forEach((value, colIndex) => {
+            const colX = startX + colWidths.slice(0, colIndex).reduce((a, b) => a + b, 0);
+            
+            // Get height of wrapped text to determine the tallest column in this row
+            const textHeight = doc.heightOfString(value, { width: colWidths[colIndex], align: 'left' });
+            rowHeightUsed = Math.max(rowHeightUsed, textHeight + 5); // Ensure row accommodates tallest text
+            
+            // Draw text with wrapping
+            doc.text(value, colX, currentY, { width: colWidths[colIndex], align: 'left' });
+        });
+
         // Draw line beneath the row
-        doc.strokeColor('#CCCCCC') // Set stroke color to gray
-           .moveTo(startX, y + rowHeight - 5)
-           .lineTo(startX + colWidths.reduce((a, b) => a + b, 0), y + rowHeight - 5)
+        doc.strokeColor('#CCCCCC')
+           .moveTo(startX, currentY + rowHeightUsed - 5)
+           .lineTo(startX + colWidths.reduce((a, b) => a + b, 0), currentY + rowHeightUsed - 5)
            .stroke();
+
+        currentY += rowHeightUsed; // Move Y for the next row
     });
-}
+};
+
+
+
 
 module.exports = router;

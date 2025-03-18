@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import wicLogo from '/public/wichacks-logo.png';
 import comsLogo from '/public/com_logo.png';
@@ -16,12 +16,34 @@ import {
   Toolbar,
   Paper
 } from '@mui/material';
+import { checkAuth } from '../../ProtectedRoute';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
 const WelcomePage = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    if (isProduction) {
+      const checkAuthentication = async () => {
+        const authStatus = await checkAuth();
+        setIsAuthenticated(authStatus);
+      };
+
+      checkAuthentication();
+    } else {
+      setIsAuthenticated(true); // Assume authenticated in non-production environments
+    }
+  }, []);
 
   const handleLogin = () => {
     navigate('/login');
+  };
+
+  const handleHome = () => {
+    navigate('/home');
   };
 
   return (
@@ -53,26 +75,39 @@ const WelcomePage = () => {
                 </Typography>
               </Typography>
               <Typography variant="h5" color="text.secondary" paragraph>
-              Keep track of your active membership, monitor attendance, and earn rewards for your points towards participation in RIT's GCCIS vibrant club community.
+                Keep track of your active membership, monitor attendance, and earn rewards for your points towards participation in RIT's GCCIS vibrant club community.
               </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={handleLogin}
-                sx={{ mt: 4 }}
-              >
-                Member Login
-              </Button>
-              {/* <Button 
-                variant="contained" 
-                color="primary" 
-                size="large"
-                onClick={handleLogin}
-                sx={{ mt: 4 }}
-              >
-                Learn More
-              </Button> */}
+              {isAuthenticated === null ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled
+                  sx={{ mt: 4 }}
+                >
+                  Loading...
+                </Button>
+              ) : isAuthenticated ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={handleHome}
+                  sx={{ mt: 4 }}
+                >
+                  Home
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={handleLogin}
+                  sx={{ mt: 4 }}
+                >
+                  Member Login
+                </Button>
+              )}
             </Grid2>
             <Grid2 item xs={12} md={6}>
               <Card elevation={4}>

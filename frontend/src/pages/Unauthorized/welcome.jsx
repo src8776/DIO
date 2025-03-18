@@ -110,7 +110,7 @@ const WelcomePage = () => {
                 <CardMedia
                   component="img"
                   height="300"
-                  image="/public/DashboardOverlay.png"
+                  image="DashboardOverlay.png"
                   alt="Students at club event"
                 />
                 <CardContent>

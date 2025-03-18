@@ -8,12 +8,10 @@ import {
   Button,
   Container,
   Typography,
-  Grid2,
+  Grid,
   Card,
   CardContent,
   CardMedia,
-  AppBar as MuiAppBar,
-  Toolbar,
   Paper
 } from '@mui/material';
 import { checkAuth } from '../../ProtectedRoute';
@@ -52,16 +50,14 @@ const WelcomePage = () => {
       <Box sx={{
         bgcolor: 'background.default',
         pt: 8,
-        pb: 8,
-        backgroundImage: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+        pb: 8
       }}>
         <Container maxWidth="lg">
-          <Grid2 container spacing={4} alignItems="center">
-            <Grid2 item xs={12} md={6}>
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6}>
               <Typography
                 component="h1"
                 variant="h2"
-                color="text.primary"
                 gutterBottom
                 fontWeight="bold"
               >
@@ -69,12 +65,12 @@ const WelcomePage = () => {
                 <Typography
                   component="span"
                   variant="h2"
-                  sx={{ display: 'block', color: 'primary.main', fontWeight: 'bold' }}
+                  sx={{ display: 'block', fontWeight: 'bold' }}
                 >
                   membership journey
                 </Typography>
               </Typography>
-              <Typography variant="h5" color="text.secondary" paragraph>
+              <Typography variant="h5" color="text.secondary">
                 Keep track of your active membership, monitor attendance, and earn rewards for your points towards participation in RIT's GCCIS vibrant club community.
               </Typography>
               {isAuthenticated === null ? (
@@ -108,8 +104,8 @@ const WelcomePage = () => {
                   Member Login
                 </Button>
               )}
-            </Grid2>
-            <Grid2 item xs={12} md={6}>
+            </Grid>
+            <Grid item xs={12} md={6}>
               <Card elevation={4}>
                 <CardMedia
                   component="img"
@@ -126,18 +122,18 @@ const WelcomePage = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
 
       {/* Club Categories */}
-      <Container sx={{ py: 8 }} maxWidth="lg">
+      <Container sx={{ py: 8,bgcolor: 'background.paper' }} maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 8 }}>
           <Typography variant="overline" color="primary">
             Discover
           </Typography>
-          <Typography variant="h3" component="h2" gutterBottom>
+          <Typography variant="h3" component="h2" gutterBottom color="text.primary">
             Find your community
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mx: 'auto', maxWidth: 600 }}>
@@ -145,7 +141,7 @@ const WelcomePage = () => {
           </Typography>
         </Box>
 
-        <Grid2 container spacing={4}>
+        <Grid container spacing={4}>
           {[
             {
               title: "Women in Computing",
@@ -169,7 +165,7 @@ const WelcomePage = () => {
               bgColor: '#fff3e0' 
             }
           ].map((club, index) => (
-            <Grid2 item key={index} xs={12} md={4}>
+            <Grid item key={index} xs={12} md={4}>
               <Paper
                 elevation={2}
                 sx={{
@@ -196,10 +192,10 @@ const WelcomePage = () => {
                   image={club.icon}
                   alt={`${club.title} logo`}
                 />
-                <Typography variant="h5" component="h3" gutterBottom>
+                <Typography variant="h5" component="h3" gutterBottom color="text.primary">
                   {club.title}
                 </Typography>
-                <Typography variant="body1" sx={{ mb: 2 }}>
+                <Typography variant="body1" sx={{ mb: 2 }} color="text.secondary">
                   {club.description}
                 </Typography>
                 <Button
@@ -214,9 +210,9 @@ const WelcomePage = () => {
                   Learn more →
                 </Button>
               </Paper>
-            </Grid2>
+            </Grid>
           ))}
-        </Grid2>
+        </Grid>
       </Container>
 
       {/* Features */}
@@ -226,7 +222,7 @@ const WelcomePage = () => {
             <Typography variant="overline" color="primary">
               Features
             </Typography>
-            <Typography variant="h3" component="h2" gutterBottom>
+            <Typography variant="h3" component="h2" gutterBottom color="text.primary">
               Your membership, simplified
             </Typography>
             <Typography variant="h6" color="text.secondary" sx={{ mx: 'auto', maxWidth: 600 }}>
@@ -234,7 +230,7 @@ const WelcomePage = () => {
             </Typography>
           </Box>
 
-          <Grid2 container spacing={4}>
+          <Grid container spacing={4}>
             {[
               {
                 title: "Track Attendance and Remain An Active Member",
@@ -253,7 +249,7 @@ const WelcomePage = () => {
                 description: "View your complete membership history throughout your time at RIT."
               }
             ].map((feature, index) => (
-              <Grid2 item key={index} xs={12} md={6}>
+              <Grid item key={index} xs={12} md={6}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Box
                     sx={{
@@ -271,7 +267,7 @@ const WelcomePage = () => {
                     {index + 1}
                   </Box>
                   <Box>
-                    <Typography variant="h6" component="h3" gutterBottom>
+                    <Typography variant="h6" component="h3" gutterBottom color="text.primary">
                       {feature.title}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
@@ -279,27 +275,27 @@ const WelcomePage = () => {
                     </Typography>
                   </Box>
                 </Box>
-              </Grid2>
+              </Grid>
             ))}
-          </Grid2>
+          </Grid>
         </Container>
       </Box>
 
       {/* Footer */}
       <Box sx={{ bgcolor: 'background.paper', py: 6 }}>
         <Container maxWidth="lg">
-          <Grid2 container justifyContent="space-between" alignItems="center">
-            <Grid2 item>
+          <Grid container justifyContent="space-between" alignItems="center">
+            <Grid item>
               <Typography variant="h6" color="primary" fontWeight="bold">
                 RIT DIO Membership Tracker
               </Typography>
-            </Grid2>
-            <Grid2 item>
+            </Grid>
+            <Grid item>
               <Typography variant="body2" color="text.secondary">
                 © {new Date().getFullYear()} RIT Diversity and Initiatives Office (DIO). All rights reserved.
               </Typography>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
     </Box>

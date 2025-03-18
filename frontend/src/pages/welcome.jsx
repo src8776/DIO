@@ -214,8 +214,8 @@ const WelcomePage = () => {
                 description: "See your progress toward active membership status and recognition goals."
               },
               {
-                title: "Receive Recognition",
-                description: "Earn and track recognitions for your contributions."
+                title: "Receive Awards",
+                description: "Earn and track awards for your contributions."
               },
               {
                 title: "Access History",

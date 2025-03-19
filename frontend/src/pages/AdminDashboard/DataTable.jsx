@@ -16,6 +16,11 @@ import DataTableRow from './DataTableRow';
 
 
 function descendingComparator(a, b, orderBy) {
+    if (orderBy === 'LastUpdated') {
+        const dateA = new Date(a[orderBy]);
+        const dateB = new Date(b[orderBy]);
+        return dateB - dateA;
+    }
     if (b[orderBy] < a[orderBy]) return -1;
     if (b[orderBy] > a[orderBy]) return 1;
     return 0;

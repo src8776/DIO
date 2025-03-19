@@ -109,7 +109,7 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                         />
                     </Box>
                 </Modal>
-                {memberRole === 'Admin' &&
+                {(memberRole === 'Admin' || memberRole === 'Eboard') &&
                     <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
                         Admin Dashboard
                     </Button>

@@ -84,16 +84,18 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
-                    <Typography sx={{ color: "text.secondary" }}>
-                        {memberRole}
-                    </Typography>
+                    {(memberRole === 'Admin' || memberRole === 'Eboard') && (
+                        <Typography sx={{ color: "text.secondary" }}>
+                            {memberRole}
+                        </Typography>
+                    )}
                     <Typography
                         sx={{
                             fontWeight: 'bold',
                             color: memberStatus === 'Inactive' ? '#7C8796' : memberStatus ? '#2DD4BF' : 'system'
                         }}
                     >
-                        {memberStatus === 'Inactive' ? 'General Member' : memberStatus === 'Active' ? 'Active' : 'no status'}                    </Typography>
+                        {memberStatus === 'Inactive' ? 'General Member' : memberStatus === 'Active' ? 'Active Member' : 'no status'}                    </Typography>
                 </Box>
             </CardContent>
             <CardActions sx={{ justifyContent: "space-between" }}>

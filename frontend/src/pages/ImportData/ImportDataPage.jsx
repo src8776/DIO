@@ -142,7 +142,7 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                 .then((data) => setEventTypeItems(data))
                 .catch((error) => console.error('Error fetching events:', error));
         }
-    }, [orgID, semesterID]); // Add semesterID to dependency array
+    }, [orgID, semesterID]);
 
     React.useEffect(() => {
         fetch(`/api/admin/members/names?organizationID=${orgID}`)

@@ -163,7 +163,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
           });
         })
         .on('end', async () => {
-          console.log('CSV file successfully processed');
+          console.log('CSV records successfully processed');
 
           if (attendanceRecords.length === 0) {
             console.warn('No attendance records found, skipping.');
@@ -176,52 +176,99 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
           }
 
           try {
-            const checkInDate = attendanceRecords[0].checkInDate.split(' ')[0];
-            // Fetch TermCode
-            const termCode = await Semester.getOrCreateTermCode(checkInDate);
-            // Fetch Semester object
-            const semester = await Semester.getSemesterByTermCode(termCode);
-            // Fetch EventID once
-            const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID, customEventTitle);
+            // Extract unique dates (date part only, ignoring time)
+            const dates = attendanceRecords.map(record => record.checkInDate.split(' ')[0]);
+            const uniqueDates = [...new Set(dates)];
 
-            if (!eventID || !termCode) {
-              console.warn(`No EventID found for ${eventType} and ${termCode}, skipping attendance insert.`);
-              await connection.rollback();
-              return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
-            }
+            if (uniqueDates.length === 1) {
+              // Case 1: All check-in dates are the same
+              const checkInDate = uniqueDates[0];
+              const termCode = await Semester.getOrCreateTermCode(checkInDate);
+              const semester = await Semester.getSemesterByTermCode(termCode);
+              const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID, customEventTitle);
 
-            for (const attendance of attendanceRecords) {
-              try {
-                const memberID = await Member.insertMember({
-                  username: attendance.email.split('@')[0],
-                  email: attendance.email,
-                  firstName: attendance.firstName,
-                  lastName: attendance.lastName,
-                  fullName: attendance.fullName
-                });
-
-                if (!memberID) {
-                  console.warn(`Skipping ${attendance.email} due to missing MemberID`);
-                  await connection.rollback();
-                  return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
-                }
-
-                // insert in OrganizationMembers if new member or new semester
-                await OrganizationMember.insertOrganizationMember(
-                  attendance.organizationID,
-                  memberID,
-                  semester.SemesterID,
-                  'Member'
-                );
-
-                // Insert attendance
-                console.log(`Before Insert attendance: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
-                await Attendance.insertAttendance(attendance, eventID, organizationID);
-                await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
-              } catch (err) {
-                console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
+              if (!eventID || !termCode) {
+                console.warn(`No EventID found for ${eventType} and ${checkInDate}, skipping attendance insert.`);
                 await connection.rollback();
-                return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
+                return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
+              }
+
+              for (const attendance of attendanceRecords) {
+                try {
+                  const memberID = await Member.insertMember({
+                    username: attendance.email.split('@')[0],
+                    email: attendance.email,
+                    firstName: attendance.firstName,
+                    lastName: attendance.lastName,
+                    fullName: attendance.fullName
+                  });
+
+                  if (!memberID) {
+                    console.warn(`Skipping ${attendance.email} due to missing MemberID`);
+                    await connection.rollback();
+                    return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
+                  }
+
+                  await OrganizationMember.insertOrganizationMember(
+                    attendance.organizationID,
+                    memberID,
+                    semester.SemesterID,
+                    'Member'
+                  );
+
+                  console.log(`Before Insert attendance: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
+                  await Attendance.insertAttendance(attendance, eventID, organizationID);
+                  await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
+                } catch (err) {
+                  console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
+                  await connection.rollback();
+                  return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
+                }
+              }
+            } else {
+              // Case 2: Multiple different check-in dates
+              for (const attendance of attendanceRecords) {
+                try {
+                  const checkInDate = attendance.checkInDate.split(' ')[0];
+                  const termCode = await Semester.getOrCreateTermCode(checkInDate);
+                  const semester = await Semester.getSemesterByTermCode(termCode);
+                  const eventID = await EventInstance.getEventID(eventType, checkInDate, organizationID, customEventTitle);
+
+                  if (!eventID) {
+                    console.warn(`No EventID found for ${eventType} and ${checkInDate}, skipping attendance insert.`);
+                    await connection.rollback();
+                    return reject(new Error(`No EventID found for ${eventType} and ${checkInDate}, skipping attendance insert.`));
+                  }
+
+                  const memberID = await Member.insertMember({
+                    username: attendance.email.split('@')[0],
+                    email: attendance.email,
+                    firstName: attendance.firstName,
+                    lastName: attendance.lastName,
+                    fullName: attendance.fullName
+                  });
+
+                  if (!memberID) {
+                    console.warn(`Skipping ${attendance.email} due to missing MemberID`);
+                    await connection.rollback();
+                    return reject(new Error(`Skipping ${attendance.email} due to missing MemberID`));
+                  }
+
+                  await OrganizationMember.insertOrganizationMember(
+                    attendance.organizationID,
+                    memberID,
+                    semester.SemesterID,
+                    'Member'
+                  );
+
+                  console.log(`Before Insert attendance: Check-in Time for ${attendance.email}: ${attendance.checkInDate}`);
+                  await Attendance.insertAttendance(attendance, eventID, organizationID);
+                  await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
+                } catch (err) {
+                  console.error(`Error processing row for ${attendance.email}, rolling back...`, err);
+                  await connection.rollback();
+                  return reject(new Error(`Error processing row for ${attendance.email}, rolling back...`));
+                }
               }
             }
 
@@ -243,16 +290,6 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
             });
           }
         })
-        .on('error', async (error) => {
-          console.error('Error reading CSV:', error);
-          await connection.rollback();
-          reject(error);
-          fs.unlink(filePath, (err) => {
-            if (err) console.error('Error removing file:', err);
-            else console.log('File removed successfully');
-          });
-        });
-
     } catch (error) {
       await connection.rollback();
       console.error('Transaction failed, rolled back:', error);

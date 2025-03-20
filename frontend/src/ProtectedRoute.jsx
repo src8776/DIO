@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
-
 
 // Function to check if the user is authenticated by making a request to the backend
 export const checkAuth = async () => {
@@ -22,6 +21,7 @@ export const checkAuth = async () => {
 
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const check = async () => {
@@ -33,11 +33,18 @@ const ProtectedRoute = ({ element }) => {
   }, []);
 
   if (isAuthenticated === null) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}> <CircularProgress />
-            </Box>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  return isAuthenticated ? element : <Navigate to="/login" replace />;
+  if (isAuthenticated) {
+    return element;
+  } else {
+    return location.pathname === '/' ? <Navigate to="/welcome" replace /> : <Navigate to="/login" replace />;
+  }
 };
 
 export default ProtectedRoute;

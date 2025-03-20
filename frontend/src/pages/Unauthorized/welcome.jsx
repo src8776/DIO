@@ -41,7 +41,7 @@ const WelcomePage = () => {
   };
 
   const handleHome = () => {
-    navigate('/home');
+    navigate('/');
   };
 
   return (

@@ -55,8 +55,8 @@ const App = () => {
       <CssBaseline />
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/home" element={wrapWithProtectedRoute(<LandingPage />)} />
+        <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/" element={wrapWithProtectedRoute(<LandingPage />)} />
         <Route path="/admin/:org" element={wrapWithProtectedRoute(<AdminLayout />)}>
           <Route index element={wrapWithProtectedRoute(<AdminDash />)} />
           <Route path="memberDetails" element={wrapWithProtectedRoute(<MemberDetailsModal />)} />

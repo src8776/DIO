@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const Member = require('../models/Member');
-
+const OrgMember = require('../models/OrganizationMember');
 
 
 const majors = [
@@ -32,7 +32,10 @@ const attachMemberData = async (req, res, next) => {
   try {
     const user = req.user;
     const member = await Member.getMemberByEmail(user.email);
+    const orgMember = await OrgMember.getOrgMemberByID(member.MemberID);
+    console.log("Member Data:", member);
     req.member = member || {}; // Attach member data to the request object
+    req.orgMember = orgMember || {};
     next(); // Move to the next middleware/route handler
   } catch (error) {
     console.error('Error fetching member data:', error);
@@ -127,4 +130,15 @@ router.get('/majors', attachMemberData, async (req, res) => {
   }
 });
 
+
+
+//Code for getting member role
+/*
+router.get('/memberRole', attachMemberData, async (req, res) => {
+  const memberID = req.member.MemberID;
+  const orgID = req.query.orgID;
+  const role = await OrgMember.getRoleByMemberIDOrgID(memberID, orgID);
+  res.json({ role });
+});
+*/
 module.exports = router;

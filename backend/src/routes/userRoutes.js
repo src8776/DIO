@@ -33,7 +33,7 @@ const attachMemberData = async (req, res, next) => {
     const user = req.user;
     const member = await Member.getMemberByEmail(user.email);
     const orgMember = await OrgMember.getMemberByID(member.MemberID);
-    console.log("Member Data:", member);
+    console.log("Member Data:", orgMember);
     req.member = member || {}; // Attach member data to the request object
     req.orgMember = orgMember || {};
     next(); // Move to the next middleware/route handler

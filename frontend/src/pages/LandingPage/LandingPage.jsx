@@ -94,7 +94,7 @@ function LandingPage() {
                             Please contact support or check your credentials.
                         </Typography>
                         <Box sx={{ mt: 4 }}>
-                            <Button variant="contained" color="primary" component={Link} to="/login">
+                            <Button variant="contained" color="primary" component={Link} to="/saml2/login">
                                 Login
                             </Button>
                         </Box>

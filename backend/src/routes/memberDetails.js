@@ -275,7 +275,7 @@ router.post('/addIndividualAttendance', async (req, res) => {
 
 
 router.delete('/removeIndividualAttendance', async (req, res) => {
-    const { memberID, eventID, organizationID, semester } = req.body;
+    const { attendanceID, memberID, eventID, organizationID, semester } = req.body;
 
     // Input validation
     if (isNaN(memberID) || isNaN(eventID) || isNaN(organizationID)) {
@@ -286,15 +286,15 @@ router.delete('/removeIndividualAttendance', async (req, res) => {
         // Delete the attendance record
         const [result] = await db.query(`
             DELETE FROM Attendance 
-            WHERE MemberID = ? AND EventID = ? AND OrganizationID = ?
-        `, [memberID, eventID, organizationID]);
+            WHERE AttendanceID = ? AND MemberID = ? AND EventID = ? AND OrganizationID = ?
+        `, [attendanceID, memberID, eventID, organizationID]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Attendance record not found' });
         }
 
         // Log the deletion
-        console.log(`[@memberDetails: EventID ${eventID} was deleted from MemberID ${memberID}'s attendance records]`);
+        console.log(`[@memberDetails: AttendnaceID ${attendanceID} was deleted from MemberID ${memberID}'s attendance records]`);
 
         // Re-Evaluate status
         await useAccountStatus.updateMemberStatus(memberID, organizationID, semester)

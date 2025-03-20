@@ -119,6 +119,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        attendanceID: attendanceToDelete.AttendanceID,
         memberID: memberID,
         eventID: attendanceToDelete.EventID,
         organizationID: orgID,

@@ -37,7 +37,7 @@ const WelcomePage = () => {
   }, []);
 
   const handleLogin = () => {
-    navigate('/login');
+    navigate('/saml2/login');
   };
 
   const handleHome = () => {

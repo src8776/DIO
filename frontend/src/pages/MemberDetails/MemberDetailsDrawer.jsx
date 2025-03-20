@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { Box, IconButton, Modal } from '@mui/material';
+import { Drawer, Box, IconButton } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import CloseIcon from '@mui/icons-material/Close';
 import MemberDetailsPage from './MemberDetailsPage';
 
-
-export default function IndividualDataModal({ memberID, orgID, memberStatus, selectedSemester }) {
+export default function MemberDetailsDrawer({ memberID, orgID, memberStatus, selectedSemester }) {
   const [open, setOpen] = React.useState(false);
+
   const handleOpen = (event) => {
     event.stopPropagation();
     setOpen(true);
   };
+
   const handleClose = (event) => {
     event.stopPropagation();
-    setOpen(false)
+    setOpen(false);
   };
 
   return (
@@ -24,8 +26,13 @@ export default function IndividualDataModal({ memberID, orgID, memberStatus, sel
       >
         <InfoIcon fontSize="inherit" />
       </IconButton>
-      <Modal open={open} onClose={handleClose}>
-        <Box onClick={(e) => e.stopPropagation()}>
+      <Drawer onClick={(e) => e.stopPropagation()} anchor="right" open={open} onClose={handleClose} sx={{ overflowY: 'scroll' }}>
+        <Box sx={{ width: { xs: '100%', sm: 500, md: 700 }, p: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton onClick={handleClose}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
           <MemberDetailsPage
             memberID={memberID}
             orgID={orgID}
@@ -33,7 +40,7 @@ export default function IndividualDataModal({ memberID, orgID, memberStatus, sel
             selectedSemester={selectedSemester}
           />
         </Box>
-      </Modal>
+      </Drawer>
     </>
   );
 }

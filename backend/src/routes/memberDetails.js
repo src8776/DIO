@@ -71,7 +71,8 @@ router.get('/detailsBySemester', async (req, res) => {
                             'EventID', a.EventID,
                             'Hours', a.Hours,
                             'CheckInTime', a.CheckInTime,
-                            'EventType', et.EventType
+                            'EventType', et.EventType,
+                            'EventTitle', ei.EventTitle
                         )
                     ) 
                     FROM Attendance a
@@ -260,6 +261,37 @@ router.post('/addIndividualAttendance', async (req, res) => {
         res.status(201).json({ message: 'Attendance record added successfully' });
     } catch (error) {
         console.error('Error adding attendance record:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.delete('/removeIndividualAttendance', async (req, res) => {
+    const { memberID, eventID, organizationID } = req.body;
+
+    // Input validation
+    if (isNaN(memberID) || isNaN(eventID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid input parameters' });
+    }
+
+    try {
+        // Delete the attendance record
+        const [result] = await db.query(`
+            DELETE FROM Attendance 
+            WHERE MemberID = ? AND EventID = ? AND OrganizationID = ?
+        `, [memberID, eventID, organizationID]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Attendance record not found' });
+        }
+
+        // Log the deletion
+        console.log(`[@memberDetails: EventID ${eventID} was deleted from MemberID ${memberID}'s attendance records]`);
+
+        // Success response
+        res.status(200).json({ message: 'Attendance record removed successfully' });
+    } catch (error) {
+        console.error('Error removing attendance record:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

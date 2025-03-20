@@ -22,7 +22,7 @@ export const checkAuth = async () => {
 // Function to check the user's role by making a request to the backend
 export const checkRole = async () => {
   try {
-    const response = await fetch('/memberRole', {
+    const response = await fetch('/api/user/memberRole', {
       method: 'GET',
       credentials: 'same-origin', // Ensure the session cookie is sent
     });

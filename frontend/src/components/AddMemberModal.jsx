@@ -7,6 +7,7 @@ import AddMemberPage from '../pages/AddMember/AddMemberPage';
 // TODO: display success message
 // TODO: display error message if member already exists
 // OPTIONAL TODO: display member details modal if member already exists
+//comment
 
 export default function AddMemberModal() {
   const [open, setOpen] = React.useState(false);

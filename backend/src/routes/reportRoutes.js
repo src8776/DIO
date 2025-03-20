@@ -17,7 +17,9 @@ router.post('/', async (req, res) => {
     const eventCount = await EventInstance.getNumberOfEventInstances(data.orgID, data.selectedSemester.TermCode);
     const shirtSizes = await Member.getShirtSizeCount(data.orgID, data.selectedSemester.SemesterID);
     const pantSizes = await Member.getPantSizeCount(data.orgID, data.selectedSemester.SemesterID);
-    const memberReportData = await Member.getMemberReportData(data.orgID, data.selectedSemester.SemesterID); // Add this line
+    const memberReportData = await Member.getMemberReportData(data.orgID, data.selectedSemester.SemesterID);
+
+
     console.log(shirtSizes, pantSizes);
 
     const reportDetails = {
@@ -41,8 +43,10 @@ router.post('/', async (req, res) => {
 const generateReport = (res, reportDetails) => {
     let currentPageNumber = 0;
 
-    // Create a new PDF document
+    // Create a new PDF document in landscape mode
     const doc = new PDFDocument({
+        layout: 'landscape',
+        size: 'letter',
         margins: { // Set margins in points (1 point = 1/72 inch)
             top: 50,
             bottom: 50,
@@ -61,16 +65,15 @@ const generateReport = (res, reportDetails) => {
         doc.font("Helvetica-Bold").fontSize(12).text(' | DIO Member Dashboard', 75, 50);
         doc.fontSize(12).font("Helvetica").text(reportDetails.semesterName, {align: 'right'});
         doc.fontSize(15).font("Helvetica-Bold").text(reportDetails.reportName, 50, 75, {width: 307.2});
-        doc.moveDown(1);
-        doc.fontSize(10).text('Generated on: ' + new Date().toLocaleString(), 50, doc.y);
-        doc.moveDown(1);
         const startY = doc.y;
         const footerText = `Page ${currentPageNumber}`;
-        doc.fontSize(10).text(footerText, 50, 730, {align: 'right'});
+        doc.fontSize(10).text(footerText, 50, 550, {align: 'right'});
         doc.y = startY;
     });
     // First page
     doc.addPage();
+    doc.moveDown(1);
+    doc.fontSize(10).text('Generated on: ' + new Date().toLocaleString(), 50, doc.y);
 
     // Organization Summary
     const orgSummary = [
@@ -108,13 +111,17 @@ const generateReport = (res, reportDetails) => {
     // List of Members
     const membersList = reportDetails.members.map(member => ({
         FullName: member.FullName,
+        Status: member.Status,
         Email: member.Email,
         GraduationYear: member.GraduationYear,
         AcademicYear: member.AcademicYear,
         ShirtSize: member.ShirtSize,
-        PantSize: member.PantSize
+        PantSize: member.PantSize,
+        Gender: member.Gender,
+        Race: member.Race,
+        Major: member.Major
     }));
-    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [125, 125, 80, 80, 51, 51], 20);
+    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [125, 30, 100, 30, 75, 30, 30, 50, 75, 200], 20);
 
     // End the document
     doc.end();
@@ -126,7 +133,7 @@ const drawOrgSummaryTable = (doc, title, data, startX, startY, col1Width, col2Wi
     startY += rowHeight / 2; // Adjust startY to account for the title
 
     // Draw table rows
-    doc.fillColor('#000000').fontSize(12).font("Helvetica");
+    doc.fillColor('#000000').fontSize(10).font("Helvetica");
     data.forEach((item, index) => {
         const y = startY + rowHeight * (index + 1);
         doc.text(item.label, startX, y);
@@ -151,7 +158,7 @@ const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, c
 
     data.forEach((item, index) => {
         // If the Y position exceeds 730, add a new page
-        if (currentY + rowHeight > 730) {
+        if (currentY + rowHeight > 550) {
             doc.addPage();
             currentY = doc.y + 10; // Reset to start position on new page
             isFirstPage = false;
@@ -162,7 +169,7 @@ const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, c
         }
 
         // Draw text for the current row
-        doc.fillColor('#000000').fontSize(12).font("Helvetica");
+        doc.fillColor('#000000').fontSize(10).font("Helvetica");
         doc.text(item.label, startX, currentY);
         doc.text(item.value, startX + col1Width, currentY);
 
@@ -188,29 +195,45 @@ const drawMembersTable = (doc, title, data, startX, startY, colWidths, rowHeight
         printedTitle = index > 0 ? `${title} (Cont.)` : title;
         doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(printedTitle, startX, currentY);
         currentY += rowHeight * 1.5; // Adjust Y for title
-
-        doc.fillColor('#000000').fontSize(12).font("Helvetica-Bold");
-        const headers = ['Full Name', 'Email', 'Graduation Year', 'Academic Year', 'Shirt Size', 'Pants Size'];
+    
+        doc.fillColor('#000000').fontSize(10).font("Helvetica-Bold");
+    
+        const headers = ['Full Name', 'Status', 'Email', 'Grad. Year', 'Acad. Year', 'Shirt Size', 'Pants Size', 'Gender', 'Race', 'Major'];
+        let colX = startX;
+        const headerHeight = rowHeight * 2; // Increase the height of the headers
+    
         headers.forEach((header, index) => {
-            doc.text(header, startX + colWidths.slice(0, index).reduce((a, b) => a + b, 0), currentY, { width: colWidths[index], align: 'left' });
+            const colWidth = colWidths[index];
+            const centerX = colX; // Center the rotated text
+            const headerY = currentY + headerHeight / 2; // Adjust height for rotation
+            
+            // Rotate and draw the text vertically with more space
+            doc.save();
+            doc.translate(centerX, headerY);
+            doc.rotate(-90);
+            doc.text(header, 0, 0, { width: headerHeight, align: 'left' });
+            doc.restore();
+    
+            colX += colWidth; // Move to the next column position
         });
-
-        currentY += rowHeight * 2; // Adjust Y for rows
+    
+        currentY += headerHeight; // Increase Y position after the headers for row data
     };
+    
 
     drawTableHeader(0); // Draw header for the first page
 
     data.forEach((item, index) => {
         // Check if new page is needed based on Y position
-        if (currentY + rowHeight >= 730) {
+        if (currentY + rowHeight >= 550) {
             doc.addPage();
             currentY = startY; // Reset Y position
             drawTableHeader(index); // Draw table header on new page
         }
 
         // Draw row content with text wrapping
-        doc.fillColor('#000000').fontSize(12).font("Helvetica");
-        const values = [item.FullName, item.Email, item.GraduationYear, item.AcademicYear, item.ShirtSize, item.PantSize];
+        doc.fillColor('#000000').fontSize(10).font("Helvetica");
+        const values = [item.FullName, item.Status, item.Email, item.GraduationYear, item.AcademicYear, item.ShirtSize, item.PantSize, item.Gender, item.Race, item.Major];
         let rowHeightUsed = rowHeight; // Track max height used in a row
 
         values.forEach((value, colIndex) => {

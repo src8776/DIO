@@ -205,9 +205,10 @@ class Member {
   static async getMemberReportData(orgID, selectedSemester) {
     try {
       const [members] = await db.query(
-        `SELECT Members.FullName, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize
+        `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major
         FROM Members
-        JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
+        LEFT JOIN Majors ON Members.MajorID = Majors.MajorID
+		    LEFT JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?`,
         [orgID, selectedSemester]
       );
@@ -217,7 +218,6 @@ class Member {
       throw err;
     }
   }
-
 
   /*
   static async getEnumValues(columnName) {

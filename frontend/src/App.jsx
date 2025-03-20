@@ -67,6 +67,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={wrapWithProtectedRoute(<AcctSetup />)} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} /> {/* Redirect to home for any unknown routes */}
       </Routes>
     </ThemeProvider>
   );

@@ -43,7 +43,7 @@ export default function AddMemberModal() {
       !memberData.firstName ||
       !memberData.lastName ||
       !memberData.email ||
-      !memberData.orgId
+      !memberData.orgId //add semesterid as well
     ) {
       setErrorMessage("Please fill in all required fields.");
       return;

@@ -5,7 +5,7 @@ import {
     TableRow, Paper, Typography
 } from "@mui/material";
 import { useParams } from 'react-router-dom';
-import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
+import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 import AddAdminModal from './AddAdminModal';
 
 
@@ -53,7 +53,7 @@ function OfficersList() {
                                 <TableRow key={index}>
                                     <TableCell>{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
-                                    <TableCell><MemberDetailsModal /></TableCell>
+                                    <TableCell><MemberDetailsDrawer /></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

@@ -53,7 +53,7 @@ function OfficersList() {
                                 <TableRow key={index}>
                                     <TableCell>{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
-                                    <TableCell><MemberDetailsModal /></TableCell>
+                                    <TableCell><MemberDetailsDrawer /></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

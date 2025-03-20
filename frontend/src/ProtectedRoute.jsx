@@ -65,7 +65,7 @@ const ProtectedRoute = ({ element }) => {
 
   if (isAuthenticated) {
     if (location.pathname.startsWith('/admin')) {
-      if (role === 3) {
+      if (role === 3 || role === 1) {
         return element;  // Allow access if role is 3
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3

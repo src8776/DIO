@@ -13,11 +13,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// Simplified style for drawer context
-const style = {
-
-};
-
 const StatusChip = ({ memberStatus, ...props }) => (
   <Chip
     sx={{
@@ -126,7 +121,8 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       body: JSON.stringify({
         memberID: memberID,
         eventID: attendanceToDelete.EventID,
-        organizationID: orgID
+        organizationID: orgID,
+        semester: selectedSemester
       })
     })
       .then(response => response.json())

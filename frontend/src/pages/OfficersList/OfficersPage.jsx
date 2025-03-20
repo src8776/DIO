@@ -5,7 +5,7 @@ import {
     TableRow, Paper, Typography
 } from "@mui/material";
 import { useParams } from 'react-router-dom';
-import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
+import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 import AddAdminModal from './AddAdminModal';
 
 // TODO: add ability to add/remove admins

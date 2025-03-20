@@ -2,6 +2,8 @@ const express = require('express');
 const db = require('../config/db');
 const Attendance = require('../models/Attendance');
 const OrganizationMember = require('../models/OrganizationMember');
+const useAccountStatus = require('../services/useAccountStatus');
+const Semester = require('../models/Semester');
 const router = express.Router();
 
 
@@ -257,6 +259,12 @@ router.post('/addIndividualAttendance', async (req, res) => {
             VALUES (?, ?, NOW(), ?, ?, ?, ?)
         `, [memberID, eventInstance.EventID, attendanceStatus, hours || null, attendanceSource, organizationID]);
 
+        // Log the insertion
+        console.log(`[@memberDetails: EventID ${eventID} was added to MemberID ${memberID}'s attendance records]`);
+
+        // Re-Evaluate status
+        await useAccountStatus.updateMemberStatus(memberID, organizationID, semester)
+
         // Success response
         res.status(201).json({ message: 'Attendance record added successfully' });
     } catch (error) {
@@ -267,7 +275,7 @@ router.post('/addIndividualAttendance', async (req, res) => {
 
 
 router.delete('/removeIndividualAttendance', async (req, res) => {
-    const { memberID, eventID, organizationID } = req.body;
+    const { memberID, eventID, organizationID, semester } = req.body;
 
     // Input validation
     if (isNaN(memberID) || isNaN(eventID) || isNaN(organizationID)) {
@@ -287,6 +295,9 @@ router.delete('/removeIndividualAttendance', async (req, res) => {
 
         // Log the deletion
         console.log(`[@memberDetails: EventID ${eventID} was deleted from MemberID ${memberID}'s attendance records]`);
+
+        // Re-Evaluate status
+        await useAccountStatus.updateMemberStatus(memberID, organizationID, semester)
 
         // Success response
         res.status(200).json({ message: 'Attendance record removed successfully' });

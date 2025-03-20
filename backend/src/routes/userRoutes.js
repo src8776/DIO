@@ -133,6 +133,13 @@ router.get('/majors', attachMemberData, async (req, res) => {
 
 
 //Code for getting member role
+router.get('/memberRole', attachMemberData, async (req, res) => {
+  const orgMember = req.orgMember;
+  const org = orgMember.OrganizationID;
+  const role = orgMember.RoleID;
+  res.json({ role });
+});
+
 /*
 router.get('/memberRole', attachMemberData, async (req, res) => {
   const memberID = req.member.MemberID;

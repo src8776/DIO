@@ -269,7 +269,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle,
 
     // Log performance
     const duration = (Date.now() - startTime) / 1000;
-    console.log(`Processed ${uniqueRecordsToProcess.length} records in ${duration} seconds`);
+    console.log(`Processed ${uniqueRecords.length} records in ${duration} seconds`);
 
     // Save file info and commit
     await insertFileInfo(filePath, connection);

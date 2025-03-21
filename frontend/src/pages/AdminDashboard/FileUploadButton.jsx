@@ -39,6 +39,14 @@ const DropZone = styled(Box, {
   },
 }));
 
+/**
+ * Component for uploading CSV files with drag-and-drop and browse functionality.
+ * @param {Object} props - Component props.
+ * @param {string} props.orgID - Organization ID.
+ * @param {string} props.eventType - Event type.
+ * @param {Function} [props.onUploadSuccess] - Callback on successful upload.
+ * @returns {JSX.Element}
+ */
 export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -52,16 +60,14 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
   const [dialogData, setDialogData] = useState({});
   const fileInputRef = useRef(null);
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
+  // Show alert with message and severity
   const showAlert = (message, severity) => {
     setAlertMessage(message);
     setAlertSeverity(severity);
     setOpenSnackbar(true);
   };
 
+  // Validate selected file
   const validateFile = (selectedFile) => {
     if (!selectedFile) {
       showAlert('You must select a file', 'error');
@@ -78,6 +84,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     return true;
   };
 
+  // Handle file selection
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (validateFile(selectedFile)) {
@@ -88,16 +95,15 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     }
   };
 
+  // Handle drag-and-drop events
   const handleDragOver = (event) => {
     event.preventDefault();
     setIsDragging(true);
   };
-
   const handleDragLeave = (event) => {
     event.preventDefault();
     setIsDragging(false);
   };
-
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDragging(false);
@@ -107,7 +113,8 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     }
   };
 
-  const handleUserChoice = (choice) => {
+  // Upload file with specified user choice
+  const uploadFile = (choice) => {
     const formData = new FormData();
     formData.append('csv_file', file);
     formData.append('eventType', eventType);
@@ -117,22 +124,22 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     if (choice === 'skipMissing') formData.append('skipMissing', 'true');
 
     setIsUploading(true);
-    fetch(`/api/upload`, {
+    fetch('/api/upload', {
       method: 'POST',
       body: formData,
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => response.json())
+      .then(data => {
         if (data.success) {
-          showAlert('Successfully uploaded file: ' + file.name, 'success');
+          showAlert(`Successfully uploaded file: ${file.name}`, 'success');
           onUploadSuccess?.();
           setFile(null);
         } else {
-          showAlert('Failed to upload file: ' + file.name + ' due to ' + data.error, 'error');
+          showAlert(`Failed to upload file: ${file.name} due to ${data.error}`, 'error');
         }
       })
-      .catch((error) => {
-        showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
+      .catch(() => {
+        showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
       })
       .finally(() => {
         setIsUploading(false);
@@ -141,6 +148,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
       });
   };
 
+  // Handle initial upload attempt
   const handleUpload = () => {
     if (!file || !eventType) {
       showAlert(!file ? 'No file selected' : 'No event type selected', 'error');
@@ -153,12 +161,12 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     formData.append('orgID', orgID);
     formData.append('eventTitle', eventTitle);
 
-    fetch(`/api/upload`, {
+    fetch('/api/upload', {
       method: 'POST',
       body: formData,
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => response.json())
+      .then(data => {
         if (data.status === 'single_date_missing') {
           setDialogData({ missingCount: data.missingCount, eventDate: data.eventDate });
           setOpenSingleDateDialog(true);
@@ -166,15 +174,15 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           setDialogData({ missingCount: data.missingCount });
           setOpenMultipleDatesDialog(true);
         } else if (data.success) {
-          showAlert('Successfully uploaded file: ' + file.name, 'success');
+          showAlert(`Successfully uploaded file: ${file.name}`, 'success');
           onUploadSuccess?.();
           setFile(null);
         } else {
-          showAlert('Failed to upload file: ' + file.name + ' due to ' + data.error, 'error');
+          showAlert(`Failed to upload file: ${file.name} due to ${data.error}`, 'error');
         }
       })
-      .catch((error) => {
-        showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
+      .catch(() => {
+        showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
       })
       .finally(() => setIsUploading(false));
   };
@@ -194,13 +202,14 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
         ) : file ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body1">Selected: <span style={{ color: 'rgb(0, 119, 255)' }}>{file.name}</span></Typography>
-              <IconButton size="small" onClick={() => setFile(null)} sx={{
-                color: 'red',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 0, 0, 0.1)'
-                },
-              }}>
+              <Typography variant="body1">
+                Selected: <span style={{ color: 'rgb(0, 119, 255)' }}>{file.name}</span>
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => setFile(null)}
+                sx={{ color: 'red', '&:hover': { backgroundColor: 'rgba(255, 0, 0, 0.1)' } }}
+              >
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Box>
@@ -211,12 +220,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
               fullWidth
               sx={{ mt: 2 }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleUpload}
-              sx={{ mt: 2 }}
-            >
+            <Button variant="contained" color="primary" onClick={handleUpload} sx={{ mt: 2 }}>
               Upload
             </Button>
           </Box>
@@ -226,9 +230,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
             <Typography variant="body1" sx={{ mt: 2 }}>
               {isDragging ? 'Drop your CSV file here!' : 'Drag & drop your CSV file here'}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, color: '#666' }}>
-              or
-            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, color: '#666' }}>or</Typography>
             <Button
               component="label"
               variant="contained"
@@ -255,11 +257,10 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleUserChoice('assignDate')}>Yes</Button>
+          <Button onClick={() => uploadFile('assignDate')}>Yes</Button>
           <Button onClick={() => setOpenSingleDateDialog(false)}>No</Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={openMultipleDatesDialog} onClose={() => setOpenMultipleDatesDialog(false)}>
         <DialogTitle>Handle Missing Dates</DialogTitle>
         <DialogContent>
@@ -268,7 +269,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleUserChoice('skipMissing')}>Skip Rows</Button>
+          <Button onClick={() => uploadFile('skipMissing')}>Skip Missing Rows</Button>
           <Button onClick={() => setOpenMultipleDatesDialog(false)}>Cancel Upload</Button>
         </DialogActions>
       </Dialog>
@@ -276,7 +277,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
         open={openSnackbar}
         message={alertMessage}
         severity={alertSeverity}
-        onClose={handleCloseSnackbar}
+        onClose={() => setOpenSnackbar(false)}
         autoHideDuration={4000}
       />
     </>

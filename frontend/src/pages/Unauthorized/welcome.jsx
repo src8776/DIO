@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import wicLogo from '/public/wichacks-logo.png';
-import comsLogo from '/public/com_logo.png';
-import cshLogo from '/public/csh_logo_square.png';
+import comsLogo from '/public/COMS.png';
 import {
   Box,
   Button,
@@ -12,7 +11,8 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Paper
+  Paper,
+  useTheme
 } from '@mui/material';
 import { checkAuth } from '../../ProtectedRoute';
 
@@ -22,6 +22,26 @@ const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 const WelcomePage = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
+
+  const clubs = [
+    {
+      title: "Women in Computing",
+      description: "Promoting the success and advancement of women and all gender minorities in their academic and professional careers.",
+      icon: wicLogo, 
+      URL: "https://www.rit.edu/womenincomputing/",
+      bgColor: isDarkMode ? '#2C0034' : '#E4BEEB' // Change based on dark theme
+    },
+    {
+      title: "Computing Organization of Multicultural Students",
+      description: "building a supportive community that celebrates the talent of underrepresented students in computing.",
+      icon: comsLogo,
+      URL: "https://www.rit.edu/computing/coms/",
+      bgColor: isDarkMode ? '#002631' : '#e3f2fd' // Change based on dark theme
+    }
+  ];
 
   useEffect(() => {
     if (isProduction) {
@@ -106,11 +126,11 @@ const WelcomePage = () => {
               )}
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card elevation={4}>
+              <Card variant="outlined" elevation={4}>
                 <CardMedia
                   component="img"
                   height="300"
-                  image="DashboardOverlay.png"
+                  image="memberDashBig.PNG"
                   alt="Students at club event"
                 />
                 <CardContent>
@@ -141,30 +161,8 @@ const WelcomePage = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={4}>
-          {[
-            {
-              title: "Women in Computing",
-              description: "Promoting the success and advancement of women and all gender minorities in their academic and professional careers.",
-              icon: wicLogo, 
-              URL: "https://www.rit.edu/womenincomputing/",
-              bgColor: '#ce93d8'
-            },
-            {
-              title: "Computing Organization of Multicultural Students",
-              description: "building a supportive community that celebrates the talent of underrepresented students in computing.",
-              icon: comsLogo,
-              URL: "https://www.rit.edu/computing/coms/",
-              bgColor: '#e3f2fd' 
-            },
-            {
-              title: "Computer Science house",
-              description: "Enabling its members grow intellectually, socially, and professionally continues to succeed and surpass expectations..",
-              icon: cshLogo,
-              URL: "https://www.csh.rit.edu/",
-              bgColor: '#fff3e0' 
-            }
-          ].map((club, index) => (
+        <Grid container spacing={4} columns={8}>
+          {clubs.map((club, index) => (
             <Grid item key={index} xs={12} md={4}>
               <Paper
                 elevation={2}
@@ -195,7 +193,7 @@ const WelcomePage = () => {
                 <Typography variant="h5" component="h3" gutterBottom color="text.primary">
                   {club.title}
                 </Typography>
-                <Typography variant="body1" sx={{ mb: 2 }} color="text.secondary">
+                <Typography variant="body1" sx={{ mb: 2 }} color={isDarkMode ?'rgb(208, 208, 208)' : 'text.secondary'}>
                   {club.description}
                 </Typography>
                 <Button

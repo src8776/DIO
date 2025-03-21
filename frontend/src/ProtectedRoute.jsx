@@ -74,7 +74,8 @@ export const checkComsRole = async () => {
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [role, setRole] = useState(null);
-  const [org, setOrg] = useState(null);
+  const [inWic, setInWic] = useState(null);
+  const [inComs, setInComs] = useState(null);
   const location = useLocation();
 
   useEffect(() => {

@@ -84,7 +84,7 @@ const ProtectedRoute = ({ element }) => {
       setIsAuthenticated(authStatus);
       if (authStatus) {
         const userRole = await checkRole();
-        const InWic = await checkRole();
+        const InWic = await checkWicRole();
         const InComs = await checkComsRole();
         setRole(userRole);
         setInWic(InWic);

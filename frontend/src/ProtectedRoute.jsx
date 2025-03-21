@@ -37,9 +37,44 @@ export const checkRole = async () => {
   }
 };
 
+export const checkWicRole = async () => {
+  try {
+    const response = await fetch('/api/user/memberRole', {
+      method: 'GET',
+      credentials: 'same-origin', // Ensure the session cookie is sent
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.role;  // Return the user's role
+    }
+    return null;  // Role not found
+  } catch (error) {
+    console.error("Role check failed:", error);
+    return null;  // Assume no role in case of error
+  }
+};
+
+export const checkComsRole = async () => {
+  try {
+    const response = await fetch('/api/user/memberRole', {
+      method: 'GET',
+      credentials: 'same-origin', // Ensure the session cookie is sent
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.role;  // Return the user's role
+    }
+    return null;  // Role not found
+  } catch (error) {
+    console.error("Role check failed:", error);
+    return null;  // Assume no role in case of error
+  }
+};
+
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [role, setRole] = useState(null);
+  const [org, setOrg] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -48,6 +83,8 @@ const ProtectedRoute = ({ element }) => {
       setIsAuthenticated(authStatus);
       if (authStatus) {
         const userRole = await checkRole();
+        const InWic = await checkRole();
+        const InComs = await checkComsRole();
         setRole(userRole);
       }
     };
@@ -64,8 +101,14 @@ const ProtectedRoute = ({ element }) => {
   }
 
   if (isAuthenticated) {
-    if (location.pathname.startsWith('/admin')) {
-      if (role === 3 || role === 1) {
+    if (location.pathname.startsWith('/admin/wic')) {
+      if ((role === 3 || role === 1) && org === 1) {
+        return element;  // Allow access if role is 3
+      } else {
+        return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
+      }
+    } else if (location.pathname.startsWith('/admin/coms')) {
+      if ((role === 3 || role === 1) && org === 2) {
         return element;  // Allow access if role is 3
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3

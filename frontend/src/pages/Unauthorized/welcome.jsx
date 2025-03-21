@@ -91,7 +91,7 @@ const WelcomePage = () => {
                 </Typography>
               </Typography>
               <Typography variant="h5" color="text.secondary">
-                Keep track of your active membership, monitor attendance, and earn rewards for your points towards participation in RIT's GCCIS vibrant club community.
+                Keep track of your active membership, monitor attendance, and earn your points towards participation in RIT's GCCIS vibrant club community.
               </Typography>
               {isAuthenticated === null ? (
                 <Button
@@ -231,7 +231,7 @@ const WelcomePage = () => {
           <Grid container spacing={4}>
             {[
               {
-                title: "Track Attendance and Remain An Active Member",
+                title: "Track Attendance",
                 description: "Easily record your attendance at meetings and events per semester."
               },
               {
@@ -239,8 +239,8 @@ const WelcomePage = () => {
                 description: "See your progress toward active membership status and recognition goals."
               },
               {
-                title: "Receive Point Rewards",
-                description: "Earn and track rewards for your contributions."
+                title: "Receive Recognition",
+                description: "Earn recognition for your contributions and years of active membership."
               },
               {
                 title: "Access History",

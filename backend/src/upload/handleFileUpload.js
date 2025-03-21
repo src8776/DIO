@@ -12,15 +12,24 @@ const storage = multer.diskStorage({
     }
 });
 
+/** Multer instance for file uploads */
 const upload = multer({ storage });
 
+// Ensure tmp directory exists
 if (!fs.existsSync('tmp')) {
     fs.mkdirSync('tmp');
 }
 
+/**
+ * Handles file upload and processes CSV data.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 const handleFileUpload = async (req, res) => {
-    console.log("invoke /upload");
+    console.log('invoke /upload');
 
+    // Validate file presence
     if (!req.file) {
         return res.status(400).json({
             success: false,
@@ -34,16 +43,13 @@ const handleFileUpload = async (req, res) => {
     const customEventTitle = req.body.eventTitle;
     const assignDate = req.body.assignDate === 'true';
     const skipMissing = req.body.skipMissing === 'true';
-    console.log("Filepath is " + filePath);
-    console.log("eventType is " + eventType);
-    console.log("orgID is " + orgID);
-    console.log("customEventTitle is " + customEventTitle);
-    console.log("assignDate is " + assignDate);
-    console.log("skipMissing is " + skipMissing);
+
+    console.log(`Filepath: ${filePath}, eventType: ${eventType}, orgID: ${orgID}, customEventTitle: ${customEventTitle}, assignDate: ${assignDate}, skipMissing: ${skipMissing}`);
 
     try {
+        // Process CSV file
         await csvProcessor.processCsv(filePath, eventType, orgID, customEventTitle, assignDate, skipMissing);
-        return res.json({
+        res.json({
             success: true,
             message: 'File uploaded and processed successfully',
             file: req.file
@@ -62,7 +68,7 @@ const handleFileUpload = async (req, res) => {
                 missingCount: error.missingCount
             });
         } else {
-            return res.status(400).json({
+            res.status(400).json({
                 success: false,
                 message: 'An error occurred while processing the CSV file',
                 error: error.message,
@@ -72,7 +78,4 @@ const handleFileUpload = async (req, res) => {
     }
 };
 
-module.exports = {
-    upload,
-    handleFileUpload
-};
+module.exports = { upload, handleFileUpload };

@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import {
     Box, Container, Table, TableBody,
     TableCell, TableContainer, TableHead,
-    TableRow, Paper, Typography
+    TableRow, Paper, Typography, IconButton
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from 'react-router-dom';
-import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
 import AddAdminModal from './AddAdminModal';
 
 // TODO: add ability to add/remove admins
@@ -35,16 +35,37 @@ function OfficersList() {
     }, [org]);
 
     React.useEffect(() => {
-        fetch(`/api/admin/getOfficersAndAdmin?organizationID=${orgID}`)
-            .then((response) => response.json())
-            .then((data) => {
-                setMemberData(data);
-                setIsLoading(false);
+        if (orgID !== null) {
+            fetch(`/api/admin/getOfficersAndAdmin?organizationID=${orgID}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    setAdminData(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching member data:', error);
+            });
+        } 
+    }, [orgID]);
+    
+    const handleDelete = (memberID) => {
+        fetch(`/api/admin/setMember?organizationID=${orgID}&memberID=${memberID}`, {
+          method: 'POST'
         })
-        .catch((error) => {
-            console.error('Error fetching member data:', error);
-        });
-    }, [org]);
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Failed to delete officer');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log('Officer deleted:', data);
+            setAdminData(adminData.filter(officer => officer.MemberID !== memberID));
+          })
+          .catch((error) => {
+            console.error('Error deleting officer:', error);
+          });
+    };
 
     return (
 
@@ -69,9 +90,13 @@ function OfficersList() {
                         <TableBody>
                             {adminData.map((user, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{user.name}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell><MemberDetailsModal /></TableCell>
+                                    <TableCell>{user.FullName}</TableCell>
+                                    <TableCell>{user.Email}</TableCell>
+                                    <TableCell align="center">
+                                        <IconButton onClick={() => handleDelete(user.MemberID)}>
+                                            <CloseIcon />
+                                        </IconButton>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

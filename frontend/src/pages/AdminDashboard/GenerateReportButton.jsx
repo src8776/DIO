@@ -16,8 +16,6 @@ export default function GenerateReport({orgID, selectedSemester}) {
 
   const [filters, setFilters] = React.useState({
     memberStatus: 'both', // Default to 'both'
-    includeRace: false,
-    includeGender: false,
     includeClothingSize: false,
     includeGraduationYear: false,
     includeMajor: false,

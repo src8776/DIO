@@ -39,13 +39,13 @@ export const checkRole = async () => {
 
 export const checkWicRole = async () => {
   try {
-    const response = await fetch('/api/user/memberRole', {
+    const response = await fetch('/api/user/inWic', {
       method: 'GET',
       credentials: 'same-origin', // Ensure the session cookie is sent
     });
     if (response.ok) {
       const data = await response.json();
-      return data.role;  // Return the user's role
+      return data.inWic;  // Return the user's role
     }
     return null;  // Role not found
   } catch (error) {
@@ -56,13 +56,13 @@ export const checkWicRole = async () => {
 
 export const checkComsRole = async () => {
   try {
-    const response = await fetch('/api/user/memberRole', {
+    const response = await fetch('/api/user/inComs', {
       method: 'GET',
       credentials: 'same-origin', // Ensure the session cookie is sent
     });
     if (response.ok) {
       const data = await response.json();
-      return data.role;  // Return the user's role
+      return data.inComs;  // Return the user's role
     }
     return null;  // Role not found
   } catch (error) {
@@ -102,13 +102,13 @@ const ProtectedRoute = ({ element }) => {
 
   if (isAuthenticated) {
     if (location.pathname.startsWith('/admin/wic')) {
-      if ((role === 3 || role === 1) && org === 1) {
+      if ((role === 3 || role === 1) && inWic !== null) {
         return element;  // Allow access if role is 3
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
       }
     } else if (location.pathname.startsWith('/admin/coms')) {
-      if ((role === 3 || role === 1) && org === 2) {
+      if ((role === 3 || role === 1) && inComs !== null) {
         return element;  // Allow access if role is 3
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3

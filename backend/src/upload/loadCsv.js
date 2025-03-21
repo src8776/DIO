@@ -194,6 +194,25 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
             return resolve();
           }
 
+          // Remove duplicates based on email and date (ignoring time)
+          const seen = new Set();
+          const uniqueValidRecords = validRecords.filter(record => {
+            const date = record.checkInDate.split(' ')[0]; // e.g., "2024-09-07"
+            const key = `${record.email}-${date}`;
+            if (seen.has(key)) {
+              return false; // Skip duplicate
+            } else {
+              seen.add(key);
+              return true; // Keep first occurrence
+            }
+          });
+
+          // Log duplicates removed
+          const duplicateCount = validRecords.length - uniqueValidRecords.length;
+          if (duplicateCount > 0) {
+            console.log(`Removed ${duplicateCount} duplicate records based on email and date.`);
+          }
+
           try {
             const startTime = Date.now();
 
@@ -305,7 +324,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
             else console.log('File removed successfully');
           });
         });
-        
+
     } catch (error) {
       await connection.rollback();
       console.error('Transaction failed, rolled back:', error);

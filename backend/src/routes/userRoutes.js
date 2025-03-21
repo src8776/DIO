@@ -136,12 +136,22 @@ router.get('/majors', attachMemberData, async (req, res) => {
 
 
 
-//Code for getting member role
+//Code for access control
 router.get('/memberRole', attachMemberData, async (req, res) => {
   const orgMember = req.orgMember;
   const org = orgMember.OrganizationID;
   const role = orgMember.RoleID;
   res.json({ role });
+});
+
+router.get('/inWic', attachMemberData, async (req, res) => {
+  const inWic = req.WicMember;
+  res.json({ inWic });
+});
+
+router.get('/inComs', attachMemberData, async (req, res) => {
+  const inComs = req.ComsMember;
+  res.json({ inComs });
 });
 
 /*

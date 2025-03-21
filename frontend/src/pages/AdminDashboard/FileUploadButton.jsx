@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Button, Typography, IconButton, TextField } from '@mui/material';
+import {
+  Box, Button, Typography,
+  IconButton, TextField, Dialog,
+  DialogTitle, DialogContent,
+  DialogContentText, DialogActions
+} from '@mui/material';
 import { shouldForwardProp } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
@@ -42,6 +47,9 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openSingleDateDialog, setOpenSingleDateDialog] = useState(false);
+  const [openMultipleDatesDialog, setOpenMultipleDatesDialog] = useState(false);
+  const [dialogData, setDialogData] = useState({});
   const fileInputRef = useRef(null);
 
   const handleCloseSnackbar = () => {
@@ -99,13 +107,43 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     }
   };
 
+  const handleUserChoice = (choice) => {
+    const formData = new FormData();
+    formData.append('csv_file', file);
+    formData.append('eventType', eventType);
+    formData.append('orgID', orgID);
+    formData.append('eventTitle', eventTitle);
+    if (choice === 'assignDate') formData.append('assignDate', 'true');
+    if (choice === 'skipMissing') formData.append('skipMissing', 'true');
+
+    setIsUploading(true);
+    fetch(`/api/upload`, {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          showAlert('Successfully uploaded file: ' + file.name, 'success');
+          onUploadSuccess?.();
+          setFile(null);
+        } else {
+          showAlert('Failed to upload file: ' + file.name + ' due to ' + data.error, 'error');
+        }
+      })
+      .catch((error) => {
+        showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
+      })
+      .finally(() => {
+        setIsUploading(false);
+        setOpenSingleDateDialog(false);
+        setOpenMultipleDatesDialog(false);
+      });
+  };
+
   const handleUpload = () => {
-    if (!file) {
-      showAlert('No file selected', 'error');
-      return;
-    }
-    if (!eventType) {
-      showAlert('No event type selected', 'error');
+    if (!file || !eventType) {
+      showAlert(!file ? 'No file selected' : 'No event type selected', 'error');
       return;
     }
     setIsUploading(true);
@@ -121,20 +159,21 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (!data.success) {
-          const msg = 'Failed to upload file: ' + data.file.originalname + ' due to ' + data.error;
-          showAlert(msg, 'error');
-        } else {
-          showAlert(
-            'Successfully uploaded file: ' + data.file.originalname,
-            'success'
-          );
+        if (data.status === 'single_date_missing') {
+          setDialogData({ missingCount: data.missingCount, eventDate: data.eventDate });
+          setOpenSingleDateDialog(true);
+        } else if (data.status === 'multiple_dates_missing') {
+          setDialogData({ missingCount: data.missingCount });
+          setOpenMultipleDatesDialog(true);
+        } else if (data.success) {
+          showAlert('Successfully uploaded file: ' + file.name, 'success');
           onUploadSuccess?.();
-          setFile(null); // Reset after successful upload
+          setFile(null);
+        } else {
+          showAlert('Failed to upload file: ' + file.name + ' due to ' + data.error, 'error');
         }
       })
       .catch((error) => {
-        console.log(error);
         showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
       })
       .finally(() => setIsUploading(false));
@@ -208,6 +247,31 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           </>
         )}
       </DropZone>
+      <Dialog open={openSingleDateDialog} onClose={() => setOpenSingleDateDialog(false)}>
+        <DialogTitle>Confirm Date Assignment</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            There are {dialogData.missingCount} rows with missing dates. Process the whole file as {dialogData.eventDate}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleUserChoice('assignDate')}>Yes</Button>
+          <Button onClick={() => setOpenSingleDateDialog(false)}>No</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openMultipleDatesDialog} onClose={() => setOpenMultipleDatesDialog(false)}>
+        <DialogTitle>Handle Missing Dates</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            There are {dialogData.missingCount} rows with missing dates. Skip rows or cancel upload.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleUserChoice('skipMissing')}>Skip Rows</Button>
+          <Button onClick={() => setOpenMultipleDatesDialog(false)}>Cancel Upload</Button>
+        </DialogActions>
+      </Dialog>
       <SnackbarAlert
         open={openSnackbar}
         message={alertMessage}

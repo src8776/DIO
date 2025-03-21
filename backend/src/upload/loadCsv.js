@@ -71,7 +71,7 @@ const isFileDuplicate = async (filePath) => {
 };
 
 // Process CSV with improved handling
-const processCsv = async (filePath, eventType, organizationID, customEventTitle) => {
+const processCsv = async (filePath, eventType, organizationID, customEventTitle, assignDate = false, skipMissing = false) => {
   const attendanceRecords = [];
 
   return new Promise(async (resolve, reject) => {
@@ -140,15 +140,9 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
           const firstName = getColumnValue(['First Name', 'FirstName', 'first name']);
           const lastName = getColumnValue(['Last Name', 'LastName', 'last name']);
 
-          if (!email || !checkInDateStr) {
-            console.warn('Skipping row due to missing Email or Checked-In Date:', row);
-            stream.destroy(); // Stops further processing
-            return reject(new Error('Missing Email or Checked-In Date rows in CSV file.'));
-          }
-
-          // Check for required fields after column normalization
-          if (!firstName || !lastName) {
-            console.warn('Skipping row due to missing First Name or Last Name:', row);
+          // Skip rows missing critical fields: email, firstName, or lastName
+          if (!email || !firstName || !lastName) {
+            console.warn('Skipping row due to missing critical fields (Email, First Name, or Last Name):', row);
             return; // Skip this row but continue processing others
           }
 
@@ -179,9 +173,9 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
 
           // Filter records with valid check-in dates
           const validRecords = attendanceRecords.filter(record => record.checkInDate);
-          const invalidCount = attendanceRecords.length - validRecords.length;
-          if (invalidCount > 0) {
-            console.warn(`Skipped ${invalidCount} records due to invalid check-in dates.`);
+          const missingDateCount = attendanceRecords.length - validRecords.length;
+          if (missingDateCount > 0) {
+            console.warn(`Found ${missingDateCount} records with missing check-in dates.`);
           }
 
           if (validRecords.length === 0) {
@@ -194,9 +188,41 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
             return resolve();
           }
 
-          // Remove duplicates based on email and date (ignoring time)
+          // Step 1: Handle missing dates and user choice
+          if (missingDateCount > 0 && !assignDate && !skipMissing) {
+            const dates = validRecords.map(record => record.checkInDate.split(' ')[0]);
+            const uniqueDates = [...new Set(dates)];
+            if (uniqueDates.length === 1) {
+              await connection.rollback();
+              const error = new Error('Missing check-in dates for some records');
+              error.type = 'single_date_missing';
+              error.missingCount = missingDateCount;
+              error.eventDate = uniqueDates[0];
+              return reject(error);
+            } else if (uniqueDates.length > 1) {
+              await connection.rollback();
+              const error = new Error('Missing check-in dates for some records');
+              error.type = 'multiple_dates_missing';
+              error.missingCount = missingDateCount;
+              return reject(error);
+            }
+          }
+
+          // Step 2: Determine records to process based on user choice
+          let recordsToProcess;
+          if (assignDate && missingDateCount > 0) {
+            const eventDate = validRecords[0].checkInDate.split(' ')[0]; // Use the single date
+            recordsToProcess = attendanceRecords.map(record => ({
+              ...record,
+              checkInDate: record.checkInDate || `${eventDate} 12:00:00` // Assign date to missing ones
+            }));
+          } else {
+            recordsToProcess = validRecords; // Either no missing dates or skipMissing is true
+          }
+
+          // Step 3: Remove duplicates from recordsToProcess
           const seen = new Set();
-          const uniqueValidRecords = validRecords.filter(record => {
+          const uniqueRecordsToProcess = recordsToProcess.filter(record => {
             const date = record.checkInDate.split(' ')[0]; // e.g., "2024-09-07"
             const key = `${record.email}-${date}`;
             if (seen.has(key)) {
@@ -208,7 +234,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
           });
 
           // Log duplicates removed
-          const duplicateCount = validRecords.length - uniqueValidRecords.length;
+          const duplicateCount = recordsToProcess.length - uniqueRecordsToProcess.length;
           if (duplicateCount > 0) {
             console.log(`Removed ${duplicateCount} duplicate records based on email and date.`);
           }
@@ -216,8 +242,8 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
           try {
             const startTime = Date.now();
 
-            // Extract unique dates (date part only, ignoring time)
-            const dates = validRecords.map(record => record.checkInDate.split(' ')[0]);
+            // Extract unique dates from uniqueRecordsToProcess
+            const dates = uniqueRecordsToProcess.map(record => record.checkInDate.split(' ')[0]);
             const uniqueDates = [...new Set(dates)];
 
             // Reusable function to insert attendance records
@@ -264,7 +290,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
                 return reject(new Error(`No EventID found for ${eventType}, skipping attendance insert.`));
               }
 
-              for (const attendance of validRecords) {
+              for (const attendance of uniqueRecordsToProcess) {
                 await insertAttendanceRecord(attendance, eventID, semester, organizationID);
               }
             } else {
@@ -287,7 +313,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
                 return reject(new Error(`No EventID found for some dates, skipping attendance insert.`));
               }
 
-              for (const attendance of validRecords) {
+              for (const attendance of uniqueRecordsToProcess) {
                 const checkInDate = attendance.checkInDate.split(' ')[0];
                 const { semester, eventID } = dateToDataMap.get(checkInDate);
                 await insertAttendanceRecord(attendance, eventID, semester, organizationID);
@@ -296,7 +322,7 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle)
 
             // Log performance
             const duration = (Date.now() - startTime) / 1000;
-            console.log(`Processed ${validRecords.length} records in ${duration} seconds`);
+            console.log(`Processed ${uniqueRecordsToProcess.length} records in ${duration} seconds`);
 
             // Insert file info into UploadedFilesHistory
             await insertFileInfo(filePath, connection);

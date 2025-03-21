@@ -35,11 +35,16 @@ const attachMemberData = async (req, res, next) => {
     const orgMember = await OrgMember.getMemberByID(member.MemberID);
     const WicMember = await OrgMember.getWicMemberByID(member.MemberID,1);
     const ComsMember = await OrgMember.getComsMemberByID(member.MemberID,2);
+
     console.log("Wic Member:", WicMember);
     console.log("Coms Member:", ComsMember);
     console.log("Member Data:", orgMember);
+
     req.member = member || {}; // Attach member data to the request object
     req.orgMember = orgMember || {};
+    req.WicMember = WicMember || null;
+    req.ComsMember = ComsMember || null;
+    
     next(); // Move to the next middleware/route handler
   } catch (error) {
     console.error('Error fetching member data:', error);

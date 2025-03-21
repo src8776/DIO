@@ -105,6 +105,37 @@ class OrganizationMember {
         throw error;
     }
   }
+
+  //Maybe remove this
+  static async getRoleByMemberIDOrgID(memberID, organizationID) {
+    try {
+      const query = `
+            SELECT Roles.RoleName
+            FROM OrganizationMembers
+            JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
+            WHERE OrganizationMembers.MemberID = ? AND OrganizationMembers.OrganizationID = ?
+        `;
+      const [[result]] = await db.query(query, [memberID, organizationID]);
+      return result?.RoleName;
+    } catch (error) {
+      console.error('Error fetching member role:', error);
+      throw error;
+    }
+  }
+
+  static async getMemberByID(memberID) {
+    try {
+      const [[member]] = await db.query(
+        'SELECT * FROM OrganizationMembers WHERE MemberID = ?',
+        [memberID]
+      );
+      return member || null;
+    } catch (err) {
+      console.error('Error fetching member:', err);
+      throw err;
+    }
+  }
+
 }
 
 module.exports = OrganizationMember;

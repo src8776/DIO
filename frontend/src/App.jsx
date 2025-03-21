@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AppBar from './components/AppBar';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AdminDash from './pages/AdminDashboard/AdminDashPage';
@@ -55,8 +55,8 @@ const App = () => {
       <CssBaseline />
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/home" element={wrapWithProtectedRoute(<LandingPage />)} />
+        <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/" element={wrapWithProtectedRoute(<LandingPage />)} />
         <Route path="/admin/:org" element={wrapWithProtectedRoute(<AdminLayout />)}>
           <Route index element={wrapWithProtectedRoute(<AdminDash />)} />
           <Route path="memberDetails" element={wrapWithProtectedRoute(<MemberDetailsModal />)} />
@@ -67,6 +67,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={wrapWithProtectedRoute(<AcctSetup />)} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} /> {/* Redirect to home for any unknown routes */}
       </Routes>
     </ThemeProvider>
   );

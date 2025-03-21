@@ -37,11 +37,11 @@ const WelcomePage = () => {
   }, []);
 
   const handleLogin = () => {
-    navigate('/login');
+    window.location.href = '/saml2/login';
   };
 
   const handleHome = () => {
-    navigate('/home');
+    navigate('/');
   };
 
   return (

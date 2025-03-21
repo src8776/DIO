@@ -71,7 +71,7 @@ if (process.env.NODE_ENV === "production") {
             failureFlash: true,
         }),
         function (req, res) {
-            res.redirect('/home');
+            res.redirect('/');
         },
     );
     /* end acs example */

@@ -31,7 +31,7 @@ class EventInstance {
 
             // Determine the event title
             const finalEventTitle = (customEventTitle || '').trim() ||
-                `${eventType} on ${new Date(checkInDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+                `${eventType} on ${new Date(checkInDate.split(' ')[0] + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
 
             // First, check if the event already exists
             const [existingEvents] = await db.query(

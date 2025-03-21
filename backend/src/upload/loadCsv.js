@@ -214,6 +214,7 @@ const insertAttendanceRecord = async (attendance, eventID, semester, organizatio
  * @returns {Promise<void>}
  */
 const processCsv = async (filePath, eventType, organizationID, customEventTitle, assignDate = false, skipMissing = false) => {
+  const startTime = Date.now();
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
@@ -265,6 +266,10 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle,
         await insertAttendanceRecord(record, eventID, semester, organizationID);
       }
     }
+
+    // Log performance
+    const duration = (Date.now() - startTime) / 1000;
+    console.log(`Processed ${uniqueRecordsToProcess.length} records in ${duration} seconds`);
 
     // Save file info and commit
     await insertFileInfo(filePath, connection);

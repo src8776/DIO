@@ -86,6 +86,8 @@ const ProtectedRoute = ({ element }) => {
         const InWic = await checkRole();
         const InComs = await checkComsRole();
         setRole(userRole);
+        setInWic(InWic);
+        setInComs(InComs);
       }
     };
 

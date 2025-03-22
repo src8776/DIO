@@ -109,6 +109,7 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                         firstSemester={firstSemester}
                         secondSemester={secondSemester}
                     />
+                    
                 </Box>
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

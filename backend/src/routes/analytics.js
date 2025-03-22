@@ -44,14 +44,16 @@ router.get('/averageAttendance', async (req, res) => {
                     COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) / 
                     GREATEST((SELECT COUNT(*) FROM OrganizationMembers WHERE OrganizationID = ? AND SemesterID = ?), 1) AS attendance_rate
                 FROM EventInstances ei
-                JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
+                JOIN EventTypes et 
+                    ON ei.EventTypeID = et.EventTypeID 
+                    AND et.SemesterID = ?
                 JOIN Attendance a ON ei.EventID = a.EventID
                 JOIN Semesters s ON ei.TermCode = s.TermCode
                 WHERE ei.OrganizationID = ? AND s.SemesterID = ?
                 GROUP BY ei.EventID, et.EventType, et.EventTypeID
             ) AS event_rates
             GROUP BY EventTypeID, EventType`,
-            [organizationID, semesterID, organizationID, semesterID]
+            [organizationID, semesterID, semesterID, organizationID, semesterID]
         );
         res.json(rows);
     } catch (error) {
@@ -262,7 +264,7 @@ router.get('/eventTypeComparison', async (req, res) => {
              WHERE SemesterID IN (?, ?)`,
             [firstSemesterID, secondSemesterID]
         );
-        
+
         const semesterLabels = {};
         semesterDetails.forEach(sem => {
             semesterLabels[sem.SemesterID] = sem.TermName;
@@ -274,13 +276,13 @@ router.get('/eventTypeComparison', async (req, res) => {
         // Organize the data for stacked bar chart comparison
         const maxEvents = Math.max(firstSemesterEvents.length, secondSemesterEvents.length);
         const comparisonData = [];
-        
+
         for (let i = 0; i < maxEvents; i++) {
             const eventComparison = {
                 eventNumber: i + 1,
                 firstSemester: i < firstSemesterEvents.length ? {
                     eventID: firstSemesterEvents[i].EventID,
-                    eventTitle: firstSemesterEvents[i].EventTitle, 
+                    eventTitle: firstSemesterEvents[i].EventTitle,
                     eventDate: firstSemesterEvents[i].EventDate,
                     attendanceCount: firstSemesterEvents[i].attendanceCount
                 } : null,

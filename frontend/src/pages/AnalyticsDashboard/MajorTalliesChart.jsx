@@ -1,11 +1,19 @@
 import * as React from 'react';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { Typography, Paper, Box, CircularProgress } from '@mui/material';
+import { Paper, Typography, Box, CircularProgress } from '@mui/material';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from 'recharts';
 
 export default function MajorTalliesChart({ organizationID, selectedSemester }) {
     const [majorTallies, setMajorTallies] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
-
 
     React.useEffect(() => {
         if (selectedSemester) {
@@ -22,14 +30,18 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
         }
     }, [selectedSemester]);
 
-    const majors = majorTallies ? majorTallies.map((item) => item.major) : [];
-    const memberCounts = majorTallies ? majorTallies.map((item) => item.memberCount) : [];
-
     // Format long major names to fit in the chart
     const formatMajorName = (major) => {
-        // If major name is too long, add line breaks
         return major.length > 30 ? major.match(/.{1,20}(\s|$)/g).join('\n') : major;
     };
+
+    // Create data array for Recharts
+    const chartData = majorTallies
+        ? majorTallies.map((item) => ({
+              major: item.major,
+              memberCount: item.memberCount,
+          }))
+        : [];
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -39,59 +51,33 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
                     <CircularProgress />
                 </Box>
             ) : majorTallies.length > 0 ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <ResponsiveContainer width="100%" height={150}>
                     <BarChart
-                        xAxis={[
-                            {
-                                scaleType: 'linear',
-                                label: 'Member Count',
-                            },
-                        ]}
-                        yAxis={[
-                            {
-                                scaleType: 'band',
-                                data: majors,
-                                disableTicks: true,
-                                disableLine: true,
-                                valueFormatter: formatMajorName, // Format long major names
-                                tickLabelStyle: {
-                                    textAnchor: 'end',
-                                    dominantBaseline: 'middle',
-                                },
-                                labelStyle: {
-                                    textAnchor: 'middle',
-                                },
-                                // Add more left margin for labels
-                                left: 100,
-                            },
-                        ]}
-                        series={[
-                            {
-                                data: memberCounts,
-                                color: '#F76902',
-                            },
-                        ]}
-                        width={500}
-                        height={155}
-                        layout="horizontal"
-                        margin={{ left: 120, right: 20 }} // Increase left margin for labels
-                        // Optional: Customize label appearance
-                        sx={{
-                            '& .MuiChartsAxis-label': {
-                                transform: 'translateY(5px)',
-                            },
-                            '& .MuiBarElement-root': {
-                                rx: 4, // Rounded corners on bars
-                            },
-                            '& .MuiChartsAxis-valueLabel': {
-                                fontSize: 12, // Label font size
-                                fill: '#000', // Label color
-                                whiteSpace: 'pre-line', // Enable text wrapping
-                                overflow: 'visible',
-                            },
-                        }}
-                    />
-                </Box>
+                        layout="vertical"
+                        data={chartData}
+                        margin={{ top: 0, right: 0, left: 0, bottom: 20 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                            type="number"
+                            label={{ value: 'Member Count', position: 'insideBottom', offset: -10 }}
+                        />
+                        <YAxis
+                            type="category"
+                            dataKey="major"
+                            tickFormatter={formatMajorName}
+                            tick={{ textAnchor: 'end', dominantBaseline: 'middle' }}
+                            width={150}
+                        />
+                        <Tooltip />
+                        {/* <Legend /> */}
+                        <Bar
+                            dataKey="memberCount"
+                            fill="#F76902"
+                            radius={[4, 4, 4, 4]}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', height: 300, alignItems: 'center' }}>
                     <Typography variant="body1" color="text.secondary">

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { Typography, Paper } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, Text } from 'recharts';
 
 export default function TotalMembersChart({ organizationID, selectedSemester }) {
     const [memberTallies, setMemberTallies] = React.useState(null);
@@ -16,63 +16,62 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                     console.error('Error fetching data:', error);
                 });
         }
-    }, [selectedSemester]);
+    }, [selectedSemester, organizationID]);
 
     if (!memberTallies) {
         return <div>Loading...</div>;
     }
-
 
     // converting to numbers
     const activeMembers = Number(memberTallies.activeMembers);
     const inactiveMembers = Number(memberTallies.inactiveMembers);
     const totalMembers = Number(memberTallies.totalMembers);
 
-    const activePercentage = Math.floor((activeMembers / totalMembers) * 100);
-    const inactivePercentage = Math.floor((inactiveMembers / totalMembers) * 100);
+    const data = [
+        { name: 'Active', members: activeMembers },
+        { name: 'Inactive', members: inactiveMembers }
+    ];
+
+    const colors = ['#21BDE5', '#7D55C7'];
+
+    const renderBarLabel = (props) => {
+        const { x, y, width, height, value } = props;
+        if (value > 20) {
+            return (
+                <Text
+                    x={x + width / 2}
+                    y={y + height / 2}
+                    fill="#fff"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                >
+                    {value}
+                </Text>
+            );
+        }
+        return null;
+    };
+
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Total Members</Typography>
             <Typography variant='h2'>{totalMembers}</Typography>
             <BarChart
-                xAxis={[
-                    {
-                        id: 'barCategories',
-                        data: ['Active', 'Inactive'],
-                        scaleType: 'band',
-                        colorMap: {
-                            type: 'ordinal',
-                            colors: ['#21BDE5', '#7D55C7'],
-                        }
-                    },
-                ]}
-                yAxis={[
-                    {
-                        // label: 'Count',
-                    },
-                ]}
-                series={[
-                    {
-                        data: [activeMembers, inactiveMembers],
-                        valueFormatter: (value) => `${value} members`,                  
-                        // valueFormatter: (value) => `${Math.floor((value / totalMembers) * 100)}%`,                  
-                    },
-                ]}
-                barLabel={(item, context) => {
-                    if ((item.value ?? 0) > 20) {
-                        return item.value;
-                        // return ((Math.floor((item.value / totalMembers) * 100)) + '%').toString();
-                    }
-                    return null;
-                }}
                 width={240}
                 height={200}
-                sx={{
-                    '& .MuiBarLabel-root': {
-                        fill: '#fff', 
-                    },
-                }}
-            />
+                data={data}
+                margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+            >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                {/* <YAxis /> */}
+                <Tooltip formatter={(value) => `${value} members`} />
+                <Bar dataKey="members" label={renderBarLabel}>
+                    {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    ))}
+                </Bar>
+            </BarChart>
         </Paper>
     );
 }

@@ -283,13 +283,11 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess, sel
           <Button onClick={() => setOpenMultipleDatesDialog(false)}>Cancel Upload</Button>
         </DialogActions>
       </Dialog>
-      {/* TODO: Only auto-hide if success message, else wait for user to close notification */}
       <SnackbarAlert
         open={openSnackbar}
         message={alertMessage}
         severity={alertSeverity}
         onClose={() => setOpenSnackbar(false)}
-        autoHideDuration={4000}
       />
     </>
   );

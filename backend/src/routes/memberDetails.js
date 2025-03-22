@@ -185,6 +185,7 @@ router.get('/status', async (req, res) => {
 
 router.get('/role', async (req, res) => {
     console.log('Received request at /role');
+    console.log('Query Parameters:', req.query);
 
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);

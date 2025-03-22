@@ -17,11 +17,11 @@ function OfficersList() {
 
     if (!allowedTypes.includes(org)) {
         return (
-          <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
-            Organization Doesn't Exist
-          </Typography>
+            <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
+                Organization Doesn't Exist
+            </Typography>
         );
-      }
+    }
 
     // Grab oranization ID from the abbreviation value
     React.useEffect(() => {
@@ -31,10 +31,10 @@ function OfficersList() {
                 if (data.length > 0) {
                     setOrgID(data[0].OrganizationID);
                 }
-        })
-        .catch((error) => {
-            console.error('Error fetching data:', error);
-        });
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     }, [org]);
 
     React.useEffect(() => {
@@ -44,30 +44,30 @@ function OfficersList() {
                 .then((data) => {
                     // console.log(data);
                     setAdminData(data);
-            })
-            .catch((error) => {
-                console.error('Error fetching member data:', error);
-            });
-        } 
+                })
+                .catch((error) => {
+                    console.error('Error fetching member data:', error);
+                });
+        }
     }, [orgID]);
-    
+
     const handleDelete = (memberID) => {
         fetch(`/api/admin/setMember?organizationID=${orgID}&memberID=${memberID}`, {
-          method: 'POST'
+            method: 'POST'
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Failed to delete officer');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log('Officer deleted:', data);
-            setAdminData(adminData.filter(officer => officer.MemberID !== memberID));
-          })
-          .catch((error) => {
-            console.error('Error deleting officer:', error);
-          });
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete officer');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log('Officer deleted:', data);
+                setAdminData(adminData.filter(officer => officer.MemberID !== memberID));
+            })
+            .catch((error) => {
+                console.error('Error deleting officer:', error);
+            });
     };
 
     return (
@@ -87,6 +87,7 @@ function OfficersList() {
                             <TableRow>
                                 <TableCell><strong>Name</strong></TableCell>
                                 <TableCell><strong>Email</strong></TableCell>
+                                <TableCell><strong>Role</strong></TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -95,8 +96,20 @@ function OfficersList() {
                                 <TableRow key={index}>
                                     <TableCell>{user.FullName}</TableCell>
                                     <TableCell>{user.Email}</TableCell>
+                                    <TableCell>{user.RoleName}</TableCell>
                                     <TableCell align="center">
-                                        <IconButton onClick={() => handleDelete(user.MemberID)}>
+                                        <IconButton
+                                            onClick={() => handleDelete(user.MemberID)}
+                                            sx={{
+                                                textTransform: 'none',
+                                                color: 'red',
+                                                borderColor: 'red',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                                    borderColor: 'red',
+                                                }
+                                            }}
+                                        >
                                             <CloseIcon />
                                         </IconButton>
                                     </TableCell>

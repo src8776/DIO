@@ -47,7 +47,7 @@ const DropZone = styled(Box, {
  * @param {Function} [props.onUploadSuccess] - Callback on successful upload.
  * @returns {JSX.Element}
  */
-export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
+export default function InputFileUpload({ orgID, eventType, onUploadSuccess, selectedSemester }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
@@ -122,6 +122,11 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     formData.append('eventTitle', eventTitle);
     if (choice === 'assignDate') formData.append('assignDate', 'true');
     if (choice === 'skipMissing') formData.append('skipMissing', 'true');
+    if (selectedSemester) {
+      formData.append('semesterStart', selectedSemester.StartDate);
+      formData.append('semesterEnd', selectedSemester.EndDate);
+      formData.append('semesterName', selectedSemester.TermName);
+    }
 
     setIsUploading(true);
     fetch('/api/upload', {
@@ -160,6 +165,11 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     formData.append('eventType', eventType);
     formData.append('orgID', orgID);
     formData.append('eventTitle', eventTitle);
+    if (selectedSemester) {
+      formData.append('semesterStart', selectedSemester.StartDate);
+      formData.append('semesterEnd', selectedSemester.EndDate);
+      formData.append('semesterName', selectedSemester.TermName);
+    }
 
     fetch('/api/upload', {
       method: 'POST',
@@ -273,6 +283,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           <Button onClick={() => setOpenMultipleDatesDialog(false)}>Cancel Upload</Button>
         </DialogActions>
       </Dialog>
+      {/* TODO: Only auto-hide if success message, else wait for user to close notification */}
       <SnackbarAlert
         open={openSnackbar}
         message={alertMessage}

@@ -211,9 +211,17 @@ const insertAttendanceRecord = async (attendance, eventID, semester, organizatio
  * @param {string} customEventTitle - Custom event title (optional).
  * @param {boolean} [assignDate=false] - Assign date to missing records.
  * @param {boolean} [skipMissing=false] - Skip records with missing dates.
+ * @param {string|null} [semesterStart=null] - Semester start date in YYYY-MM-DD format (optional).
+ * @param {string|null} [semesterEnd=null] - Semester end date in YYYY-MM-DD format (optional).
+ * @param {string} [semesterName=""] - Semester name (optional).
  * @returns {Promise<void>}
  */
-const processCsv = async (filePath, eventType, organizationID, customEventTitle, assignDate = false, skipMissing = false) => {
+const processCsv = async (
+  filePath, eventType, organizationID,
+  customEventTitle, assignDate = false,
+  skipMissing = false, semesterStart = null,
+  semesterEnd = null, semesterName = ""
+) => {
   const startTime = Date.now();
   const connection = await db.getConnection();
   try {
@@ -229,6 +237,17 @@ const processCsv = async (filePath, eventType, organizationID, customEventTitle,
     if (records.length === 0) {
       console.warn('No attendance records found.');
       return;
+    }
+
+    // If semester boundaries provided, ensure all record dates fall within the semester.
+    if (semesterStart && semesterEnd) {
+      const recordsWithDates = records.filter(record => record.checkInDate);
+      for (const record of recordsWithDates) {
+        const recordDate = record.checkInDate.split(' ')[0];
+        if (recordDate < semesterStart || recordDate > semesterEnd) {
+          throw new Error(`File dates do not match the selected semester: ${semesterName}. Cancelling upload.`);
+        }
+      }
     }
 
     // Handle missing dates

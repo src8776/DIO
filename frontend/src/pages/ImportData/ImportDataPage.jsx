@@ -345,7 +345,11 @@ export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemes
                 ) : (
                     // Show FileUploadButton for other event types
                     <Box sx={{ mt: 2, width: '100%' }}>
-                        <FileUploadButton orgID={orgID} eventType={eventType} onUploadSuccess={onUploadSuccess} onClose={onClose} />
+                        <FileUploadButton
+                            orgID={orgID} eventType={eventType}
+                            onUploadSuccess={onUploadSuccess} onClose={onClose}
+                            selectedSemester={selectedSemester}
+                        />
                     </Box>
                 )}
             </Paper>

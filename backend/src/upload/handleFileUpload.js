@@ -43,12 +43,23 @@ const handleFileUpload = async (req, res) => {
     const customEventTitle = req.body.eventTitle;
     const assignDate = req.body.assignDate === 'true';
     const skipMissing = req.body.skipMissing === 'true';
+    const semesterStart = req.body.semesterStart || null;
+    const semesterEnd = req.body.semesterEnd || null;
+    const semesterName = req.body.semesterName || "";
 
     console.log(`Filepath: ${filePath}, eventType: ${eventType}, orgID: ${orgID}, customEventTitle: ${customEventTitle}, assignDate: ${assignDate}, skipMissing: ${skipMissing}`);
+    if (semesterStart && semesterEnd) {
+        console.log(`Semester boundaries: ${semesterStart} - ${semesterEnd} (${semesterName})`);
+    }
 
     try {
         // Process CSV file
-        await csvProcessor.processCsv(filePath, eventType, orgID, customEventTitle, assignDate, skipMissing);
+        await csvProcessor.processCsv(
+            filePath, eventType, orgID,
+            customEventTitle, assignDate,
+            skipMissing, semesterStart,
+            semesterEnd, semesterName
+        );
         res.json({
             success: true,
             message: 'File uploaded and processed successfully',

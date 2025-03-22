@@ -22,7 +22,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     React.useEffect(() => {
         setViewMode('averages'); // Reset view mode when semester changes
         if (selectedSemester && selectedSemester.SemesterID) {
-            console.log('Fetching averages for semester:', selectedSemester.SemesterID);
+            // console.log('Fetching averages for semester:', selectedSemester.SemesterID);
             fetch(`/api/analytics/averageAttendance?organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
                 .then((response) => response.json())
                 .then((data) => {
@@ -103,6 +103,21 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return null;
     };
 
+    // Custom tooltip for Instance Chart that displays the event title as well
+    const renderInstanceTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            const { eventTitle } = payload[0].payload;
+            return (
+                <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
+                    <p>{`Date: ${label}`}</p>
+                    <p>{`Event: ${eventTitle || 'Unknown'}`}</p>
+                    <p>{`${payload[0].value} attended`}</p>
+                </div>
+            );
+        }
+        return null;
+    };
+
     // Initial loading state for averages
     if (!selectedSemester || !averages) {
         return (
@@ -112,7 +127,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     }
 
-    console.log('Averages:', averages);
+    // console.log('Averages:', averages);
+    console.log('Event Instances:', eventInstances);
 
     // Averages view
     if (viewMode === 'averages' && Array.isArray(averages) && averages.length > 0) {
@@ -172,7 +188,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             const day = date.getDate();
             return {
                 name: `${month} ${day}`,
-                attendanceCount: instance.attendanceCount
+                attendanceCount: instance.attendanceCount,
+                eventTitle: instance.EventTitle
             };
         });
 
@@ -203,7 +220,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: 'middle' }} label={{ value: 'Attendance Count', position: 'insideBottom', offset: -10 }} />
                             <YAxis label={{ value: 'Attendance Count', angle: -90, position: 'insideLeft', offset: 10, dy: 50 }} />
-                            <Tooltip formatter={(value) => `${value} attended`} />
+                            <Tooltip content={renderInstanceTooltip} />
                             <Bar
                                 dataKey="attendanceCount"
                                 fill="#F76902"

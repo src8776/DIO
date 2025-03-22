@@ -33,9 +33,18 @@ const attachMemberData = async (req, res, next) => {
     const user = req.user;
     const member = await Member.getMemberByEmail(user.email);
     const orgMember = await OrgMember.getMemberByID(member.MemberID);
+    const WicMember = await OrgMember.getWicMemberByID(member.MemberID,1);
+    const ComsMember = await OrgMember.getComsMemberByID(member.MemberID,2);
+
+    console.log("Wic Member:", WicMember);
+    console.log("Coms Member:", ComsMember);
     console.log("Member Data:", orgMember);
+
     req.member = member || {}; // Attach member data to the request object
     req.orgMember = orgMember || {};
+    req.WicMember = WicMember || null;
+    req.ComsMember = ComsMember || null;
+    
     next(); // Move to the next middleware/route handler
   } catch (error) {
     console.error('Error fetching member data:', error);
@@ -132,12 +141,22 @@ router.get('/majors', attachMemberData, async (req, res) => {
 
 
 
-//Code for getting member role
+//Code for access control
 router.get('/memberRole', attachMemberData, async (req, res) => {
   const orgMember = req.orgMember;
   const org = orgMember.OrganizationID;
   const role = orgMember.RoleID;
   res.json({ role });
+});
+
+router.get('/inWic', attachMemberData, async (req, res) => {
+  const inWic = req.WicMember;
+  res.json({ inWic });
+});
+
+router.get('/inComs', attachMemberData, async (req, res) => {
+  const inComs = req.ComsMember;
+  res.json({ inComs });
 });
 
 /*

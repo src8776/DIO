@@ -2,31 +2,73 @@ import React, { useState } from "react";
 import {
     Box, Container, Table, TableBody,
     TableCell, TableContainer, TableHead,
-    TableRow, Paper, Typography
+    TableRow, Paper, Typography, IconButton
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from 'react-router-dom';
-import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 import AddAdminModal from './AddAdminModal';
-
-
-// TODO: pull admin list from database to display here
-// TODO: add ability to add/remove admins
-
-const users = [
-    { name: "John Doe", email: "john@example.com" },
-    { name: "Jane Smith", email: "jane@example.com" },
-    { name: "Mark Johnson", email: "mark@example.com" },
-    { name: "Emily Davis", email: "emily@example.com" },
-];
+import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 
 function OfficersList() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];
-    const orgID = org === 'wic' ? 1 : 2;
+    const [orgID, setOrgID] = React.useState(null);
+    const [adminData, setAdminData] = React.useState([]);
 
     if (!allowedTypes.includes(org)) {
-        return <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>Organization Doesn't Exist</Typography>;
+        return (
+            <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
+                Organization Doesn't Exist
+            </Typography>
+        );
     }
+
+    // Grab oranization ID from the abbreviation value
+    React.useEffect(() => {
+        fetch(`/api/organizationInfo/organizationIDByAbbreviation?abbreviation=${org}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.length > 0) {
+                    setOrgID(data[0].OrganizationID);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, [org]);
+
+    React.useEffect(() => {
+        if (orgID !== null) {
+            fetch(`/api/admin/getOfficersAndAdmin?organizationID=${orgID}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    // console.log(data);
+                    setAdminData(data);
+                })
+                .catch((error) => {
+                    console.error('Error fetching member data:', error);
+                });
+        }
+    }, [orgID]);
+
+    const handleDelete = (memberID) => {
+        fetch(`/api/admin/setMember?organizationID=${orgID}&memberID=${memberID}`, {
+            method: 'POST'
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete officer');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log('Officer deleted:', data);
+                setAdminData(adminData.filter(officer => officer.MemberID !== memberID));
+            })
+            .catch((error) => {
+                console.error('Error deleting officer:', error);
+            });
+    };
 
     return (
 
@@ -45,15 +87,34 @@ function OfficersList() {
                             <TableRow>
                                 <TableCell><strong>Name</strong></TableCell>
                                 <TableCell><strong>Email</strong></TableCell>
+                                <TableCell><strong>Role</strong></TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {users.map((user, index) => (
+                            {adminData.map((user, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{user.name}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell><MemberDetailsDrawer /></TableCell>
+                                    <TableCell>{user.FullName}</TableCell>
+                                    <TableCell>{user.Email}</TableCell>
+                                    <TableCell>{user.RoleName}</TableCell>
+                                    <TableCell align="center">
+                                        {adminData.length > 1 && (
+                                            <IconButton
+                                                onClick={() => handleDelete(user.MemberID)}
+                                                sx={{
+                                                    textTransform: 'none',
+                                                    color: 'red',
+                                                    borderColor: 'red',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                                        borderColor: 'red',
+                                                    }
+                                                }}
+                                            >
+                                                <CloseIcon />
+                                            </IconButton>
+                                        )}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

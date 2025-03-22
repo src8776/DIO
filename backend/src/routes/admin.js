@@ -113,5 +113,92 @@ router.get('/getSemesters', async (req, res) => {
     }
 });
 
+router.get('/getOfficersAndAdmin', async (req, res) => {
+    console.log('Received request at /admin/getOfficersAndAdmin');
+    let organizationID = parseInt(req.query.organizationID, 10);
+
+    try {
+        const query = `
+            SELECT DISTINCT
+                m.MemberID,
+                m.FullName,
+                m.Email,
+                r.RoleName
+            FROM
+                Members m
+            JOIN OrganizationMembers om ON om.MemberID = m.MemberID
+            JOIN Roles r ON om.RoleID = r.RoleID
+            WHERE
+                om.OrganizationID = ?
+                AND om.RoleID IN (1, 3);
+        `;
+        const [rows] = await db.query(query, [organizationID]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/setOfficer', async (req, res) => {
+    console.log('Received request at /admin/setOfficer');
+    let organizationID = parseInt(req.query.organizationID, 10);
+    let memberID = parseInt(req.query.memberID, 10);
+
+    try {
+        const query = `
+            UPDATE OrganizationMembers
+            SET RoleID = 3
+            WHERE MemberID = ?
+            AND OrganizationID = ?;
+        `;
+        const [rows] = await db.query(query, [memberID, organizationID]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/setAdmin', async (req, res) => {
+    console.log('Received request at /admin/setAdmin');
+    let organizationID = parseInt(req.query.organizationID, 10);
+    let memberID = parseInt(req.query.memberID, 10);
+
+    try {
+        const query = `
+            UPDATE OrganizationMembers
+            SET RoleID = 1
+            WHERE MemberID = ?
+            AND OrganizationID = ?;
+        `;
+        const [rows] = await db.query(query, [memberID, organizationID]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// used to remove admin/officer role
+router.post('/setMember', async (req, res) => {
+    console.log('Received request at /admin/setMember');
+    let organizationID = parseInt(req.query.organizationID, 10);
+    let memberID = parseInt(req.query.memberID, 10);
+
+    try {
+        const query = `
+            UPDATE OrganizationMembers
+            SET RoleID = 2
+            WHERE MemberID = ?
+            AND OrganizationID = ?;
+        `;
+        const [rows] = await db.query(query, [memberID, organizationID]);
+        res.json(rows);
+    } catch (error) {
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 module.exports = router;

@@ -185,17 +185,17 @@ router.get('/status', async (req, res) => {
 
 router.get('/role', async (req, res) => {
     console.log('Received request at /role');
+    console.log('Query Parameters:', req.query);
 
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);
-    let semesterID = parseInt(req.query.semesterID, 10);
 
-    if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID)) {
-        return res.status(400).json({ error: 'Invalid memberID or organizationID or semesterID parameter' });
+    if (isNaN(memberID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
     }
 
     try {
-        const role = await OrganizationMember.getMemberRole(memberID, organizationID, semesterID);
+        const role = await OrganizationMember.getMemberRole(memberID, organizationID);
         if (!role) {
             return res.status(404).json({ error: 'Member not found' });
         }

@@ -50,40 +50,20 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box>
-            <Typography variant="h6">
+          <Typography variant="h6">
               Personal Information
             </Typography>
             <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeRace}
-                    onChange={handleFilterChange}
-                    name="includeRace"
-                  />
-                }
-                label="Race"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeGender}
-                    onChange={handleFilterChange}
-                    name="includeGender"
-                  />
-                }
-                label="Gender"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeClothingSize}
-                    onChange={handleFilterChange}
-                    name="includeClothingSize"
-                  />
-                }
-                label="Clothing Sizes"
-              />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={filters.includeClothingSize}
+                      onChange={handleFilterChange}
+                      name="includeClothingSize"
+                    />
+                  }
+                  label="Clothing Sizes"
+                />
             </FormGroup>
           </Box>
           <Box>

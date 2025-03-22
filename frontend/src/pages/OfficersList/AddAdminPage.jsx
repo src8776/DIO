@@ -96,7 +96,7 @@ export default function AddAdminPage({ orgID, handleSave }) {
 
         <Button
           variant='contained'
-          onClick={handleSave}
+          onClick={() => handleSave(selectedMembers)}
         >
           Save
         </Button>

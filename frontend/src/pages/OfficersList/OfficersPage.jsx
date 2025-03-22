@@ -98,20 +98,22 @@ function OfficersList() {
                                     <TableCell>{user.Email}</TableCell>
                                     <TableCell>{user.RoleName}</TableCell>
                                     <TableCell align="center">
-                                        <IconButton
-                                            onClick={() => handleDelete(user.MemberID)}
-                                            sx={{
-                                                textTransform: 'none',
-                                                color: 'red',
-                                                borderColor: 'red',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                        {adminData.length > 1 && (
+                                            <IconButton
+                                                onClick={() => handleDelete(user.MemberID)}
+                                                sx={{
+                                                    textTransform: 'none',
+                                                    color: 'red',
                                                     borderColor: 'red',
-                                                }
-                                            }}
-                                        >
-                                            <CloseIcon />
-                                        </IconButton>
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                                        borderColor: 'red',
+                                                    }
+                                                }}
+                                            >
+                                                <CloseIcon />
+                                            </IconButton>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}

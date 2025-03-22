@@ -6,20 +6,22 @@ import {
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from 'react-router-dom';
-import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 import AddAdminModal from './AddAdminModal';
-
-// TODO: add ability to add/remove admins
+import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 
 function OfficersList() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];
-    const orgID = org === 'wic' ? 1 : 2;
+    const [orgID, setOrgID] = React.useState(null);
     const [adminData, setAdminData] = React.useState([]);
 
     if (!allowedTypes.includes(org)) {
-        return <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>Organization Doesn't Exist</Typography>;
-    }
+        return (
+          <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
+            Organization Doesn't Exist
+          </Typography>
+        );
+      }
 
     // Grab oranization ID from the abbreviation value
     React.useEffect(() => {
@@ -40,7 +42,7 @@ function OfficersList() {
             fetch(`/api/admin/getOfficersAndAdmin?organizationID=${orgID}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data);
+                    // console.log(data);
                     setAdminData(data);
             })
             .catch((error) => {

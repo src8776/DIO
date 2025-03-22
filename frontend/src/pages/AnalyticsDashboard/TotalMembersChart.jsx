@@ -29,7 +29,7 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
 
     const data = [
         { name: 'Active', members: activeMembers },
-        { name: 'Inactive', members: inactiveMembers }
+        { name: 'General', members: inactiveMembers }
     ];
 
     const colors = ['#21BDE5', '#7D55C7'];

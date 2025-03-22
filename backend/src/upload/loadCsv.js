@@ -254,10 +254,19 @@ const processCsv = async (
     const recordsToProcess = await handleMissingDates(records, assignDate, skipMissing);
 
     // Remove duplicates based on email and date
+    const seen = new Set();
     const uniqueRecords = recordsToProcess.filter(record => {
-      const key = `${record.email}-${record.checkInDate.split(' ')[0]}`;
-      return !this.seen?.has(key) && (this.seen?.add(key), true);
-    }, { seen: new Set() });
+      const datePart = record.checkInDate.split(' ')[0].trim();
+      const key = `${record.email}-${datePart}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+
+    const duplicatesRemoved = recordsToProcess.length - uniqueRecords.length;
+    console.log(`Duplicates removed: ${duplicatesRemoved}`);
 
     // Process records by date
     const dates = [...new Set(uniqueRecords.map(record => record.checkInDate.split(' ')[0]))];

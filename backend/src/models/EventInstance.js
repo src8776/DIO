@@ -3,7 +3,7 @@ const Semester = require('./Semester');
 
 class EventInstance {
     // Get EventID for that CSV file based on Selected EventType and Date
-    static async getEventID(eventType, checkInDate, organizationID) {
+    static async getEventID(eventType, checkInDate, organizationID, customEventTitle = '') {
         try {
             const eventDate = checkInDate; // Extract only the date
             console.log(`[@EventInstance] Looking up EventID: EventType = ${eventType}, EventDate = ${eventDate}, OrgID = ${organizationID}`);
@@ -29,6 +29,10 @@ class EventInstance {
 
             const semesterID = semesterRow[0].SemesterID;
 
+            // Determine the event title
+            const finalEventTitle = (customEventTitle || '').trim() ||
+                `${eventType} on ${new Date(checkInDate.split(' ')[0] + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+
             // First, check if the event already exists
             const [existingEvents] = await db.query(
                 `SELECT e.EventID 
@@ -39,8 +43,9 @@ class EventInstance {
                  AND et.EventType = ? 
                  AND e.OrganizationID = ?
                  AND e.TermCode = ?
+                 AND e.EventTitle = ?
                  LIMIT 1`,
-                [eventDate, eventType, organizationID, termCode]
+                [eventDate, eventType, organizationID, termCode, finalEventTitle]
             );
 
             if (existingEvents.length > 0) {
@@ -53,7 +58,7 @@ class EventInstance {
             // Retrieve EventTypeID first - now filtering by SemesterID
             const [eventTypeRows] = await db.query(
                 `SELECT EventTypeID FROM EventTypes 
-             WHERE EventType = ? AND OrganizationID = ? AND SemesterID = ? LIMIT 1`,
+                 WHERE EventType = ? AND OrganizationID = ? AND SemesterID = ? LIMIT 1`,
                 [eventType, organizationID, semesterID]
             );
 
@@ -65,10 +70,9 @@ class EventInstance {
             const eventTypeID = eventTypeRows[0].EventTypeID;
 
             // Insert new event instance and return the new EventID
-            const eventTitle = `${eventType}`; // Example title, adjust as needed
             const [insertResult] = await db.query(
                 `INSERT INTO EventInstances (EventDate, TermCode, EventTypeID, OrganizationID, EventTitle) VALUES (?, ?, ?, ?, ?)`,
-                [eventDate, termCode, eventTypeID, organizationID, eventTitle]
+                [eventDate, termCode, eventTypeID, organizationID, finalEventTitle]
             );
 
             console.log(`[@EventInstance] New EventID created: ${insertResult.insertId}`);

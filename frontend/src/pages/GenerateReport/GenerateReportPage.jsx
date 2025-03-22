@@ -2,8 +2,8 @@ import React from 'react';
 import {
   Box, Button, Typography,
   FormGroup, FormControlLabel,
-  Checkbox, Paper,
-  Container, Divider
+  Checkbox, Paper, Container,
+  Divider, Radio, RadioGroup
 } from "@mui/material";
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
@@ -33,67 +33,39 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
           Quick Report Form
         </Typography>
         <Divider />
-        <FormGroup sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.includeActiveStatus}
-                onChange={handleFilterChange}
-                name="includeActiveStatus"
-              />
-            }
-            label="Active Members"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.includeInactiveStatus}
-                onChange={handleFilterChange}
-                name="includeInactiveStatus"
-              />
-            }
-            label="Inactive Members"
-          />
-        </FormGroup>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Typography variant="h6">
+            Member Status
+          </Typography>
+          <RadioGroup
+            name="memberStatus"
+            value={filters.memberStatus}
+            onChange={handleFilterChange}
+
+          >
+            <FormControlLabel value="active" control={<Radio />} label="Active Members" />
+            <FormControlLabel value="general" control={<Radio />} label="General Members" />
+            <FormControlLabel value="both" control={<Radio />} label="Both" />
+          </RadioGroup>
+        </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box>
-            <Typography variant="h6">
+          <Typography variant="h6">
               Personal Information
             </Typography>
             <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeFullName}
-                    onChange={handleFilterChange}
-                    name="includeFullName"
-                  />
-                }
-                label="Full Name"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeEmail}
-                    onChange={handleFilterChange}
-                    name="includeEmail"
-                  />
-                }
-                label="Email"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeClothingSize}
-                    onChange={handleFilterChange}
-                    name="includeClothingSize"
-                  />
-                }
-                label="Clothing Sizes"
-              />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={filters.includeClothingSize}
+                      onChange={handleFilterChange}
+                      name="includeClothingSize"
+                    />
+                  }
+                  label="Clothing Sizes"
+                />
             </FormGroup>
           </Box>
-
           <Box>
             <Typography variant="h6">
               Academic Information
@@ -109,25 +81,43 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
                 }
                 label="Graduation Year"
               />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.includeMajor}
+                    onChange={handleFilterChange}
+                    name="includeMajor"
+                  />
+                }
+                label="Major"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.includeAcademicYear}
+                    onChange={handleFilterChange}
+                    name="includeAcademicYear"
+                  />
+                }
+                label="Academic Year"
+              />
             </FormGroup>
           </Box>
         </Box>
         <Divider />
-        <Box sx={{ display: "flex", justifyContent: "space-between", gap: 4 }}>
-          <Box>
-            {/* TODO: Make this do something */}
+        <Box sx={{ display: "flex", justifyContent: "right", gap: 4 }}>
+          {/* <Box>
             <Button color="primary" sx={{ textDecoration: 'underline' }}>
               View Preview
             </Button>
-          </Box>
+          </Box> */}
           <Box sx={{ display: "flex", justifyContent: "right", gap: 4 }}>
-            <Button variant='outlined' color="secondary" onClick={handleClose}>
+            <Button variant="outlined" color="secondary" onClick={handleClose} sx={{ alignSelf: 'flex-start' }}>
               Cancel
             </Button>
-            <Button variant="contained" color="primary" onClick={handleGenerateReport} endIcon={<PictureAsPdfIcon />}>
+            <Button variant="contained" color="primary" onClick={handleGenerateReport} endIcon={<PictureAsPdfIcon />} sx={{ alignSelf: 'flex-start' }}>
               Download
             </Button>
-
           </Box>
         </Box>
       </Paper>

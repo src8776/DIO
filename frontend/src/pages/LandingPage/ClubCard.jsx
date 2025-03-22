@@ -38,7 +38,7 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
 
     React.useEffect(() => {
         if (!memberID || !orgID) return;
-        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
+        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => setMemberRole(data.role || 'No role assigned'))
             .catch(error => console.error('Error fetching data for MemberName:', error));
@@ -84,16 +84,18 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
-                    <Typography sx={{ color: "text.secondary" }}>
-                        {memberRole}
-                    </Typography>
+                    {(memberRole === 'Admin' || memberRole === 'Eboard') && (
+                        <Typography sx={{ color: "text.secondary" }}>
+                            {memberRole}
+                        </Typography>
+                    )}
                     <Typography
                         sx={{
                             fontWeight: 'bold',
                             color: memberStatus === 'Inactive' ? '#7C8796' : memberStatus ? '#2DD4BF' : 'system'
                         }}
                     >
-                        {memberStatus === 'Inactive' ? 'General Member' : memberStatus === 'Active' ? 'Active' : 'no status'}                    </Typography>
+                        {memberStatus === 'Inactive' ? 'General Member' : memberStatus === 'Active' ? 'Active Member' : 'no status'}                    </Typography>
                 </Box>
             </CardContent>
             <CardActions sx={{ justifyContent: "space-between" }}>
@@ -109,7 +111,7 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                         />
                     </Box>
                 </Modal>
-                {memberRole === 'Admin' &&
+                {(memberRole === 'Admin' || memberRole === 'Eboard') &&
                     <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
                         Admin Dashboard
                     </Button>

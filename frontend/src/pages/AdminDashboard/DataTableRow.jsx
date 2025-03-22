@@ -1,13 +1,9 @@
 import React from "react";
 import { TableRow, TableCell, Checkbox } from '@mui/material';
-import MemberDetailsModal from '../MemberDetails/MemberDetailsModal';
+import MemberDetailsDrawer from '../MemberDetails/MemberDetailsDrawer';
 
 
-const cellStyles = {
-    pl: '16px',
-    pt: '0px',
-    pb: '0px'
-};
+const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester }) => {
     const memberStatus = row.Status === 'N/A' 
@@ -62,7 +58,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
                 {formattedDate}
             </TableCell>
             <TableCell sx={{ pl: '16px', pt: '0px', pb: '0px' }}>
-                <MemberDetailsModal
+                <MemberDetailsDrawer
                     memberID={row.MemberID}
                     orgID={orgID}
                     memberStatus={memberStatus}

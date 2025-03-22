@@ -52,6 +52,9 @@ function LandingPage() {
         fetchData();
     }, [memberID]);
 
+    const handleLogin = () => {
+        window.location.href = '/saml2/login'; // Redirect to backend API for authentication
+    };
 
     if (error) {
         return (
@@ -94,7 +97,7 @@ function LandingPage() {
                             Please contact support or check your credentials.
                         </Typography>
                         <Box sx={{ mt: 4 }}>
-                            <Button variant="contained" color="primary" component={Link} to="/login">
+                            <Button variant="contained" color="primary" onClick={handleLogin}>
                                 Login
                             </Button>
                         </Box>

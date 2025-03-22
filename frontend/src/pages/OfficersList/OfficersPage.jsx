@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from 'react-router-dom';
+import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 import AddAdminModal from './AddAdminModal';
 
 // TODO: add ability to add/remove admins

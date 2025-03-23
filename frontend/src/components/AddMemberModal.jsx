@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Box, Button, Modal } from '@mui/material';
+import { Box, Button, Modal, Snackbar } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddMemberPage from '../pages/AddMember/AddMemberPage';
+import axios from 'axios';
 
 // TODO: Implement handleSave function to save member data to database 
 // TODO: display success message
@@ -9,8 +10,10 @@ import AddMemberPage from '../pages/AddMember/AddMemberPage';
 // OPTIONAL TODO: display member details modal if member already exists
 //comment
 
-export default function AddMemberModal() {
+export default function AddMemberModal({ selectedSemester }) {
   const [open, setOpen] = React.useState(false);
+  const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -18,6 +21,7 @@ export default function AddMemberModal() {
     firstName: "",
     lastName: "",
     email: "",
+    semesterID: selectedSemester.semesterID,
   });
 
   // Handle input changes
@@ -31,8 +35,22 @@ export default function AddMemberModal() {
 
   const handleSave = () => {
     console.log("Adding new member with info:", memberData);
-    // TODO: Implement backend call to save member data
+    try {
+      const response = axios.post('/api/members/add', {
+        ...memberData,
+        organizationID: selectedSemester.organizationID,
+        semesterID: selectedSemester.semesterID,
+      });
+      setSnackbar({ open: true, message: 'Member added successfully!', severity: 'success' });
+    } catch (error) {
+      console.error('Error adding member:', error);
+      setSnackbar({ open: true, message: 'Failed to add member.', severity: 'error' });
+    }
     handleClose();
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -54,6 +72,15 @@ export default function AddMemberModal() {
           />
         </Box>
       </Modal>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

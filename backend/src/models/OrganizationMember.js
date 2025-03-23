@@ -70,15 +70,15 @@ class OrganizationMember {
     }
   }
 
-  static async getMemberRole(memberID, organizationID, semesterID) {
+  static async getMemberRole(memberID, organizationID) {
     try {
       const query = `
             SELECT Roles.RoleName
             FROM OrganizationMembers
             JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
-            WHERE OrganizationMembers.MemberID = ? AND OrganizationMembers.OrganizationID = ? AND SemesterID = ?
+            WHERE OrganizationMembers.MemberID = ? AND OrganizationMembers.OrganizationID = ?
         `;
-      const [[result]] = await db.query(query, [memberID, organizationID, semesterID]);
+      const [[result]] = await db.query(query, [memberID, organizationID]);
       return result?.RoleName;
     } catch (error) {
       console.error('Error fetching member role:', error);
@@ -106,28 +106,37 @@ class OrganizationMember {
     }
   }
 
-  //Maybe remove this
-  static async getRoleByMemberIDOrgID(memberID, organizationID) {
-    try {
-      const query = `
-            SELECT Roles.RoleName
-            FROM OrganizationMembers
-            JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
-            WHERE OrganizationMembers.MemberID = ? AND OrganizationMembers.OrganizationID = ?
-        `;
-      const [[result]] = await db.query(query, [memberID, organizationID]);
-      return result?.RoleName;
-    } catch (error) {
-      console.error('Error fetching member role:', error);
-      throw error;
-    }
-  }
-
   static async getMemberByID(memberID) {
     try {
       const [[member]] = await db.query(
         'SELECT * FROM OrganizationMembers WHERE MemberID = ?',
         [memberID]
+      );
+      return member || null;
+    } catch (err) {
+      console.error('Error fetching member:', err);
+      throw err;
+    }
+  }
+
+  static async getComsMemberByID(memberID, orgID) {
+    try {
+      const [[member]] = await db.query(
+        'SELECT * FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ?',
+        [memberID, orgID]
+      );
+      return member || null;
+    } catch (err) {
+      console.error('Error fetching member:', err);
+      throw err;
+    }
+  }
+  
+  static async getWicMemberByID(memberID, orgID) {
+    try {
+      const [[member]] = await db.query(
+        'SELECT * FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ?',
+        [memberID, orgID]
       );
       return member || null;
     } catch (err) {

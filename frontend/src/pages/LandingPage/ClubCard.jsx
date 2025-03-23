@@ -38,9 +38,12 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
 
     React.useEffect(() => {
         if (!memberID || !orgID) return;
-        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
+        fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
             .then(response => response.json())
-            .then(data => setMemberRole(data.role || 'No role assigned'))
+            .then(data => {
+                // console.log("Member Role Data:", data);
+                setMemberRole(data.role || 'No role assigned');
+            })
             .catch(error => console.error('Error fetching data for MemberName:', error));
     }, [memberID, orgID]);
 

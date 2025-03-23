@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, Button, Typography, IconButton, TextField } from '@mui/material';
+import {
+  Box, Button, Typography,
+  IconButton, TextField, Dialog,
+  DialogTitle, DialogContent,
+  DialogContentText, DialogActions
+} from '@mui/material';
 import { shouldForwardProp } from '@mui/system';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
@@ -34,7 +39,15 @@ const DropZone = styled(Box, {
   },
 }));
 
-export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
+/**
+ * Component for uploading CSV files with drag-and-drop and browse functionality.
+ * @param {Object} props - Component props.
+ * @param {string} props.orgID - Organization ID.
+ * @param {string} props.eventType - Event type.
+ * @param {Function} [props.onUploadSuccess] - Callback on successful upload.
+ * @returns {JSX.Element}
+ */
+export default function InputFileUpload({ orgID, eventType, onUploadSuccess, selectedSemester }) {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
@@ -42,18 +55,19 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openSingleDateDialog, setOpenSingleDateDialog] = useState(false);
+  const [openMultipleDatesDialog, setOpenMultipleDatesDialog] = useState(false);
+  const [dialogData, setDialogData] = useState({});
   const fileInputRef = useRef(null);
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
+  // Show alert with message and severity
   const showAlert = (message, severity) => {
     setAlertMessage(message);
     setAlertSeverity(severity);
     setOpenSnackbar(true);
   };
 
+  // Validate selected file
   const validateFile = (selectedFile) => {
     if (!selectedFile) {
       showAlert('You must select a file', 'error');
@@ -70,6 +84,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     return true;
   };
 
+  // Handle file selection
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (validateFile(selectedFile)) {
@@ -80,16 +95,15 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     }
   };
 
+  // Handle drag-and-drop events
   const handleDragOver = (event) => {
     event.preventDefault();
     setIsDragging(true);
   };
-
   const handleDragLeave = (event) => {
     event.preventDefault();
     setIsDragging(false);
   };
-
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDragging(false);
@@ -99,13 +113,50 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     }
   };
 
-  const handleUpload = () => {
-    if (!file) {
-      showAlert('No file selected', 'error');
-      return;
+  // Upload file with specified user choice
+  const uploadFile = (choice) => {
+    const formData = new FormData();
+    formData.append('csv_file', file);
+    formData.append('eventType', eventType);
+    formData.append('orgID', orgID);
+    formData.append('eventTitle', eventTitle);
+    if (choice === 'assignDate') formData.append('assignDate', 'true');
+    if (choice === 'skipMissing') formData.append('skipMissing', 'true');
+    if (selectedSemester) {
+      formData.append('semesterStart', selectedSemester.StartDate);
+      formData.append('semesterEnd', selectedSemester.EndDate);
+      formData.append('semesterName', selectedSemester.TermName);
     }
-    if (!eventType) {
-      showAlert('No event type selected', 'error');
+
+    setIsUploading(true);
+    fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showAlert(`Successfully uploaded file: ${file.name}`, 'success');
+          onUploadSuccess?.();
+          setFile(null);
+        } else {
+          showAlert(`Failed to upload file: ${file.name} due to ${data.error}`, 'error');
+        }
+      })
+      .catch(() => {
+        showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
+      })
+      .finally(() => {
+        setIsUploading(false);
+        setOpenSingleDateDialog(false);
+        setOpenMultipleDatesDialog(false);
+      });
+  };
+
+  // Handle initial upload attempt
+  const handleUpload = () => {
+    if (!file || !eventType) {
+      showAlert(!file ? 'No file selected' : 'No event type selected', 'error');
       return;
     }
     setIsUploading(true);
@@ -114,28 +165,34 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
     formData.append('eventType', eventType);
     formData.append('orgID', orgID);
     formData.append('eventTitle', eventTitle);
+    if (selectedSemester) {
+      formData.append('semesterStart', selectedSemester.StartDate);
+      formData.append('semesterEnd', selectedSemester.EndDate);
+      formData.append('semesterName', selectedSemester.TermName);
+    }
 
-    fetch(`/api/upload`, {
+    fetch('/api/upload', {
       method: 'POST',
       body: formData,
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          const msg = 'Failed to upload file: ' + data.file.originalname + ' due to ' + data.error;
-          showAlert(msg, 'error');
-        } else {
-          showAlert(
-            'Successfully uploaded file: ' + data.file.originalname,
-            'success'
-          );
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'single_date_missing') {
+          setDialogData({ missingCount: data.missingCount, eventDate: data.eventDate });
+          setOpenSingleDateDialog(true);
+        } else if (data.status === 'multiple_dates_missing') {
+          setDialogData({ missingCount: data.missingCount });
+          setOpenMultipleDatesDialog(true);
+        } else if (data.success) {
+          showAlert(`Successfully uploaded file: ${file.name}`, 'success');
           onUploadSuccess?.();
-          setFile(null); // Reset after successful upload
+          setFile(null);
+        } else {
+          showAlert(`Failed to upload file: ${file.name} due to ${data.error}`, 'error');
         }
       })
-      .catch((error) => {
-        console.log(error);
-        showAlert('Unrecoverable error occurred when uploading file. Please contact administrator!', 'error');
+      .catch(() => {
+        showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
       })
       .finally(() => setIsUploading(false));
   };
@@ -155,13 +212,14 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
         ) : file ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body1">Selected: <span style={{ color: 'rgb(0, 119, 255)' }}>{file.name}</span></Typography>
-              <IconButton size="small" onClick={() => setFile(null)} sx={{
-                color: 'red',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 0, 0, 0.1)'
-                },
-              }}>
+              <Typography variant="body1">
+                Selected: <span style={{ color: 'rgb(0, 119, 255)' }}>{file.name}</span>
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => setFile(null)}
+                sx={{ color: 'red', '&:hover': { backgroundColor: 'rgba(255, 0, 0, 0.1)' } }}
+              >
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Box>
@@ -172,12 +230,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
               fullWidth
               sx={{ mt: 2 }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleUpload}
-              sx={{ mt: 2 }}
-            >
+            <Button variant="contained" color="primary" onClick={handleUpload} sx={{ mt: 2 }}>
               Upload
             </Button>
           </Box>
@@ -187,9 +240,7 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
             <Typography variant="body1" sx={{ mt: 2 }}>
               {isDragging ? 'Drop your CSV file here!' : 'Drag & drop your CSV file here'}
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, color: '#666' }}>
-              or
-            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, color: '#666' }}>or</Typography>
             <Button
               component="label"
               variant="contained"
@@ -208,12 +259,35 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess }) {
           </>
         )}
       </DropZone>
+      <Dialog open={openSingleDateDialog} onClose={() => setOpenSingleDateDialog(false)}>
+        <DialogTitle>Confirm Date Assignment</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            There are {dialogData.missingCount} rows with missing dates. Process the whole file as {dialogData.eventDate}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => uploadFile('assignDate')}>Yes</Button>
+          <Button onClick={() => setOpenSingleDateDialog(false)}>No</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openMultipleDatesDialog} onClose={() => setOpenMultipleDatesDialog(false)}>
+        <DialogTitle>Handle Missing Dates</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            There are {dialogData.missingCount} rows with missing dates. Skip rows or cancel upload.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => uploadFile('skipMissing')}>Skip Missing Rows</Button>
+          <Button onClick={() => setOpenMultipleDatesDialog(false)}>Cancel Upload</Button>
+        </DialogActions>
+      </Dialog>
       <SnackbarAlert
         open={openSnackbar}
         message={alertMessage}
         severity={alertSeverity}
-        onClose={handleCloseSnackbar}
-        autoHideDuration={4000}
+        onClose={() => setOpenSnackbar(false)}
       />
     </>
   );

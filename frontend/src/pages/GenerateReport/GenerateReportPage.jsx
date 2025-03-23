@@ -43,47 +43,27 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
             onChange={handleFilterChange}
 
           >
-            <FormControlLabel value="active" control={<Radio />} label="Active Members" />
-            <FormControlLabel value="general" control={<Radio />} label="General Members" />
+            <FormControlLabel value="active" control={<Radio />} label="Active and Exempt Members" />
+            <FormControlLabel value="general" control={<Radio />} label="General (Inactive) Members" />
             <FormControlLabel value="both" control={<Radio />} label="Both" />
           </RadioGroup>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box>
-            <Typography variant="h6">
+          <Typography variant="h6">
               Personal Information
             </Typography>
             <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeRace}
-                    onChange={handleFilterChange}
-                    name="includeRace"
-                  />
-                }
-                label="Race"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeGender}
-                    onChange={handleFilterChange}
-                    name="includeGender"
-                  />
-                }
-                label="Gender"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={filters.includeClothingSize}
-                    onChange={handleFilterChange}
-                    name="includeClothingSize"
-                  />
-                }
-                label="Clothing Sizes"
-              />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={filters.includeClothingSize}
+                      onChange={handleFilterChange}
+                      name="includeClothingSize"
+                    />
+                  }
+                  label="Clothing Sizes"
+                />
             </FormGroup>
           </Box>
           <Box>

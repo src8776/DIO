@@ -7,6 +7,7 @@ import TotalMembersChart from './TotalMembersChart';
 import AverageEventAttendanceChart from './AverageEventAttendanceChart';
 import OverAllAttendanceChart from './OverallAttendanceChart';
 import MajorTalliesChart from './MajorTalliesChart';
+import GraduatingMembersChart from './GraduatingMembersChart';
 
 
 export default function SemesterOverviewTab({ organizationID }) {
@@ -76,6 +77,7 @@ export default function SemesterOverviewTab({ organizationID }) {
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 <TotalMembersChart organizationID={organizationID} selectedSemester={selectedSemester} />
                                 <OverAllAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
+                                <GraduatingMembersChart organizationID={organizationID} semesterID={selectedSemester.SemesterID} />
                             </Box>
 
                             <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>

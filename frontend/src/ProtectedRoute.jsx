@@ -37,9 +37,63 @@ export const checkRole = async () => {
   }
 };
 
+export const checkWicRole = async () => {
+  try {
+    const response = await fetch('/api/user/inWic', {
+      method: 'GET',
+      credentials: 'same-origin', // Ensure the session cookie is sent
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.inWic;  // Return the user's role
+    }
+    return null;  // Role not found
+  } catch (error) {
+    console.error("Role check failed:", error);
+    return null;  // Assume no role in case of error
+  }
+};
+
+export const checkComsRole = async () => {
+  try {
+    const response = await fetch('/api/user/inComs', {
+      method: 'GET',
+      credentials: 'same-origin', // Ensure the session cookie is sent
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.inComs;  // Return the user's role
+    }
+    return null;  // Role not found
+  } catch (error) {
+    console.error("Role check failed:", error);
+    return null;  // Assume no role in case of error
+  }
+};
+
+const checkProfileCompletion = async () => {
+  try {
+    const response = await fetch('/api/user/profileCompletion', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.isCompleted;
+    }
+    return null;
+  } catch (error) {
+    console.error("Role check failed:", error);
+    return null;
+  }
+};
+
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [role, setRole] = useState(null);
+  const [inWic, setInWic] = useState(null);
+  const [inComs, setInComs] = useState(null);
+  const [isProfileComplete, setIsProfileComplete] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -48,7 +102,13 @@ const ProtectedRoute = ({ element }) => {
       setIsAuthenticated(authStatus);
       if (authStatus) {
         const userRole = await checkRole();
+        const InWic = await checkWicRole();
+        const InComs = await checkComsRole();
+        const profileStatus = await checkProfileCompletion();
         setRole(userRole);
+        setInWic(InWic);
+        setInComs(InComs);
+        setIsProfileComplete(profileStatus);
       }
     };
 
@@ -63,9 +123,20 @@ const ProtectedRoute = ({ element }) => {
     );
   }
 
+
+  if (isAuthenticated && !isProfileComplete) {
+    return <Navigate to="/acctSetup" replace />;
+  }
+
   if (isAuthenticated) {
-    if (location.pathname.startsWith('/admin')) {
-      if (role === 3 || role === 1) {
+    if (location.pathname.startsWith('/admin/wic')) {
+      if ((role === 3 || role === 1) && inWic !== null) {
+        return element;  // Allow access if role is 3
+      } else {
+        return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
+      }
+    } else if (location.pathname.startsWith('/admin/coms')) {
+      if ((role === 3 || role === 1) && inComs !== null) {
         return element;  // Allow access if role is 3
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3

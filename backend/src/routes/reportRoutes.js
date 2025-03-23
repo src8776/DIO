@@ -107,7 +107,7 @@ const generateReport = (res, filters, reportDetails) => {
 
     const membersData = [
         { width: 125, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
-        { width: 55, header: "Status", values: reportDetails.members.map(member => {return member.Status === "Inactive" ? "General" : member.Status}) },
+        { width: 55, header: "Status", values: reportDetails.members.map(member => member.Status === "Inactive" ? "General" : member.Status) },
         { width: 100, header: "Email", values: reportDetails.members.map(member => member.Email) },
     ];
     if (filters.includeGraduationYear) {
@@ -117,7 +117,7 @@ const generateReport = (res, filters, reportDetails) => {
         membersData.push({ width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });
     }
     if (filters.includeClothingSize) {
-        membersData.push({ width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => {return (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)}) });
+        membersData.push({ width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)) });
     }
     if (filters.includeMajor) {
         membersData.push({ width: 200, header: "Major", values: reportDetails.members.map(member => member.Major) });
@@ -158,7 +158,6 @@ const drawOrgSummaryTable = (doc, title, data, startX, startY, col1Width, col2Wi
 
 const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, col2Width, rowHeight) => {
     let currentY = startY;
-    let isFirstPage = true;
 
     // Draw table title on the first page
     doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(title, startX, currentY);
@@ -169,7 +168,6 @@ const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, c
         if (currentY + rowHeight > 550) {
             doc.addPage();
             currentY = doc.y + 10; // Reset to start position on new page
-            isFirstPage = false;
 
             // Draw table title on the new page
             doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(title + " (Cont.)", startX, currentY);
@@ -193,7 +191,6 @@ const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, c
         currentY += rowHeight;
     });
 };
-
 
 const drawMembersTable = (doc, title, data, startX, startY, rowHeight, widthPadding) => {
     let currentY = startY;
@@ -249,8 +246,5 @@ const drawMembersTable = (doc, title, data, startX, startY, rowHeight, widthPadd
         currentY += rowHeightUsed;
     }
 };
-
-
-
 
 module.exports = router;

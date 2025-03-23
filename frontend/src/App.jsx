@@ -58,11 +58,12 @@ const App = () => {
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/" element={wrapWithProtectedRoute(<LandingPage />)} />
         <Route path="/admin/:org" element={wrapWithProtectedRoute(<AdminLayout />)}>
-          <Route index element={wrapWithProtectedRoute(<AdminDash />)} />
+          <Route index element={wrapWithProtectedRoute(<AnalyticsDash />)} />
           <Route path="memberDetails" element={wrapWithProtectedRoute(<MemberDetailsModal />)} />
           <Route path="organizationSetup" element={wrapWithProtectedRoute(<OrgSetup />)} />
           <Route path="officersList" element={wrapWithProtectedRoute(<OfficersList />)} />
           <Route path="analyticsDash" element={wrapWithProtectedRoute(<AnalyticsDash />)} />
+          <Route path="adminDash" element={wrapWithProtectedRoute(<AdminDash />)} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={wrapWithProtectedRoute(<AcctSetup />)} />

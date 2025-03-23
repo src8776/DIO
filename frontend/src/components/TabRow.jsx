@@ -15,10 +15,10 @@ export default function HorizontalNavTabs({ orgType }) {
   const [value, setValue] = React.useState(0);
 
   const navItems = [
-    { text: "Member Database", path: `/admin/${orgType}` },
+    { text: "Analytics Dashboard", path: `/admin/${orgType}` },
+    { text: "Member Database", path: `/admin/${orgType}/adminDash` },
     { text: "Officers", path: `/admin/${orgType}/officersList` },
     { text: "Organization Setup", path: `/admin/${orgType}/organizationSetup` },
-    { text: "Analytics Dashboard", path: `/admin/${orgType}/analyticsDash` }
   ];
 
   React.useEffect(() => {

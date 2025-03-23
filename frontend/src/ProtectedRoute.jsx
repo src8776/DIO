@@ -71,7 +71,7 @@ export const checkComsRole = async () => {
   }
 };
 
-const fetchProfileStatus = async (email) => {
+const fetchProfileStatus = async () => {
   try {
     const response = await fetch('/api/user/profile-status');
     if (!response.ok) throw new Error('Failed to fetch profile status');

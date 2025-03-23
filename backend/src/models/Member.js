@@ -249,8 +249,8 @@ class Member {
             THEN 1 
             ELSE 0 
           END AS isProfileIncomplete
-        FROM users
-        WHERE email = $1;
+        FROM Members
+        WHERE Email = $1;
       `, [email]);
   
       if (result.rows.length === 0) {

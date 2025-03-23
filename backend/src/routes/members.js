@@ -31,4 +31,30 @@ router.get('/names', async (req, res) => {
     }
 });
 
+router.post('/add', async (req, res) => {
+    const { firstName, lastName, email, organizationID } = req.body;
+
+    try{
+
+        let query = 'SELECT MemberID FROM Members WHERE Email = ?';
+        let [rows] = await db.query(query, [email]);
+
+        let memberID;
+        if(rows.length > 0){
+            memberID = rows[0].MemberID;
+        } else {
+            query = 'INSERT INTO Members (FirstName, LastName, Email) VALUES (?, ?, ?)';
+            const [result] = await db.query(query, [firstName, lastName, email]);
+            memberID = result.insertId;
+        }
+
+        query = 'INSERT INTO OrganizationMembers (MemberID, OrganizationID, SemesterID) VALUES (?, ?, ?)';
+        await db.query(query, [memberID, organizationID, semesterID]);
+
+        res.status(201).json({ message: 'Member added to organization successfully'})
+    }catch (error){
+        console.error('Database query error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 module.exports = router;

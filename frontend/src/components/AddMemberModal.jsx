@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AddMemberPage from '../pages/AddMember/AddMemberPage';
 
 
-export default function AddMemberModal({ selectedSemester, orgID }) {
+export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess }) {
   const [open, setOpen] = React.useState(false);
   const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
 
@@ -54,6 +54,7 @@ export default function AddMemberModal({ selectedSemester, orgID }) {
       });
       if (response.ok) {
         setSnackbar({ open: true, message: 'Member added successfully!', severity: 'success' });
+        onUploadSuccess?.();
       } else {
         const errorRes = await response.json();
         setSnackbar({ open: true, message: errorRes.error || 'Failed to add member.', severity: 'error' });

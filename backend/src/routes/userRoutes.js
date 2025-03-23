@@ -161,7 +161,7 @@ router.get('/profile-status', attachMemberData, async (req, res) => {
   const userEmail = req.member.email; // Assuming email is passed as a query parameter
   console.log("Checking Profile Completion for:", userEmail);
   try {
-    const isProfileComplete = await checkProfileCompletion(userEmail);
+    const isProfileComplete = await Member.checkProfileCompletion(userEmail);
     console.log("Profile Completion Status:", isProfileComplete);
     res.status(200).json({ isProfileComplete });
   } catch (error) {

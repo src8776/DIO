@@ -14,9 +14,9 @@ export default function AddMemberModal({ selectedSemester, orgID }) {
     email: "",
     semesterID: selectedSemester ? selectedSemester.SemesterID : null,
   };
-  
+
   const [memberData, setMemberData] = React.useState(initialMemberData);
-  
+
   // Update semesterID when selectedSemester changes
   React.useEffect(() => {
     setMemberData(prevData => ({
@@ -24,10 +24,10 @@ export default function AddMemberModal({ selectedSemester, orgID }) {
       semesterID: selectedSemester ? selectedSemester.SemesterID : null,
     }));
   }, [selectedSemester]);
-  
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  
+
   // Handle input changes
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -55,8 +55,8 @@ export default function AddMemberModal({ selectedSemester, orgID }) {
       if (response.ok) {
         setSnackbar({ open: true, message: 'Member added successfully!', severity: 'success' });
       } else {
-        console.error('Server error:', response.statusText);
-        setSnackbar({ open: true, message: 'Failed to add member.', severity: 'error' });
+        const errorRes = await response.json();
+        setSnackbar({ open: true, message: errorRes.error || 'Failed to add member.', severity: 'error' });
       }
     } catch (error) {
       console.error('Error adding member:', error);
@@ -83,7 +83,7 @@ export default function AddMemberModal({ selectedSemester, orgID }) {
           />
         </Box>
       </Modal>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose}>
+      <Snackbar open={snackbar.open} autoHideDuration={snackbar.severity === 'success' ? 6000 : undefined}  onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>

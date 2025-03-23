@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     const eventCount = await EventInstance.getNumberOfEventInstances(data.orgID, data.selectedSemester.TermCode);
     const shirtSizes = await Member.getShirtSizeCount(data.orgID, data.selectedSemester.SemesterID);
     const pantSizes = await Member.getPantSizeCount(data.orgID, data.selectedSemester.SemesterID);
-    const memberReportData = await Member.getMemberReportData(data.orgID, data.selectedSemester.SemesterID);
+    const memberReportData = await Member.getMemberReportData(data.orgID, data.selectedSemester.SemesterID, data.filters.memberStatus);
 
 
     console.log(shirtSizes, pantSizes);
@@ -109,19 +109,24 @@ const generateReport = (res, reportDetails) => {
     doc.addPage();
 
     // List of Members
-    const membersList = reportDetails.members.map(member => ({
-        FullName: member.FullName,
-        Status: member.Status,
-        Email: member.Email,
-        GraduationYear: member.GraduationYear,
-        AcademicYear: member.AcademicYear,
-        ShirtSize: member.ShirtSize,
-        PantSize: member.PantSize,
-        Gender: member.Gender,
-        Race: member.Race,
-        Major: member.Major
-    }));
-    drawMembersTable(doc, 'List of Members', membersList, 50, doc.y + 10, [125, 30, 100, 30, 75, 30, 30, 50, 75, 200], 20);
+    const membersData = [
+        { width: 125, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
+        { width: 55, header: "Status", values: reportDetails.members.map(member => {return member.Status === "Inactive" ? "General" : member.Status}) },
+        { width: 100, header: "Email", values: reportDetails.members.map(member => member.Email) },
+        { width: 45, header: "Graduation Year", values: reportDetails.members.map(member => member.GraduationYear) },
+        { width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) },
+        { width: 36, header: "Shirt / Pant Size", values: reportDetails.members.map(member => member.ShirtSize) },
+        { width: 36, header: "Pant Size", values: reportDetails.members.map(member => member.PantSize) },
+        { width: 200, header: "Major", values: reportDetails.members.map(member => member.Major) }
+    ];
+
+    const totalWidth = membersData.reduce((sum, col) => sum + col.width, 0);
+    const widthPadding = totalWidth <= 690 ? (692 - totalWidth) / (membersData.length) : 0
+    console.log(totalWidth)
+    console.log(widthPadding)
+
+
+    drawMembersTable(doc, 'List of Members', membersData, 50,doc.y + 10, 20, widthPadding);
 
     // End the document
     doc.end();
@@ -187,74 +192,64 @@ const drawClothingSummaryTable = (doc, title, data, startX, startY, col1Width, c
 };
 
 
-const drawMembersTable = (doc, title, data, startX, startY, colWidths, rowHeight) => {
+const drawMembersTable = (doc, title, data, startX, startY, rowHeight, widthPadding) => {
     let currentY = startY;
 
-    // Function to draw table headers
     const drawTableHeader = (index) => {
-        printedTitle = index > 0 ? `${title} (Cont.)` : title;
+        const printedTitle = index > 0 ? `${title} (Cont.)` : title;
         doc.fillColor('#0086A9').fontSize(15).font("Helvetica-Bold").text(printedTitle, startX, currentY);
-        currentY += rowHeight * 1.5; // Adjust Y for title
-    
+        currentY += rowHeight * 1.5;
+
         doc.fillColor('#000000').fontSize(10).font("Helvetica-Bold");
-    
-        const headers = ['Full Name', 'Status', 'Email', 'Grad. Year', 'Acad. Year', 'Shirt Size', 'Pants Size', 'Gender', 'Race', 'Major'];
         let colX = startX;
-        const headerHeight = rowHeight * 2; // Increase the height of the headers
-    
-        headers.forEach((header, index) => {
-            const colWidth = colWidths[index];
-            const centerX = colX; // Center the rotated text
-            const headerY = currentY + headerHeight / 2; // Adjust height for rotation
-            
-            // Rotate and draw the text vertically with more space
+        const headerHeight = rowHeight * 2;
+
+        data.forEach(({ header, width }) => {
+            const centerX = colX;
+            const headerY = currentY + headerHeight / 2;
+
             doc.save();
             doc.translate(centerX, headerY);
             doc.rotate(-90);
             doc.text(header, 0, 0, { width: headerHeight, align: 'left' });
             doc.restore();
-    
-            colX += colWidth; // Move to the next column position
+
+            colX += width + widthPadding;
         });
-    
-        currentY += headerHeight; // Increase Y position after the headers for row data
+
+        currentY += headerHeight;
     };
-    
 
-    drawTableHeader(0); // Draw header for the first page
+    drawTableHeader(0);
 
-    data.forEach((item, index) => {
-        // Check if new page is needed based on Y position
+    const numRows = data[0].values.length;
+
+    for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
         if (currentY + rowHeight >= 550) {
             doc.addPage();
-            currentY = startY; // Reset Y position
-            drawTableHeader(index); // Draw table header on new page
+            currentY = startY;
+            drawTableHeader(rowIndex);
         }
 
-        // Draw row content with text wrapping
         doc.fillColor('#000000').fontSize(10).font("Helvetica");
-        const values = [item.FullName, item.Status, item.Email, item.GraduationYear, item.AcademicYear, item.ShirtSize, item.PantSize, item.Gender, item.Race, item.Major];
-        let rowHeightUsed = rowHeight; // Track max height used in a row
+        let colX = startX;
+        let rowHeightUsed = rowHeight;
 
-        values.forEach((value, colIndex) => {
-            const colX = startX + colWidths.slice(0, colIndex).reduce((a, b) => a + b, 0);
-            
-            // Get height of wrapped text to determine the tallest column in this row
-            const textHeight = doc.heightOfString(value, { width: colWidths[colIndex], align: 'left' });
-            rowHeightUsed = Math.max(rowHeightUsed, textHeight + 5); // Ensure row accommodates tallest text
-            
-            // Draw text with wrapping
-            doc.text(value, colX, currentY, { width: colWidths[colIndex], align: 'left' });
+        data.forEach(({ values, width }) => {
+            const value = values[rowIndex];
+            const textHeight = doc.heightOfString(value, { width, align: 'left' });
+            rowHeightUsed = Math.max(rowHeightUsed, textHeight + 5);
+            doc.text(value, colX, currentY, { width, align: 'left' });
+            colX += width + widthPadding;
         });
 
-        // Draw line beneath the row
         doc.strokeColor('#CCCCCC')
-           .moveTo(startX, currentY + rowHeightUsed - 5)
-           .lineTo(startX + colWidths.reduce((a, b) => a + b, 0), currentY + rowHeightUsed - 5)
-           .stroke();
+        .moveTo(startX, currentY + rowHeightUsed - 5)
+        .lineTo(startX + data.reduce((sum, col) => sum + col.width + widthPadding, 0), currentY + rowHeightUsed - 5)
+        .stroke();
 
-        currentY += rowHeightUsed; // Move Y for the next row
-    });
+        currentY += rowHeightUsed;
+    }
 };
 
 

@@ -1,18 +1,15 @@
+/**
+ * @file userRoutes.js
+ * @description This file contains the routes for user-related operations, including profile management, access control, and member data retrieval.
+ */
+
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
+//const passport = require('passport');
 const Member = require('../models/Member');
 const OrgMember = require('../models/OrganizationMember');
 
-
-const majors = [
-  { id: 'computer_science', name: 'Computer Science' },
-  { id: 'information_technology', name: 'Information Technology' },
-  { id: 'software_engineering', name: 'Software Engineering' },
-  { id: 'cybersecurity', name: 'Cybersecurity' },
-  { id: 'data_science', name: 'Data Science' }
-];
-
+// Predefined lists of genders
 const genders = [
   { id: 'Male', name: 'Male' },
   { id: 'Female', name: 'Female' },
@@ -21,6 +18,9 @@ const genders = [
   { id: 'Unknown', name: 'Other' }
 ];
 
+/**
+ * Middleware to attach member data to the request object.
+ */
 const attachMemberData = async (req, res, next) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: 'Not authenticated' });
@@ -32,10 +32,6 @@ const attachMemberData = async (req, res, next) => {
     const orgMember = await OrgMember.getMemberByID(member.MemberID);
     const WicMember = await OrgMember.getWicMemberByID(member.MemberID,1);
     const ComsMember = await OrgMember.getComsMemberByID(member.MemberID,2);
-
-    console.log("Wic Member:", WicMember);
-    console.log("Coms Member:", ComsMember);
-    console.log("Member Data:", orgMember);
 
     req.member = member || {}; // Attach member data to the request object
     req.orgMember = orgMember || {};
@@ -49,61 +45,64 @@ const attachMemberData = async (req, res, next) => {
   }
 };
 
-
-// profile route
+/**
+ * Route to get the user's profile.
+ */
 router.get('/profile', attachMemberData, async (req, res) => {
-    const member = req.member;
-    const user = req.user;
-    console.log("Grabbing Member Data:", member);
+    const { member, user } = req;
 
-    let majorTitle = await Member.getMajorById(member?.MajorID);
-    console.log("Major Title:", majorTitle);
-
-    // Ensure member exists before accessing properties
-    const userProfile = {
-      username: member?.UserName || user.username || 'Unknown',
-      firstName: member?.FirstName || user.firstName || 'Unknown',
-      lastName: member?.LastName || user.lastName || 'Unknown',
-      email: user.email,
-      fullName: member?.FullName || `${user.firstName} ${user.lastName}` || 'Unknown',
-      majorID: majorTitle || 'Unknown',
-      graduationDate: member?.GraduationYear || 'Unknown',
-      academicYear: member?.AcademicYear,
-      shirtSize: member?.ShirtSize || 'Unknown',
-      pantSize: member?.PantSize || 'Unknown',
-      gender: member?.Gender || 'Unknown',
-      race: member?.Race || 'Unknown',
-    };
-
-    res.json(userProfile);
+    try {
+      const majorTitle = await Member.getMajorById(member?.MajorID);
+  
+      // Ensure member exists before accessing properties
+      const userProfile = {
+        username: member?.UserName || user.username || 'Unknown',
+        firstName: member?.FirstName || user.firstName || 'Unknown',
+        lastName: member?.LastName || user.lastName || 'Unknown',
+        email: user.email,
+        fullName: member?.FullName || `${user.firstName} ${user.lastName}` || 'Unknown',
+        majorID: majorTitle || 'Unknown',
+        graduationDate: member?.GraduationYear || 'Unknown',
+        academicYear: member?.AcademicYear,
+        shirtSize: member?.ShirtSize || 'Unknown',
+        pantSize: member?.PantSize || 'Unknown',
+        gender: member?.Gender || 'Unknown',
+        race: member?.Race || 'Unknown',
+      };
+  
+      res.json(userProfile);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
 });
 
-//profile saving
+/**
+ * Route to save the user's profile.
+ */
 router.post('/profile', attachMemberData, async (req, res) => {
     const user = req.user;
     const updatedProfile = req.body;
-    const member = req.member;
 
-    let majorID = await Member.getMajorIdByTitle(updatedProfile.major);
-    console.log("Major ID:", majorID);
-    // Prepare member object
-    const memberData = {
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      fullName: `${user.firstName} ${user.lastName}`,
-      majorID: majorID,
-      graduationYear: updatedProfile.graduationDate,
-      academicYear: updatedProfile.studentYear,
-      shirtSize: updatedProfile.shirtSize,
-      pantSize: updatedProfile.pantSize,
-      gender: updatedProfile.gender,
-      race: updatedProfile.race,
-    };
-
-    console.log("Inserting Member:", memberData);
     try {
+      const majorID = await Member.getMajorIdByTitle(updatedProfile.major);
+  
+      // Prepare member object
+      const memberData = {
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        fullName: `${user.firstName} ${user.lastName}`,
+        majorID: majorID,
+        graduationYear: updatedProfile.graduationDate,
+        academicYear: updatedProfile.studentYear,
+        shirtSize: updatedProfile.shirtSize,
+        pantSize: updatedProfile.pantSize,
+        gender: updatedProfile.gender,
+        race: updatedProfile.race,
+      };
+  
       const memberId = await Member.insertMember(memberData);
       res.status(200).json({ message: 'Profile updated successfully', memberId });
     } catch (error) {
@@ -112,20 +111,24 @@ router.post('/profile', attachMemberData, async (req, res) => {
     }
 });
 
-/*
-router.get('/majors', (req, res) => {
-  res.json(majors);
-});
-*/
+/**
+ * Route to get the list of genders.
+ */
 router.get('/genders', attachMemberData, (req, res) => {
   res.json(genders);
 });
 
+/**
+ * Route to get the member ID.
+ */
 router.get('/memberID', attachMemberData, (req, res) => {
   const memberID = req.member.MemberID;
   res.json({ memberID });
 })
 
+/**
+ * Route to get the list of majors.
+ */
 router.get('/majors', attachMemberData, async (req, res) => {
   try {
       const majors = await Member.getMajors();
@@ -136,42 +139,34 @@ router.get('/majors', attachMemberData, async (req, res) => {
   }
 });
 
-
-
-//Code for access control
+/**
+ * Route to get the member's role.
+ */
 router.get('/memberRole', attachMemberData, async (req, res) => {
   const orgMember = req.orgMember;
-  const org = orgMember.OrganizationID;
   const role = orgMember.RoleID;
   res.json({ role });
 });
 
+/**
+ * Route to check if the member is in WIC.
+ */
 router.get('/inWic', attachMemberData, async (req, res) => {
   const inWic = req.WicMember;
   res.json({ inWic });
 });
 
+/**
+ * Route to check if the member is in COMS.
+ */
 router.get('/inComs', attachMemberData, async (req, res) => {
   const inComs = req.ComsMember;
   res.json({ inComs });
 });
 
-//Code to check if user profile is complete
-/*
-router.get('/profile-status', attachMemberData, async (req, res) => {
-  const userEmail = req.member.email; // Assuming email is passed as a query parameter
-  console.log("Checking Profile Completion for:", userEmail);
-  try {
-    const isProfileComplete = await Member.checkProfileCompletion(userEmail);
-    console.log("Profile Completion Status:", isProfileComplete);
-    res.status(200).json({ isProfileComplete });
-  } catch (error) {
-    console.error('Error checking profile status:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-*/
-
+/**
+ * Route to check if the user's profile is complete.
+ */
 router.get('/profileCompletion', attachMemberData, async (req, res) => {
   const member = req.member;
   let isCompleted = true;
@@ -191,6 +186,5 @@ router.get('/profileCompletion', attachMemberData, async (req, res) => {
 
   res.json({ isCompleted });
 });
-
 
 module.exports = router;

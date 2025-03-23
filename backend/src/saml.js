@@ -27,21 +27,9 @@ const defaultSamlStrategy = new SamlStrategy(
         wantAuthnResponseSigned: true,
         disableRequestedAuthnContext: true
     },
-    /* acs callback */
-    /*
-    (profile, done) => {
-        console.log(profile);
-        // Called after successful authentication, parse
-        // the attributes in profile.attributes and create
-        // or update a local user. Then return that user.
-        return done(null, profile.attributes)
-    }
-        */
 
     async (profile, done) => {
         try {
-            console.log("SAML Profile:", profile);
-
             // Extract the email from profile attributes
             const userEmail = profile.attributes['urn:oid:0.9.2342.19200300.100.1.3'];
 
@@ -70,10 +58,10 @@ const defaultSamlStrategy = new SamlStrategy(
                 return done(null, false, { message: 'User not authorized'});
             }
 
-            console.log(`User ${userEmail} authenticated successfully.`);
+            //console.log(`User ${userEmail} authenticated successfully.`);
             return done(null, user);
         } catch (error) {
-            console.error("Error during SAML authentication:", error);
+            //console.error("Error during SAML authentication:", error);
             return done(error);
         }
     }

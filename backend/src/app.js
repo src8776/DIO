@@ -51,16 +51,12 @@ if (process.env.NODE_ENV === "production") {
 
     const SITE_ROOT = '/saml2';
 
-    //app.set('view engine', 'ejs');
-    //app.set('views', path.join(__dirname, '/views'));
-
     const siteRoot = express.Router();
     app.use(SITE_ROOT, siteRoot);
     app.set('trust proxy', true);
 
     /* login example */
     siteRoot.get('/login', passport.authenticate('saml'));
-    /* end login example */
 
     /* acs example */
     siteRoot.post(
@@ -74,7 +70,6 @@ if (process.env.NODE_ENV === "production") {
             res.redirect('/');
         },
     );
-    /* end acs example */
 
     /* metadata example */
     siteRoot.get(
@@ -84,7 +79,6 @@ if (process.env.NODE_ENV === "production") {
             res.send(defaultSamlStrategy.generateServiceProviderMetadata(SP_CERT, SP_CERT));
         }
     );
-    /* end metadata example */
 
     // Check if user is authenticated
     siteRoot.get('/api/me', (req, res) => {

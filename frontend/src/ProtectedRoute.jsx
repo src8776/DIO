@@ -71,11 +71,23 @@ export const checkComsRole = async () => {
   }
 };
 
+const fetchProfileStatus = async (email) => {
+  try {
+    const response = await fetch(`/profile-status?email=${email}`);
+    if (!response.ok) throw new Error('Failed to fetch profile status');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching profile status:', error);
+    return null;
+  }
+};
+
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [role, setRole] = useState(null);
   const [inWic, setInWic] = useState(null);
   const [inComs, setInComs] = useState(null);
+  const [isProfileComplete, setIsProfileComplete] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -89,18 +101,25 @@ const ProtectedRoute = ({ element }) => {
         setRole(userRole);
         setInWic(InWic);
         setInComs(InComs);
+
+        const profileStatus = await fetchProfileStatus(authStatus.email);
+        setIsProfileComplete(profileStatus.isProfileComplete);
       }
     };
 
     check();  // Check authentication and role on component mount
   }, []);
 
-  if (isAuthenticated === null || (isAuthenticated && role === null)) {
+  if (isAuthenticated === null || (isAuthenticated && role === null) || isProfileComplete === null) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
         <CircularProgress />
       </Box>
     );
+  }
+
+  if (isAuthenticated && !isProfileComplete) {
+    return <Navigate to="/acctSetup" replace />;
   }
 
   if (isAuthenticated) {

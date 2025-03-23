@@ -234,6 +234,39 @@ class Member {
     }
   }
 
+  static async checkProfileCompletion() {
+    const userEmail = req.user.email; // Assuming email is passed as a query parameter
+    
+    try {
+      const result = await db.query(`
+        SELECT 
+          CASE 
+            WHEN AcademicYear IS NULL OR 
+                 GraduationYear IS NULL OR 
+                 MajorID IS NULL OR 
+                 ShirtSize IS NULL OR 
+                 PantSize IS NULL OR 
+                 Race IS NULL OR 
+                 Gender IS NULL 
+            THEN 1 
+            ELSE 0 
+          END AS isProfileIncomplete
+        FROM users
+        WHERE email = $1;
+      `, [userEmail]);
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const isProfileIncomplete = result.rows[0].isprofileincomplete === 1;
+      res.status(200).json({ isProfileComplete: !isProfileIncomplete });
+    } catch (error) {
+      console.error('Error checking profile status:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
   /*
   static async getEnumValues(columnName) {
     try {

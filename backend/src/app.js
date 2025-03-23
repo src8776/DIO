@@ -51,8 +51,8 @@ if (process.env.NODE_ENV === "production") {
 
     const SITE_ROOT = '/saml2';
 
-    app.set('view engine', 'ejs');
-    app.set('views', path.join(__dirname, '/views'));
+    //app.set('view engine', 'ejs');
+    //app.set('views', path.join(__dirname, '/views'));
 
     const siteRoot = express.Router();
     app.use(SITE_ROOT, siteRoot);

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Container, InputLabel, MenuItem, FormControl, Paper, Select, Typography, Button } from '@mui/material';
+import SnackbarAlert from '../../components/SnackbarAlert';
+
 
 // TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
 // TODO: Add form validation
@@ -43,13 +45,19 @@ const fetchGenderData = async () => {
 
 //Pushes profile data to backend to save using the profile api
 const saveProfileData = async (data) => {
-  const response = await fetch('/api/user/profile', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  //const result = await response.json();
-  //console.log(result.message);
+  try {
+    const response = await fetch('/api/user/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Failed to save profile data');
+    const result = await response.json();
+    return { success: true, message: result.message };
+  } catch (error) {
+    console.error('Error saving profile data:', error);
+    return { success: false, message: error.message };
+  }
 };
 
 export default function AccountSetup() {
@@ -65,6 +73,16 @@ export default function AccountSetup() {
   const [gender, setGender] = useState('');
   const [genders, setGenders] = useState([]);  
   const [isProfileComplete, setIsProfileComplete] = useState(false);
+
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('success');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const showAlert = (message, severity) => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setOpenSnackbar(true);
+  };
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -108,12 +126,11 @@ export default function AccountSetup() {
   //when submitting, check if all fields are filled
   const handleSubmit = async () => {
     if (!isProfileComplete) {
-      alert('Please fill in all required fields');
+      showAlert('You must fill out all required fields', 'error');
       return;
     }
 
-    //calls saveProfileData function to save data; waits for this to finish
-    await saveProfileData({
+    const result = await saveProfileData({
       studentYear,
       graduationDate,
       major,
@@ -122,6 +139,12 @@ export default function AccountSetup() {
       race,
       gender
     });
+  
+    if (result.success) {
+      showAlert('Profile data saved successfully', 'success');
+    } else {
+      showAlert(`Failed to save profile data: ${result.message}`, 'error');
+    }
   };
 
   return (

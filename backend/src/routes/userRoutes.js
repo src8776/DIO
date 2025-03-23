@@ -157,6 +157,7 @@ router.get('/inComs', attachMemberData, async (req, res) => {
 });
 
 //Code to check if user profile is complete
+/*
 router.get('/profile-status', attachMemberData, async (req, res) => {
   const userEmail = req.member.email; // Assuming email is passed as a query parameter
   console.log("Checking Profile Completion for:", userEmail);
@@ -169,5 +170,27 @@ router.get('/profile-status', attachMemberData, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+*/
+
+router.get('/profileCompletion', attachMemberData, async (req, res) => {
+  const member = req.member;
+  let isCompleted = true;
+
+  // Check if any of the member's properties are null
+  if (
+    !member.AcademicYear ||
+    !member.GraduationYear ||
+    !member.MajorID ||
+    !member.ShirtSize ||
+    !member.PantSize ||
+    !member.Race ||
+    !member.Gender
+  ) {
+    isCompleted = false;
+  }
+
+  res.json({ isCompleted });
+});
+
 
 module.exports = router;

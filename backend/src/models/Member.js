@@ -233,7 +233,7 @@ class Member {
       throw err;
     }
   }
-
+/*
   static async checkProfileCompletion(email) {
     try {
       const result = await db.query(`
@@ -264,7 +264,7 @@ class Member {
       throw error;
     }
   }
-
+*/
   /*
   static async getEnumValues(columnName) {
     try {

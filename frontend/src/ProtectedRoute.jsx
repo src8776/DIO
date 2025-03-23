@@ -71,13 +71,19 @@ export const checkComsRole = async () => {
   }
 };
 
-const fetchProfileStatus = async () => {
+const checkProfileCompletion = async () => {
   try {
-    const response = await fetch('/api/user/profile-status');
-    if (!response.ok) throw new Error('Failed to fetch profile status');
-    return await response.json();
+    const response = await fetch('/api/user/profileCompletion', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.isCompleted;
+    }
+    return null;
   } catch (error) {
-    console.error('Error fetching profile status:', error);
+    console.error("Role check failed:", error);
     return null;
   }
 };
@@ -98,12 +104,11 @@ const ProtectedRoute = ({ element }) => {
         const userRole = await checkRole();
         const InWic = await checkWicRole();
         const InComs = await checkComsRole();
+        const profileStatus = await checkProfileCompletion();
         setRole(userRole);
         setInWic(InWic);
         setInComs(InComs);
-
-        const profileStatus = await fetchProfileStatus(authStatus.email);
-        setIsProfileComplete(profileStatus.isProfileComplete);
+        setIsProfileComplete(profileStatus);
       }
     };
 
@@ -118,11 +123,11 @@ const ProtectedRoute = ({ element }) => {
     );
   }
 
-  /*
+
   if (isAuthenticated && !isProfileComplete) {
     return <Navigate to="/acctSetup" replace />;
   }
-*/
+
   if (isAuthenticated) {
     if (location.pathname.startsWith('/admin/wic')) {
       if ((role === 3 || role === 1) && inWic !== null) {

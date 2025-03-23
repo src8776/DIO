@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
     console.log('Received request at /api/admin/report');
     const data = req.body;
     console.log(data);
-    //TODO: Retrieve data from database
+    //Retrieve data from database
 
     const organizationName = await OrganizationSetting.getOrganizationName(data.orgID);
     const memberStats = await OrganizationMember.getMemberStatsByOrgAndSemester(data.orgID, data.selectedSemester.SemesterID);
@@ -18,9 +18,6 @@ router.post('/', async (req, res) => {
     const shirtSizes = await Member.getShirtSizeCount(data.orgID, data.selectedSemester.SemesterID);
     const pantSizes = await Member.getPantSizeCount(data.orgID, data.selectedSemester.SemesterID);
     const memberReportData = await Member.getMemberReportData(data.orgID, data.selectedSemester.SemesterID, data.filters.memberStatus);
-
-
-    console.log(shirtSizes, pantSizes);
 
     const reportDetails = {
         reportName: organizationName + " Report",
@@ -113,10 +110,9 @@ const generateReport = (res, reportDetails) => {
         { width: 125, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
         { width: 55, header: "Status", values: reportDetails.members.map(member => {return member.Status === "Inactive" ? "General" : member.Status}) },
         { width: 100, header: "Email", values: reportDetails.members.map(member => member.Email) },
-        { width: 45, header: "Graduation Year", values: reportDetails.members.map(member => member.GraduationYear) },
-        { width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) },
-        { width: 36, header: "Shirt / Pant Size", values: reportDetails.members.map(member => member.ShirtSize) },
-        { width: 36, header: "Pant Size", values: reportDetails.members.map(member => member.PantSize) },
+        { width: 45, header: "Grad. Year", values: reportDetails.members.map(member => member.GraduationYear) },
+        { width: 95, header: "Acad. Year", values: reportDetails.members.map(member => member.AcademicYear) },
+        { width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => {return (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)}) },
         { width: 200, header: "Major", values: reportDetails.members.map(member => member.Major) }
     ];
 

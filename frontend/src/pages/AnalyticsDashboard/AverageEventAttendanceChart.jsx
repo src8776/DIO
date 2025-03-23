@@ -108,7 +108,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         if (active && payload && payload.length) {
             const { eventTitle } = payload[0].payload;
             return (
-                <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
+                <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px', color: '#000' }}>
                     <p>{`Date: ${label}`}</p>
                     <p>{`Event: ${eventTitle || 'Unknown'}`}</p>
                     <p>{`${payload[0].value} attended`}</p>
@@ -160,7 +160,11 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" label={{ value: 'Event Type', position: 'insideBottom', offset: -10 }} />
                             <YAxis domain={[0, 100]} label={{ value: 'Attendance Rate (%)', angle: -90, position: 'insideLeft', offset: 10, dy: 60 }} />
-                            <Tooltip formatter={(value) => `${value.toFixed(3)}%`} />
+                            <Tooltip
+                                formatter={(value) => `${value.toFixed(3)}%`}
+                                contentStyle={{ color: '#000' }}
+                                labelStyle={{ color: '#000' }}
+                            />
                             <Bar
                                 dataKey="attendanceRate"
                                 fill="#F76902"
@@ -178,7 +182,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     }
 
-    
+
 
     // Instances view (show previous averages view while fetching, then switch when ready)
     if (viewMode === 'instances' && !isFetchingInstances && Array.isArray(eventInstances) && eventInstances.length > 0) {
@@ -220,7 +224,11 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: 'middle' }} label={{ value: 'Attendance Count', position: 'insideBottom', offset: -10 }} />
                             <YAxis label={{ value: 'Attendance Count', angle: -90, position: 'insideLeft', offset: 10, dy: 50 }} />
-                            <Tooltip content={renderInstanceTooltip} />
+                            <Tooltip
+                                content={renderInstanceTooltip}
+                                contentStyle={{ color: '#000' }}
+                                labelStyle={{ color: '#000' }}
+                            />
                             <Bar
                                 dataKey="attendanceCount"
                                 fill="#F76902"

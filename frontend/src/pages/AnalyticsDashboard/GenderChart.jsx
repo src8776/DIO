@@ -25,7 +25,7 @@ export default function GenderChart({ organizationID, selectedSemester }) {
     const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1', '#d0ed57', '#a4de6c'];
 
     return (
-        <Container disableGutters sx={{ p: 2, display: 'flex', flexDirection: {xs: 'column', md:'row'}, gap: 4, width: '100%' }}>
+        <Container disableGutters sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
             {isLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <CircularProgress />

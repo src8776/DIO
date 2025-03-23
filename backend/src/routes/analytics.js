@@ -23,6 +23,40 @@ router.get('/memberTallies', async (req, res) => {
 });
 
 
+router.get('/memberTalliesBySemesters', async (req, res) => {
+    const { organizationID, semesterIDs } = req.query;
+
+    if (!organizationID || !semesterIDs) {
+        return res.status(400).json({ error: 'Missing organizationID or semesterIDs' });
+    }
+
+    // Process semesterIDs (expects a comma-separated string, e.g., "1,2,3")
+    const semesterArray = semesterIDs.split(',').map(id => id.trim()).filter(Boolean);
+
+    if (semesterArray.length === 0) {
+        return res.status(400).json({ error: 'Invalid semesterIDs parameter' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                SemesterID,
+                COUNT(*) AS totalMembers,
+                SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
+                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+             FROM OrganizationMembers
+             WHERE OrganizationID = ? AND SemesterID IN (?)
+             GROUP BY SemesterID`,
+            [organizationID, semesterArray]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/averageAttendance', async (req, res) => {
     const { organizationID, semesterID } = req.query;
 

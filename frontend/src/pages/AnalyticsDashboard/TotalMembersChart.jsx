@@ -65,7 +65,11 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 {/* <YAxis /> */}
-                <Tooltip formatter={(value) => `${value}`} />
+                <Tooltip
+                    formatter={(value) => `${value}`}
+                    contentStyle={{ color: '#000' }}
+                    labelStyle={{ color: '#000' }}
+                />
                 <Bar dataKey="members" label={renderBarLabel}>
                     {data.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />

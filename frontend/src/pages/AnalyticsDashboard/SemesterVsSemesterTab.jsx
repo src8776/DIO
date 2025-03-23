@@ -4,6 +4,7 @@ import {
     CircularProgress, Typography
 } from '@mui/material';
 import EventTypeComparisonChart from './EventTypeComparisonChart';
+import ActiveMemberComparison from './ActiveMemberComparison';
 
 export default function SemesterVsSemesterTab({ organizationID }) {
     const [semesters, setSemesters] = React.useState([]);
@@ -102,14 +103,14 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                     <CircularProgress />
                 </Box>
-            ) : firstSemester && secondSemester ? (
+            ) : semesters && firstSemester && secondSemester ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 4 }}>
                     <EventTypeComparisonChart
                         organizationID={organizationID}
                         firstSemester={firstSemester}
                         secondSemester={secondSemester}
                     />
-                    
+                    <ActiveMemberComparison organizationID={organizationID} semesters={semesters}/>
                 </Box>
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

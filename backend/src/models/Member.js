@@ -256,7 +256,7 @@ class Member {
       if (result.rows.length === 0) {
         throw new Error('User not found');
       }
-  
+      console.log('Profile completion check result:', result);
       const isProfileIncomplete = result.rows[0].isprofileincomplete === 1;
       return !isProfileIncomplete; // Return true if profile is complete, false otherwise
     } catch (error) {

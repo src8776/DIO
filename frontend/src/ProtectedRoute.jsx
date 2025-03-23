@@ -73,7 +73,7 @@ export const checkComsRole = async () => {
 
 const fetchProfileStatus = async (email) => {
   try {
-    const response = await fetch(`/profile-status?email=${email}`);
+    const response = await fetch('/api/user/profile-status');
     if (!response.ok) throw new Error('Failed to fetch profile status');
     return await response.json();
   } catch (error) {
@@ -118,10 +118,11 @@ const ProtectedRoute = ({ element }) => {
     );
   }
 
+  /*
   if (isAuthenticated && !isProfileComplete) {
     return <Navigate to="/acctSetup" replace />;
   }
-
+*/
   if (isAuthenticated) {
     if (location.pathname.startsWith('/admin/wic')) {
       if ((role === 3 || role === 1) && inWic !== null) {

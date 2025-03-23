@@ -77,7 +77,7 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
                                 label={(entry) => entry.major}
                             >
                                 {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} style={{outline: 'none'}} />
                                 ))}
                             </Pie>
                             <Tooltip />

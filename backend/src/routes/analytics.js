@@ -374,4 +374,49 @@ router.get('/commonEventTypes', async (req, res) => {
     }
 });
 
+
+router.get('/genderRaceTallies', async (req, res) => {
+    const { organizationID, semesterID } = req.query;
+
+    if (!organizationID || !semesterID) {
+        return res.status(400).json({
+            error: 'Missing required parameters: organizationID and semesterID'
+        });
+    }
+
+    try {
+        // Tally for genders: count distinct members grouped by gender
+        const [genderRows] = await db.query(
+            `SELECT 
+                m.Gender, 
+                COUNT(DISTINCT m.MemberID) AS count
+            FROM OrganizationMembers om
+            JOIN Members m ON om.MemberID = m.MemberID
+            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            GROUP BY m.Gender`,
+            [organizationID, semesterID]
+        );
+
+        // Tally for races: count distinct members grouped by race
+        const [raceRows] = await db.query(
+            `SELECT 
+                m.Race, 
+                COUNT(DISTINCT m.MemberID) AS count
+            FROM OrganizationMembers om
+            JOIN Members m ON om.MemberID = m.MemberID
+            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            GROUP BY m.Race`,
+            [organizationID, semesterID]
+        );
+
+        res.json({
+            genders: genderRows,
+            races: raceRows
+        });
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

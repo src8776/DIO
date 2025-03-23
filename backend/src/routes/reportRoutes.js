@@ -34,10 +34,10 @@ router.post('/', async (req, res) => {
         },
         members: memberReportData,
     };
-    generateReport(res, reportDetails);
+    generateReport(res, data.filters, reportDetails);
 });
 
-const generateReport = (res, reportDetails) => {
+const generateReport = (res, filters, reportDetails) => {
     let currentPageNumber = 0;
 
     // Create a new PDF document in landscape mode
@@ -105,16 +105,23 @@ const generateReport = (res, reportDetails) => {
 
     doc.addPage();
 
-    // List of Members
     const membersData = [
         { width: 125, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
         { width: 55, header: "Status", values: reportDetails.members.map(member => {return member.Status === "Inactive" ? "General" : member.Status}) },
         { width: 100, header: "Email", values: reportDetails.members.map(member => member.Email) },
-        { width: 45, header: "Grad. Year", values: reportDetails.members.map(member => member.GraduationYear) },
-        { width: 95, header: "Acad. Year", values: reportDetails.members.map(member => member.AcademicYear) },
-        { width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => {return (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)}) },
-        { width: 200, header: "Major", values: reportDetails.members.map(member => member.Major) }
     ];
+    if (filters.includeGraduationYear) {
+        membersData.push({ width: 45, header: "Grad. Year", values: reportDetails.members.map(member => member.GraduationYear) });
+    }
+    if (filters.includeAcademicYear) {
+        membersData.push({ width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });
+    }
+    if (filters.includeClothingSize) {
+        membersData.push({ width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => {return (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)}) });
+    }
+    if (filters.includeMajor) {
+        membersData.push({ width: 200, header: "Major", values: reportDetails.members.map(member => member.Major) });
+    }
 
     const totalWidth = membersData.reduce((sum, col) => sum + col.width, 0);
     const widthPadding = totalWidth <= 690 ? (692 - totalWidth) / (membersData.length) : 0
@@ -201,15 +208,7 @@ const drawMembersTable = (doc, title, data, startX, startY, rowHeight, widthPadd
         const headerHeight = rowHeight * 2;
 
         data.forEach(({ header, width }) => {
-            const centerX = colX;
-            const headerY = currentY + headerHeight / 2;
-
-            doc.save();
-            doc.translate(centerX, headerY);
-            doc.rotate(-90);
-            doc.text(header, 0, 0, { width: headerHeight, align: 'left' });
-            doc.restore();
-
+            doc.text(header, colX, currentY, { width, align: 'left' });
             colX += width + widthPadding;
         });
 
@@ -231,8 +230,11 @@ const drawMembersTable = (doc, title, data, startX, startY, rowHeight, widthPadd
         let colX = startX;
         let rowHeightUsed = rowHeight;
 
-        data.forEach(({ values, width }) => {
-            const value = values[rowIndex];
+        data.forEach(({ values, width, header }) => {
+            let value = values[rowIndex];
+            if (header === "Status" && value === "Inactive") {
+                value = "General";
+            }
             const textHeight = doc.heightOfString(value, { width, align: 'left' });
             rowHeightUsed = Math.max(rowHeightUsed, textHeight + 5);
             doc.text(value, colX, currentY, { width, align: 'left' });

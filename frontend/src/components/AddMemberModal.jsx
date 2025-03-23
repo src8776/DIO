@@ -1,29 +1,33 @@
 import * as React from 'react';
-import { Box, Button, Modal, Snackbar } from '@mui/material';
+import { Box, Button, Modal, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddMemberPage from '../pages/AddMember/AddMemberPage';
-import axios from 'axios';
 
-// TODO: Implement handleSave function to save member data to database 
-// TODO: display success message
-// TODO: display error message if member already exists
-// OPTIONAL TODO: display member details modal if member already exists
-//comment
 
-export default function AddMemberModal({ selectedSemester }) {
+export default function AddMemberModal({ selectedSemester, orgID }) {
   const [open, setOpen] = React.useState(false);
   const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const [memberData, setMemberData] = React.useState({
+  const initialMemberData = {
     firstName: "",
     lastName: "",
     email: "",
-    semesterID: selectedSemester.semesterID,
-  });
-
+    semesterID: selectedSemester ? selectedSemester.SemesterID : null,
+  };
+  
+  const [memberData, setMemberData] = React.useState(initialMemberData);
+  
+  // Update semesterID when selectedSemester changes
+  React.useEffect(() => {
+    setMemberData(prevData => ({
+      ...prevData,
+      semesterID: selectedSemester ? selectedSemester.SemesterID : null,
+    }));
+  }, [selectedSemester]);
+  
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  
   // Handle input changes
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -33,15 +37,27 @@ export default function AddMemberModal({ selectedSemester }) {
     }));
   };
 
-  const handleSave = () => {
+
+  const handleSave = async () => {
     console.log("Adding new member with info:", memberData);
     try {
-      const response = axios.post('/api/members/add', {
-        ...memberData,
-        organizationID: selectedSemester.organizationID,
-        semesterID: selectedSemester.semesterID,
+      const response = await fetch('/api/admin/members/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...memberData,
+          organizationID: orgID, // use the passed orgID
+          semesterID: memberData.semesterID,
+        }),
       });
-      setSnackbar({ open: true, message: 'Member added successfully!', severity: 'success' });
+      if (response.ok) {
+        setSnackbar({ open: true, message: 'Member added successfully!', severity: 'success' });
+      } else {
+        console.error('Server error:', response.statusText);
+        setSnackbar({ open: true, message: 'Failed to add member.', severity: 'error' });
+      }
     } catch (error) {
       console.error('Error adding member:', error);
       setSnackbar({ open: true, message: 'Failed to add member.', severity: 'error' });
@@ -55,12 +71,7 @@ export default function AddMemberModal({ selectedSemester }) {
 
   return (
     <>
-      <Button
-        onClick={handleOpen}
-        variant="contained"
-        startIcon={<AddIcon />}
-        sx={{maxWidth: '280px'}}
-      >
+      <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />} sx={{ maxWidth: '280px' }}>
         Add Member
       </Button>
       <Modal open={open} onClose={handleClose}>
@@ -72,11 +83,7 @@ export default function AddMemberModal({ selectedSemester }) {
           />
         </Box>
       </Modal>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-      >
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>

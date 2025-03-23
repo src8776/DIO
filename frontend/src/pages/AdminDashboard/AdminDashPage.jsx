@@ -155,7 +155,7 @@ function AdminDash() {
             <UploadFileModal onUploadSuccess={handleUploadSuccess} selectedSemester={selectedSemester} />
             <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
           </Box>
-          <AddMemberModal selectedSemester={selectedSemester} />
+          <AddMemberModal selectedSemester={selectedSemester} orgID={orgID} />
         </Box>
 
         {/* Data Table */}

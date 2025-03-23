@@ -31,11 +31,14 @@ router.get('/names', async (req, res) => {
     }
 });
 
+
 router.post('/add', async (req, res) => {
-    const { firstName, lastName, email, organizationID } = req.body;
+    const { firstName, lastName, email, organizationID, semesterID } = req.body;
+    const userName = email.split('@')[0];
+    const fullName = `${firstName} ${lastName}`;
+    console.log('Adding member:', { firstName, lastName, email}, '\nTo Org:', { organizationID }, '\nIn Semester: ', {semesterID });
 
     try{
-
         let query = 'SELECT MemberID FROM Members WHERE Email = ?';
         let [rows] = await db.query(query, [email]);
 
@@ -43,12 +46,12 @@ router.post('/add', async (req, res) => {
         if(rows.length > 0){
             memberID = rows[0].MemberID;
         } else {
-            query = 'INSERT INTO Members (FirstName, LastName, Email) VALUES (?, ?, ?)';
-            const [result] = await db.query(query, [firstName, lastName, email]);
+            query = 'INSERT INTO Members (UserName, FirstName, LastName, Email, FullName) VALUES (?, ?, ?, ?, ?)';
+            const [result] = await db.query(query, [userName, firstName, lastName, email, fullName]);
             memberID = result.insertId;
         }
 
-        query = 'INSERT INTO OrganizationMembers (MemberID, OrganizationID, SemesterID) VALUES (?, ?, ?)';
+        query = 'INSERT INTO OrganizationMembers (MemberID, OrganizationID, SemesterID, RoleID) VALUES (?, ?, ?, 2)';
         await db.query(query, [memberID, organizationID, semesterID]);
 
         res.status(201).json({ message: 'Member added to organization successfully'})
@@ -57,4 +60,6 @@ router.post('/add', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
 module.exports = router;

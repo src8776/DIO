@@ -250,7 +250,7 @@ class Member {
             ELSE 0 
           END AS isProfileIncomplete
         FROM Members
-        WHERE Email = $1;
+        WHERE Email = ?;
       `, [email]);
   
       if (result.rows.length === 0) {

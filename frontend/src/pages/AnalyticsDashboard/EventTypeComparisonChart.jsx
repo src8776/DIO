@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { BarChart } from '@mui/x-charts/BarChart';
 import {
     Typography, Paper, Button,
     Box, Select, MenuItem,
     FormControl, InputLabel,
     CircularProgress
 } from '@mui/material';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 export default function EventTypeComparisonChart({ organizationID, firstSemester, secondSemester }) {
     const [selectedEventType, setSelectedEventType] = React.useState('');
@@ -14,6 +14,7 @@ export default function EventTypeComparisonChart({ organizationID, firstSemester
     const [isLoading, setIsLoading] = React.useState(true);
     const [chartLoading, setChartLoading] = React.useState(false);
 
+    // Fetch common event types when the component mounts or dependencies change
     React.useEffect(() => {
         setIsLoading(true);
         fetch(`/api/analytics/commonEventTypes?organizationID=${organizationID}&firstSemesterID=${firstSemester.SemesterID}&secondSemesterID=${secondSemester.SemesterID}`)
@@ -81,13 +82,25 @@ export default function EventTypeComparisonChart({ organizationID, firstSemester
         setSelectedEventType(event.target.value);
     };
 
+    // Compute chart data using useMemo to optimize performance
+    const chartData = React.useMemo(() => {
+        if (!comparisonData || !comparisonData.comparisonData) {
+            return [];
+        }
+        return comparisonData.comparisonData.map(d => ({
+            event: `Event ${d.eventNumber}`,
+            firstSemester: d.firstSemester?.attendanceCount || 0,
+            secondSemester: d.secondSemester?.attendanceCount || 0,
+        }));
+    }, [comparisonData]);
+
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2, alignItems: 'center' }}>
-                <Typography>
+                <Typography sx={{flex: 2}}>
                     {comparisonData?.eventTypeLabel ? `${comparisonData.eventTypeLabel} Attendance Comparison` : 'Event Type Comparison'}
                 </Typography>
-                <FormControl sx={{ minWidth: {xs: 100, md: 200}, flex: 1 }} fullWidth>
+                <FormControl sx={{ minWidth: { xs: 100, md: 200 }, flex: 1 }} fullWidth>
                     <InputLabel>Event Type</InputLabel>
                     <Select
                         value={selectedEventType}
@@ -127,23 +140,32 @@ export default function EventTypeComparisonChart({ organizationID, firstSemester
                 <Box sx={{ display: 'flex', justifyContent: 'center', height: 300, alignItems: 'center' }}>
                     <CircularProgress />
                 </Box>
-            ) : comparisonData && comparisonData.comparisonData && comparisonData.comparisonData.length > 0 ? (
-                <BarChart
-                    series={[
-                        {
-                            label: comparisonData.semesterLabels[firstSemester.SemesterID],
-                            data: comparisonData.comparisonData.map(d => d.firstSemester?.attendanceCount || 0),
-                        },
-                        {
-                            label: comparisonData.semesterLabels[secondSemester.SemesterID],
-                            data: comparisonData.comparisonData.map(d => d.secondSemester?.attendanceCount || 0),
-                        },
-                    ]}
-                    xAxis={[{ scaleType: 'band', data: comparisonData.comparisonData.map(d => `Event ${d.eventNumber}`) }]}
-                    height={300}
-                    yAxis={[{ label: 'Attendance Count' }]}
-                    layout="vertical"
-                />
+            ) : chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="event" tick={{ fontSize: 10, textAnchor: 'middle' }}/>
+                        <YAxis label={{ value: 'Attendance Count', angle: -90, position: 'insideLeft', offset: 10, dy: 60 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Area
+                            type="step"
+                            dataKey="firstSemester"
+                            stroke="#8884d8"
+                            fill="#8884d8"
+                            fillOpacity={0.3}
+                            name={comparisonData.semesterLabels[firstSemester.SemesterID]}
+                        />
+                        <Area
+                            type="step"
+                            dataKey="secondSemester"
+                            stroke="#82ca9d"
+                            fill="#82ca9d"
+                            fillOpacity={0.3}
+                            name={comparisonData.semesterLabels[secondSemester.SemesterID]}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', height: 300, alignItems: 'center' }}>
                     <Typography variant="body1" color="text.secondary">

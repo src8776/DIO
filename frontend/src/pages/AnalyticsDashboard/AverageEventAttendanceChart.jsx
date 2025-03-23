@@ -1,7 +1,15 @@
 import * as React from 'react';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { Typography, Paper, Button, Box } from '@mui/material';
+import { Paper, Typography, Button, Box } from '@mui/material';
 import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
+} from 'recharts';
 
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
@@ -14,6 +22,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     React.useEffect(() => {
         setViewMode('averages'); // Reset view mode when semester changes
         if (selectedSemester && selectedSemester.SemesterID) {
+            // console.log('Fetching averages for semester:', selectedSemester.SemesterID);
             fetch(`/api/analytics/averageAttendance?organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
                 .then((response) => response.json())
                 .then((data) => {
@@ -55,6 +64,60 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return () => controller.abort();
     }, [viewMode, selectedEventType, organizationID, selectedSemester?.SemesterID]);
 
+    // Label renderer for Average Chart
+    const renderAverageLabel = (props) => {
+        const { x, y, width, height, value } = props;
+        if (value > 20) {
+            return (
+                <text
+                    x={x + width / 2}
+                    y={y + height / 2}
+                    fill="#fff"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                >
+                    {Math.floor(value)}%
+                </text>
+            );
+        }
+        return null;
+    };
+
+    // TODO: If container width is < 740px, hide labels 
+    // Label renderer for Instance Chart
+    const renderInstanceLabel = (maxAttendance) => (props) => {
+        const { x, y, width, height, value } = props;
+        if (value > 0.2 * maxAttendance) {
+            return (
+                <text
+                    x={x + width / 2}
+                    y={y + height / 2}
+                    fill="#fff"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                >
+                    {value}
+                </text>
+            );
+        }
+        return null;
+    };
+
+    // Custom tooltip for Instance Chart that displays the event title as well
+    const renderInstanceTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            const { eventTitle } = payload[0].payload;
+            return (
+                <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px', color: '#000' }}>
+                    <p>{`Date: ${label}`}</p>
+                    <p>{`Event: ${eventTitle || 'Unknown'}`}</p>
+                    <p>{`${payload[0].value} attended`}</p>
+                </div>
+            );
+        }
+        return null;
+    };
+
     // Initial loading state for averages
     if (!selectedSemester || !averages) {
         return (
@@ -64,16 +127,23 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     }
 
+    // console.log('Averages:', averages);
+    console.log('Event Instances:', eventInstances);
+
     // Averages view
     if (viewMode === 'averages' && Array.isArray(averages) && averages.length > 0) {
-        const eventTypes = averages.map(item => item.EventType || 'Unknown');
-        const attendanceRates = averages.map(item => {
+        const data = averages.map(item => {
             const rate = parseFloat(item.averageAttendanceRate);
-            return isNaN(rate) ? 0 : rate * 100;
+            return {
+                name: item.EventType || 'Unknown',
+                attendanceRate: isNaN(rate) ? 0 : rate * 100,
+                original: item // Preserve the original item for onClick use
+            };
         });
 
-        if (eventTypes.length !== attendanceRates.length) {
-            console.error('Mismatch between eventTypes and attendanceRates:', { eventTypes, attendanceRates });
+        // Check that each data point is valid
+        if (data.length === 0) {
+            console.error('No valid average data to display');
             return (
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Typography>Error: Data mismatch in averages chart</Typography>
@@ -84,50 +154,51 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Typography>Average Attendance per Event Type</Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', overflowX: 'auto' }}>
-                    <BarChart
-                        xAxis={[{ id: 'barCategories', data: eventTypes, scaleType: 'band', label: 'Event Type' }]}
-                        yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
-                        series={[{
-                            data: attendanceRates,
-                            color: '#F76902',
-                            valueFormatter: (value) => value != null ? `${value.toFixed(3)}%` : 'N/A'
-                        }]}
-                        onAxisClick={(event, params) => {
-                            const selectedItem = averages[params.dataIndex];
-                            setSelectedEventType(selectedItem);
-                            setViewMode('instances');
-                        }}
-                        barLabel={(item) => (item.value ?? 0) > 30 ? `${Math.floor(item.value)}%` : null}
-                        width={730}
-                        height={255}
-                        sx={{
-                            '& .MuiBarLabel-root': { fontSize: '1.8rem', fill: '#fff' },
-                        }}
-                    />
+                <Box sx={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer>
+                        <BarChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" label={{ value: 'Event Type', position: 'insideBottom', offset: -10 }} />
+                            <YAxis domain={[0, 100]} label={{ value: 'Attendance Rate (%)', angle: -90, position: 'insideLeft', offset: 10, dy: 60 }} />
+                            <Tooltip
+                                formatter={(value) => `${value.toFixed(3)}%`}
+                                contentStyle={{ color: '#000' }}
+                                labelStyle={{ color: '#000' }}
+                            />
+                            <Bar
+                                dataKey="attendanceRate"
+                                fill="#F76902"
+                                onClick={(data, index) => {
+                                    // Use the original averages item to preserve additional properties
+                                    setSelectedEventType(data.payload.original);
+                                    setViewMode('instances');
+                                }}
+                                label={renderAverageLabel}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </Box>
             </Paper>
         );
     }
 
+
+
     // Instances view (show previous averages view while fetching, then switch when ready)
     if (viewMode === 'instances' && !isFetchingInstances && Array.isArray(eventInstances) && eventInstances.length > 0) {
-        const instanceLabels = eventInstances.map(instance => {
+        const data = eventInstances.map(instance => {
             const date = new Date(instance.EventDate);
             const month = date.toLocaleDateString('en-US', { month: 'short' });
             const day = date.getDate();
-            return `${month}\n${day}`;
-        });
-        const instanceRates = eventInstances.map(instance => {
-            const rate = instance.attendanceCount;
-            console.log(rate);
-            return rate;
-            // us this if you want percentages
-            // return rate != null && !isNaN(rate) ? rate * 100 : 0; 
+            return {
+                name: `${month} ${day}`,
+                attendanceCount: instance.attendanceCount,
+                eventTitle: instance.EventTitle
+            };
         });
 
-        if (instanceLabels.length !== instanceRates.length) {
-            console.error('Mismatch between instanceLabels and instanceRates:', { instanceLabels, instanceRates });
+        if (data.length === 0) {
+            console.error('No valid instance data to display');
             return (
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Typography>Error: Data mismatch in instances chart</Typography>
@@ -135,7 +206,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             );
         }
 
-        const maxAttendance = Math.max(...instanceRates);
+        const maxAttendance = Math.max(...data.map(item => item.attendanceCount));
 
         return (
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -143,33 +214,28 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     <Button variant='outlined' size='small' startIcon={<KeyboardBackspaceRoundedIcon />} onClick={() => setViewMode('averages')}>
                         Back to Averages
                     </Button>
-                    <Typography>Attendance for {selectedEventType.EventType}s, {selectedSemester.TermName}</Typography>
+                    <Typography>
+                        Attendance for {selectedEventType.EventType}s, {selectedSemester.TermName}
+                    </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', overflowX: 'auto' }}>
-                    <BarChart
-                        xAxis={[{
-                            id: 'instanceCategories',
-                            data: instanceLabels,
-                            scaleType: 'band',
-                            tickLabelStyle: { fontSize: 12, textAnchor: 'middle' }
-                        }]}
-                        yAxis={[{ label: 'Attendance Count' }]}
-                        // yAxis={[{ id: 'percentage', min: 0, max: 100, label: 'Attendance Rate (%)' }]}
-                        series={[{
-                            data: instanceRates,
-                            color: '#F76902',
-                            valueFormatter: (value) => value != null ? `${value} attended` : 'N/A'
-                            // valueFormatter: (value) => value != null ? `${value.toFixed(2)}%` : 'N/A'
-                        }]}
-                        barLabel={(item) => (item.value ?? 0) > 0.2 * maxAttendance ? item.value : null}
-                        // switch to this for percentages
-                        // barLabel={(item) => (item.value ?? 0) > 20 ? `${Math.floor(item.value)}%` : null}
-                        width={730}
-                        height={255}
-                        sx={{
-                            '& .MuiBarLabel-root': { fontSize: '.8rem', fill: '#fff' },
-                        }}
-                    />
+                <Box sx={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer>
+                        <BarChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: 'middle' }} label={{ value: 'Attendance Count', position: 'insideBottom', offset: -10 }} />
+                            <YAxis label={{ value: 'Attendance Count', angle: -90, position: 'insideLeft', offset: 10, dy: 50 }} />
+                            <Tooltip
+                                content={renderInstanceTooltip}
+                                contentStyle={{ color: '#000' }}
+                                labelStyle={{ color: '#000' }}
+                            />
+                            <Bar
+                                dataKey="attendanceCount"
+                                fill="#F76902"
+                                label={renderInstanceLabel(maxAttendance)}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </Box>
             </Paper>
         );
@@ -179,7 +245,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Average Attendance per Event Type</Typography>
-
             <Box sx={{ display: 'flex', justifyContent: 'center', height: 300, alignItems: 'center' }}>
                 <Typography variant="body1" color="text.secondary">
                     No data to display

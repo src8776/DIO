@@ -23,6 +23,40 @@ router.get('/memberTallies', async (req, res) => {
 });
 
 
+router.get('/memberTalliesBySemesters', async (req, res) => {
+    const { organizationID, semesterIDs } = req.query;
+
+    if (!organizationID || !semesterIDs) {
+        return res.status(400).json({ error: 'Missing organizationID or semesterIDs' });
+    }
+
+    // Process semesterIDs (expects a comma-separated string, e.g., "1,2,3")
+    const semesterArray = semesterIDs.split(',').map(id => id.trim()).filter(Boolean);
+
+    if (semesterArray.length === 0) {
+        return res.status(400).json({ error: 'Invalid semesterIDs parameter' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                SemesterID,
+                COUNT(*) AS totalMembers,
+                SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
+                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+             FROM OrganizationMembers
+             WHERE OrganizationID = ? AND SemesterID IN (?)
+             GROUP BY SemesterID`,
+            [organizationID, semesterArray]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/averageAttendance', async (req, res) => {
     const { organizationID, semesterID } = req.query;
 
@@ -44,14 +78,16 @@ router.get('/averageAttendance', async (req, res) => {
                     COALESCE(COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END), 0) / 
                     GREATEST((SELECT COUNT(*) FROM OrganizationMembers WHERE OrganizationID = ? AND SemesterID = ?), 1) AS attendance_rate
                 FROM EventInstances ei
-                JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
+                JOIN EventTypes et 
+                    ON ei.EventTypeID = et.EventTypeID 
+                    AND et.SemesterID = ?
                 JOIN Attendance a ON ei.EventID = a.EventID
                 JOIN Semesters s ON ei.TermCode = s.TermCode
                 WHERE ei.OrganizationID = ? AND s.SemesterID = ?
                 GROUP BY ei.EventID, et.EventType, et.EventTypeID
             ) AS event_rates
             GROUP BY EventTypeID, EventType`,
-            [organizationID, semesterID, organizationID, semesterID]
+            [organizationID, semesterID, semesterID, organizationID, semesterID]
         );
         res.json(rows);
     } catch (error) {
@@ -262,7 +298,7 @@ router.get('/eventTypeComparison', async (req, res) => {
              WHERE SemesterID IN (?, ?)`,
             [firstSemesterID, secondSemesterID]
         );
-        
+
         const semesterLabels = {};
         semesterDetails.forEach(sem => {
             semesterLabels[sem.SemesterID] = sem.TermName;
@@ -274,13 +310,13 @@ router.get('/eventTypeComparison', async (req, res) => {
         // Organize the data for stacked bar chart comparison
         const maxEvents = Math.max(firstSemesterEvents.length, secondSemesterEvents.length);
         const comparisonData = [];
-        
+
         for (let i = 0; i < maxEvents; i++) {
             const eventComparison = {
                 eventNumber: i + 1,
                 firstSemester: i < firstSemesterEvents.length ? {
                     eventID: firstSemesterEvents[i].EventID,
-                    eventTitle: firstSemesterEvents[i].EventTitle, 
+                    eventTitle: firstSemesterEvents[i].EventTitle,
                     eventDate: firstSemesterEvents[i].EventDate,
                     attendanceCount: firstSemesterEvents[i].attendanceCount
                 } : null,
@@ -366,6 +402,51 @@ router.get('/commonEventTypes', async (req, res) => {
             commonEventTypes: rows
         });
 
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/genderRaceTallies', async (req, res) => {
+    const { organizationID, semesterID } = req.query;
+
+    if (!organizationID || !semesterID) {
+        return res.status(400).json({
+            error: 'Missing required parameters: organizationID and semesterID'
+        });
+    }
+
+    try {
+        // Tally for genders: count distinct members grouped by gender
+        const [genderRows] = await db.query(
+            `SELECT 
+                m.Gender, 
+                COUNT(DISTINCT m.MemberID) AS count
+            FROM OrganizationMembers om
+            JOIN Members m ON om.MemberID = m.MemberID
+            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            GROUP BY m.Gender`,
+            [organizationID, semesterID]
+        );
+
+        // Tally for races: count distinct members grouped by race
+        const [raceRows] = await db.query(
+            `SELECT 
+                m.Race, 
+                COUNT(DISTINCT m.MemberID) AS count
+            FROM OrganizationMembers om
+            JOIN Members m ON om.MemberID = m.MemberID
+            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            GROUP BY m.Race`,
+            [organizationID, semesterID]
+        );
+
+        res.json({
+            genders: genderRows,
+            races: raceRows
+        });
     } catch (error) {
         console.error('Query Error:', error);
         res.status(500).json({ error: 'Internal Server Error' });

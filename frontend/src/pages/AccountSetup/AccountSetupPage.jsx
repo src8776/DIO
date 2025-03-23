@@ -301,6 +301,13 @@ export default function AccountSetup() {
           </Button>
         </Box>
       </Paper>
+            <SnackbarAlert
+              open={openSnackbar}
+              message={alertMessage}
+              severity={alertSeverity}
+              onClose={() => setOpenSnackbar(false)}
+            />
     </Container>
+    
   );
 }

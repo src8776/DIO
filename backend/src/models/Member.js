@@ -234,9 +234,7 @@ class Member {
     }
   }
 
-  static async checkProfileCompletion() {
-    const userEmail = req.user.email; // Assuming email is passed as a query parameter
-    
+  static async checkProfileCompletion(email) {
     try {
       const result = await db.query(`
         SELECT 
@@ -253,17 +251,17 @@ class Member {
           END AS isProfileIncomplete
         FROM users
         WHERE email = $1;
-      `, [userEmail]);
+      `, [email]);
   
       if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
+        throw new Error('User not found');
       }
   
       const isProfileIncomplete = result.rows[0].isprofileincomplete === 1;
-      res.status(200).json({ isProfileComplete: !isProfileIncomplete });
+      return !isProfileIncomplete; // Return true if profile is complete, false otherwise
     } catch (error) {
       console.error('Error checking profile status:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      throw error;
     }
   }
 

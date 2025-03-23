@@ -202,15 +202,30 @@ class Member {
     }
   }
 
-  static async getMemberReportData(orgID, selectedSemester) {
+  static async getMemberReportData(orgID, selectedSemester, memberStatus) {
     try {
+      let statuses;
+      switch (memberStatus) {
+        case "both":
+          statuses = ["Active", "Inactive", "Exempt"];
+          break;
+        case "general":
+          statuses = ["Inactive"];
+          break;
+        case "active":
+          statuses = ["Active", "Exempt"];
+          break;
+        default:
+          statuses = ["Active", "Inactive", "Exempt"];
+    }
       const [members] = await db.query(
         `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major
         FROM Members
         LEFT JOIN Majors ON Members.MajorID = Majors.MajorID
 		    LEFT JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
-        WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?`,
-        [orgID, selectedSemester]
+        WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ? AND OrganizationMembers.Status in (?)
+        ORDER BY Members.LastName, Members.FirstName`,
+        [orgID, selectedSemester, statuses]
       );
       return members || null;
     } catch (err) {

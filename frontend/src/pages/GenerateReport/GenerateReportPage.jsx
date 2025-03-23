@@ -43,8 +43,8 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
             onChange={handleFilterChange}
 
           >
-            <FormControlLabel value="active" control={<Radio />} label="Active Members" />
-            <FormControlLabel value="general" control={<Radio />} label="General Members" />
+            <FormControlLabel value="active" control={<Radio />} label="Active and Exempt Members" />
+            <FormControlLabel value="general" control={<Radio />} label="General (Inactive) Members" />
             <FormControlLabel value="both" control={<Radio />} label="Both" />
           </RadioGroup>
         </Box>

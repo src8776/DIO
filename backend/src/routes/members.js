@@ -35,27 +35,34 @@ router.get('/names', async (req, res) => {
 router.post('/add', async (req, res) => {
     const { firstName, lastName, email, organizationID, semesterID } = req.body;
     const userName = email.split('@')[0];
-    const fullName = `${firstName} ${lastName}`;
-    console.log('Adding member:', { firstName, lastName, email}, '\nTo Org:', { organizationID }, '\nIn Semester: ', {semesterID });
+    const fullName = `${firstName} ${lastName}`.trim();
 
-    try{
+    // Reject insert if fullName is empty
+    if (!fullName) {
+        return res.status(400).json({ error: 'Full name is required' });
+    }
+
+    console.log('Adding member:', { fullName, email}, '\nTo Org:', { organizationID }, '\nIn Semester: ', {semesterID });
+
+    try {
         let query = 'SELECT MemberID FROM Members WHERE Email = ?';
         let [rows] = await db.query(query, [email]);
 
-        let memberID;
-        if(rows.length > 0){
-            memberID = rows[0].MemberID;
-        } else {
-            query = 'INSERT INTO Members (UserName, FirstName, LastName, Email, FullName) VALUES (?, ?, ?, ?, ?)';
-            const [result] = await db.query(query, [userName, firstName, lastName, email, fullName]);
-            memberID = result.insertId;
+        // Block the action if a member with the same email already exists
+        if (rows.length > 0) {
+            return res.status(409).json({ error: 'A member with this email already exists' });
         }
+
+        query = 'INSERT INTO Members (UserName, FirstName, LastName, Email, FullName) VALUES (?, ?, ?, ?, ?)';
+        const [result] = await db.query(query, [userName, firstName, lastName, email, fullName]);
+        const memberID = result.insertId;
 
         query = 'INSERT INTO OrganizationMembers (MemberID, OrganizationID, SemesterID, RoleID) VALUES (?, ?, ?, 2)';
         await db.query(query, [memberID, organizationID, semesterID]);
 
-        res.status(201).json({ message: 'Member added to organization successfully'})
-    }catch (error){
+        res.status(201).json({ message: 'Member added to organization successfully' });
+        console.log('MemberID:', { memberID }, 'added successfully');
+    } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }

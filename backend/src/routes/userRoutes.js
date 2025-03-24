@@ -139,15 +139,6 @@ router.get('/majors', attachMemberData, async (req, res) => {
 });
 
 /**
- * Route to get the member's role.
- */
-router.get('/memberRole', attachMemberData, async (req, res) => {
-  const orgMember = req.orgMember;
-  const role = orgMember.RoleID;
-  res.json({ role });
-});
-
-/**
  * Route to check if the member is in WIC.
  */
 router.get('/inWic', attachMemberData, async (req, res) => {

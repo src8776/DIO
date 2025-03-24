@@ -28,27 +28,6 @@ export const checkAuth = async () => {
 };
 
 /**
- * Function to check the user's role by making a request to the backend.
- * Returns the user's role or null if not found.
- */
-export const checkRole = async () => {
-  try {
-    const response = await fetch('/api/user/memberRole', {
-      method: 'GET',
-      credentials: 'same-origin', // Ensure the session cookie is sent
-    });
-    if (response.ok) {
-      const data = await response.json();
-      return data.role;  // Return the user's role
-    }
-    return null;  // Role not found
-  } catch (error) {
-    console.error("Role check failed:", error);
-    return null;  // Assume no role in case of error
-  }
-};
-
-/**
  * Function to check if the user is in WIC by making a request to the backend.
  * Returns the user's WIC role or null if not found.
  */
@@ -116,7 +95,6 @@ const checkProfileCompletion = async () => {
  */
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [role, setRole] = useState(null);
   const [inWic, setInWic] = useState(null);
   const [inComs, setInComs] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(null);
@@ -127,11 +105,9 @@ const ProtectedRoute = ({ element }) => {
       const authStatus = await checkAuth();
       setIsAuthenticated(authStatus);
       if (authStatus) {
-        const userRole = await checkRole();
         const InWic = await checkWicRole();
         const InComs = await checkComsRole();
         const profileStatus = await checkProfileCompletion();
-        setRole(userRole);
         setInWic(InWic);
         setInComs(InComs);
         setIsProfileComplete(profileStatus);
@@ -141,7 +117,7 @@ const ProtectedRoute = ({ element }) => {
     check();  // Check authentication and role on component mount
   }, []);
 
-  if (isAuthenticated === null || (isAuthenticated && role === null)) {
+  if (isAuthenticated === null) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
         <CircularProgress />

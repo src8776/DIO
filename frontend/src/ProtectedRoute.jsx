@@ -115,7 +115,7 @@ const ProtectedRoute = ({ element }) => {
     check();  // Check authentication and role on component mount
   }, []);
 
-  if (isAuthenticated === null || (isAuthenticated && role === null)) {
+  if (isAuthenticated === null || (isAuthenticated && role === null) || !isProfileComplete) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
         <CircularProgress />
@@ -124,7 +124,7 @@ const ProtectedRoute = ({ element }) => {
   }
 
 
-  if (isAuthenticated && !isProfileComplete) {
+  if (isAuthenticated && !isProfileComplete && location.pathname !== '/acctSetup') {
     return <Navigate to="/acctSetup" replace />;
   }
 

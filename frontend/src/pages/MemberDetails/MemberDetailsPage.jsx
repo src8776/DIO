@@ -238,7 +238,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
                       ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} align="center">
+                      <TableCell colSpan={4} align="center">
                         <Typography variant="body2" color="text.secondary">No attendance records found.</Typography>
                       </TableCell>
                     </TableRow>

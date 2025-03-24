@@ -115,7 +115,7 @@ const ProtectedRoute = ({ element }) => {
     check();  // Check authentication and role on component mount
   }, []);
 
-  if (isAuthenticated === null || (isAuthenticated && role === null) || !isProfileComplete) {
+  if (isAuthenticated === null || (isAuthenticated && role === null)) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
         <CircularProgress />

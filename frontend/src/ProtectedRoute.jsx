@@ -128,6 +128,26 @@ const ProtectedRoute = ({ element }) => {
     return <Navigate to="/acctSetup" replace />;
   }
 
+
+  if (isAuthenticated) {
+    if (location.pathname.startsWith('/admin/wic')) {
+      if (inWic && (inWic.RoleID === 3 || inWic.RoleID === 1)) {
+        return element;  // Allow access if role is 3
+      } else {
+        return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
+      }
+    } else if (location.pathname.startsWith('/admin/coms')) {
+      if (inComs && (inComs.RoleID === 3 || inComs.RoleID === 1)) {
+        return element;  // Allow access if role is 3
+      } else {
+        return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
+      }
+    }
+    return element;  // Allow access for non-admin routes
+  } else {
+    return location.pathname === '/' ? <Navigate to="/welcome" replace /> : <Navigate to="/login" replace />;
+  }
+  /*
   if (isAuthenticated) {
     if (location.pathname.startsWith('/admin/wic')) {
       if ((role === 3 || role === 1) && inWic !== null) {
@@ -146,6 +166,7 @@ const ProtectedRoute = ({ element }) => {
   } else {
     return location.pathname === '/' ? <Navigate to="/welcome" replace /> : <Navigate to="/login" replace />;
   }
+    *?
 };
 
 export default ProtectedRoute;

@@ -5,7 +5,6 @@
 
 const express = require('express');
 const router = express.Router();
-//const passport = require('passport');
 const Member = require('../models/Member');
 const OrgMember = require('../models/OrganizationMember');
 

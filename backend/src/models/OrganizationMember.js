@@ -122,7 +122,9 @@ class OrganizationMember {
   static async getComsMemberByID(memberID, orgID) {
     try {
       const [[member]] = await db.query(
-        'SELECT * FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ?',
+        `SELECT * FROM OrganizationMembers 
+         WHERE MemberID = ? AND OrganizationID = ? 
+         ORDER BY CreatedAt DESC LIMIT 1`,
         [memberID, orgID]
       );
       return member || null;
@@ -131,11 +133,13 @@ class OrganizationMember {
       throw err;
     }
   }
-  
+
   static async getWicMemberByID(memberID, orgID) {
     try {
       const [[member]] = await db.query(
-        'SELECT * FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ?',
+        `SELECT * FROM OrganizationMembers 
+         WHERE MemberID = ? AND OrganizationID = ? 
+         ORDER BY CreatedAt DESC LIMIT 1`,
         [memberID, orgID]
       );
       return member || null;

@@ -98,6 +98,7 @@ const ProtectedRoute = ({ element }) => {
   const [inWic, setInWic] = useState(null);
   const [inComs, setInComs] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -111,14 +112,14 @@ const ProtectedRoute = ({ element }) => {
         setInWic(InWic);
         setInComs(InComs);
         setIsProfileComplete(profileStatus);
-        console.log("Profile Status:", profileStatus);
       }
+      setIsLoading(false);
     };
 
     check();  // Check authentication and role on component mount
   }, []);
-  console.log("isProfileComplete:", isProfileComplete);
-  if (isAuthenticated === null) {
+
+  if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
         <CircularProgress />

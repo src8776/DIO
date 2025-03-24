@@ -124,7 +124,7 @@ class OrganizationMember {
       const [[member]] = await db.query(
         `SELECT * FROM OrganizationMembers 
          WHERE MemberID = ? AND OrganizationID = ? 
-         ORDER BY CreatedAt DESC LIMIT 1`,
+         ORDER BY SemesterID DESC LIMIT 1`,
         [memberID, orgID]
       );
       return member || null;
@@ -139,7 +139,7 @@ class OrganizationMember {
       const [[member]] = await db.query(
         `SELECT * FROM OrganizationMembers 
          WHERE MemberID = ? AND OrganizationID = ? 
-         ORDER BY CreatedAt DESC LIMIT 1`,
+         ORDER BY SemesterID DESC LIMIT 1`,
         [memberID, orgID]
       );
       return member || null;

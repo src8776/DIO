@@ -1,8 +1,16 @@
+/**
+ * @file ProtectedRoute.jsx
+ * @description This file contains the ProtectedRoute component which handles route protection based on user authentication and roles.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 
-// Function to check if the user is authenticated by making a request to the backend
+/**
+ * Function to check if the user is authenticated by making a request to the backend.
+ * Returns true if the user is authenticated, false otherwise.
+ */
 export const checkAuth = async () => {
   try {
     const response = await fetch('/saml2/api/me', {
@@ -19,7 +27,10 @@ export const checkAuth = async () => {
   }
 };
 
-// Function to check the user's role by making a request to the backend
+/**
+ * Function to check the user's role by making a request to the backend.
+ * Returns the user's role or null if not found.
+ */
 export const checkRole = async () => {
   try {
     const response = await fetch('/api/user/memberRole', {
@@ -37,6 +48,10 @@ export const checkRole = async () => {
   }
 };
 
+/**
+ * Function to check if the user is in WIC by making a request to the backend.
+ * Returns the user's WIC role or null if not found.
+ */
 export const checkWicRole = async () => {
   try {
     const response = await fetch('/api/user/inWic', {
@@ -54,6 +69,10 @@ export const checkWicRole = async () => {
   }
 };
 
+/**
+ * Function to check if the user is in COMS by making a request to the backend.
+ * Returns the user's COMS role or null if not found.
+ */
 export const checkComsRole = async () => {
   try {
     const response = await fetch('/api/user/inComs', {
@@ -71,6 +90,10 @@ export const checkComsRole = async () => {
   }
 };
 
+/**
+ * Function to check if the user's profile is complete by making a request to the backend.
+ * Returns true if the profile is complete, false otherwise.
+ */
 const checkProfileCompletion = async () => {
   try {
     const response = await fetch('/api/user/profileCompletion', {
@@ -88,6 +111,9 @@ const checkProfileCompletion = async () => {
   }
 };
 
+/**
+ * ProtectedRoute component to handle route protection based on user authentication and roles.
+ */
 const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [role, setRole] = useState(null);
@@ -123,22 +149,21 @@ const ProtectedRoute = ({ element }) => {
     );
   }
 
-
+  // If the user is authenticated but the profile is not complete, redirect to the account setup page
   if (isAuthenticated && !isProfileComplete && location.pathname !== '/acctSetup') {
     return <Navigate to="/acctSetup" replace />;
   }
 
-
   if (isAuthenticated) {
     if (location.pathname.startsWith('/admin/wic')) {
       if (inWic && (inWic.RoleID === 3 || inWic.RoleID === 1)) {
-        return element;  // Allow access if role is 3
+        return element;  // Allow access if role is 3 or 1
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
       }
     } else if (location.pathname.startsWith('/admin/coms')) {
       if (inComs && (inComs.RoleID === 3 || inComs.RoleID === 1)) {
-        return element;  // Allow access if role is 3
+        return element;  // Allow access if role is 3 or 1
       } else {
         return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
       }
@@ -147,26 +172,6 @@ const ProtectedRoute = ({ element }) => {
   } else {
     return location.pathname === '/' ? <Navigate to="/welcome" replace /> : <Navigate to="/login" replace />;
   }
-  /*
-  if (isAuthenticated) {
-    if (location.pathname.startsWith('/admin/wic')) {
-      if ((role === 3 || role === 1) && inWic !== null) {
-        return element;  // Allow access if role is 3
-      } else {
-        return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
-      }
-    } else if (location.pathname.startsWith('/admin/coms')) {
-      if ((role === 3 || role === 1) && inComs !== null) {
-        return element;  // Allow access if role is 3
-      } else {
-        return <Navigate to="/unauthorized" replace />;  // Deny access if role is not 3
-      }
-    }
-    return element;  // Allow access for non-admin routes
-  } else {
-    return location.pathname === '/' ? <Navigate to="/welcome" replace /> : <Navigate to="/login" replace />;
-  }
-    */
 };
 
 export default ProtectedRoute;

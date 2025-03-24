@@ -152,6 +152,7 @@ router.get('/memberRole', attachMemberData, async (req, res) => {
  */
 router.get('/inWic', attachMemberData, async (req, res) => {
   const inWic = req.WicMember;
+  console.log("In WIC:", inWic);
   res.json({ inWic });
 });
 
@@ -160,6 +161,7 @@ router.get('/inWic', attachMemberData, async (req, res) => {
  */
 router.get('/inComs', attachMemberData, async (req, res) => {
   const inComs = req.ComsMember;
+  console.log("In COMS:", inComs);
   res.json({ inComs });
 });
 

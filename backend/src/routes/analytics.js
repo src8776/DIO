@@ -453,4 +453,49 @@ router.get('/genderRaceTallies', async (req, res) => {
     }
 });
 
+
+router.get('/membersByGraduation', async (req, res) => {
+    console.log('Received request at /membersByGraduation');
+    const { organizationID, semesterID } = req.query;
+
+    if (!organizationID || !semesterID) {
+        return res.status(400).json({ error: 'Missing required parameters: organizationID and semesterID' });
+    }
+    
+    try {
+        // Get the semester record to extract the end date (used to determine graduation year)
+        const [semesterRows] = await db.query(
+            `SELECT EndDate FROM Semesters WHERE SemesterID = ?`,
+            [semesterID]
+        );
+        
+        if (semesterRows.length === 0) {
+            return res.status(404).json({ error: 'Semester not found' });
+        }
+        
+        // Extract the year from the EndDate (assumes EndDate is in YYYY-MM-DD format)
+        const endDate = new Date(semesterRows[0].EndDate);
+        const graduationYear = endDate.getFullYear();
+
+        console.log(`Graduation Year: ${graduationYear}`);
+        
+        // Query OrganizationMembers joined with Members where the member's GraduationYear matches
+        const [memberRows] = await db.query(
+            `SELECT m.*
+             FROM OrganizationMembers om
+             JOIN Members m ON om.MemberID = m.MemberID
+             WHERE om.OrganizationID = ?
+               AND om.SemesterID = ?
+               AND m.GraduationYear = ?`,
+            [organizationID, semesterID, graduationYear]
+        );
+        
+        res.json(memberRows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 module.exports = router;

@@ -162,7 +162,7 @@ router.get('/inComs', attachMemberData, async (req, res) => {
 router.get('/profileCompletion', attachMemberData, async (req, res) => {
   const member = req.member;
   let isCompleted = true;
-
+  console.log("Member Data:", member);
   // Check if any of the member's properties are null
   if (
     !member.AcademicYear ||
@@ -175,7 +175,7 @@ router.get('/profileCompletion', attachMemberData, async (req, res) => {
   ) {
     isCompleted = false;
   }
-
+  console.log("Profile Completion Status:", isCompleted);
   res.json({ isCompleted });
 });
 

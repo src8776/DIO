@@ -111,12 +111,13 @@ const ProtectedRoute = ({ element }) => {
         setInWic(InWic);
         setInComs(InComs);
         setIsProfileComplete(profileStatus);
+        console.log("Profile Status:", profileStatus);
       }
     };
 
     check();  // Check authentication and role on component mount
   }, []);
-
+  console.log("isProfileComplete:", isProfileComplete);
   if (isAuthenticated === null) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>

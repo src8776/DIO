@@ -166,7 +166,7 @@ const ProtectedRoute = ({ element }) => {
   } else {
     return location.pathname === '/' ? <Navigate to="/welcome" replace /> : <Navigate to="/login" replace />;
   }
-    *?
+    */
 };
 
 export default ProtectedRoute;

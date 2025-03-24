@@ -263,7 +263,8 @@ export default function InputFileUpload({ orgID, eventType, onUploadSuccess, sel
         <DialogTitle>Confirm Date Assignment</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            There are {dialogData.missingCount} rows with missing dates. Process the whole file as {dialogData.eventDate}?
+            There are {dialogData.missingCount} rows with missing dates.<br/>
+            Process the whole file as {dialogData.eventDate}?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

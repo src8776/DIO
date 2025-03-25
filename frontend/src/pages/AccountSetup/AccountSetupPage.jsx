@@ -232,6 +232,7 @@ export default function AccountSetup() {
                   <MenuItem value={'L'}>L</MenuItem>
                   <MenuItem value={'XL'}>XL</MenuItem>
                   <MenuItem value={'XXL'}>XXL</MenuItem>
+                  <MenuItem value={'XXXL'}>XXL</MenuItem>
                 </Select>
               </FormControl>
 

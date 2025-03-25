@@ -15,9 +15,12 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
         console.log('Attendance Data:', attendanceData);
         const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
 
-        const memberName = await Member.getMemberNameById(memberID);
-        const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID);
-        const memberEmail = await Member.getMemberEmailById(memberID);
+        // Retrieve memberName, currentStatus, memberEmail concurrently.
+        const [memberName, currentStatus, memberEmail] = await Promise.all([
+            Member.getMemberNameById(memberID),
+            OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID),
+            Member.getMemberEmailById(memberID)
+        ]);
 
         // Update if non-Exempt and status has changed (allows Active -> Inactive update)
         if (currentStatus !== 'Exempt' && currentStatus !== statusObject.status) {

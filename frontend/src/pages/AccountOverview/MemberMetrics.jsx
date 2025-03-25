@@ -12,7 +12,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
     return (
         <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
-                <Box sx={{display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1}}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1 }}>
                     <PeopleAltIcon />
                     <Typography variant="h5">Member Metrics</Typography>
                 </Box>
@@ -22,7 +22,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
                 <Box>
                     <Typography variant="h6">Status</Typography>
                     <Typography variant="h5" sx={{ color: statusObject.status === 'active' ? 'green' : 'red' }}>
-                        {statusObject.status || 'Inactive'}
+                        {statusObject.status === 'inactive' ? 'General' : statusObject.status || 'General'}
                     </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem />

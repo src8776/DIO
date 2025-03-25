@@ -15,6 +15,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendActiveStatusEmail(organizationID, memberName, memberEmail) {
+    console.log(`Sending email to ${memberName}`);
     try {
         const orgName = await OrganizationSetting.getOrganizationName(organizationID);
         await transporter.sendMail({

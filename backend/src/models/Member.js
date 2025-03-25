@@ -104,9 +104,9 @@ class Member {
         'SELECT FirstName FROM Members WHERE MemberID = ?',
         [memberId]
       );
-      return member?.Email || null;
+      return member?.FirstName || null;
     } catch (err) {
-      console.error('Error fetching member email:', err);
+      console.error('Error fetching member name:', err);
       throw err;
     }
   }

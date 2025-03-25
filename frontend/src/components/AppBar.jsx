@@ -51,7 +51,7 @@ export default function DrawerAppBar({ toggleTheme, mode }) {
                 credentials: "include",
             });
             if (response.ok) {
-                window.location.href = "/";
+                window.location.href = "/closeBrowser";
             } else {
                 console.error("Logout failed");
             }

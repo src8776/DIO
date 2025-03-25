@@ -17,6 +17,7 @@ import ProtectedRoute from './ProtectedRoute.jsx';
 import Login from './pages/LoginPage/login';
 import UnauthorizedPage from './pages/Unauthorized/unauthorized.jsx';
 import WelcomePage from './pages/Unauthorized/welcome.jsx';
+import CloseBrowserPage from './pages/LogoutCloseBrowser/LogoutCloseBrowser.jsx';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
@@ -68,6 +69,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/acctSetup" element={wrapWithProtectedRoute(<AcctSetup />)} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/closeBrowser" element={<CloseBrowserPage />} />
         <Route path="*" element={<Navigate to="/" replace />} /> {/* Redirect to home for any unknown routes */}
       </Routes>
     </ThemeProvider>

@@ -68,10 +68,11 @@ export default function AccountSetup() {
   const [pantSize, setPantSize] = useState('');
   const [majors, setMajors] = useState([]);
   const [firstName, setFirstName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [race, setRace] = useState('');
   const [gender, setGender] = useState('');
-  const [genders, setGenders] = useState([]);  
+  const [genders, setGenders] = useState([]);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const [alertMessage, setAlertMessage] = useState('');
@@ -89,6 +90,7 @@ export default function AccountSetup() {
       const profileData = await fetchUserProfileData();
       console.log("Profile Data:", profileData);
       setFirstName(profileData.firstName);
+      setFullName(profileData.fullName);
       setEmail(profileData.email);
       setStudentYear(profileData.academicYear);
       setGraduationDate(profileData.graduationDate);
@@ -139,7 +141,7 @@ export default function AccountSetup() {
       race,
       gender
     });
-  
+
     if (result.success) {
       showAlert('Profile data saved successfully', 'success');
     } else {
@@ -148,7 +150,7 @@ export default function AccountSetup() {
   };
 
   return (
-    <Container sx={{width: { xs: '100%', md: '50%' }, p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2}}>
+    <Container sx={{ width: { xs: '100%', md: '50%' }, p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
       <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
         <Typography variant='h5' >Account Settings</Typography>
@@ -156,7 +158,7 @@ export default function AccountSetup() {
         <Paper elevation={1} sx={{ minWidth: '100%', }}>
           <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 2 }}>
-              <Typography variant='h6'>Name: {firstName}</Typography>
+              <Typography variant='h6'>Name: {fullName}</Typography>
               <Typography variant='h6'>Email: {email}</Typography>
             </Box>
 
@@ -181,21 +183,21 @@ export default function AccountSetup() {
 
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="graduation-year-select-label">Graduation Year</InputLabel>
-                  <Select
-                    required
-                    labelId="graduation-year-select-label"
-                    value={graduationDate || ''}
-                    label="Graduation Year"
-                    onChange={(e) => setGraduationDate(e.target.value)}
-                  >
-                    {Array.from({ length: 88 }, (_, i) => 1990 + i).map((year) => (
-                      <MenuItem key={year} value={year}>
-                        {year}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                <Select
+                  required
+                  labelId="graduation-year-select-label"
+                  value={graduationDate || ''}
+                  label="Graduation Year"
+                  onChange={(e) => setGraduationDate(e.target.value)}
+                >
+                  {Array.from({ length: 88 }, (_, i) => 1990 + i).map((year) => (
+                    <MenuItem key={year} value={year}>
+                      {year}
+                    </MenuItem>
+                  ))}
+                </Select>
               </FormControl>
-        
+
             </Box>
 
             <FormControl fullWidth>
@@ -301,13 +303,13 @@ export default function AccountSetup() {
           </Button>
         </Box>
       </Paper>
-            <SnackbarAlert
-              open={openSnackbar}
-              message={alertMessage}
-              severity={alertSeverity}
-              onClose={() => setOpenSnackbar(false)}
-            />
+      <SnackbarAlert
+        open={openSnackbar}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={() => setOpenSnackbar(false)}
+      />
     </Container>
-    
+
   );
 }

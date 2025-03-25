@@ -12,14 +12,15 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
         const activeReqData = await OrganizationSetting.getActiveRequirementByOrg(organizationID, semester.SemesterID);
         const orgRulesData = await EventRule.getEventRulesByOrgAndSemester(organizationID, semester.SemesterID);
         const attendanceData = await Attendance.getAttendanceByMemberAndOrg(memberID, organizationID, semester.TermCode);
+        console.log('Attendance Data:', attendanceData);
         const statusObject = useAccountStatus(activeReqData, orgRulesData, attendanceData);
 
         const memberName = await Member.getMemberNameById(memberID);
         const currentStatus = await OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID);
         const memberEmail = await Member.getMemberEmailById(memberID);
 
-        // only update if newly active
-        if (currentStatus !== 'Exempt' && currentStatus !== 'Active') {
+        // Update if non-Exempt and status has changed (allows Active -> Inactive update)
+        if (currentStatus !== 'Exempt' && currentStatus !== statusObject.status) {
             await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID);
             if (statusObject.status === 'Active') {
                 // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disable for now so we don't spam students :)
@@ -48,7 +49,7 @@ const useAccountStatus = (activeReqData, orgRulesData, attendanceData) => {
 
     // Process user's attendance data.
     const attendanceRecords = attendanceData.length > 0 ? attendanceData[0].attendanceRecord : [];
-
+    console.log('Attendance Records Used to Determine Status:', attendanceRecords);
     // Once all data is available, call the algorithm.
     if (orgRulesData && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
         statusObject = membershipStatus.determineMembershipStatusModular(
@@ -61,4 +62,4 @@ const useAccountStatus = (activeReqData, orgRulesData, attendanceData) => {
     return statusObject;
 }
 
-module.exports = {updateMemberStatus, useAccountStatus};
+module.exports = { updateMemberStatus, useAccountStatus };

@@ -65,6 +65,7 @@ router.get('/detailsBySemester', async (req, res) => {
                 m.*, 
                 r.RoleName,
                 ma.Title AS Major,
+                om.Status AS status,
                 (
                     SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
@@ -209,6 +210,8 @@ router.get('/role', async (req, res) => {
 
 router.post('/addIndividualAttendance', async (req, res) => {
     const { memberID, organizationID, semesterID, eventType, eventDate, attendanceStatus, attendanceSource, hours, eventTitle } = req.body;
+    console.log('Received request at /addIndividualAttendance');
+    console.log('Request Body:', req.body);
 
     // Input validation
     if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID) || !eventType || !eventDate || !attendanceStatus || !attendanceSource) {
@@ -217,11 +220,16 @@ router.post('/addIndividualAttendance', async (req, res) => {
 
     try {
         // Step 1: Fetch TermCode from Semesters using semesterID
-        const [semester] = await db.query('SELECT TermCode FROM Semesters WHERE SemesterID = ?', [semesterID]);
-        if (!semester.length) {
+        const [semesterRows] = await db.query('SELECT * FROM Semesters WHERE SemesterID = ?', [semesterID]);
+        if (!semesterRows.length) {
             return res.status(400).json({ error: 'Invalid semesterID' });
         }
-        const termCode = semester[0].TermCode;
+        const semester = semesterRows[0];
+        console.log('Semester record:', semester);
+
+        const termCode = semester.TermCode;
+        console.log('TermCode:', termCode);
+
 
         // Step 2: Fetch EventTypeID, ensuring it exists for this semester and organization
         const [eventTypeRow] = await db.query(`
@@ -229,10 +237,13 @@ router.post('/addIndividualAttendance', async (req, res) => {
             FROM EventTypes 
             WHERE EventType = ? AND SemesterID = ? AND OrganizationID = ?
         `, [eventType, semesterID, organizationID]);
+        console.log('Fetched event type data:', eventTypeRow);
         if (!eventTypeRow.length) {
+            console.log('No event type found for:', { eventType, semesterID, organizationID });
             return res.status(400).json({ error: 'Event type does not exist for this semester and organization' });
         }
         const eventTypeID = eventTypeRow[0].EventTypeID;
+        console.log('EventTypeID:', eventTypeID);
 
         // Step 3: Check for an existing EventInstance
         let [eventInstance] = await db.query(`
@@ -240,33 +251,79 @@ router.post('/addIndividualAttendance', async (req, res) => {
             FROM EventInstances 
             WHERE TermCode = ? AND OrganizationID = ? AND EventTypeID = ? AND EventDate = ?
         `, [termCode, organizationID, eventTypeID, eventDate]);
+        console.log('Existing EventInstance query result:', eventInstance);
 
         // Step 4: If no EventInstance exists, create one
         if (!eventInstance.length) {
             const titleToUse = eventTitle || `${eventType} Event on ${eventDate}`;
+            console.log('No existing EventInstance found. Creating new with title:', titleToUse);
             const [result] = await db.query(`
                 INSERT INTO EventInstances (TermCode, OrganizationID, EventTypeID, EventDate, EventTitle)
                 VALUES (?, ?, ?, ?, ?)
             `, [termCode, organizationID, eventTypeID, eventDate, titleToUse]);
             eventInstance = { EventID: result.insertId };
+            console.log('Created new EventInstance with EventID:', eventInstance.EventID);
         } else {
             eventInstance = eventInstance[0];
+            console.log('Using existing EventInstance with EventID:', eventInstance.EventID);
         }
+
+        const eventID = eventInstance.EventID;
 
         // Step 5: Insert the attendance record
         await db.query(`
             INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, Hours, AttendanceSource, OrganizationID)
             VALUES (?, ?, NOW(), ?, ?, ?, ?)
-        `, [memberID, eventInstance.EventID, attendanceStatus, hours || null, attendanceSource, organizationID]);
+        `, [memberID, eventID, attendanceStatus, hours || null, attendanceSource, organizationID]);
+        console.log(`Attendance record inserted for MemberID ${memberID} with EventID ${eventID}`);
 
         // Log the insertion
         console.log(`[@memberDetails: EventID ${eventID} was added to MemberID ${memberID}'s attendance records]`);
 
-        // Re-Evaluate status
+        // Step 6: Update member status
         await useAccountStatus.updateMemberStatus(memberID, organizationID, semester)
+        console.log('Updated member status for MemberID:', memberID, 'for semester:', semester);
 
-        // Success response
-        res.status(201).json({ message: 'Attendance record added successfully' });
+        // Step 7: Fetch updated member data
+        const [memberRows] = await db.query(`
+            SELECT 
+                m.MemberID,
+                m.FullName,
+                COALESCE(om.Status, 'N/A') AS Status,
+                COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END) AS AttendanceRecord,
+                MAX(a.LastUpdated) AS LastUpdated
+            FROM Members m
+            LEFT JOIN OrganizationMembers om ON m.MemberID = om.MemberID 
+                AND om.OrganizationID = ? 
+                AND om.SemesterID = ?
+            LEFT JOIN Attendance a ON m.MemberID = a.MemberID 
+                AND a.OrganizationID = ? 
+                AND a.EventID IN (
+                    SELECT EventID 
+                    FROM EventInstances 
+                    WHERE TermCode = ?
+                )
+            WHERE m.MemberID = ?
+            GROUP BY m.MemberID, m.FullName, om.Status
+        `, [organizationID, semesterID, organizationID, termCode, memberID]);
+
+        if (!memberRows.length) {
+            return res.status(404).json({ error: 'Member not found after update' });
+        }
+
+        const updatedMember = memberRows[0];
+
+        // Step 8: Success response with updated member data
+        res.status(201).json({
+            message: 'Attendance record added successfully',
+            updatedMember: {
+                MemberID: updatedMember.MemberID,
+                FullName: updatedMember.FullName,
+                Status: updatedMember.Status,
+                AttendanceRecord: updatedMember.AttendanceRecord || 0,
+                LastUpdated: updatedMember.LastUpdated ? updatedMember.LastUpdated.toISOString() : null
+            }
+        });
     } catch (error) {
         console.error('Error adding attendance record:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -283,7 +340,7 @@ router.delete('/removeIndividualAttendance', async (req, res) => {
     }
 
     try {
-        // Delete the attendance record
+        // Step 1: Delete the attendance record
         const [result] = await db.query(`
             DELETE FROM Attendance 
             WHERE AttendanceID = ? AND MemberID = ? AND EventID = ? AND OrganizationID = ?
@@ -293,14 +350,52 @@ router.delete('/removeIndividualAttendance', async (req, res) => {
             return res.status(404).json({ error: 'Attendance record not found' });
         }
 
-        // Log the deletion
+        // Step 2: Update member status
         console.log(`[@memberDetails: AttendnaceID ${attendanceID} was deleted from MemberID ${memberID}'s attendance records]`);
 
         // Re-Evaluate status
         await useAccountStatus.updateMemberStatus(memberID, organizationID, semester)
 
-        // Success response
-        res.status(200).json({ message: 'Attendance record removed successfully' });
+        // Step 3: Fetch updated member data
+        const [memberRows] = await db.query(`
+        SELECT 
+            m.MemberID,
+            m.FullName,
+            COALESCE(om.Status, 'N/A') AS Status,
+            COUNT(CASE WHEN a.AttendanceStatus = 'Attended' THEN 1 END) AS AttendanceRecord,
+            MAX(a.LastUpdated) AS LastUpdated
+        FROM Members m
+        LEFT JOIN OrganizationMembers om ON m.MemberID = om.MemberID 
+            AND om.OrganizationID = ? 
+            AND om.SemesterID = ?
+        LEFT JOIN Attendance a ON m.MemberID = a.MemberID 
+            AND a.OrganizationID = ? 
+            AND a.EventID IN (
+                SELECT EventID 
+                FROM EventInstances 
+                WHERE TermCode = ?
+            )
+        WHERE m.MemberID = ?
+        GROUP BY m.MemberID, m.FullName, om.Status
+    `, [organizationID, semester.SemesterID, organizationID, semester.TermCode, memberID]);
+
+        if (!memberRows.length) {
+            return res.status(404).json({ error: 'Member not found after update' });
+        }
+
+        const updatedMember = memberRows[0];
+
+        // Step 4: Success response with updated member data
+        res.status(200).json({
+            message: 'Attendance record removed successfully',
+            updatedMember: {
+                MemberID: updatedMember.MemberID,
+                FullName: updatedMember.FullName,
+                Status: updatedMember.Status,
+                AttendanceRecord: updatedMember.AttendanceRecord || 0,
+                LastUpdated: updatedMember.LastUpdated ? updatedMember.LastUpdated.toISOString() : null
+            }
+        });
     } catch (error) {
         console.error('Error removing attendance record:', error);
         res.status(500).json({ error: 'Internal Server Error' });

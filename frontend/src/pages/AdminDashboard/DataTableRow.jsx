@@ -5,7 +5,7 @@ import MemberDetailsDrawer from '../MemberDetails/MemberDetailsDrawer';
 
 const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
-const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester }) => {
+const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {
     const memberStatus = row.Status === 'N/A' 
         ? 'N/A' 
         : (row.Status === 'Inactive' ? 'General' : 'Active');
@@ -64,6 +64,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
                     memberStatus={memberStatus}
                     selectedSemester={selectedSemester}
                     activeSemester={activeSemester}
+                    onMemberUpdate={onMemberUpdate}
                 />
             </TableCell>
         </TableRow>

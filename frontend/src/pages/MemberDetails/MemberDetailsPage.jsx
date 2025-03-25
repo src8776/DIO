@@ -23,7 +23,7 @@ const StatusChip = ({ memberStatus, ...props }) => (
   />
 );
 
-export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester }) {
+export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate }) {
   const [memberInfo, setMemberInfo] = React.useState();
   const [open, setOpen] = React.useState(false);
   const [eventTypeItems, setEventTypeItems] = React.useState([]);
@@ -106,6 +106,9 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
+        if (data.updatedMember && onMemberUpdate) {
+          onMemberUpdate(data.updatedMember);
+        }
         setOpen(false);
         fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
           .then(response => response.json())
@@ -129,6 +132,9 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       .then(response => response.json())
       .then(data => {
         console.log('Deleted:', data);
+        if (data.updatedMember && onMemberUpdate) {
+          onMemberUpdate(data.updatedMember);
+        }
         setConfirmDialogOpen(false);
         setAttendanceToDelete(null);
         fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)

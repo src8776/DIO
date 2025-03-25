@@ -58,6 +58,7 @@ class Attendance {
   }
 
   static async getAttendanceByMemberAndOrg(memberID, organizationID, termCode) {
+    console.log('Getting attendance data for member:', memberID, 'in organization:', organizationID, 'for term:', termCode);
     try {
       const query = `
           SELECT JSON_ARRAYAGG(
@@ -79,6 +80,7 @@ class Attendance {
           ) AS t;
       `;
       const [rows] = await db.query(query, [organizationID, memberID, termCode]);
+      console.log('Attendance Data From Query:', rows);
       return rows;
   } catch (error) {
       console.error('Error fetching Organization Info data:', error);

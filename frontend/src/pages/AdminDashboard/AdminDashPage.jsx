@@ -117,7 +117,13 @@ function AdminDash() {
     }
   };
 
-  // console.log(memberData[0].AttendanceRecord)
+  const updateMemberData = (updatedMember) => {
+    setMemberData((prevData) =>
+      prevData.map((member) =>
+        member.MemberID === updatedMember.MemberID ? updatedMember : member
+      )
+    );
+  };
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
@@ -160,7 +166,14 @@ function AdminDash() {
 
         {/* Data Table */}
         <Paper elevation={0}>
-          <DataTable orgID={orgID} memberData={memberData} isLoading={isLoading} selectedSemester={selectedSemester} activeSemester={activeSemester} />
+          <DataTable
+            orgID={orgID}
+            memberData={memberData}
+            isLoading={isLoading}
+            selectedSemester={selectedSemester}
+            activeSemester={activeSemester}
+            onMemberUpdate={updateMemberData}
+          />
         </Paper>
       </Box>
     </Container>

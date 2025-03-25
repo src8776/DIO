@@ -4,7 +4,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import MemberDetailsPage from './MemberDetailsPage';
 
-export default function MemberDetailsDrawer({ memberID, orgID, memberStatus, selectedSemester }) {
+export default function MemberDetailsDrawer({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate }) {
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = (event) => {
@@ -38,6 +38,7 @@ export default function MemberDetailsDrawer({ memberID, orgID, memberStatus, sel
             orgID={orgID}
             memberStatus={memberStatus}
             selectedSemester={selectedSemester}
+            onMemberUpdate={onMemberUpdate}
           />
         </Box>
       </Drawer>

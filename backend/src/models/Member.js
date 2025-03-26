@@ -3,57 +3,34 @@ const db = require('../config/db');
 class Member {
   static async insertMember(member) {
     try {
-      const username = member.email ? member.email.split('@')[0] : null;
-      if (!username) {
-        throw new Error(`Invalid email format for ${member.email}`);
+      const email = member.email;
+      if (!email) {
+        throw new Error('Email is required');
       }
 
-      // Remove any punctuation marks, comma, quotes from names
+      // Check if member exists
+      const [[existingMember]] = await db.query(
+        'SELECT MemberID FROM Members WHERE Email = ?',
+        [email]
+      );
+
+      if (existingMember) {
+        return existingMember.MemberID; // Return ID without updating
+      }
+
+      // Insert new member with available data
+      const username = email.split('@')[0];
       const firstName = member.firstName ? member.firstName.replace(/'/g, "''") : null;
       const lastName = member.lastName ? member.lastName.replace(/'/g, "''") : null;
       const fullName = member.fullName ? member.fullName.replace(/'/g, "''") : null;
 
-      // Insert the member
       const [result] = await db.query(
-        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationYear, AcademicYear, ShirtSize, PantSize, Race, Gender)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE 
-           UserName = VALUES(UserName),
-           FirstName = VALUES(FirstName),
-           LastName = VALUES(LastName),
-           FullName = VALUES(FullName),
-           MajorID = VALUES(MajorID),
-           GraduationYear = VALUES(GraduationYear),
-           AcademicYear = VALUES(AcademicYear),
-           ShirtSize = VALUES(ShirtSize),
-           PantSize = VALUES(PantSize),
-           Race = VALUES(Race),
-           Gender = VALUES(Gender)`,
-        [
-          username,
-          firstName,
-          lastName,
-          member.email,
-          fullName,
-          member.majorID || null,
-          member.graduationYear || null,
-          member.academicYear || null,
-          member.shirtSize || null,
-          member.pantSize || null,
-          member.race || null,
-          member.gender || null
-        ]
+        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName)
+         VALUES (?, ?, ?, ?, ?)`,
+        [username, firstName, lastName, email, fullName]
       );
 
-      // If inserted, return new MemberID
-      if (result.insertId) return result.insertId;
-
-      // If already exists, fetch MemberID
-      const [[existingMember]] = await db.query(
-        'SELECT MemberID FROM Members WHERE Email = ?',
-        [member.email]
-      );
-      return existingMember?.MemberID;
+      return result.insertId;
     } catch (err) {
       console.error('Error inserting member:', err);
       throw err;
@@ -217,7 +194,7 @@ class Member {
           break;
         default:
           statuses = ["Active", "Inactive", "Exempt"];
-    }
+      }
       const [members] = await db.query(
         `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major
         FROM Members

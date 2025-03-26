@@ -247,16 +247,16 @@ class Member {
       let statuses;
       switch (memberStatus) {
         case "both":
-          statuses = ["Active", "Inactive", "Exempt"];
+          statuses = ["Active", "General", "Exempt"];
           break;
         case "general":
-          statuses = ["Inactive"];
+          statuses = ["General"];
           break;
         case "active":
           statuses = ["Active", "Exempt"];
           break;
         default:
-          statuses = ["Active", "Inactive", "Exempt"];
+          statuses = ["Active", "General", "Exempt"];
       }
       const [members] = await db.query(
         `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major

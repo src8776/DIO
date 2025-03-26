@@ -91,14 +91,14 @@ class OrganizationMember {
         const query = `
             SELECT 
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
-                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+                SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
             FROM OrganizationMembers
             WHERE OrganizationID = ? AND SemesterID = ?
         `;
         const [[result]] = await db.query(query, [organizationID, semesterID]);
         return {
             activeMembers: parseInt(result.activeMembers),
-            inactiveMembers: parseInt(result.inactiveMembers)
+            generalMembers: parseInt(result.generalMembers)
         };
     } catch (error) {
         console.error('Error fetching member stats:', error);

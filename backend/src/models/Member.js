@@ -37,6 +37,69 @@ class Member {
     }
   }
 
+
+
+  static async updateMemberProfile(member) {
+    try {
+      const username = member.email ? member.email.split('@')[0] : null;
+      if (!username) {
+        throw new Error(`Invalid email format for ${member.email}`);
+      }
+
+      // Remove any punctuation marks, comma, quotes from names
+      const firstName = member.firstName ? member.firstName.replace(/'/g, "''") : null;
+      const lastName = member.lastName ? member.lastName.replace(/'/g, "''") : null;
+      const fullName = member.fullName ? member.fullName.replace(/'/g, "''") : null;
+
+      // Insert the member
+      const [result] = await db.query(
+        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationYear, AcademicYear, ShirtSize, PantSize, Race, Gender)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE 
+           UserName = VALUES(UserName),
+           FirstName = VALUES(FirstName),
+           LastName = VALUES(LastName),
+           FullName = VALUES(FullName),
+           MajorID = VALUES(MajorID),
+           GraduationYear = VALUES(GraduationYear),
+           AcademicYear = VALUES(AcademicYear),
+           ShirtSize = VALUES(ShirtSize),
+           PantSize = VALUES(PantSize),
+           Race = VALUES(Race),
+           Gender = VALUES(Gender)`,
+        [
+          username,
+          firstName,
+          lastName,
+          member.email,
+          fullName,
+          member.majorID || null,
+          member.graduationYear || null,
+          member.academicYear || null,
+          member.shirtSize || null,
+          member.pantSize || null,
+          member.race || null,
+          member.gender || null
+        ]
+      );
+
+      // If inserted, return new MemberID
+      if (result.insertId) return result.insertId;
+
+      // If already exists, fetch MemberID
+      const [[existingMember]] = await db.query(
+        'SELECT MemberID FROM Members WHERE Email = ?',
+        [member.email]
+      );
+      return existingMember?.MemberID;
+    } catch (err) {
+      console.error('Error inserting member:', err);
+      throw err;
+    }
+  }
+
+
+
   // This doesn't appear to be used anywhere? Should we remove it?
   static async lastUpdatedMemberAttendance() {
     const query = `

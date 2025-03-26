@@ -102,7 +102,7 @@ router.post('/profile', attachMemberData, async (req, res) => {
         race: updatedProfile.race,
       };
   
-      const memberId = await Member.insertMember(memberData);
+      const memberId = await Member.updateMemberProfile(memberData);
       res.status(200).json({ message: 'Profile updated successfully', memberId });
     } catch (error) {
       console.error('Error updating profile:', error);

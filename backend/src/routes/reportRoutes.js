@@ -23,9 +23,9 @@ router.post('/', async (req, res) => {
         reportName: organizationName + " Report",
         semesterName: data.selectedSemester.TermName,
         orgSummary: {
-            totalMembers: memberStats.activeMembers + memberStats.inactiveMembers,
+            totalMembers: memberStats.activeMembers + memberStats.generalMembers,
             activeMembers: memberStats.activeMembers,
-            inactiveMembers: memberStats.inactiveMembers,
+            generalMembers: memberStats.generalMembers,
             totalEvents: eventCount,
         },
         clothingSummary: {
@@ -76,7 +76,7 @@ const generateReport = (res, filters, reportDetails) => {
     const orgSummary = [
         { label: 'Total Number of Members', value: reportDetails.orgSummary.totalMembers },
         { label: 'Percentage of Active Members', value: [Math.round(reportDetails.orgSummary.activeMembers / reportDetails.orgSummary.totalMembers * 100), '%'].join('') },
-        { label: 'Percentage of Inactive Members', value: [Math.round(reportDetails.orgSummary.inactiveMembers / reportDetails.orgSummary.totalMembers * 100), '%'].join('') },
+        { label: 'Percentage of General Members', value: [Math.round(reportDetails.orgSummary.generalMembers / reportDetails.orgSummary.totalMembers * 100), '%'].join('') },
         { label: 'Total Number of Events Held', value: reportDetails.orgSummary.totalEvents }
     ];
     drawOrgSummaryTable(doc, 'Organization Summary', orgSummary, 50, doc.y + 10, 200, 100, 20);
@@ -107,7 +107,7 @@ const generateReport = (res, filters, reportDetails) => {
 
     const membersData = [
         { width: 125, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
-        { width: 55, header: "Status", values: reportDetails.members.map(member => member.Status === "Inactive" ? "General" : member.Status) },
+        { width: 55, header: "Status", values: reportDetails.members.map(member => member.Status) },
         { width: 100, header: "Email", values: reportDetails.members.map(member => member.Email) },
     ];
     if (filters.includeGraduationYear) {
@@ -227,11 +227,8 @@ const drawMembersTable = (doc, title, data, startX, startY, rowHeight, widthPadd
         let colX = startX;
         let rowHeightUsed = rowHeight;
 
-        data.forEach(({ values, width, header }) => {
+        data.forEach(({ values, width }) => {
             let value = values[rowIndex];
-            if (header === "Status" && value === "Inactive") {
-                value = "General";
-            }
             const textHeight = doc.heightOfString(value, { width, align: 'left' });
             rowHeightUsed = Math.max(rowHeightUsed, textHeight + 5);
             doc.text(value, colX, currentY, { width, align: 'left' });

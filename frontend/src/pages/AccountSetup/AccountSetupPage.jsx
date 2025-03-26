@@ -227,12 +227,13 @@ export default function AccountSetup() {
                   label="Shirt Size"
                   onChange={(e) => setShirtSize(e.target.value)}
                 >
+                  <MenuItem value={'XS'}>XS</MenuItem>
                   <MenuItem value={'S'}>S</MenuItem>
                   <MenuItem value={'M'}>M</MenuItem>
                   <MenuItem value={'L'}>L</MenuItem>
                   <MenuItem value={'XL'}>XL</MenuItem>
                   <MenuItem value={'XXL'}>XXL</MenuItem>
-                  <MenuItem value={'XXXL'}>XXL</MenuItem>
+                  <MenuItem value={'XXXL'}>XXXL</MenuItem>
                 </Select>
               </FormControl>
 

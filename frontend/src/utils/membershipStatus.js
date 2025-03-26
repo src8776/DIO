@@ -110,7 +110,7 @@ export function determineMembershipStatusModular(attendanceData, config, require
         totalPoints += pointsForType;
     });
 
-    const status = totalPoints >= requiredPoints ? "active" : "inactive";
+    const status = totalPoints >= requiredPoints ? "active" : "general";
 
     return { status, totalPoints, breakdown };
 }

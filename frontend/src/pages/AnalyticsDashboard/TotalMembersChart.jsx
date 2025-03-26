@@ -24,12 +24,12 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
 
     // converting to numbers
     const activeMembers = Number(memberTallies.activeMembers);
-    const inactiveMembers = Number(memberTallies.inactiveMembers);
+    const generalMembers = Number(memberTallies.generalMembers);
     const totalMembers = Number(memberTallies.totalMembers);
 
     const data = [
         { name: 'Active', members: activeMembers },
-        { name: 'General', members: inactiveMembers }
+        { name: 'General', members: generalMembers }
     ];
 
     const colors = ['#21BDE5', '#7D55C7'];

@@ -86,19 +86,25 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    {/* This will need to come from the user object Admin, Active, Member, Inactive, etc.  */}
+                    {/* Show the member role if applicable */}
                     {(memberRole === 'Admin' || memberRole === 'Eboard') && (
                         <Typography sx={{ color: "text.secondary" }}>
                             {memberRole}
                         </Typography>
                     )}
-                    <Typography
-                        sx={{
-                            fontWeight: 'bold',
-                            color: memberStatus === 'Inactive' ? '#7C8796' : memberStatus ? '#2DD4BF' : 'system'
-                        }}
-                    >
-                        {memberStatus === 'Inactive' ? 'General Member' : memberStatus === 'Active' ? 'Active Member' : 'no status'}                    </Typography>
+                    {(() => {
+                        const displayStatus = memberStatus === 'Active' ? 'Active Member'
+                            : memberStatus === 'Inactive' ? 'Inactive Member'
+                                : 'General Member';
+                        const statusColor = memberStatus === 'Active' ? '#2DD4BF'
+                            : memberStatus === 'Inactive' ? '#5C6773'
+                                : '#7C8796';
+                        return (
+                            <Typography sx={{ fontWeight: 'bold', color: statusColor }}>
+                                {displayStatus}
+                            </Typography>
+                        );
+                    })()}
                 </Box>
             </CardContent>
             <CardActions sx={{ justifyContent: "space-between" }}>

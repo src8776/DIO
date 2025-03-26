@@ -22,7 +22,7 @@ export default function ActiveMemberComparison({ organizationID, semesters }) {
                         return {
                             semester: semObj ? semObj.TermName : `Semester ${item.SemesterID}`,
                             activeMembers: item.activeMembers,
-                            inactiveMembers: item.inactiveMembers,
+                            generalMembers: item.generalMembers,
                             totalMembers: item.totalMembers
                         };
                     });
@@ -37,7 +37,7 @@ export default function ActiveMemberComparison({ organizationID, semesters }) {
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
                 <Typography sx={{flex: 2}}>
-                    Compare Active and Inactive Member counts across semesters.
+                    Compare Active and General Member counts across semesters.
                 </Typography>
             <Box sx={{ p: 2 }}>
                 {comparisonData ? (
@@ -49,7 +49,7 @@ export default function ActiveMemberComparison({ organizationID, semesters }) {
                             <Tooltip />
                             <Legend />
                             <Bar dataKey="activeMembers" fill="#8884d8" name="Active Members" />
-                            <Bar dataKey="inactiveMembers" fill="#82ca9d" name="General Members" />
+                            <Bar dataKey="generalMembers" fill="#82ca9d" name="General Members" />
                         </BarChart>
                     </ResponsiveContainer>
                 ) : (

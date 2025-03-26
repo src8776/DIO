@@ -1,8 +1,6 @@
 const db = require('../config/db');
 
 class OrganizationMember {
-  // TODO: Need to set this up so members get inserted with the semesterID that matches
-  // the attendance file they are coming from
   static async insertOrganizationMember(organizationID, memberID, semesterID, role = 'Member') {
     try {
       const [[roleResult]] = await db.query(
@@ -24,11 +22,11 @@ class OrganizationMember {
 
       if (!exists) {
         await db.query(
-          `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, RoleID)
-           VALUES (?, ?, ?, ?)`,
-          [organizationID, memberID, semesterID, roleID]
+          `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, Status, RoleID)
+           VALUES (?, ?, ?, ?, ?)`,
+          [organizationID, memberID, semesterID, 'General', roleID]
         );
-        console.log(`Added to OrganizationMembers: MemberID ${memberID}, RoleID ${roleID}, SemesterID ${semesterID}`);
+        console.log(`Added to OrganizationMembers: MemberID ${memberID}, Status: General, RoleID ${roleID}, SemesterID ${semesterID}`);
       }
     } catch (err) {
       console.error('Error inserting into OrganizationMembers:', err);
@@ -91,14 +89,14 @@ class OrganizationMember {
         const query = `
             SELECT 
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
-                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+                SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
             FROM OrganizationMembers
             WHERE OrganizationID = ? AND SemesterID = ?
         `;
         const [[result]] = await db.query(query, [organizationID, semesterID]);
         return {
             activeMembers: parseInt(result.activeMembers),
-            inactiveMembers: parseInt(result.inactiveMembers)
+            generalMembers: parseInt(result.generalMembers)
         };
     } catch (error) {
         console.error('Error fetching member stats:', error);

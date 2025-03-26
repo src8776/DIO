@@ -26,7 +26,7 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
 
         console.log('Member Name @ useAccountStatus:', memberName);
 
-        // Update if non-Exempt and status has changed (allows Active -> Inactive update)
+        // Update if non-Exempt and status has changed (allows Active -> General update)
         if (currentStatus !== 'Exempt' && currentStatus !== statusObject.status) {
             await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID);
             if (statusObject.status === 'Active') {

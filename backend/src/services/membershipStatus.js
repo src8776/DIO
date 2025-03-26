@@ -85,7 +85,7 @@ const processEventType = (events, eventConfig) => {
  * @param {Object} config - The configuration object containing an "eventTypes" array.
  * @param {number} requiredPoints - The points required to be considered active.
  * @returns {Object} An object containing:
- *                   - status: "active" if totalPoints meets/exceeds requiredPoints, otherwise "inactive"
+ *                   - status: "Active" if totalPoints meets/exceeds requiredPoints, otherwise "General"
  *                   - totalPoints: the total points earned
  *                   - breakdown: an object with keys for each event type and their respective points
  */
@@ -111,7 +111,7 @@ const determineMembershipStatusModular = (attendanceData, config, requiredPoints
     });
     console.log(requiredPoints + " required points");
     console.log(totalPoints + " total points");
-    const status = totalPoints >= requiredPoints ? "Active" : "Inactive";
+    const status = totalPoints >= requiredPoints ? "Active" : "General";
     console.log("updated status: " + status)
 
     return { status, totalPoints, breakdown };

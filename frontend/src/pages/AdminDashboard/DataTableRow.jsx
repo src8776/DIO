@@ -6,12 +6,20 @@ import MemberDetailsDrawer from '../MemberDetails/MemberDetailsDrawer';
 const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {
-    const memberStatus = row.Status === 'N/A' 
-        ? 'N/A' 
-        : (row.Status === 'Inactive' ? 'General' : 'Active');
-    const statusColor = row.Status === 'N/A' 
-        ? '#B0B0B0' 
-        : (memberStatus === 'General' ? '#7C8796' : '#2DD4BF');
+    const memberStatus = row.Status || 'N/A';
+
+    const statusColor = (() => {
+        switch (memberStatus) {
+            case 'Active':
+                return '#2DD4BF';
+            case 'General':
+                return '#7C8796';
+            case 'Inactive':
+                return '#5C6773'; // slightly darker gray than General
+            default:
+                return '#B0B0B0';
+        }
+    })();
 
     const formattedDate = row.LastUpdated
         ? new Date(row.LastUpdated).toLocaleString('en-US', {

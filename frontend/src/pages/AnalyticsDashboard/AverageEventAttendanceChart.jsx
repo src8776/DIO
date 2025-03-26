@@ -127,9 +127,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     }
 
-    // console.log('Averages:', averages);
-    console.log('Event Instances:', eventInstances);
-
     // Averages view
     if (viewMode === 'averages' && Array.isArray(averages) && averages.length > 0) {
         const data = averages.map(item => {

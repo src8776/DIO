@@ -11,7 +11,7 @@ router.get('/memberTallies', async (req, res) => {
             `SELECT 
                 COUNT(*) AS totalMembers,
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
-                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+                SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
             FROM OrganizationMembers
             WHERE OrganizationID = ? AND SemesterID = ?`,
             [organizationID, semesterID]
@@ -43,7 +43,7 @@ router.get('/memberTalliesBySemesters', async (req, res) => {
                 SemesterID,
                 COUNT(*) AS totalMembers,
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
-                SUM(CASE WHEN Status = 'Inactive' THEN 1 ELSE 0 END) AS inactiveMembers
+                SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
              FROM OrganizationMembers
              WHERE OrganizationID = ? AND SemesterID IN (?)
              GROUP BY SemesterID`,

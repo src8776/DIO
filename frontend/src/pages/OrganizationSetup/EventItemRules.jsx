@@ -31,7 +31,7 @@ const modalStyle = {
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
     maxHeight: '90%',
-    overflowY: 'auto'
+    overflowY: 'auto',
 };
 
 // Helper function to generate a readable description for a given rule
@@ -423,7 +423,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         </Box>
                     </Box>
                 ) : (
-                    <>
+                    <Box sx={{ pb: 1}}>
                         <Typography>
                             Occurrences Per Semester: {occurrenceTotal}
                         </Typography>
@@ -432,7 +432,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                                 Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
                             </Typography>
                         )}
-                    </>
+                    </Box>
                 )}
 
                 <Paper component="form" sx={{ width: '100%' }}>

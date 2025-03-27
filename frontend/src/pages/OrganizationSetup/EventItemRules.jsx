@@ -8,7 +8,7 @@ import {
     FormControl, InputLabel,
     Dialog, DialogActions,
     DialogContent, DialogContentText,
-    DialogTitle, Divider
+    DialogTitle, Divider, Checkbox, FormControlLabel
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -31,7 +31,7 @@ const modalStyle = {
     width: { xs: '90%', sm: '500px', md: '600px' },
     maxWidth: '100%',
     maxHeight: '90%',
-    overflowY: 'auto'
+    overflowY: 'auto',
 };
 
 // Helper function to generate a readable description for a given rule
@@ -82,12 +82,8 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
     const [newCriteriaType, setNewCriteriaType] = React.useState(null);
     const [newCriteriaValue, setNewCriteriaValue] = React.useState(0.00);
     const [newPointValue, setNewPointValue] = React.useState(1);
-    const [editOccurrences, setEditOccurrences] = React.useState(false);
-    const [currentOccurrenceTotal, setCurrentOccurrenceTotal] = React.useState(occurrenceTotal);
-    const [newOccurrenceTotal, setNewOccurrenceTotal] = React.useState(occurrenceTotal);
     const [percentError, setPercentError] = React.useState('');
     const [pointError, setPointError] = React.useState('');
-    const [occurrenceError, setOccurrenceError] = React.useState('');
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
     const [addRuleOpen, setAddRuleOpen] = React.useState(false);
@@ -96,6 +92,15 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
     const [newRulePointValue, setNewRulePointValue] = React.useState(1);
     const [addPercentError, setAddPercentError] = React.useState('');
     const [addPointError, setAddPointError] = React.useState('');
+
+    const [isEditingEvent, setIsEditingEvent] = React.useState(false);
+    const [editedOccurrenceTotal, setEditedOccurrenceTotal] = React.useState(occurrenceTotal);
+    const [editedHasMaxPoints, setEditedHasMaxPoints] = React.useState(maxPoints !== null);
+    const [editedMaxPoints, setEditedMaxPoints] = React.useState(maxPoints || 0);
+    const [occurrenceError, setOccurrenceError] = React.useState('');
+    const [maxPointsError, setMaxPointsError] = React.useState('');
+    const [deleteEventDialogOpen, setDeleteEventDialogOpen] = React.useState(false);
+    const [attendanceCount, setAttendanceCount] = React.useState(0);
 
 
     React.useEffect(() => {
@@ -111,10 +116,111 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
         }
     }, [orgID, semesterID]);
 
-    React.useEffect(() => {
-        setCurrentOccurrenceTotal(occurrenceTotal);
-        setNewOccurrenceTotal(occurrenceTotal);
-    }, [occurrenceTotal]);
+    const fetchAttendanceCount = async () => {
+        try {
+            const response = await fetch(`/api/organizationRules/getAttendanceCount?eventTypeID=${eventTypeID}`);
+            const data = await response.json();
+            if (data.attendanceCount !== undefined) {
+                setAttendanceCount(data.attendanceCount);
+            } else {
+                console.error('Error fetching attendance count:', data.error);
+                setAttendanceCount(0);
+            }
+        } catch (error) {
+            console.error('Error fetching attendance count:', error);
+            setAttendanceCount(0);
+        }
+    };
+
+    const handleOpenDeleteEventDialog = async () => {
+        await fetchAttendanceCount();
+        setDeleteEventDialogOpen(true);
+    };
+
+    const handleEditEvent = () => {
+        setEditedOccurrenceTotal(occurrenceTotal);
+        setEditedHasMaxPoints(maxPoints !== null);
+        setEditedMaxPoints(maxPoints || 0);
+        setIsEditingEvent(true);
+    };
+
+    const handleSaveEvent = () => {
+        setOccurrenceError('');
+        setMaxPointsError('');
+
+        const parsedOccurrences = parseInt(editedOccurrenceTotal, 10);
+        if (isNaN(parsedOccurrences) || parsedOccurrences < 0) {
+            setOccurrenceError('Total occurrences must be a non-negative integer');
+            return;
+        }
+
+        let parsedMaxPoints = null;
+        if (editedHasMaxPoints) {
+            parsedMaxPoints = parseInt(editedMaxPoints, 10);
+            if (isNaN(parsedMaxPoints) || parsedMaxPoints < 1) {
+                setMaxPointsError('Max points must be a positive integer');
+                return;
+            }
+        }
+
+        fetch('/api/organizationRules/updateOccurrences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventTypeID,
+                occurrences: parsedOccurrences,
+                semesterID,
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    setOccurrenceError('Failed to update occurrences');
+                    throw new Error('Failed to update occurrences');
+                }
+                return fetch('/api/organizationRules/updateMaxPoints', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eventTypeID,
+                        maxPoints: editedHasMaxPoints ? parsedMaxPoints : null,
+                    }),
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    setMaxPointsError('Failed to update max points');
+                    throw new Error('Failed to update max points');
+                }
+                refetchEventRules();
+                setIsEditingEvent(false);
+            })
+            .catch(error => {
+                console.error('Error updating event:', error);
+            });
+    };
+
+    const handleDeleteEvent = () => {
+        fetch('/api/organizationRules/deleteEventType', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventTypeID }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    refetchEventRules();
+                    setDeleteEventDialogOpen(false);
+                    setIsEditingEvent(false);
+                } else {
+                    console.error('Error deleting event type:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting event type:', error);
+            });
+    };
 
     const handleEditRuleOpen = (rule) => {
         setSelectedRule(rule);
@@ -198,70 +304,20 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             });
     };
 
-    const handleOpenDeleteDialog = () => {
-        setDeleteDialogOpen(true);
-    };
-
-    const handleCloseDeleteDialog = () => {
-        setDeleteDialogOpen(false);
-    };
-
-    const handleEditOccurrences = () => {
-        setEditOccurrences(true);
-        setNewOccurrenceTotal(currentOccurrenceTotal);
-    };
-
-    const handleCancelEditOccurrences = () => {
-        setEditOccurrences(false);
-        setOccurrenceError('');
-    };
-
-    const handleSaveOccurrences = () => {
-        const parsedValue = parseInt(newOccurrenceTotal, 10);
-        if (isNaN(parsedValue) || parsedValue < 0) {
-            setOccurrenceError('Total occurrences must be a non-negative number');
-            return;
-        }
-
-        fetch('/api/organizationRules/updateOccurrences', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                eventTypeID,
-                occurrences: parsedValue,
-                semesterID,
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    setCurrentOccurrenceTotal(parsedValue); // Update displayed value
-                    setEditOccurrences(false);
-                    setOccurrenceError('');
-                    refetchEventRules();
-                } else {
-                    setOccurrenceError('Failed to update occurrences');
-                }
-            })
-            .catch((error) => {
-                console.error('Error updating occurrences:', error);
-                setOccurrenceError('An error occurred');
-            });
-    };
+    const handleOpenDeleteDialog = () => setDeleteDialogOpen(true);
+    const handleCloseDeleteDialog = () => setDeleteDialogOpen(false);
 
     const handleSaveNewRule = () => {
         // Reset errors
         setAddPercentError('');
         setAddPointError('');
-    
+
         // Validate criteria type
         if (!newRuleCriteriaType) {
             setAddPercentError('Please select a criteria type');
             return;
         }
-    
+
         // Handle criteria value
         let criteriaValue = 0.00; // Default to 0.00
         if (newRuleCriteriaType === 'minimum threshold percentage' || newRuleCriteriaType === 'minimum threshold hours') {
@@ -275,14 +331,14 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 return;
             }
         }
-    
+
         // Validate point value
         const pointValue = parseInt(newRulePointValue, 10);
         if (isNaN(pointValue) || pointValue < 1) {
             setAddPointError('Point value must be at least 1');
             return;
         }
-    
+
         // Add New Rule
         fetch('/api/organizationRules/addRule', {
             method: 'POST',
@@ -294,7 +350,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 eventTypeID,
                 semesterID,
                 criteria: newRuleCriteriaType,
-                criteriaValue, 
+                criteriaValue,
                 pointValue,
             }),
         })
@@ -305,48 +361,79 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
     return (
         <Container>
             <Paper elevation={1} sx={modalStyle}>
-                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Typography variant="h5" gutterBottom>
+                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+                    <Typography variant="h5">
                         {name}
                     </Typography>
+                    {isEditable && !isEditingEvent && (
+                        <Button
+                            startIcon={<EditIcon />}
+                            onClick={handleEditEvent}
+                            sx={{ color: '#015aa2' }}
+                        >
+                            Edit Event
+                        </Button>
+                    )}
                 </Box>
-                {isEditable && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {editOccurrences ? (
+                {isEditingEvent ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pb: 2 }}>
+                        <TextField
+                            label="Total Occurrences"
+                            value={editedOccurrenceTotal}
+                            onChange={(e) => setEditedOccurrenceTotal(e.target.value)}
+                            size="small"
+                            error={!!occurrenceError}
+                            helperText={occurrenceError}
+                        />
+                        {requirementType === 'points' && (
                             <>
-                                <TextField
-                                    label="Total Occurrences"
-                                    value={newOccurrenceTotal}
-                                    onChange={(e) => setNewOccurrenceTotal(e.target.value)}
-                                    size="small"
-                                    error={!!occurrenceError}
-                                    helperText={occurrenceError}
-                                    sx={{}}
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={editedHasMaxPoints}
+                                            onChange={(e) => setEditedHasMaxPoints(e.target.checked)}
+                                        />
+                                    }
+                                    label="Set max points"
                                 />
-                                <IconButton onClick={handleSaveOccurrences} sx={{ color: '#08A045' }}>
-                                    <SaveIcon />
-                                </IconButton>
-                                <IconButton onClick={handleCancelEditOccurrences} sx={{ color: '#d32f2f' }}>
-                                    <CancelIcon />
-                                </IconButton>
-                            </>
-                        ) : (
-                            <>
-                                <Typography>
-                                    Occurences Per Semester: {currentOccurrenceTotal}
-                                </Typography>
-                                <IconButton onClick={handleEditOccurrences} sx={{ color: '#015aa2' }}>
-                                    <EditIcon />
-                                </IconButton>
+                                {editedHasMaxPoints && (
+                                    <TextField
+                                        label="Max Points"
+                                        value={editedMaxPoints}
+                                        onChange={(e) => setEditedMaxPoints(e.target.value)}
+                                        size="small"
+                                        error={!!maxPointsError}
+                                        helperText={maxPointsError}
+                                        type='number'
+                                    />
+                                )}
                             </>
                         )}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Button variant="contained" color="error" onClick={handleOpenDeleteEventDialog}>
+                                Delete Event
+                            </Button>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button variant="outlined" onClick={() => setIsEditingEvent(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="contained" color="primary" onClick={handleSaveEvent}>
+                                    Save
+                                </Button>
+                            </Box>
+                        </Box>
                     </Box>
-                )}
-                {/* display max points if it exists (not null) */}
-                {requirementType === 'points' && (
-                    <Typography sx={{ pb: 2 }}>
-                        Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
-                    </Typography>
+                ) : (
+                    <Box sx={{ pb: 1}}>
+                        <Typography>
+                            Occurrences Per Semester: {occurrenceTotal}
+                        </Typography>
+                        {requirementType === 'points' && (
+                            <Typography>
+                                Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
+                            </Typography>
+                        )}
+                    </Box>
                 )}
 
                 <Paper component="form" sx={{ width: '100%' }}>
@@ -547,6 +634,36 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             Cancel
                         </Button>
                         <Button onClick={handleDeleteRule} color="secondary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog
+                    open={deleteEventDialogOpen}
+                    onClose={() => setDeleteEventDialogOpen(false)}
+                >
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {attendanceCount > 0 ? (
+                                <>
+                                    Are you sure you want to delete this event type? <br />
+                                    There are <span style={{ fontWeight: 'bold', color: 'red' }}>{attendanceCount}</span> attendance record{attendanceCount > 1 ? 's' : ''} associated with this event type that will also be deleted. <br />
+                                    This action cannot be undone.
+                                </>
+                            ) : (
+                                <>
+                                    Are you sure you want to delete this event type? <br />
+                                    This action cannot be undone.
+                                </>
+                            )}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDeleteEventDialogOpen(false)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteEvent} color="secondary">
                             Delete
                         </Button>
                     </DialogActions>

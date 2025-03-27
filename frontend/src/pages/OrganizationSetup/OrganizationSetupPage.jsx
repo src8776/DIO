@@ -179,9 +179,9 @@ export default function OrganizationSetup() {
                 </Box>
 
                 {/* Copy Rules Button */}
-                {isEditable && (
+                {isEditable && orgRules && orgRules.eventTypes.length === 0 && (
                     <Button variant="outlined" onClick={() => setOpenCopyDialog(true)}>
-                        Copy from Existing Semester
+                        Copy rules from Existing Semester
                     </Button>
                 )}
 

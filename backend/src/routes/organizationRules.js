@@ -189,9 +189,37 @@ router.post('/addEventType', async (req, res) => {
 });
 
 
+router.get('/getAttendanceCount', async (req, res) => {
+    const { eventTypeID } = req.query;
+    if (!eventTypeID) {
+        return res.status(400).json({ error: 'Missing eventTypeID parameter' });
+    }
+    try {
+        // Fetch EventIDs from the EventInstances table associated with the eventTypeID
+        const [eventRows] = await db.query(
+            `SELECT EventID FROM EventInstances WHERE EventTypeID = ?`,
+            [eventTypeID]
+        );
+        const eventIDs = eventRows.map(row => row.EventID);
+        let attendanceCount = 0;
+        if (eventIDs.length > 0) {
+            // Count attendance records for these events
+            const [attendanceRows] = await db.query(
+                `SELECT COUNT(*) AS count FROM Attendance WHERE EventID IN (?)`,
+                [eventIDs]
+            );
+            attendanceCount = attendanceRows[0].count || 0;
+        }
+        res.json({ attendanceCount });
+        console.log('Attendance count for EventTypeID:', eventTypeID, 'is:', attendanceCount);
+    } catch (error) {
+        console.error('Error fetching attendance count:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.delete('/deleteEventType', async (req, res) => {
-    // TODO: Notify the user if there are attendance records associated with this event type
-    // prompt them to confirm deletion! 
     console.log('Received request at /deleteEventType (DELETE)');
 
     const { eventTypeID } = req.body;
@@ -200,31 +228,23 @@ router.delete('/deleteEventType', async (req, res) => {
     }
 
     try {
-        // Get event IDs associated with this eventTypeID (assuming an Events table exists)
+        // Get event IDs associated with this eventTypeID from EventInstances
         const [eventRows] = await db.query(
-            `SELECT EventID FROM Events WHERE EventTypeID = ?`,
+            `SELECT EventID FROM EventInstances WHERE EventTypeID = ?`,
             [eventTypeID]
         );
         const eventIDs = eventRows.map(row => row.EventID);
 
-        let attendanceCount = 0;
         if (eventIDs.length > 0) {
-            // Tally Attendance records for these events
-            const [attendanceRows] = await db.query(
-                `SELECT COUNT(*) AS count FROM Attendance WHERE EventID IN (?)`,
-                [eventIDs]
-            );
-            attendanceCount = attendanceRows[0].count || 0;
-
-            // Delete Attendance records for these events
+            // Delete Attendance records for these event IDs
             await db.query(
                 `DELETE FROM Attendance WHERE EventID IN (?)`,
                 [eventIDs]
             );
 
-            // Delete events for this event type
+            // Delete event instances for this event type
             await db.query(
-                `DELETE FROM Events WHERE EventTypeID = ?`,
+                `DELETE FROM EventInstances WHERE EventTypeID = ?`,
                 [eventTypeID]
             );
         }
@@ -248,7 +268,6 @@ router.delete('/deleteEventType', async (req, res) => {
         res.json({
             success: true,
             message: 'Event type, associated events, attendance, and rules deleted successfully',
-            attendanceCount
         });
     } catch (error) {
         console.error('Error deleting event type and associated records:', error);

@@ -404,6 +404,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                                         size="small"
                                         error={!!maxPointsError}
                                         helperText={maxPointsError}
+                                        type='number'
                                     />
                                 )}
                             </>

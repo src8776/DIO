@@ -227,9 +227,15 @@ router.delete('/deleteEventType', async (req, res) => {
         return res.status(400).json({ error: 'Missing eventTypeID parameter' });
     }
 
+    let connection;
+
     try {
+        // Get a connection from the pool and start a transaction
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
         // Get event IDs associated with this eventTypeID from EventInstances
-        const [eventRows] = await db.query(
+        const [eventRows] = await connection.query(
             `SELECT EventID FROM EventInstances WHERE EventTypeID = ?`,
             [eventTypeID]
         );
@@ -237,41 +243,48 @@ router.delete('/deleteEventType', async (req, res) => {
 
         if (eventIDs.length > 0) {
             // Delete Attendance records for these event IDs
-            await db.query(
+            await connection.query(
                 `DELETE FROM Attendance WHERE EventID IN (?)`,
                 [eventIDs]
             );
 
             // Delete event instances for this event type
-            await db.query(
+            await connection.query(
                 `DELETE FROM EventInstances WHERE EventTypeID = ?`,
                 [eventTypeID]
             );
         }
 
         // Delete all EventRules associated with the eventTypeID
-        await db.query(
+        await connection.query(
             `DELETE FROM EventRules WHERE EventTypeID = ?`,
             [eventTypeID]
         );
 
         // Delete the EventTypes record for the given eventTypeID
-        const [result] = await db.query(
+        const [result] = await connection.query(
             `DELETE FROM EventTypes WHERE EventTypeID = ?`,
             [eventTypeID]
         );
 
         if (result.affectedRows === 0) {
+            await connection.rollback();
             return res.status(404).json({ error: 'EventTypeID not found' });
         }
+
+        // Commit the transaction after all queries succeed
+        await connection.commit();
 
         res.json({
             success: true,
             message: 'Event type, associated events, attendance, and rules deleted successfully',
         });
     } catch (error) {
+        if (connection) await connection.rollback();
         console.error('Error deleting event type and associated records:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        if (connection) connection.release();
     }
 });
 

@@ -64,7 +64,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return () => controller.abort();
     }, [viewMode, selectedEventType, organizationID, selectedSemester?.SemesterID]);
 
-    // Label renderer for Average Chart
     const renderAverageLabel = (props) => {
         const { x, y, width, height, value } = props;
         if (value > 20) {
@@ -75,6 +74,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     fill="#fff"
                     textAnchor="middle"
                     dominantBaseline="middle"
+                    pointerEvents="none"
                 >
                     {Math.floor(value)}%
                 </text>

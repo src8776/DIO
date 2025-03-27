@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Paper, Typography, Box, Container, CircularProgress } from '@mui/material';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 export default function GenderChart({ organizationID, selectedSemester }) {
     const [demographicsData, setDemographicsData] = React.useState(null);
@@ -24,6 +24,24 @@ export default function GenderChart({ organizationID, selectedSemester }) {
     // Colors for the pie chart segments
     const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1', '#d0ed57', '#a4de6c'];
 
+    // Custom label to display percentages if the slice is large enough
+    const renderCustomizedLabel = ({
+        cx, cy, midAngle, innerRadius, outerRadius, percent, index,
+    }) => {
+        // Only display label if the percentage is greater than 10%
+        if (percent < 0.1) return null;
+        const RADIAN = Math.PI / 180;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+        return (
+            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
+                {(percent * 100).toFixed(0)}%
+            </text>
+        );
+    };
+
     return (
         <Container disableGutters sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
             {isLoading ? (
@@ -44,13 +62,14 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                         cx="50%"
                                         cy="50%"
                                         outerRadius={80}
-                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                        
+                                        labelLine={false}
+                                        label={renderCustomizedLabel}
                                     >
                                         {demographicsData.genders.map((entry, index) => (
-                                            <Cell key={`gender-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{outline: 'none'}} />
+                                            <Cell key={`gender-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />
                                         ))}
                                     </Pie>
+                                    <Legend layout='vertical' align='right' verticalAlign='middle' />
                                     <Tooltip />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -70,14 +89,14 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                         cx="50%"
                                         cy="50%"
                                         outerRadius={80}
-                                        label={({ name, percent }) =>
-                                            `${name ? name : 'Unknown'}: ${(percent * 100).toFixed(0)}%`
-                                        }
+                                        labelLine={false}
+                                        label={renderCustomizedLabel}
                                     >
                                         {demographicsData.races.map((entry, index) => (
-                                            <Cell key={`race-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{outline: 'none'}} />
+                                            <Cell key={`race-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />
                                         ))}
                                     </Pie>
+                                    <Legend layout='vertical' align='right' verticalAlign='middle' />
                                     <Tooltip />
                                 </PieChart>
                             </ResponsiveContainer>

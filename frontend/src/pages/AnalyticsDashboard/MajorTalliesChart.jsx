@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { Paper, Typography, Box, CircularProgress, Switch } from '@mui/material';
+import {
+    Paper, Typography, Box,
+    CircularProgress, Switch,
+    useTheme, useMediaQuery
+} from '@mui/material';
 import {
     BarChart, Bar, XAxis,
     YAxis, CartesianGrid,
@@ -44,6 +48,24 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
     // Colors for the pie chart segments
     const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1', '#d0ed57', '#a4de6c'];
 
+    // Custom label to display percentages if the slice is large enough
+    const renderCustomizedLabel = ({
+        cx, cy, midAngle, innerRadius, outerRadius, percent, index,
+    }) => {
+        // Only display label if the percentage is greater than 10%
+        if (percent < 0.1) return null;
+        const RADIAN = Math.PI / 180;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+        return (
+            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
+                {(percent * 100).toFixed(0)}%
+            </text>
+        );
+    };
+
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -74,12 +96,18 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={80}
-                                label={(entry) => entry.major}
+                                labelLine={false}
+                                label={renderCustomizedLabel} // Added custom label to show percentages
                             >
                                 {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} style={{outline: 'none'}} />
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={COLORS[index % COLORS.length]}
+                                        style={{ outline: 'none' }}
+                                    />
                                 ))}
                             </Pie>
+                            <Legend layout="vertical" align="right" verticalAlign="middle" />
                             <Tooltip />
                         </PieChart>
                     </ResponsiveContainer>

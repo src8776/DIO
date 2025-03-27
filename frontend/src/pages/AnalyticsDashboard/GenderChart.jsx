@@ -24,6 +24,30 @@ export default function GenderChart({ organizationID, selectedSemester }) {
     // Colors for the pie chart segments
     const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1', '#d0ed57', '#a4de6c'];
 
+    // Helper function: Capitalize a string (first letter uppercase, rest lowercase)
+    const capitalize = (str) => {
+        if (!str) return 'Unknown';
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
+
+    // Normalize the genders data: if value is null, use "Unknown"; otherwise, capitalize.
+    const normalizedGenders =
+        demographicsData && demographicsData.genders
+            ? demographicsData.genders.map((item) => ({
+                  ...item,
+                  Gender: item.Gender ? capitalize(item.Gender) : 'Unknown',
+              }))
+            : [];
+
+    // Normalize the races data similarly.
+    const normalizedRaces =
+        demographicsData && demographicsData.races
+            ? demographicsData.races.map((item) => ({
+                  ...item,
+                  Race: item.Race ? capitalize(item.Race) : 'Unknown',
+              }))
+            : [];
+
     // Custom label to display percentages if the slice is large enough
     const renderCustomizedLabel = ({
         cx, cy, midAngle, innerRadius, outerRadius, percent, index,
@@ -52,11 +76,11 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                 <>
                     <Paper sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2, flex: 1 }}>
                         <Typography variant="subtitle1">Gender Distribution</Typography>
-                        {demographicsData && demographicsData.genders && demographicsData.genders.length > 0 ? (
+                        {normalizedGenders.length > 0 ? (
                             <ResponsiveContainer width="100%" height={250}>
                                 <PieChart>
                                     <Pie
-                                        data={demographicsData.genders}
+                                        data={normalizedGenders}
                                         dataKey="count"
                                         nameKey="Gender"
                                         cx="50%"
@@ -65,7 +89,7 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                         labelLine={false}
                                         label={renderCustomizedLabel}
                                     >
-                                        {demographicsData.genders.map((entry, index) => (
+                                        {normalizedGenders.map((entry, index) => (
                                             <Cell key={`gender-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />
                                         ))}
                                     </Pie>
@@ -79,11 +103,11 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                     </Paper>
                     <Paper sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2, flex: 1 }}>
                         <Typography variant="subtitle1">Race Distribution</Typography>
-                        {demographicsData && demographicsData.races && demographicsData.races.length > 0 ? (
+                        {normalizedRaces.length > 0 ? (
                             <ResponsiveContainer width="100%" height={250}>
                                 <PieChart>
                                     <Pie
-                                        data={demographicsData.races}
+                                        data={normalizedRaces}
                                         dataKey="count"
                                         nameKey="Race"
                                         cx="50%"
@@ -92,7 +116,7 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                         labelLine={false}
                                         label={renderCustomizedLabel}
                                     >
-                                        {demographicsData.races.map((entry, index) => (
+                                        {normalizedRaces.map((entry, index) => (
                                             <Cell key={`race-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />
                                         ))}
                                     </Pie>

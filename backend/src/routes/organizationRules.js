@@ -121,6 +121,36 @@ router.put('/updateOccurrences', async (req, res) => {
 });
 
 
+router.put('/updateMaxPoints', async (req, res) => {
+    console.log('Received request at /updateMaxPoints (PUT)');
+
+    const { eventTypeID, maxPoints } = req.body;
+
+    if (!eventTypeID || maxPoints === undefined) {
+        return res.status(400).json({ error: 'Missing eventTypeID or maxPoints parameter' });
+    }
+
+    try {
+        const query = `
+            UPDATE EventTypes 
+            SET MaxPoints = ? 
+            WHERE EventTypeID = ?
+        `;
+        const [result] = await db.query(query, [maxPoints, eventTypeID]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'EventTypeID not found' });
+        }
+
+        console.log('MaxPoints for EventTypeID: ', eventTypeID, ' updated to: ', maxPoints);
+        res.json({ success: true, message: 'MaxPoints updated successfully' });
+    } catch (error) {
+        console.error('Error updating MaxPoints:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.post('/addEventType', async (req, res) => {
     console.log('Received POST to /api/events/addEventType:', req.body);
     const { organizationID, EventTypeName, TrackingType, occurrences, semesterID } = req.body;
@@ -159,6 +189,74 @@ router.post('/addEventType', async (req, res) => {
 });
 
 
+router.delete('/deleteEventType', async (req, res) => {
+    // TODO: Notify the user if there are attendance records associated with this event type
+    // prompt them to confirm deletion! 
+    console.log('Received request at /deleteEventType (DELETE)');
+
+    const { eventTypeID } = req.body;
+    if (!eventTypeID) {
+        return res.status(400).json({ error: 'Missing eventTypeID parameter' });
+    }
+
+    try {
+        // Get event IDs associated with this eventTypeID (assuming an Events table exists)
+        const [eventRows] = await db.query(
+            `SELECT EventID FROM Events WHERE EventTypeID = ?`,
+            [eventTypeID]
+        );
+        const eventIDs = eventRows.map(row => row.EventID);
+
+        let attendanceCount = 0;
+        if (eventIDs.length > 0) {
+            // Tally Attendance records for these events
+            const [attendanceRows] = await db.query(
+                `SELECT COUNT(*) AS count FROM Attendance WHERE EventID IN (?)`,
+                [eventIDs]
+            );
+            attendanceCount = attendanceRows[0].count || 0;
+
+            // Delete Attendance records for these events
+            await db.query(
+                `DELETE FROM Attendance WHERE EventID IN (?)`,
+                [eventIDs]
+            );
+
+            // Delete events for this event type
+            await db.query(
+                `DELETE FROM Events WHERE EventTypeID = ?`,
+                [eventTypeID]
+            );
+        }
+
+        // Delete all EventRules associated with the eventTypeID
+        await db.query(
+            `DELETE FROM EventRules WHERE EventTypeID = ?`,
+            [eventTypeID]
+        );
+
+        // Delete the EventTypes record for the given eventTypeID
+        const [result] = await db.query(
+            `DELETE FROM EventTypes WHERE EventTypeID = ?`,
+            [eventTypeID]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'EventTypeID not found' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Event type, associated events, attendance, and rules deleted successfully',
+            attendanceCount
+        });
+    } catch (error) {
+        console.error('Error deleting event type and associated records:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.post('/copyRules', async (req, res) => {
     const { organizationID, sourceSemesterID, targetSemesterID } = req.body;
 
@@ -180,7 +278,7 @@ router.post('/copyRules', async (req, res) => {
             'DELETE FROM EventRules WHERE OrganizationID = ? AND SemesterID = ?',
             [organizationID, targetSemesterID]
         );
-        
+
         // Copy event types from source semester to target semester
         const [eventTypes] = await connection.query(
             `SELECT EventType, RuleType, MaxPoints, MinPoints, OccurrenceTotal 
@@ -188,10 +286,10 @@ router.post('/copyRules', async (req, res) => {
              WHERE OrganizationID = ? AND SemesterID = ?`,
             [organizationID, sourceSemesterID]
         );
-        
+
         // Keep track of old to new EventTypeID mappings
         const eventTypeIdMap = {};
-        
+
         // Insert event types for target semester and store mapping
         for (const et of eventTypes) {
             const [result] = await connection.query(
@@ -200,11 +298,11 @@ router.post('/copyRules', async (req, res) => {
                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
                 [organizationID, et.EventType, et.RuleType, et.MaxPoints, et.MinPoints, et.OccurrenceTotal, targetSemesterID]
             );
-            
+
             // Store mapping from source event type name to new ID
             eventTypeIdMap[et.EventType] = result.insertId;
         }
-        
+
         // Copy active requirement from OrganizationSettings
         const [activeReq] = await connection.query(
             'SELECT ActiveRequirement, Description FROM OrganizationSettings WHERE OrganizationID = ? AND SemesterID = ?',
@@ -228,11 +326,11 @@ router.post('/copyRules', async (req, res) => {
              WHERE er.OrganizationID = ? AND er.SemesterID = ?`,
             [organizationID, sourceSemesterID]
         );
-        
+
         for (const rule of rules) {
             // Get new EventTypeID from map
             const newEventTypeId = eventTypeIdMap[rule.EventType];
-            
+
             if (newEventTypeId) {
                 await connection.query(
                     `INSERT INTO EventRules 

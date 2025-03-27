@@ -97,6 +97,11 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
     const [addPercentError, setAddPercentError] = React.useState('');
     const [addPointError, setAddPointError] = React.useState('');
 
+    const [editMaxPoints, setEditMaxPoints] = React.useState(false);
+    const [currentMaxPoints, setCurrentMaxPoints] = React.useState(maxPoints);
+    const [newMaxPoints, setNewMaxPoints] = React.useState(maxPoints);
+    const [maxPointsError, setMaxPointsError] = React.useState('');
+
 
     React.useEffect(() => {
         if (orgID && semesterID) {
@@ -251,17 +256,61 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             });
     };
 
+    const handleEditMaxPoints = () => {
+        setEditMaxPoints(true);
+        setNewMaxPoints(currentMaxPoints);
+    };
+
+    const handleCancelEditMaxPoints = () => {
+        setEditMaxPoints(false);
+        setMaxPointsError('');
+    };
+
+    const handleSaveMaxPoints = () => {
+        const parsedValue = parseInt(newMaxPoints, 10);
+        if (isNaN(parsedValue) || parsedValue < 0) {
+            setMaxPointsError('Max points must be a non-negative number');
+            return;
+        }
+
+        fetch('/api/organizationRules/updateMaxPoints', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                eventTypeID,
+                maxPoints: parsedValue,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setCurrentMaxPoints(parsedValue);
+                    setEditMaxPoints(false);
+                    setMaxPointsError('');
+                    refetchEventRules();
+                } else {
+                    setMaxPointsError('Failed to update max points');
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating max points:', error);
+                setMaxPointsError('An error occurred');
+            });
+    };
+
     const handleSaveNewRule = () => {
         // Reset errors
         setAddPercentError('');
         setAddPointError('');
-    
+
         // Validate criteria type
         if (!newRuleCriteriaType) {
             setAddPercentError('Please select a criteria type');
             return;
         }
-    
+
         // Handle criteria value
         let criteriaValue = 0.00; // Default to 0.00
         if (newRuleCriteriaType === 'minimum threshold percentage' || newRuleCriteriaType === 'minimum threshold hours') {
@@ -275,14 +324,14 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 return;
             }
         }
-    
+
         // Validate point value
         const pointValue = parseInt(newRulePointValue, 10);
         if (isNaN(pointValue) || pointValue < 1) {
             setAddPointError('Point value must be at least 1');
             return;
         }
-    
+
         // Add New Rule
         fetch('/api/organizationRules/addRule', {
             method: 'POST',
@@ -294,7 +343,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 eventTypeID,
                 semesterID,
                 criteria: newRuleCriteriaType,
-                criteriaValue, 
+                criteriaValue,
                 pointValue,
             }),
         })
@@ -344,9 +393,37 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 )}
                 {/* display max points if it exists (not null) */}
                 {requirementType === 'points' && (
-                    <Typography sx={{ pb: 2 }}>
-                        Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 2 }}>
+                        {editMaxPoints ? (
+                            <>
+                                <TextField
+                                    label="Max Points"
+                                    value={newMaxPoints}
+                                    onChange={(e) => setNewMaxPoints(e.target.value)}
+                                    size="small"
+                                    error={!!maxPointsError}
+                                    helperText={maxPointsError}
+                                />
+                                <IconButton onClick={handleSaveMaxPoints} sx={{ color: '#08A045' }}>
+                                    <SaveIcon />
+                                </IconButton>
+                                <IconButton onClick={handleCancelEditMaxPoints} sx={{ color: '#d32f2f' }}>
+                                    <CancelIcon />
+                                </IconButton>
+                            </>
+                        ) : (
+                            <>
+                                <Typography>
+                                    Max Points: {currentMaxPoints !== null ? currentMaxPoints : 'no cap'}
+                                </Typography>
+                                {isEditable && (
+                                    <IconButton onClick={handleEditMaxPoints} sx={{ color: '#015aa2' }}>
+                                        <EditIcon />
+                                    </IconButton>
+                                )}
+                            </>
+                        )}
+                    </Box>
                 )}
 
                 <Paper component="form" sx={{ width: '100%' }}>

@@ -237,22 +237,24 @@ export default function AccountSetup() {
                 </Select>
               </FormControl>
 
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="pant-size-select-label">Pant Size</InputLabel>
-                <Select
-                  required
-                  labelId="pant-size-select-label"
+              <FormControl sx={{ flex: 1 }} required>
+                <InputLabel id="pant-size-select-label" shrink htmlFor="pant-size-input">Pant Size</InputLabel>
+                <input
+                  id="pant-size-input"
+                  type="number"
+                  min="0"
+                  max="99999"
                   value={pantSize}
-                  label="Pant Size"
                   onChange={(e) => setPantSize(e.target.value)}
-                >
-                  <MenuItem value={'28'}>28</MenuItem>
-                  <MenuItem value={'30'}>30</MenuItem>
-                  <MenuItem value={'32'}>32</MenuItem>
-                  <MenuItem value={'34'}>34</MenuItem>
-                  <MenuItem value={'36'}>36</MenuItem>
-                  <MenuItem value={'38'}>38</MenuItem>
-                </Select>
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    border: '9px solid rgba(0, 0, 0, 0.23)',
+                    borderRadius: '4px',
+                    fontSize: '16px',
+                    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+                  }}
+                />
               </FormControl>
             </Box>
 

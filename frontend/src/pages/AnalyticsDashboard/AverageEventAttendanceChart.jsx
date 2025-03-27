@@ -83,6 +83,38 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return null;
     };
 
+    const CustomBackground = (props) => {
+        const { x, width, height, payload } = props;
+        return (
+            <rect
+                x={x}
+                y={0}
+                width={width}
+                height={height} // This is the full chart height, as provided by Recharts
+                fill="transparent"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                    setSelectedEventType(payload.original);
+                    setViewMode('instances');
+                }}
+            />
+        );
+    };
+
+    const CustomBarShape = (props) => {
+        const { fill, x, y, width, height } = props;
+        return (
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height} // This is the bar’s height, based on the data value
+                fill={fill}
+                pointerEvents="none"
+            />
+        );
+    };
+
     // TODO: If container width is < 740px, hide labels 
     // Label renderer for Instance Chart
     const renderInstanceLabel = (maxAttendance) => (props) => {
@@ -164,12 +196,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                             />
                             <Bar
                                 dataKey="attendanceRate"
-                                fill="#F76902"
-                                onClick={(data, index) => {
-                                    // Use the original averages item to preserve additional properties
-                                    setSelectedEventType(data.payload.original);
-                                    setViewMode('instances');
-                                }}
+                                shape={<CustomBarShape fill="#F76902" />}
+                                background={<CustomBackground />}
                                 label={renderAverageLabel}
                             />
                         </BarChart>

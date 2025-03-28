@@ -40,7 +40,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                         {sortedProgressByType.map((eventType, index) => (
                             <React.Fragment key={index}>
                                 <ListItem sx={{ justifyContent: 'space-between' }}>
-                                    <Typography variant="h6">{eventType.name}s</Typography>
+                                    <Typography variant="h6">{eventType.name}</Typography>
                                     <Typography>{eventType.progress?.progressDetails[0]?.progress || '0/0'} attended</Typography>
                                 </ListItem>
                                 {eventType.maxPoints !== null && (

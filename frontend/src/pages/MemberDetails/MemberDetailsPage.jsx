@@ -3,12 +3,14 @@ import {
   Container, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Box, Chip, Button, Select, MenuItem,
   InputLabel, FormControl, Drawer, TextField, IconButton, Dialog,
-  DialogActions, DialogContent, DialogContentText, DialogTitle
+  DialogActions, DialogContent, DialogContentText, DialogTitle, Switch
 } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+dayjs.extend(isSameOrAfter);
 import SnackbarAlert from '../../components/SnackbarAlert';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
@@ -17,8 +19,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const StatusChip = ({ memberStatus, ...props }) => (
   <Chip
     sx={{
-      backgroundColor: memberStatus === 'Active' ? '#e6ffe6' : '#ffe6e6',
-      color: memberStatus === 'Active' ? '#2e7d32' : '#c62828',
+      backgroundColor:
+        memberStatus === 'Active'
+          ? '#e6ffe6'
+          : memberStatus === 'Exempt'
+            ? '#e1bee7'  // light purple background for Exempt
+            : '#ffe6e6',
+      color:
+        memberStatus === 'Active'
+          ? '#2e7d32'
+          : memberStatus === 'Exempt'
+            ? '#6a1b9a'  // purple text for Exempt
+            : '#c62828',
     }}
     {...props}
   />
@@ -31,6 +43,8 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
   const [editMode, setEditMode] = React.useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
   const [attendanceToDelete, setAttendanceToDelete] = React.useState(null);
+  const [semesters, setSemesters] = React.useState([]);
+  const [activeSemester, setActiveSemester] = React.useState(null);
   const semesterID = selectedSemester?.SemesterID || null;
   const semesterStart = selectedSemester?.StartDate || null;
   const semesterEnd = selectedSemester?.EndDate || null;
@@ -56,6 +70,98 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     attendanceSource: 'manual adjustment',
     hours: null
   });
+
+  // Fetch semesters on component mount
+  React.useEffect(() => {
+    fetch('/api/admin/getSemesters')
+      .then((response) => response.json())
+      .then((data) => {
+        setSemesters(data);
+        const activeSemester = data.find(semester => semester.IsActive === 1);
+        if (activeSemester) {
+          setActiveSemester(activeSemester);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching semesters:', error);
+      });
+  }, []);
+
+  // Exempt status toggle state and handlers
+  const [exemptEnabled, setExemptEnabled] = React.useState(false);
+  const [exemptStartSemester, setExemptStartSemester] = React.useState('');
+  const [exemptDuration, setExemptDuration] = React.useState(1);
+  const [exemptSemesters, setExemptSemesters] = React.useState([]);
+
+  // If memberStatus is Exempt, ensure the switch is on and fetch exempt semesters
+  React.useEffect(() => {
+    if (memberStatus === 'Exempt') {
+      setExemptEnabled(true);
+      const currentSemesterID = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
+      if (currentSemesterID) {
+        fetch(`/api/memberDetails/exemptSemesters?memberID=${memberID}&organizationID=${orgID}&semesterID=${currentSemesterID}`)
+          .then(resp => resp.json())
+          .then(data => setExemptSemesters(data))
+          .catch(err => console.error("Error fetching exempt semesters:", err));
+      }
+    }
+  }, [memberStatus, memberID, orgID, selectedSemester, activeSemester]);
+
+  const handleExemptToggle = (e) => {
+    setExemptEnabled(e.target.checked);
+  };
+
+  const handleExemptSubmit = () => {
+    if (!exemptStartSemester) {
+      setSnackbar({ open: true, severity: 'error', message: 'Start Semester is required' });
+      return;
+    }
+    fetch('/api/memberDetails/setExemptStatus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberID,
+        organizationID: orgID,
+        startSemesterID: parseInt(exemptStartSemester, 10),
+        duration: parseInt(exemptDuration, 10)
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          setSnackbar({ open: true, severity: 'error', message: data.error });
+        } else {
+          setSnackbar({ open: true, severity: 'success', message: data.message });
+          // Now call the /status endpoint to get the updated member status
+          const semesterIDForStatus = selectedSemester
+            ? selectedSemester.SemesterID
+            : activeSemester?.SemesterID;
+          fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${semesterIDForStatus}`)
+            .then(resp => resp.json())
+            .then(statusData => {
+              if (onMemberUpdate) {
+                const baseInfo = memberInfo && memberInfo.length > 0 ? memberInfo[0] : {};
+                const updatedMember = {
+                  MemberID: memberID,
+                  FullName: baseInfo.FullName || '',
+                  Status: statusData.status, 
+                  AttendanceRecord: baseInfo.AttendanceRecord || 0,
+                  LastUpdated: new Date().toISOString()
+                };
+                onMemberUpdate(updatedMember);
+              }
+            })
+            .catch(err => console.error('Error fetching updated status:', err));
+        }
+        setExemptEnabled(false);
+        setExemptStartSemester('');
+        setExemptDuration(1);
+      })
+      .catch(error => {
+        console.error('Error setting exempt status:', error);
+        setSnackbar({ open: true, severity: 'error', message: 'Error setting exempt status' });
+      });
+  };
 
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -349,6 +455,76 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
               </Box>
             )}
           </Paper>
+
+          {/* Exempt Status Toggle Section */}
+          <Paper elevation={1} sx={{ p: 2, mt: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="h6">Exempt Status</Typography>
+              <Switch
+                checked={exemptEnabled}
+                onChange={handleExemptToggle}
+                name="exemptToggle"
+                color="primary"
+                disabled={memberStatus === 'Exempt'}
+              />
+            </Box>
+            {exemptEnabled && (
+          <>
+            {memberStatus === 'Exempt' ? (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body1">Exempt Semesters:</Typography>
+                {exemptSemesters.length > 0 ? (
+                  <ul>
+                    {exemptSemesters.map(semester => (
+                      <li key={semester.SemesterID}>
+                        {semester.TermName}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <Typography variant="body2">No exempt semesters found.</Typography>
+                )}
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Start Semester</InputLabel>
+                  <Select
+                    value={exemptStartSemester}
+                    onChange={(e) => setExemptStartSemester(e.target.value)}
+                    label="Start Semester"
+                  >
+                    {semesters
+                      .filter(semester => {
+                        // Only allow the active or future semesters
+                        if (!activeSemester) return true;
+                        return dayjs(semester.StartDate).isSameOrAfter(dayjs(activeSemester.StartDate));
+                      })
+                      .map(semester => (
+                        <MenuItem key={semester.SemesterID} value={semester.SemesterID}>
+                          {semester.TermName}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel>Duration</InputLabel>
+                  <Select
+                    value={exemptDuration}
+                    onChange={(e) => setExemptDuration(e.target.value)}
+                    label="Duration"
+                  >
+                    <MenuItem value={1}>1 Semester</MenuItem>
+                    <MenuItem value={2}>2 Semesters</MenuItem>
+                    <MenuItem value={3}>3 Semesters</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button variant="contained" onClick={handleExemptSubmit}>Set Exempt Status</Button>
+              </Box>
+            )}
+          </>
+        )}
+      </Paper>
         </Box>
       </Box>
 

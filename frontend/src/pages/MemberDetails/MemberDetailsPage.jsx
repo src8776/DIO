@@ -205,11 +205,15 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
             .then(statusData => {
               if (onMemberUpdate) {
                 const baseInfo = memberInfo && memberInfo[0] ? memberInfo[0] : {};
+                const attendanceCount = Array.isArray(baseInfo.attendanceRecords)
+                  ? baseInfo.attendanceRecords.length
+                  : baseInfo.attendanceRecords || 0;
+                console.log('AttendanceRecords:', baseInfo.attendanceRecords);
                 const updatedMember = {
                   MemberID: memberID,
                   FullName: baseInfo.FullName || '',
                   Status: statusData.status,
-                  AttendanceRecord: baseInfo.AttendanceRecord || 0,
+                  AttendanceRecord: attendanceCount,
                   LastUpdated: new Date().toISOString()
                 };
                 onMemberUpdate(updatedMember);
@@ -254,11 +258,14 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
             .then(statusData => {
               if (onMemberUpdate) {
                 const baseInfo = memberInfo && memberInfo[0] ? memberInfo[0] : {};
+                const attendanceCount = Array.isArray(baseInfo.attendanceRecords)
+                  ? baseInfo.attendanceRecords.length
+                  : baseInfo.attendanceRecords || 0;
                 const updatedMember = {
                   MemberID: memberID,
                   FullName: baseInfo.FullName || '',
                   Status: statusData.status,
-                  AttendanceRecord: baseInfo.AttendanceRecord || 0,
+                  AttendanceRecord: attendanceCount,
                   LastUpdated: new Date().toISOString()
                 };
                 onMemberUpdate(updatedMember);

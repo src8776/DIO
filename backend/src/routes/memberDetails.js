@@ -556,4 +556,45 @@ router.get('/exemptSemesters', async (req, res) => {
 });
 
 
+router.post('/undoExemptStatus', async (req, res) => {
+    const { memberID, organizationID, semesterID } = req.body;
+
+    if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID)) {
+        return res.status(400).json({ error: 'Invalid input parameters' });
+    }
+
+    try {
+        // Fetch the semester record
+        const [semesterRows] = await db.query(
+            'SELECT * FROM Semesters WHERE SemesterID = ?',
+            [semesterID]
+        );
+        if (!semesterRows.length) {
+            return res.status(404).json({ error: 'Semester not found' });
+        }
+        const semester = semesterRows[0];
+
+        // Update OrganizationMembers record to set Status to "General"
+        // Assumption: a record already exists for the member in the given semester.
+        const [result] = await db.query(
+            `UPDATE OrganizationMembers 
+             SET Status = 'General'
+             WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
+            [memberID, organizationID, semesterID]
+        );
+
+        // If updating the current (active) semester, also update the account status via service
+        if (semester.IsActive === 1) {
+            await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
+        }
+
+        res.status(200).json({
+            message: `Exempt status undone for semester "${semester.TermName}". Member status set to General${semester.IsActive === 1 ? ' for the current semester' : ' for the future semester'}.`
+        });
+    } catch (error) {
+        console.error('Error undoing exempt status:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

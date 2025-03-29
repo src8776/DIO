@@ -19,7 +19,8 @@ export default function ExemptStatusToggle({
     memberStatus,
     semesters,
     activeSemester,
-    onExemptSubmit
+    onExemptSubmit,
+    onExemptUndo
 }) {
     const handleExemptToggle = (e) => setExemptEnabled(e.target.checked);
 
@@ -49,6 +50,15 @@ export default function ExemptStatusToggle({
                             ) : (
                                 <Typography variant="body2">No exempt semesters found.</Typography>
                             )}
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={onExemptUndo}
+                                >
+                                    Undo Exempt Status
+                                </Button>
+                            </Box>
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>

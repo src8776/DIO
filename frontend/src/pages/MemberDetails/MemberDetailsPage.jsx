@@ -227,6 +227,52 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       });
   };
 
+  const handleUndoExempt = () => {
+    const sem = selectedSemester || activeSemester;
+    if (!sem) {
+      setSnackbar({ open: true, severity: 'error', message: 'No active or selected semester found' });
+      return;
+    }
+    fetch('/api/memberDetails/undoExemptStatus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberID,
+        organizationID: orgID,
+        semesterID: sem.SemesterID
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          setSnackbar({ open: true, severity: 'error', message: data.error });
+        } else {
+          setSnackbar({ open: true, severity: 'success', message: data.message });
+          const semesterIDForStatus = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
+          fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${semesterIDForStatus}`)
+            .then(resp => resp.json())
+            .then(statusData => {
+              if (onMemberUpdate) {
+                const baseInfo = memberInfo && memberInfo[0] ? memberInfo[0] : {};
+                const updatedMember = {
+                  MemberID: memberID,
+                  FullName: baseInfo.FullName || '',
+                  Status: statusData.status,
+                  AttendanceRecord: baseInfo.AttendanceRecord || 0,
+                  LastUpdated: new Date().toISOString()
+                };
+                onMemberUpdate(updatedMember);
+              }
+            })
+            .catch(err => console.error('Error fetching updated status:', err));
+        }
+      })
+      .catch(error => {
+        console.error('Error undoing exempt status:', error);
+        setSnackbar({ open: true, severity: 'error', message: 'Error undoing exempt status' });
+      });
+  };
+
   if (!memberInfo || memberInfo.length === 0) {
     return (
       <Container>
@@ -304,6 +350,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
             semesters={semesters}
             activeSemester={activeSemester}
             onExemptSubmit={handleExemptSubmit}
+            onExemptUndo={handleUndoExempt}
           />
         </Box>
       </Box>

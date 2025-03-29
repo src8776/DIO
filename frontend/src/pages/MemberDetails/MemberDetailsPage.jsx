@@ -1,20 +1,12 @@
 import * as React from 'react';
 import {
-  Container, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Box, Chip, Button, Select, MenuItem,
-  InputLabel, FormControl, Drawer, TextField, IconButton, Dialog,
-  DialogActions, DialogContent, DialogContentText, DialogTitle, Switch
+  Container, Typography, Paper, Box, Chip, Button, Dialog,
+  DialogActions, DialogContent, DialogContentText, DialogTitle
 } from "@mui/material";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-dayjs.extend(isSameOrAfter);
 import SnackbarAlert from '../../components/SnackbarAlert';
-import EditIcon from '@mui/icons-material/Edit';
-import DoneIcon from '@mui/icons-material/Done';
-import DeleteIcon from '@mui/icons-material/Delete';
+import AttendanceHistoryAdmin from './AttendanceHistoryAdmin';
+import ExemptStatusToggle from './ExemptStatusToggle';
 
 const StatusChip = ({ memberStatus, ...props }) => (
   <Chip
@@ -37,63 +29,46 @@ const StatusChip = ({ memberStatus, ...props }) => (
 );
 
 export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate }) {
-  const [memberInfo, setMemberInfo] = React.useState();
-  const [open, setOpen] = React.useState(false);
-  const [eventTypeItems, setEventTypeItems] = React.useState([]);
+  const [memberInfo, setMemberInfo] = React.useState(null);
   const [editMode, setEditMode] = React.useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
   const [attendanceToDelete, setAttendanceToDelete] = React.useState(null);
   const [semesters, setSemesters] = React.useState([]);
   const [activeSemester, setActiveSemester] = React.useState(null);
+  const [eventTypeItems, setEventTypeItems] = React.useState([]);
   const semesterID = selectedSemester?.SemesterID || null;
   const semesterStart = selectedSemester?.StartDate || null;
   const semesterEnd = selectedSemester?.EndDate || null;
-  const [eventDate, setEventDate] = React.useState(() => {
-    const today = dayjs();
-    if (semesterStart && semesterEnd) {
-      const start = dayjs(semesterStart);
-      const end = dayjs(semesterEnd);
-      if (today.isBefore(start)) return start;
-      else if (today.isAfter(end)) return end;
-      else return today;
-    }
-    return today;
-  });
   const [formData, setFormData] = React.useState({
     memberID: memberID,
     organizationID: orgID,
     semesterID: semesterID,
     eventType: '',
-    eventDate: eventDate,
+    eventDate: dayjs(),
     eventTitle: '',
     attendanceStatus: '',
     attendanceSource: 'manual adjustment',
     hours: null
   });
-
-  // Fetch semesters on component mount
-  React.useEffect(() => {
-    fetch('/api/admin/getSemesters')
-      .then((response) => response.json())
-      .then((data) => {
-        setSemesters(data);
-        const activeSemester = data.find(semester => semester.IsActive === 1);
-        if (activeSemester) {
-          setActiveSemester(activeSemester);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching semesters:', error);
-      });
-  }, []);
-
-  // Exempt status toggle state and handlers
   const [exemptEnabled, setExemptEnabled] = React.useState(false);
   const [exemptStartSemester, setExemptStartSemester] = React.useState('');
   const [exemptDuration, setExemptDuration] = React.useState(1);
   const [exemptSemesters, setExemptSemesters] = React.useState([]);
+  const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
 
-  // If memberStatus is Exempt, ensure the switch is on and fetch exempt semesters
+  // Fetch semesters
+  React.useEffect(() => {
+    fetch('/api/admin/getSemesters')
+      .then(response => response.json())
+      .then(data => {
+        setSemesters(data);
+        const active = data.find(semester => semester.IsActive === 1);
+        if (active) setActiveSemester(active);
+      })
+      .catch(error => console.error('Error fetching semesters:', error));
+  }, []);
+
+  // Handle exempt status for 'Exempt' members
   React.useEffect(() => {
     if (memberStatus === 'Exempt') {
       setExemptEnabled(true);
@@ -107,84 +82,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     }
   }, [memberStatus, memberID, orgID, selectedSemester, activeSemester]);
 
-  const handleExemptToggle = (e) => {
-    setExemptEnabled(e.target.checked);
-  };
-
-  const handleExemptSubmit = () => {
-    if (!exemptStartSemester) {
-      setSnackbar({ open: true, severity: 'error', message: 'Start Semester is required' });
-      return;
-    }
-    fetch('/api/memberDetails/setExemptStatus', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        memberID,
-        organizationID: orgID,
-        startSemesterID: parseInt(exemptStartSemester, 10),
-        duration: parseInt(exemptDuration, 10)
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          setSnackbar({ open: true, severity: 'error', message: data.error });
-        } else {
-          setSnackbar({ open: true, severity: 'success', message: data.message });
-          // Now call the /status endpoint to get the updated member status
-          const semesterIDForStatus = selectedSemester
-            ? selectedSemester.SemesterID
-            : activeSemester?.SemesterID;
-          fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${semesterIDForStatus}`)
-            .then(resp => resp.json())
-            .then(statusData => {
-              if (onMemberUpdate) {
-                const baseInfo = memberInfo && memberInfo.length > 0 ? memberInfo[0] : {};
-                const updatedMember = {
-                  MemberID: memberID,
-                  FullName: baseInfo.FullName || '',
-                  Status: statusData.status, 
-                  AttendanceRecord: baseInfo.AttendanceRecord || 0,
-                  LastUpdated: new Date().toISOString()
-                };
-                onMemberUpdate(updatedMember);
-              }
-            })
-            .catch(err => console.error('Error fetching updated status:', err));
-        }
-        setExemptEnabled(false);
-        setExemptStartSemester('');
-        setExemptDuration(1);
-      })
-      .catch(error => {
-        console.error('Error setting exempt status:', error);
-        setSnackbar({ open: true, severity: 'error', message: 'Error setting exempt status' });
-      });
-  };
-
-  const handleClickOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleDateChange = (date) => setFormData({ ...formData, eventDate: date });
-  const handleEditToggle = () => setEditMode(!editMode);
-  const handleDeleteClick = (attendance) => {
-    setAttendanceToDelete(attendance);
-    setConfirmDialogOpen(true);
-  };
-  const handleCancelDelete = () => {
-    setConfirmDialogOpen(false);
-    setAttendanceToDelete(null);
-  };
-
-  const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
-
-  const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
-  };
-
-
-  // Fetch member data 
+  // Fetch member data
   React.useEffect(() => {
     if (!memberID || !orgID) return;
     let url = `/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}`;
@@ -192,22 +90,21 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     fetch(url)
       .then(response => response.json())
       .then(data => setMemberInfo(data))
-      .catch(error => console.error('Error fetching data for MemberInfo:', error));
+      .catch(error => console.error('Error fetching member info:', error));
   }, [memberID, orgID, selectedSemester]);
 
-  // Fetch event types 
+  // Fetch event types
   React.useEffect(() => {
     if (orgID && semesterID) {
       fetch(`/api/admin/events?organizationID=${orgID}&semesterID=${semesterID}`)
-        .then((response) => response.json())
-        .then((data) => setEventTypeItems(data))
-        .catch((error) => console.error('Error fetching events:', error));
+        .then(response => response.json())
+        .then(data => setEventTypeItems(data))
+        .catch(error => console.error('Error fetching events:', error));
     }
   }, [orgID, semesterID]);
 
-  // Form handling functions 
+  // Handlers
   const handleSubmit = () => {
-    // Check for duplicate attendance records (same event type on the same day)
     if (memberInfo && memberInfo[0]?.attendanceRecords) {
       const duplicate = memberInfo[0].attendanceRecords.some(record =>
         record.EventType === formData.eventType &&
@@ -231,12 +128,8 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     })
       .then(response => response.json())
       .then(data => {
-        console.log('Success:', data);
         setSnackbar({ open: true, severity: 'success', message: 'Attendance record added successfully' });
-        if (data.updatedMember && onMemberUpdate) {
-          onMemberUpdate(data.updatedMember);
-        }
-        setOpen(false);
+        if (data.updatedMember && onMemberUpdate) onMemberUpdate(data.updatedMember);
         fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
           .then(response => response.json())
           .then(data => setMemberInfo(data));
@@ -245,6 +138,16 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
         console.error('Error:', error);
         setSnackbar({ open: true, severity: 'error', message: 'Error adding attendance record' });
       });
+  };
+
+  const handleDeleteClick = (attendance) => {
+    setAttendanceToDelete(attendance);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDialogOpen(false);
+    setAttendanceToDelete(null);
   };
 
   const handleConfirmDelete = () => {
@@ -261,11 +164,8 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     })
       .then(response => response.json())
       .then(data => {
-        console.log('Deleted:', data);
         setSnackbar({ open: true, severity: 'success', message: 'Attendance record removed successfully' });
-        if (data.updatedMember && onMemberUpdate) {
-          onMemberUpdate(data.updatedMember);
-        }
+        if (data.updatedMember && onMemberUpdate) onMemberUpdate(data.updatedMember);
         setConfirmDialogOpen(false);
         setAttendanceToDelete(null);
         fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
@@ -278,6 +178,54 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       });
   };
 
+  const handleExemptSubmit = () => {
+    if (!exemptStartSemester) {
+      setSnackbar({ open: true, severity: 'error', message: 'Start Semester is required' });
+      return;
+    }
+    fetch('/api/memberDetails/setExemptStatus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberID,
+        organizationID: orgID,
+        startSemesterID: parseInt(exemptStartSemester, 10),
+        duration: parseInt(exemptDuration, 10)
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          setSnackbar({ open: true, severity: 'error', message: data.error });
+        } else {
+          setSnackbar({ open: true, severity: 'success', message: data.message });
+          const semesterIDForStatus = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
+          fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${semesterIDForStatus}`)
+            .then(resp => resp.json())
+            .then(statusData => {
+              if (onMemberUpdate) {
+                const baseInfo = memberInfo && memberInfo[0] ? memberInfo[0] : {};
+                const updatedMember = {
+                  MemberID: memberID,
+                  FullName: baseInfo.FullName || '',
+                  Status: statusData.status,
+                  AttendanceRecord: baseInfo.AttendanceRecord || 0,
+                  LastUpdated: new Date().toISOString()
+                };
+                onMemberUpdate(updatedMember);
+              }
+            })
+            .catch(err => console.error('Error fetching updated status:', err));
+        }
+        setExemptEnabled(false);
+        setExemptStartSemester('');
+        setExemptDuration(1);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setSnackbar({ open: true, severity: 'error', message: 'Error setting exempt status' });
+      });
+  };
 
   if (!memberInfo || memberInfo.length === 0) {
     return (
@@ -291,10 +239,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     );
   }
 
-  const { MemberID, UserName, FirstName, LastName, Email,
-    Major, GraduationYear, AcademicYear, attendanceRecords,
-    RoleName, ShirtSize, PantSize, Gender, Race } = memberInfo[0];
-
+  const { MemberID: id, UserName, FirstName, LastName, Email, Major, GraduationYear, AcademicYear, attendanceRecords, RoleName, ShirtSize, PantSize } = memberInfo[0];
   return (
     <Container sx={{ display: 'flex', flexDirection: 'column', width: '100%', p: 2 }}>
 
@@ -306,7 +251,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
               {FirstName} {LastName} • <StatusChip label={memberStatus} memberStatus={memberStatus} size="medium" />
             </Typography>
             <Typography variant="subtitle2" sx={{ mt: .5 }}>
-              {RoleName} • MemberID: {MemberID}
+              {RoleName} • MemberID: {id}
             </Typography>
           </Box>
           <Typography variant="h6">
@@ -334,296 +279,51 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
           </Box>
 
           {/* Attendance History */}
-          <Paper elevation={1} sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="h6">Attendance History</Typography>
-              {selectedSemester && (
-                <Button variant="outlined" startIcon={editMode ? <DoneIcon /> : <EditIcon />} onClick={handleEditToggle}>
-                  {editMode ? 'Done Editing' : 'Edit Attendance'}
-                </Button>
-              )}
-            </Box>
-            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 400 }}>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 600 }}>Event ID</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Event Type</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Event Title</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Check-in</TableCell>
-                    {editMode && <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {attendanceRecords && attendanceRecords.length > 0 ? (
-                    attendanceRecords
-                      .sort((a, b) => new Date(b.CheckInTime) - new Date(a.CheckInTime))
-                      .map((record, index) => (
-                        <TableRow key={index} hover>
-                          <TableCell>{record.EventID}</TableCell>
-                          <TableCell>
-                            {record.EventType}
-                            {record.Hours && <Chip label={`${record.Hours}h`} size="small" sx={{ ml: 1 }} />}
-                          </TableCell>
-                          <TableCell>{record.EventTitle || 'N/A'}</TableCell>
-                          <TableCell>{new Date(record.CheckInTime).toLocaleString()}</TableCell>
-                          {editMode && (
-                            <TableCell>
-                              <IconButton onClick={() => handleDeleteClick(record)} color="error">
-                                <DeleteIcon />
-                              </IconButton>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} align="center">
-                        <Typography variant="body2" color="text.secondary">No attendance records found.</Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {/* Inline Add Attendance Form */}
-            {editMode && (
-              <Box sx={{ mt: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>Add Attendance</Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <FormControl required fullWidth>
-                    <InputLabel>Event Type</InputLabel>
-                    <Select
-                      name="eventType"
-                      value={formData.eventType}
-                      onChange={handleChange}
-                      label="Event Type"
-                    >
-                      {eventTypeItems.map((item) => (
-                        <MenuItem key={item.EventTypeID} value={item.EventType}>{item.EventType}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    label="Event Title (optional)"
-                    name="eventTitle"
-                    value={formData.eventTitle}
-                    onChange={handleChange}
-                    fullWidth
-                  />
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Event Date"
-                      value={formData.eventDate}
-                      onChange={handleDateChange}
-                      minDate={dayjs(semesterStart)}
-                      maxDate={dayjs(semesterEnd)}
-                    />
-                  </LocalizationProvider>
-                  <FormControl required fullWidth>
-                    <InputLabel>Attendance Status</InputLabel>
-                    <Select
-                      name="attendanceStatus"
-                      value={formData.attendanceStatus}
-                      onChange={handleChange}
-                      label="Attendance Status"
-                    >
-                      <MenuItem value="Attended">Attended</MenuItem>
-                      <MenuItem value="Excused">Excused</MenuItem>
-                    </Select>
-                  </FormControl>
-                  {formData.eventType === 'Volunteer Event' && (
-                    <FormControl required>
-                      <InputLabel>Volunteer Hours</InputLabel>
-                      <Select
-                        name="hours"
-                        value={formData.hours}
-                        onChange={handleChange}
-                        label="Volunteer Hours"
-                        size="small"
-                      >
-                        {[...Array(9)].map((_, index) => (
-                          <MenuItem key={index} value={index + 1}>{index + 1} Hour{index + 1 > 1 ? 's' : ''}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  )}
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                    <Button onClick={handleSubmit} variant="contained">Add</Button>
-                  </Box>
-                </Box>
-              </Box>
-            )}
-          </Paper>
-
-          {/* Exempt Status Toggle Section */}
-          <Paper elevation={1} sx={{ p: 2, mt: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="h6">Exempt Status</Typography>
-              <Switch
-                checked={exemptEnabled}
-                onChange={handleExemptToggle}
-                name="exemptToggle"
-                color="primary"
-                disabled={memberStatus === 'Exempt'}
-              />
-            </Box>
-            {exemptEnabled && (
-          <>
-            {memberStatus === 'Exempt' ? (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="body1">Exempt Semesters:</Typography>
-                {exemptSemesters.length > 0 ? (
-                  <ul>
-                    {exemptSemesters.map(semester => (
-                      <li key={semester.SemesterID}>
-                        {semester.TermName}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <Typography variant="body2">No exempt semesters found.</Typography>
-                )}
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Start Semester</InputLabel>
-                  <Select
-                    value={exemptStartSemester}
-                    onChange={(e) => setExemptStartSemester(e.target.value)}
-                    label="Start Semester"
-                  >
-                    {semesters
-                      .filter(semester => {
-                        // Only allow the active or future semesters
-                        if (!activeSemester) return true;
-                        return dayjs(semester.StartDate).isSameOrAfter(dayjs(activeSemester.StartDate));
-                      })
-                      .map(semester => (
-                        <MenuItem key={semester.SemesterID} value={semester.SemesterID}>
-                          {semester.TermName}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel>Duration</InputLabel>
-                  <Select
-                    value={exemptDuration}
-                    onChange={(e) => setExemptDuration(e.target.value)}
-                    label="Duration"
-                  >
-                    <MenuItem value={1}>1 Semester</MenuItem>
-                    <MenuItem value={2}>2 Semesters</MenuItem>
-                    <MenuItem value={3}>3 Semesters</MenuItem>
-                  </Select>
-                </FormControl>
-                <Button variant="contained" onClick={handleExemptSubmit}>Set Exempt Status</Button>
-              </Box>
-            )}
-          </>
-        )}
-      </Paper>
+          <AttendanceHistoryAdmin
+            attendanceRecords={attendanceRecords}
+            editMode={editMode}
+            setEditMode={setEditMode}
+            selectedSemester={selectedSemester}
+            onDeleteClick={handleDeleteClick}
+            onAddAttendance={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            eventTypeItems={eventTypeItems}
+            semesterStart={semesterStart}
+            semesterEnd={semesterEnd}
+          />
+          <ExemptStatusToggle
+            exemptEnabled={exemptEnabled}
+            setExemptEnabled={setExemptEnabled}
+            exemptStartSemester={exemptStartSemester}
+            setExemptStartSemester={setExemptStartSemester}
+            exemptDuration={exemptDuration}
+            setExemptDuration={setExemptDuration}
+            exemptSemesters={exemptSemesters}
+            memberStatus={memberStatus}
+            semesters={semesters}
+            activeSemester={activeSemester}
+            onExemptSubmit={handleExemptSubmit}
+          />
         </Box>
       </Box>
 
-
-      {/* Attendance Adjustment Drawer
-      <Drawer anchor="right" open={open} onClose={handleClose}>
-        <Box sx={{ width: 400, p: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Add Attendance</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <FormControl required fullWidth>
-              <InputLabel>Event Type</InputLabel>
-              <Select
-                name="eventType"
-                value={formData.eventType}
-                onChange={handleChange}
-                label="Event Type"
-              >
-                {eventTypeItems.map((item) => (
-                  <MenuItem key={item.EventTypeID} value={item.EventType}>{item.EventType}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Event Title (optional)"
-              name="eventTitle"
-              value={formData.eventTitle}
-              onChange={handleChange}
-              fullWidth
-            />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Event Date"
-                value={formData.eventDate}
-                onChange={handleDateChange}
-                minDate={dayjs(semesterStart)}
-                maxDate={dayjs(semesterEnd)}
-              />
-            </LocalizationProvider>
-            <FormControl required fullWidth>
-              <InputLabel>Attendance Status</InputLabel>
-              <Select
-                name="attendanceStatus"
-                value={formData.attendanceStatus}
-                onChange={handleChange}
-                label="Attendance Status"
-              >
-                <MenuItem value="Attended">Attended</MenuItem>
-                <MenuItem value="Excused">Excused</MenuItem>
-              </Select>
-            </FormControl>
-            {formData.eventType === 'Volunteer Event' && (
-              <FormControl required>
-                <InputLabel>Volunteer Hours</InputLabel>
-                <Select
-                  name="hours"
-                  value={formData.hours}
-                  onChange={handleChange}
-                  label="Volunteer Hours"
-                  size="small"
-                >
-                  {[...Array(9)].map((_, index) => (
-                    <MenuItem key={index} value={index + 1}>{index + 1} Hour{index + 1 > 1 ? 's' : ''}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={handleClose} variant="outlined" sx={{ mr: 1 }}>Cancel</Button>
-            <Button onClick={handleSubmit} variant="contained">Add</Button>
-          </Box>
-        </Box>
-      </Drawer> */}
-
       {/* Confirmation Dialog */}
-      <Dialog
-        open={confirmDialogOpen}
-        onClose={handleCancelDelete}
-      >
+      <Dialog open={confirmDialogOpen} onClose={handleCancelDelete}>
         <DialogTitle>Delete Attendance Item</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this attendance item?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to delete this attendance item?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelDelete} color="primary">
-            No
-          </Button>
-          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
-            Yes
-          </Button>
+          <Button onClick={handleCancelDelete} color="primary">No</Button>
+          <Button onClick={handleConfirmDelete} color="primary" autoFocus>Yes</Button>
         </DialogActions>
       </Dialog>
       <SnackbarAlert
         message={snackbar.message}
         severity={snackbar.severity}
         open={snackbar.open}
-        onClose={handleCloseSnackbar}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       />
     </Container>
   );

@@ -522,8 +522,7 @@ router.get('/exemptSemesters', async (req, res) => {
     const semesterID = parseInt(req.query.semesterID, 10);
 
     console.log('Received request at /exemptSemesters');
-    console.log('Reuqest Body:', req.query);
-
+    console.log('Request Body:', req.query);
     if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID)) {
         return res.status(400).json({ error: 'Invalid memberID, organizationID or semesterID parameter' });
     }

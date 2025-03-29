@@ -9,6 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -70,6 +71,13 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     setAttendanceToDelete(null);
   };
 
+  const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+
   // Fetch member data 
   React.useEffect(() => {
     if (!memberID || !orgID) return;
@@ -93,6 +101,18 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
 
   // Form handling functions 
   const handleSubmit = () => {
+    // Check for duplicate attendance records (same event type on the same day)
+    if (memberInfo && memberInfo[0]?.attendanceRecords) {
+      const duplicate = memberInfo[0].attendanceRecords.some(record =>
+        record.EventType === formData.eventType &&
+        dayjs(record.CheckInTime).format('YYYY-MM-DD') === formData.eventDate.format('YYYY-MM-DD')
+      );
+      if (duplicate) {
+        setSnackbar({ open: true, severity: 'error', message: 'Attendance record already exists for this event on this day.' });
+        return;
+      }
+    }
+
     const formattedEventDate = formData.eventDate.format('YYYY-MM-DD');
     fetch('/api/memberDetails/addIndividualAttendance', {
       method: 'POST',
@@ -106,6 +126,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
+        setSnackbar({ open: true, severity: 'success', message: 'Attendance record added successfully' });
         if (data.updatedMember && onMemberUpdate) {
           onMemberUpdate(data.updatedMember);
         }
@@ -114,7 +135,10 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
           .then(response => response.json())
           .then(data => setMemberInfo(data));
       })
-      .catch(error => console.error('Error:', error));
+      .catch(error => {
+        console.error('Error:', error);
+        setSnackbar({ open: true, severity: 'error', message: 'Error adding attendance record' });
+      });
   };
 
   const handleConfirmDelete = () => {
@@ -132,6 +156,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
       .then(response => response.json())
       .then(data => {
         console.log('Deleted:', data);
+        setSnackbar({ open: true, severity: 'success', message: 'Attendance record removed successfully' });
         if (data.updatedMember && onMemberUpdate) {
           onMemberUpdate(data.updatedMember);
         }
@@ -141,7 +166,10 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
           .then(response => response.json())
           .then(data => setMemberInfo(data));
       })
-      .catch(error => console.error('Error:', error));
+      .catch(error => {
+        console.error('Error:', error);
+        setSnackbar({ open: true, severity: 'error', message: 'Error removing attendance record' });
+      });
   };
 
 
@@ -162,7 +190,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     RoleName, ShirtSize, PantSize, Gender, Race } = memberInfo[0];
 
   return (
-    <Container sx={{ display: 'flex', flexDirection: 'column', width: '100%', p: 2}}>
+    <Container sx={{ display: 'flex', flexDirection: 'column', width: '100%', p: 2 }}>
 
       <Box sx={{}}>
         {/* Header Section */}
@@ -415,6 +443,12 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
           </Button>
         </DialogActions>
       </Dialog>
+      <SnackbarAlert
+        message={snackbar.message}
+        severity={snackbar.severity}
+        open={snackbar.open}
+        onClose={handleCloseSnackbar}
+      />
     </Container>
   );
 }

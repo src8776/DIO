@@ -13,7 +13,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
             case 'Active':
                 return '#2DD4BF';
             case 'Exempt':
-                return '#be9bc4 ';
+                return '#be9bc4';
             case 'General':
                 return '#7C8796';
             case 'Inactive':

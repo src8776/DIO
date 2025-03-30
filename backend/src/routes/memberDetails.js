@@ -573,12 +573,14 @@ router.post('/undoExemptStatus', async (req, res) => {
         }
         const semester = semesterRows[0];
 
-        // Update OrganizationMembers record to set Status to "General"
-        // Assumption: a record already exists for the member in the given semester.
+        // Update all OrganizationMembers records with Status 'Exempt' for future semesters (including provided semester)
         const [result] = await db.query(
             `UPDATE OrganizationMembers 
              SET Status = 'General'
-             WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
+             WHERE MemberID = ? 
+               AND OrganizationID = ? 
+               AND SemesterID >= ? 
+               AND Status = 'Exempt'`,
             [memberID, organizationID, semesterID]
         );
 

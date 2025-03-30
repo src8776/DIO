@@ -8,25 +8,30 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import AttendanceHistoryAdmin from './AttendanceHistoryAdmin';
 import ExemptStatusToggle from './ExemptStatusToggle';
 
-const StatusChip = ({ memberStatus, ...props }) => (
-  <Chip
-    sx={{
-      backgroundColor:
-        memberStatus === 'Active'
-          ? '#e6ffe6'
-          : memberStatus === 'Exempt'
-            ? '#e1bee7'  // light purple background for Exempt
-            : '#ffe6e6',
-      color:
-        memberStatus === 'Active'
-          ? '#2e7d32'
-          : memberStatus === 'Exempt'
-            ? '#6a1b9a'  // purple text for Exempt
-            : '#c62828',
-    }}
-    {...props}
-  />
-);
+const StatusChip = ({ memberStatus, ...props }) => {
+  let displayedStatus = memberStatus;
+  let backgroundColor, textColor;
+
+  if (memberStatus === 'Active') {
+    displayedStatus = 'Active';
+    backgroundColor = '#e6ffe6';
+    textColor = '#2e7d32';
+  } else if (memberStatus === 'Exempt') {
+    displayedStatus = 'Exempt';
+    backgroundColor = '#e1bee7';  // light purple background for Exempt
+    textColor = '#6a1b9a';         // purple text for Exempt
+  } else if (memberStatus === 'CarryoverActive') {
+    displayedStatus = 'Active*';
+    backgroundColor = '#FFEB3B';  // yellow background
+    textColor = '#000000';        // black text for contrast
+  } else {
+    displayedStatus = 'General';
+    backgroundColor = '#ffe6e6';
+    textColor = '#c62828';
+  }
+
+  return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
+};
 
 export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate }) {
   const [memberInfo, setMemberInfo] = React.useState(null);
@@ -301,7 +306,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
         <Box sx={{ mb: 2, pt: 2, display: 'flex', justifyContent: 'space-between', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 5 }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              {FirstName} {LastName} • <StatusChip label={memberStatus} memberStatus={memberStatus} size="medium" />
+              {FirstName} {LastName} • <StatusChip memberStatus={memberStatus} size="medium" />
             </Typography>
             <Typography variant="subtitle2" sx={{ mt: .5 }}>
               {RoleName} • MemberID: {id}

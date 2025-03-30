@@ -7,11 +7,14 @@ const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {
     const memberStatus = row.Status || 'N/A';
+    const displayStatus = memberStatus === 'CarryoverActive' ? 'Active*' : memberStatus;
 
     const statusColor = (() => {
         switch (memberStatus) {
             case 'Active':
                 return '#2DD4BF';
+            case 'CarryoverActive':
+                return '#FBBF24';
             case 'Exempt':
                 return '#be9bc4';
             case 'General':
@@ -59,7 +62,7 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
                 id={labelId}
                 sx={{ ...cellStyles, color: statusColor }}
             >
-                {memberStatus}
+                {displayStatus}
             </TableCell>
             <TableCell align="left" sx={{ ...cellStyles }}>
                 {row.AttendanceRecord} meetings

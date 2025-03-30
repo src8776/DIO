@@ -26,6 +26,13 @@ export default function FinalizeSemesterButton({ selectedSemester }) {
                 onClick={handleClickOpen}
                 disabled={!selectedSemester}
                 startIcon={<CheckIcon />}
+                sx={{
+                    maxWidth: '280px',
+                    backgroundColor: '#4CAF50',
+                    '&:hover': {
+                        backgroundColor: '#388E3C',
+                    },
+                }}
             >
                 Finalize Semester
             </Button>
@@ -48,7 +55,7 @@ export default function FinalizeSemesterButton({ selectedSemester }) {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} variant='outlined'>Cancel</Button>
-                    <Button onClick={handleConfirm} variant='contained'>
+                    <Button onClick={handleConfirm} variant='contained' sx={{ backgroundColor: '#4CAF50', '&:hover': { backgroundColor: '#388E3C' } }}>
                         Finalize
                     </Button>
                 </DialogActions>

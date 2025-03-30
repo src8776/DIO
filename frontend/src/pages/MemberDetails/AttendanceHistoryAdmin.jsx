@@ -25,8 +25,8 @@ export default function AttendanceHistoryAdmin({
 
     return (
         <Paper elevation={1} sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="h6">Attendance History</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, gap: 1 }}>
+                <Typography variant="h6">Attendance History: {selectedSemester ? selectedSemester.TermName : "All Semesters"} </Typography>
                 {selectedSemester && (
                     <Button variant="outlined" startIcon={editMode ? <DoneIcon /> : <EditIcon />} onClick={() => setEditMode(!editMode)}>
                         {editMode ? 'Done Editing' : 'Edit Attendance'}

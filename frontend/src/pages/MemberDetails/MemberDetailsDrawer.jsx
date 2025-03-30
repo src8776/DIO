@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Drawer, Box, IconButton } from '@mui/material';
+import { Drawer, Box, IconButton,  } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import MemberDetailsPage from './MemberDetailsPage';
@@ -29,18 +29,15 @@ export default function MemberDetailsDrawer({ memberID, orgID, memberStatus, sel
       <Drawer onClick={(e) => e.stopPropagation()} anchor="right" open={open} onClose={handleClose} sx={{ overflowY: 'scroll' }} PaperProps={{
         sx: { width: { xs: '100%', sm: 500, md: 700 }, overflowY: 'scroll' }
       }}>
-        <Box sx={{ p: {xs: 0, md:2} }}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <IconButton onClick={handleClose}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
+        <Box sx={{ p: { xs: 0, md: 0 } }}>
+          
           <MemberDetailsPage
             memberID={memberID}
             orgID={orgID}
             memberStatus={memberStatus}
             selectedSemester={selectedSemester}
             onMemberUpdate={onMemberUpdate}
+            onClose={handleClose}
           />
         </Box>
       </Drawer>

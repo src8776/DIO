@@ -1,8 +1,11 @@
 import * as React from 'react';
 import {
-  Container, Typography, Paper, Box, Chip, Button, Dialog,
-  DialogActions, DialogContent, DialogContentText, DialogTitle
+  Container, Typography, Paper, Box,
+  Chip, Button, Dialog, DialogActions,
+  DialogContent, DialogContentText,
+  DialogTitle, IconButton
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import AttendanceHistoryAdmin from './AttendanceHistoryAdmin';
@@ -24,7 +27,12 @@ const StatusChip = ({ memberStatus, ...props }) => {
     displayedStatus = 'Active*';
     backgroundColor = '#FFEB3B';  // yellow background
     textColor = '#000000';        // black text for contrast
-  } else {
+  } else if (memberStatus === 'N/A') {
+    displayedStatus = 'N/A';
+    backgroundColor = '#ffe6e6';
+    textColor = '#c62828';
+  }
+  else {
     displayedStatus = 'General';
     backgroundColor = '#ffe6e6';
     textColor = '#c62828';
@@ -33,7 +41,7 @@ const StatusChip = ({ memberStatus, ...props }) => {
   return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
 };
 
-export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate }) {
+export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate, onClose }) {
   const [memberInfo, setMemberInfo] = React.useState(null);
   const [editMode, setEditMode] = React.useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
@@ -299,91 +307,104 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
 
   const { MemberID: id, UserName, FirstName, LastName, Email, Major, GraduationYear, AcademicYear, attendanceRecords, RoleName, ShirtSize, PantSize } = memberInfo[0];
   return (
-    <Container sx={{ display: 'flex', flexDirection: 'column', width: '100%', p: 2 }}>
-
-      <Box sx={{}}>
-        {/* Header Section */}
-        <Box sx={{ mb: 2, pt: 2, display: 'flex', justifyContent: 'space-between', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 5 }}>
+    <>
+      {/* Full-width Header */}
+      <Box sx={{ width: '100%', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 5 }}>
+        <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2 }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               {FirstName} {LastName} • <StatusChip memberStatus={memberStatus} size="medium" />
             </Typography>
-            <Typography variant="subtitle2" sx={{ mt: .5 }}>
+            <Typography variant="subtitle2" sx={{ mt: 0.5 }}>
               {RoleName} • MemberID: {id}
             </Typography>
+            <Typography variant="h6" sx={{ mr: 1 }}>
+              {selectedSemester ? selectedSemester.TermName : "All Semesters"}
+            </Typography>
           </Box>
-          <Typography variant="h6">
-            {selectedSemester ? selectedSemester.TermName : "All Semesters"}
-          </Typography>
-        </Box>
-
-        {/* Main Content */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {/* Personal and Academic Info */}
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-            <Paper elevation={1} sx={{ flex: 1, p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Personal Info</Typography>
-              <Typography variant="body2"><strong>Username:</strong> {UserName}</Typography>
-              <Typography variant="body2"><strong>Email:</strong> {Email}</Typography>
-              <Typography variant="body2"><strong>Shirt Size:</strong> {ShirtSize || "N/A"}</Typography>
-              <Typography variant="body2"><strong>Pant Size:</strong> {PantSize || "N/A"}</Typography>
-            </Paper>
-            <Paper elevation={1} sx={{ flex: 1, p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Academic Info</Typography>
-              <Typography variant="body2"><strong>Major:</strong> {Major || "N/A"}</Typography>
-              <Typography variant="body2"><strong>Grad Year:</strong> {GraduationYear || "N/A"}</Typography>
-              <Typography variant="body2"><strong>Academic Year:</strong> {AcademicYear || "N/A"}</Typography>
-            </Paper>
+          <Box sx={{ display: 'flex', alignItems: '' }}>
+            {onClose && (
+              <IconButton onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            )}
           </Box>
-
-          {/* Attendance History */}
-          <AttendanceHistoryAdmin
-            attendanceRecords={attendanceRecords}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            selectedSemester={selectedSemester}
-            onDeleteClick={handleDeleteClick}
-            onAddAttendance={handleSubmit}
-            formData={formData}
-            setFormData={setFormData}
-            eventTypeItems={eventTypeItems}
-            semesterStart={semesterStart}
-            semesterEnd={semesterEnd}
-          />
-          <ExemptStatusToggle
-            exemptEnabled={exemptEnabled}
-            setExemptEnabled={setExemptEnabled}
-            exemptStartSemester={exemptStartSemester}
-            setExemptStartSemester={setExemptStartSemester}
-            exemptDuration={exemptDuration}
-            setExemptDuration={setExemptDuration}
-            exemptSemesters={exemptSemesters}
-            memberStatus={memberStatus}
-            semesters={semesters}
-            activeSemester={activeSemester}
-            onExemptSubmit={handleExemptSubmit}
-            onExemptUndo={handleUndoExempt}
-          />
-        </Box>
+        </Container>
       </Box>
 
-      {/* Confirmation Dialog */}
-      <Dialog open={confirmDialogOpen} onClose={handleCancelDelete}>
-        <DialogTitle>Delete Attendance Item</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Are you sure you want to delete this attendance item?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDelete} color="primary">No</Button>
-          <Button onClick={handleConfirmDelete} color="primary" autoFocus>Yes</Button>
-        </DialogActions>
-      </Dialog>
-      <SnackbarAlert
-        message={snackbar.message}
-        severity={snackbar.severity}
-        open={snackbar.open}
-        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-      />
-    </Container>
+      <Container sx={{ display: 'flex', flexDirection: 'column', width: '100%', p: 2 }}>
+        <Box sx={{}}>
+
+          {/* Main Content */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Personal and Academic Info */}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+              <Paper elevation={1} sx={{ flex: 1, p: 2 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>Personal Info</Typography>
+                <Typography variant="body2"><strong>Username:</strong> {UserName}</Typography>
+                <Typography variant="body2"><strong>Email:</strong> {Email}</Typography>
+                <Typography variant="body2"><strong>Shirt Size:</strong> {ShirtSize || "N/A"}</Typography>
+                <Typography variant="body2"><strong>Pant Size:</strong> {PantSize || "N/A"}</Typography>
+              </Paper>
+              <Paper elevation={1} sx={{ flex: 1, p: 2 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>Academic Info</Typography>
+                <Typography variant="body2"><strong>Major:</strong> {Major || "N/A"}</Typography>
+                <Typography variant="body2"><strong>Grad Year:</strong> {GraduationYear || "N/A"}</Typography>
+                <Typography variant="body2"><strong>Academic Year:</strong> {AcademicYear || "N/A"}</Typography>
+              </Paper>
+            </Box>
+
+            {/* Attendance History */}
+            <AttendanceHistoryAdmin
+              attendanceRecords={attendanceRecords}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              selectedSemester={selectedSemester}
+              onDeleteClick={handleDeleteClick}
+              onAddAttendance={handleSubmit}
+              formData={formData}
+              setFormData={setFormData}
+              eventTypeItems={eventTypeItems}
+              semesterStart={semesterStart}
+              semesterEnd={semesterEnd}
+            />
+            {(memberStatus === 'Active' || memberStatus === 'CarryoverActive') && (
+              <ExemptStatusToggle
+                exemptEnabled={exemptEnabled}
+                setExemptEnabled={setExemptEnabled}
+                exemptStartSemester={exemptStartSemester}
+                setExemptStartSemester={setExemptStartSemester}
+                exemptDuration={exemptDuration}
+                setExemptDuration={setExemptDuration}
+                exemptSemesters={exemptSemesters}
+                memberStatus={memberStatus}
+                semesters={semesters}
+                activeSemester={activeSemester}
+                onExemptSubmit={handleExemptSubmit}
+                onExemptUndo={handleUndoExempt}
+              />
+            )}
+          </Box>
+        </Box>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={confirmDialogOpen} onClose={handleCancelDelete}>
+          <DialogTitle>Delete Attendance Item</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure you want to delete this attendance item?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancelDelete} color="primary">No</Button>
+            <Button onClick={handleConfirmDelete} color="primary" autoFocus>Yes</Button>
+          </DialogActions>
+        </Dialog>
+        <SnackbarAlert
+          message={snackbar.message}
+          severity={snackbar.severity}
+          open={snackbar.open}
+          onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+        />
+      </Container>
+    </>
   );
 }

@@ -72,24 +72,25 @@ const processEventType = (events, eventConfig) => {
     if (eventConfig.maxPoints !== null) {
         points = Math.min(points, eventConfig.maxPoints);
     }
-    
+
     // console.log(points + " points");
     return points;
 }
 
 /**
- * Determines a member's membership status based on attendance data and a modular event configuration.
+ * Determines a member's membership status based on attendance data and a modular event configuration, and their current status.
  *
  * @param {Array} attendanceData - Array of attendance records. Each record is an object:
  *                                 { eventType: string, eventDate: string, hours?: number }
  * @param {Object} config - The configuration object containing an "eventTypes" array.
  * @param {number} requiredPoints - The points required to be considered active.
+ * @param {string} currentStatus - Member's current status in the semester (e.g., "CarryoverActive", "General", "Exempt").
  * @returns {Object} An object containing:
  *                   - status: "Active" if totalPoints meets/exceeds requiredPoints, otherwise "General"
  *                   - totalPoints: the total points earned
  *                   - breakdown: an object with keys for each event type and their respective points
  */
-const determineMembershipStatusModular = (attendanceData, config, requiredPoints) => {
+const determineMembershipStatusModular = (attendanceData, config, requiredPoints, currentStatus) => {
     let totalPoints = 0;
     const breakdown = {};
 
@@ -111,8 +112,10 @@ const determineMembershipStatusModular = (attendanceData, config, requiredPoints
     });
     console.log(requiredPoints + " required points");
     console.log(totalPoints + " total points");
-    const status = totalPoints >= requiredPoints ? "Active" : "General";
-    console.log("updated status: " + status)
+    const status = totalPoints >= requiredPoints
+        ? "Active"
+        : (currentStatus === "CarryoverActive" ? "CarryoverActive" : "General");
+    console.log("updated status: " + status);
 
     return { status, totalPoints, breakdown };
 }

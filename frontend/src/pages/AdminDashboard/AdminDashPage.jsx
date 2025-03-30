@@ -4,6 +4,7 @@ import {
   Typography, Select, MenuItem
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
+import FinalizeSemesterButton from './FinalizeSemesterButton';
 import GenerateReportButton from './GenerateReportButton';
 import AddMemberModal from '../../components/AddMemberModal';
 import UploadFileModal from './UploadFileModal';
@@ -125,6 +126,15 @@ function AdminDash() {
     );
   };
 
+  // Utility: check if current date is within the last month of active semester
+  const isWithinLastMonth = () => {
+    if (!activeSemester || !activeSemester.EndDate) return false;
+    const now = new Date();
+    const semesterEnd = new Date(activeSemester.EndDate);
+    const msInMonth = 30 * 24 * 60 * 60 * 1000;
+    return semesterEnd > now && (semesterEnd - now) <= msInMonth;
+  };
+
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -160,6 +170,9 @@ function AdminDash() {
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <UploadFileModal onUploadSuccess={handleUploadSuccess} selectedSemester={selectedSemester} />
             <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
+            {/* {isWithinLastMonth() && ( */}
+              <FinalizeSemesterButton orgID={orgID} selectedSemester={selectedSemester} />
+            {/* )} */}
           </Box>
           <AddMemberModal selectedSemester={selectedSemester} orgID={orgID} onUploadSuccess={handleUploadSuccess} />
         </Box>

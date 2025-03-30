@@ -4,6 +4,7 @@ const Attendance = require('../models/Attendance');
 const OrganizationMember = require('../models/OrganizationMember');
 const useAccountStatus = require('../services/useAccountStatus');
 const Semester = require('../models/Semester');
+const generateTermCode = require('../utils/termCode').generateTermCode;
 const router = express.Router();
 
 
@@ -460,8 +461,8 @@ router.post('/setExemptStatus', async (req, res) => {
                 const termYear = lastDate.getFullYear();
                 // For Fall: academic year starts on termYear; for Spring: on the previous year
                 const academicYearStart = isFall ? termYear : termYear - 1;
-                // Term code: first digit from academicYearStart, then its last two digits, then term digit (1 for Fall, 5 for Spring)
-                const termCode = `${academicYearStart.toString()[0]}${academicYearStart.toString().slice(-2)}${isFall ? '1' : '5'}`;
+                // Use the helper function to generate the term code
+                const termCode = generateTermCode(academicYearStart, termType);
                 const academicYear = isFall ? `${termYear}-${termYear + 1}` : `${termYear - 1}-${termYear}`;
                 const endDate = new Date(lastDate);
                 endDate.setMonth(endDate.getMonth() + 5); // 5-month semester

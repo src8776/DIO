@@ -309,8 +309,8 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
   return (
     <>
       {/* Full-width Header */}
-      <Box sx={{ width: '100%', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 5 }}>
-        <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2 }}>
+      <Paper elevation={1} sx={{ width: '100%', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 5, borderRadius: 0 }}>
+        <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2, position: 'relative' }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               {FirstName} {LastName} • <StatusChip memberStatus={memberStatus} size="medium" />
@@ -322,15 +322,13 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
               {selectedSemester ? selectedSemester.TermName : "All Semesters"}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: '' }}>
-            {onClose && (
-              <IconButton onClick={onClose}>
-                <CloseIcon />
-              </IconButton>
-            )}
-          </Box>
+          {onClose && (
+            <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, right: 8 }}>
+              <CloseIcon />
+            </IconButton>
+          )}
         </Container>
-      </Box>
+      </Paper>
 
       <Container sx={{ display: 'flex', flexDirection: 'column', width: '100%', p: 2 }}>
         <Box sx={{}}>

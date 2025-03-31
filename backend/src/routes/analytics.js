@@ -496,4 +496,34 @@ router.get('/membersByGraduation', async (req, res) => {
 });
 
 
+router.get('/attendeesOfEvent', async (req, res) => {
+    console.log('Received request at /attendeesOfEvent');
+    console.log('Query Parameters:', req.query);
+    const { eventID } = req.query;
+
+    if (!eventID) {
+        return res.status(400).json({ error: 'Missing required parameter: eventID' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT m.*
+             FROM Attendance a
+             JOIN Members m ON a.MemberID = m.MemberID
+             WHERE a.EventID = ? AND a.AttendanceStatus = 'Attended'`,
+            [eventID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No attendees found for the given event' });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 module.exports = router;

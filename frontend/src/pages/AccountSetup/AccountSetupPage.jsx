@@ -60,9 +60,26 @@ const saveProfileData = async (data) => {
   }
 };
 
+// Parse term code into term and year for display
+const parseTermCode = (termCode) => {
+  if (!termCode || termCode.length !== 4) {
+    return { term: '', year: '' };
+  }
+  const yearDigits = termCode.slice(1, 3);
+  const suffix = termCode.slice(3);
+  const academicYear = 2000 + parseInt(yearDigits, 10);
+  if (suffix === '1') {
+    return { term: 'Fall', year: academicYear };
+  } else if (suffix === '5') {
+    return { term: 'Spring', year: academicYear + 1 };
+  }
+  return { term: '', year: '' };
+};
+
 export default function AccountSetup() {
   const [studentYear, setStudentYear] = useState('');
-  const [graduationDate, setGraduationDate] = useState(null);
+  const [graduationTerm, setGraduationTerm] = useState('');
+  const [graduationYear, setGraduationYear] = useState('');
   const [major, setMajor] = useState('');
   const [shirtSize, setShirtSize] = useState('');
   const [pantSize, setPantSize] = useState('');
@@ -88,17 +105,21 @@ export default function AccountSetup() {
   useEffect(() => {
     const loadUserData = async () => {
       const profileData = await fetchUserProfileData();
-      console.log("Profile Data:", profileData);
-      setFirstName(profileData.firstName);
-      setFullName(profileData.fullName);
-      setEmail(profileData.email);
-      setStudentYear(profileData.academicYear);
-      setGraduationDate(profileData.graduationDate);
-      setMajor(profileData.majorID);
-      setShirtSize(profileData.shirtSize);
-      setPantSize(profileData.pantSize);
-      setRace(profileData.race);
-      setGender(profileData.gender)
+      if (profileData) {
+        console.log("Profile Data:", profileData);
+        const { term, year } = parseTermCode(profileData.graduationSemester);
+        setGraduationTerm(term);
+        setGraduationYear(year);
+        setFirstName(profileData.firstName);
+        setFullName(profileData.fullName);
+        setEmail(profileData.email);
+        setStudentYear(profileData.academicYear);
+        setMajor(profileData.majorID);
+        setShirtSize(profileData.shirtSize);
+        setPantSize(profileData.pantSize);
+        setRace(profileData.race);
+        setGender(profileData.gender);
+      }
     };
 
     const loadMajors = async () => {
@@ -118,12 +139,12 @@ export default function AccountSetup() {
 
   //when something changes, check if fields are filled, if so make true; if not, false
   useEffect(() => {
-    if (studentYear && graduationDate && major && shirtSize && pantSize) {
+    if (studentYear && graduationTerm && graduationYear && major && shirtSize && pantSize) {
       setIsProfileComplete(true);
     } else {
       setIsProfileComplete(false);
     }
-  }, [studentYear, graduationDate, major, shirtSize, pantSize]); //react watches these for changes
+  }, [studentYear, graduationTerm, graduationYear, major, shirtSize, pantSize]); //react watches these for changes
 
   //when submitting, check if all fields are filled
   const handleSubmit = async () => {
@@ -132,9 +153,13 @@ export default function AccountSetup() {
       return;
     }
 
+    // Compute academicYear based on term and selected year
+    const academicYear = graduationTerm === 'Spring' ? Number(graduationYear) - 1 : Number(graduationYear);
+    const termCode = `2${String(academicYear).slice(-2)}${graduationTerm === 'Fall' ? '1' : '5'}`;
+
     const result = await saveProfileData({
       studentYear,
-      graduationDate,
+      graduationSemester: termCode,
       major,
       shirtSize,
       pantSize,
@@ -162,6 +187,7 @@ export default function AccountSetup() {
               <Typography variant='h6'>Email: {email}</Typography>
             </Box>
 
+            {/* First row: Student Year and Major */}
             <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="student-year-select-label">Student Year</InputLabel>
@@ -180,42 +206,57 @@ export default function AccountSetup() {
                 </Select>
               </FormControl>
 
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="major-select-label">Major</InputLabel>
+                <Select
+                  required
+                  labelId="major-select-label"
+                  value={major}
+                  label="Major"
+                  onChange={(e) => setMajor(e.target.value)}
+                >
+                  {majors.map((majorItem) => (
+                    <MenuItem key={majorItem.Title} value={majorItem.Title}>
+                      {majorItem.Title}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            {/* Second row: Graduation Term and Graduation Year */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="graduation-term-select-label">Graduation Term</InputLabel>
+                <Select
+                  required
+                  labelId="graduation-term-select-label"
+                  value={graduationTerm}
+                  label="Graduation Term"
+                  onChange={(e) => setGraduationTerm(e.target.value)}
+                >
+                  <MenuItem value="Fall">Fall</MenuItem>
+                  <MenuItem value="Spring">Spring</MenuItem>
+                </Select>
+              </FormControl>
 
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="graduation-year-select-label">Graduation Year</InputLabel>
                 <Select
                   required
                   labelId="graduation-year-select-label"
-                  value={graduationDate || ''}
+                  value={graduationYear}
                   label="Graduation Year"
-                  onChange={(e) => setGraduationDate(e.target.value)}
+                  onChange={(e) => setGraduationYear(e.target.value)}
                 >
-                  {Array.from({ length: 88 }, (_, i) => 1990 + i).map((year) => (
+                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
                     <MenuItem key={year} value={year}>
                       {year}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-
             </Box>
-
-            <FormControl fullWidth>
-              <InputLabel id="major-select-label">Major</InputLabel>
-              <Select
-                required
-                labelId="major-select-label"
-                value={major}
-                label="Major"
-                onChange={(e) => setMajor(e.target.value)}
-              >
-                {majors.map((majorItem) => (
-                  <MenuItem key={majorItem.Title} value={majorItem.Title}>
-                    {majorItem.Title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
 
             <Box sx={{ display: 'flex', gap: 2 }}>
               <FormControl sx={{ flex: 1 }}>

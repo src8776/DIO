@@ -263,7 +263,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                     <ResponsiveContainer>
                                         <BarChart data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: 'middle' }} label={{ value: 'Attendance Count', position: 'insideBottom', offset: -10 }} />
+                                            <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: 'middle' }} label={{ value: 'Date', position: 'insideBottom', offset: -10 }} />
                                             <YAxis label={{ value: 'Attendance Count', angle: -90, position: 'insideLeft', offset: 10, dy: 50 }} />
                                             <Tooltip
                                                 content={renderInstanceTooltip}

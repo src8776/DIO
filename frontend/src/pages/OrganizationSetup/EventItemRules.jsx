@@ -424,7 +424,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         </Box>
                     </Box>
                 ) : (
-                    <Box sx={{ pb: 1}}>
+                    <Box sx={{ pb: 1 }}>
                         <Typography>
                             Occurrences Per Semester: {occurrenceTotal}
                         </Typography>
@@ -642,30 +642,38 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                     open={deleteEventDialogOpen}
                     onClose={() => setDeleteEventDialogOpen(false)}
                 >
-                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogTitle>
+                        {attendanceCount > 0 ? "Cannot Delete" : "Confirm Deletion"}
+                    </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
                             {attendanceCount > 0 ? (
                                 <>
-                                    Are you sure you want to delete this event type? <br />
-                                    There are <span style={{ fontWeight: 'bold', color: 'red' }}>{attendanceCount}</span> attendance record{attendanceCount > 1 ? 's' : ''} associated with this event type that will also be deleted. <br />
-                                    This action cannot be undone.
+                                    This event type cannot be deleted because it has <span style={{ fontWeight: 'bold', color: '#d32f2f' }}>{attendanceCount}</span> attendance record{attendanceCount > 1 ? 's' : ''} associated with it. <br />
                                 </>
                             ) : (
                                 <>
                                     Are you sure you want to delete this event type? <br />
-                                    This action cannot be undone.
+                                    This will delete all associated event rules.
                                 </>
                             )}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setDeleteEventDialogOpen(false)} color="primary">
-                            Cancel
-                        </Button>
-                        <Button onClick={handleDeleteEvent} color="secondary">
-                            Delete
-                        </Button>
+                        {attendanceCount > 0 ? (
+                            <Button onClick={() => setDeleteEventDialogOpen(false)} color="primary">
+                                Close
+                            </Button>
+                        ) : (
+                            <>
+                                <Button onClick={() => setDeleteEventDialogOpen(false)} color="primary">
+                                    cancel
+                                </Button>
+                                <Button onClick={handleDeleteEvent} color="secondary">
+                                    Delete
+                                </Button>
+                            </>
+                        )}
                     </DialogActions>
                 </Dialog>
             </Paper>

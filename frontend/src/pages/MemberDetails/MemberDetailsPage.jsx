@@ -68,6 +68,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
   const [exemptDuration, setExemptDuration] = React.useState(1);
   const [exemptSemesters, setExemptSemesters] = React.useState([]);
   const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
+  const effectiveStatus = memberStatus || (memberInfo && memberInfo[0]?.status);
 
   // Fetch semesters
   React.useEffect(() => {
@@ -313,7 +314,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
         <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2, position: 'relative' }}>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              {FirstName} {LastName} • <StatusChip memberStatus={memberStatus} size="medium" />
+              {FirstName} {LastName} • <StatusChip memberStatus={effectiveStatus} size="medium" />
             </Typography>
             <Typography variant="subtitle2" sx={{ mt: 0.5 }}>
               {RoleName} • MemberID: {id}

@@ -13,6 +13,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
+import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
 
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
@@ -23,6 +24,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     const [selectedEventInstance, setSelectedEventInstance] = React.useState(null);
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [attendees, setAttendees] = React.useState([]);
+    const [selectedMemberID, setSelectedMemberID] = React.useState(null);
+    const [memberDrawerOpen, setMemberDrawerOpen] = React.useState(false);
 
     // Fetch average attendance data
     React.useEffect(() => {
@@ -311,7 +314,16 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                 {attendees.length > 0 ? (
                                     <List dense>
                                         {attendees.map((attendee) => (
-                                            <ListItem key={attendee.MemberID} divider sx={{ py: 1 }}>
+                                            <ListItem
+                                                key={attendee.MemberID}
+                                                button
+                                                onClick={() => {
+                                                    setSelectedMemberID(attendee.MemberID);
+                                                    setMemberDrawerOpen(true);
+                                                }}
+                                                divider
+                                                sx={{ py: 1, cursor: 'pointer' }}
+                                            >
                                                 <ListItemText primary={`${attendee.FirstName} ${attendee.LastName}`} />
                                             </ListItem>
                                         ))}
@@ -323,6 +335,31 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                 )}
                             </Box>
                         </>
+                    )}
+                </Box>
+            </Drawer>
+            <Drawer
+                anchor="right"
+                open={memberDrawerOpen}
+                onClose={() => setMemberDrawerOpen(false)}
+                hideBackdrop
+                sx={{
+                    zIndex: 1300,
+                    // Shift the member drawer left by the width of the attendees drawer
+                    '& .MuiDrawer-paper': {
+                        width: { xs: '100%', sm: 500, md: 700 },
+                        right: 300
+                    }
+                }}
+            >
+                <Box sx={{ width: { xs: '100%', sm: 500, md: 700 }, height: '100%', overflowY: 'auto' }}>
+                    {selectedMemberID && (
+                        <MemberDetailsPage
+                            memberID={selectedMemberID}
+                            orgID={organizationID}
+                            selectedSemester={selectedSemester}
+                            onClose={() => setMemberDrawerOpen(false)}
+                        />
                     )}
                 </Box>
             </Drawer>

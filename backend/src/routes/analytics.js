@@ -463,9 +463,9 @@ router.get('/membersByGraduation', async (req, res) => {
     }
     
     try {
-        // Get the semester record to extract the end date (used to determine graduation year)
+        // Get the semester record to extract the TermCode (used to determine graduation semester)
         const [semesterRows] = await db.query(
-            `SELECT EndDate FROM Semesters WHERE SemesterID = ?`,
+            `SELECT TermCode FROM Semesters WHERE SemesterID = ?`,
             [semesterID]
         );
         
@@ -473,21 +473,19 @@ router.get('/membersByGraduation', async (req, res) => {
             return res.status(404).json({ error: 'Semester not found' });
         }
         
-        // Extract the year from the EndDate (assumes EndDate is in YYYY-MM-DD format)
-        const endDate = new Date(semesterRows[0].EndDate);
-        const graduationYear = endDate.getFullYear();
-
-        console.log(`Graduation Year: ${graduationYear}`);
+        // Extract the TermCode from the semester record
+        const termCode = semesterRows[0].TermCode;
+        console.log(`Graduation TermCode: ${termCode}`);
         
-        // Query OrganizationMembers joined with Members where the member's GraduationYear matches
+        // Query OrganizationMembers joined with Members where the member's GraduationSemester matches the TermCode
         const [memberRows] = await db.query(
             `SELECT m.*
              FROM OrganizationMembers om
              JOIN Members m ON om.MemberID = m.MemberID
              WHERE om.OrganizationID = ?
                AND om.SemesterID = ?
-               AND m.GraduationYear = ?`,
-            [organizationID, semesterID, graduationYear]
+               AND m.GraduationSemester = ?`,
+            [organizationID, semesterID, termCode]
         );
         
         res.json(memberRows);

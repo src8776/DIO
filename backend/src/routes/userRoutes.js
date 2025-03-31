@@ -166,7 +166,7 @@ router.get('/profileCompletion', attachMemberData, async (req, res) => {
   // Check if any of the member's properties are null
   if (
     !member.AcademicYear ||
-    !member.GraduationYear ||
+    !member.GraduationSemester ||
     !member.MajorID ||
     !member.ShirtSize ||
     !member.PantSize ||

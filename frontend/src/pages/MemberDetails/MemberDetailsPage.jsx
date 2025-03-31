@@ -307,6 +307,8 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
   }
 
   const { MemberID: id, UserName, FirstName, LastName, Email, Major, GraduationYear, AcademicYear, attendanceRecords, RoleName, ShirtSize, PantSize } = memberInfo[0];
+  console.log('Member Info Status:', memberInfo);
+  console.log('Effective Status:', effectiveStatus);
   return (
     <>
       {/* Full-width Header */}

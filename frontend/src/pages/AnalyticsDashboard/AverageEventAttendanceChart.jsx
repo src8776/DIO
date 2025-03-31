@@ -339,10 +339,10 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 </Box>
             </Drawer>
             <Drawer
-                anchor="right"
+                anchor="left"
                 open={memberDrawerOpen}
                 onClose={() => setMemberDrawerOpen(false)}
-                hideBackdrop
+                // hideBackdrop
                 sx={{
                     zIndex: 1300,
                     // Shift the member drawer left by the width of the attendees drawer

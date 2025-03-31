@@ -52,6 +52,8 @@ router.get('/allDetails', async (req, res) => {
 
 
 router.get('/detailsBySemester', async (req, res) => {
+    console.log('Received request at /detailsBySemester');
+    console.log('Query Parameters:', req.query);
     let memberID = parseInt(req.query.memberID, 10);
     let organizationID = parseInt(req.query.organizationID, 10);
     let termCode = req.query.termCode;
@@ -82,7 +84,8 @@ router.get('/detailsBySemester', async (req, res) => {
                     FROM Attendance a
                     LEFT JOIN EventInstances ei ON a.EventID = ei.EventID
                     LEFT JOIN EventTypes et ON ei.EventTypeID = et.EventTypeID
-                    WHERE a.MemberID = m.MemberID AND a.OrganizationID = ?
+                    WHERE a.MemberID = m.MemberID 
+                      AND a.OrganizationID = ?
         `;
 
         let subqueryParams = [organizationID];
@@ -97,10 +100,25 @@ router.get('/detailsBySemester', async (req, res) => {
             JOIN OrganizationMembers om ON m.MemberID = om.MemberID
             JOIN Roles r ON om.RoleID = r.RoleID
             LEFT JOIN Majors ma ON m.MajorID = ma.MajorID
-            WHERE m.MemberID = ? AND om.OrganizationID = ?;
         `;
 
+        // If a termCode is provided, join with Semesters to filter the membership record
+        if (termCode) {
+            query += ` JOIN Semesters s ON om.SemesterID = s.SemesterID `;
+        }
+
+        query += ` WHERE m.MemberID = ? AND om.OrganizationID = ? `;
+
+        if (termCode) {
+            query += ` AND s.TermCode = ? `;
+        }
+
+        query += `;`;
+
         let mainParams = [memberID, organizationID];
+        if (termCode) {
+            mainParams.push(termCode);
+        }
         let params = [...subqueryParams, ...mainParams];
 
         const [rows] = await db.query(query, params);

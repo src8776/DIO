@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Paper, Typography, Button, Box, Drawer,
-    List, ListItem, ListItemText
+    List, ListItem, ListItemText, TextField
 } from '@mui/material';
 import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
 import {
@@ -24,6 +24,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     const [selectedEventInstance, setSelectedEventInstance] = React.useState(null);
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [attendees, setAttendees] = React.useState([]);
+    const [attendeeSearch, setAttendeeSearch] = React.useState("");
     const [selectedMemberID, setSelectedMemberID] = React.useState(null);
     const [memberDrawerOpen, setMemberDrawerOpen] = React.useState(false);
 
@@ -188,7 +189,13 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return null;
     };
 
-    // Render logic
+    // Filter attendees based on search query
+    const filteredAttendees = (Array.isArray(attendees) ? attendees : []).filter(attendee => {
+        const fullName = `${attendee.FirstName} ${attendee.LastName}`.toLowerCase();
+        return fullName.includes(attendeeSearch.toLowerCase());
+    });
+
+
     return (
         <>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -292,7 +299,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
             >
-                <Box sx={{ width: 300, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ width: 400, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     {selectedEventInstance && (
                         <>
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -310,10 +317,19 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                             <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
                                 Attendees:
                             </Typography>
+                            {/* Search Field */}
+                            <TextField
+                                size="small"
+                                variant="outlined"
+                                placeholder="Search attendees..."
+                                value={attendeeSearch}
+                                onChange={(e) => setAttendeeSearch(e.target.value)}
+                                sx={{ mb: 1 }}
+                            />
                             <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
-                                {attendees.length > 0 ? (
+                                {filteredAttendees.length > 0 ? (
                                     <List dense>
-                                        {attendees.map((attendee) => (
+                                        {filteredAttendees.map((attendee) => (
                                             <ListItem
                                                 key={attendee.MemberID}
                                                 button
@@ -339,7 +355,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 </Box>
             </Drawer>
             <Drawer
-                anchor="left"
+                anchor="right"
                 open={memberDrawerOpen}
                 onClose={() => setMemberDrawerOpen(false)}
                 // hideBackdrop
@@ -348,7 +364,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     // Shift the member drawer left by the width of the attendees drawer
                     '& .MuiDrawer-paper': {
                         width: { xs: '100%', sm: 500, md: 700 },
-                        right: 300
+                        right: 400
                     }
                 }}
             >

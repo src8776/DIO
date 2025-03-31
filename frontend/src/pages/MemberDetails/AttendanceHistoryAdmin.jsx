@@ -22,13 +22,32 @@ export default function AttendanceHistoryAdmin({
     semesterStart,
     semesterEnd
 }) {
+    const containerRef = React.useRef(null);
+
+    const handleToggleEdit = () => {
+        setEditMode(prev => {
+            const newEditMode = !prev;
+            if (newEditMode) {
+                // Scroll to top of container when entering edit mode
+                setTimeout(() => {
+                    containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 0);
+            } else {
+                // Scroll to top of page when exiting edit mode
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 0);
+            }
+            return newEditMode;
+        });
+    };
 
     return (
-        <Paper elevation={1} sx={{ p: 2 }}>
+        <Paper elevation={1} ref={containerRef} sx={{ p: 2, scrollMarginTop: '130px' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, gap: 1 }}>
                 <Typography variant="h6">Attendance History: {selectedSemester ? selectedSemester.TermName : "All Semesters"} </Typography>
                 {selectedSemester && (
-                    <Button variant="outlined" startIcon={editMode ? <DoneIcon /> : <EditIcon />} onClick={() => setEditMode(!editMode)}>
+                    <Button variant="outlined" startIcon={editMode ? <DoneIcon /> : <EditIcon />} onClick={handleToggleEdit}>
                         {editMode ? 'Done Editing' : 'Edit Attendance'}
                     </Button>
                 )}

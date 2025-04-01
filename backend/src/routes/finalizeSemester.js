@@ -28,7 +28,7 @@ const finalizeSemester = async (semesterID, organizationID) => {
     const allMembers = await OrganizationMember.getAllMembersByOrgAndSemester(organizationID, semesterID);
     for (const member of allMembers) {
         if (member.GraduationSemesterID === semesterID) {
-            console.log(`Member ${member.MemberID} is graduating this semester, updating status...`);
+            console.log(`Member ${member.MemberID} is graduating this semester, updating status to Alumni...`);
             await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, semesterID, member.RoleID, 'Alumni');
         } else if (member.Status === 'Active' || member.Status === 'Exempt') {
             const nextSemesterID = await Semester.getNextSemester(semesterID);

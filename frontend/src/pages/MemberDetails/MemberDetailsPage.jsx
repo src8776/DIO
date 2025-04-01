@@ -68,7 +68,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
   const [exemptDuration, setExemptDuration] = React.useState(1);
   const [exemptSemesters, setExemptSemesters] = React.useState([]);
   const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
-  const effectiveStatus = memberStatus || (memberInfo && memberInfo[0]?.status);
+  const effectiveStatus = memberInfo && memberInfo[0]?.status ? memberInfo[0].status : memberStatus;
 
   // Fetch semesters
   React.useEffect(() => {
@@ -218,29 +218,30 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
           setSnackbar({ open: true, severity: 'error', message: data.error });
         } else {
           setSnackbar({ open: true, severity: 'success', message: data.message });
-          const semesterIDForStatus = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
-          fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${semesterIDForStatus}`)
-            .then(resp => resp.json())
-            .then(statusData => {
+          // Fetch updated member data
+          fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
+            .then(response => response.json())
+            .then(updatedData => {
+              setMemberInfo(updatedData);
               if (onMemberUpdate) {
-                const baseInfo = memberInfo && memberInfo[0] ? memberInfo[0] : {};
-                const attendanceCount = Array.isArray(baseInfo.attendanceRecords)
-                  ? baseInfo.attendanceRecords.length
-                  : baseInfo.attendanceRecords || 0;
-                console.log('AttendanceRecords:', baseInfo.attendanceRecords);
                 const updatedMember = {
                   MemberID: memberID,
-                  FullName: baseInfo.FullName || '',
-                  Status: statusData.status,
-                  AttendanceRecord: attendanceCount,
+                  FullName: updatedData[0]?.FullName || 'Unknown',
+                  Status: updatedData[0]?.status || 'N/A',
+                  AttendanceRecord: updatedData[0]?.attendanceRecords?.length || 0,
                   LastUpdated: new Date().toISOString()
                 };
                 onMemberUpdate(updatedMember);
               }
+              // Refetch exempt semesters
+              const currentSemesterID = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
+              fetch(`/api/memberDetails/exemptSemesters?memberID=${memberID}&organizationID=${orgID}&semesterID=${currentSemesterID}`)
+                .then(resp => resp.json())
+                .then(data => setExemptSemesters(data));
             })
-            .catch(err => console.error('Error fetching updated status:', err));
+            .catch(err => console.error('Error fetching updated member info:', err));
         }
-        setExemptEnabled(false);
+        setExemptEnabled(true);
         setExemptStartSemester('');
         setExemptDuration(1);
       })
@@ -271,26 +272,28 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
           setSnackbar({ open: true, severity: 'error', message: data.error });
         } else {
           setSnackbar({ open: true, severity: 'success', message: data.message });
-          const semesterIDForStatus = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
-          fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${semesterIDForStatus}`)
-            .then(resp => resp.json())
-            .then(statusData => {
+          // Fetch updated member data
+          fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
+            .then(response => response.json())
+            .then(updatedData => {
+              setMemberInfo(updatedData);
               if (onMemberUpdate) {
-                const baseInfo = memberInfo && memberInfo[0] ? memberInfo[0] : {};
-                const attendanceCount = Array.isArray(baseInfo.attendanceRecords)
-                  ? baseInfo.attendanceRecords.length
-                  : baseInfo.attendanceRecords || 0;
                 const updatedMember = {
                   MemberID: memberID,
-                  FullName: baseInfo.FullName || '',
-                  Status: statusData.status,
-                  AttendanceRecord: attendanceCount,
+                  FullName: updatedData[0]?.FullName || '',
+                  Status: updatedData[0]?.status || 'N/A',
+                  AttendanceRecord: updatedData[0]?.attendanceRecords?.length || 0,
                   LastUpdated: new Date().toISOString()
                 };
                 onMemberUpdate(updatedMember);
               }
+              // Refetch exempt semesters
+              const currentSemesterID = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
+              fetch(`/api/memberDetails/exemptSemesters?memberID=${memberID}&organizationID=${orgID}&semesterID=${currentSemesterID}`)
+                .then(resp => resp.json())
+                .then(data => setExemptSemesters(data));
             })
-            .catch(err => console.error('Error fetching updated status:', err));
+            .catch(err => console.error('Error fetching updated member info:', err));
         }
       })
       .catch(error => {

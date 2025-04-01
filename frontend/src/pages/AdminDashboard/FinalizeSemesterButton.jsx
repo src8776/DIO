@@ -1,9 +1,10 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-export default function FinalizeSemesterButton({ selectedSemester }) {
+export default function FinalizeSemesterButton({ orgID, selectedSemester }) {
     const [open, setOpen] = React.useState(false);
 
     const [alertMessage, setAlertMessage] = useState('');

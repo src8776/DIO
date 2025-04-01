@@ -160,7 +160,7 @@ function EnhancedTableToolbar(props) {
                 onChange={handleSearchChange}
                 sx={{ marginLeft: 'auto', m: 2 }}
             />
-            {numSelected > 0 ? (
+            {/* {numSelected > 0 ? (
                 // TODO: Implement report functionality
                 <Tooltip title="Generate Report on Selected">
                     <IconButton>
@@ -175,7 +175,7 @@ function EnhancedTableToolbar(props) {
                         <FilterListIcon />
                     </IconButton>
                 </Tooltip>
-            )}
+            )} */}
         </Toolbar>
     );
 }

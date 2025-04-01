@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Typography, Paper, Box, Button, Select, MenuItem,
-    InputLabel, FormControl, Switch
+    InputLabel, FormControl, Switch, Radio, RadioGroup, FormControlLabel
 } from "@mui/material";
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -42,15 +42,11 @@ export default function ExemptStatusToggle({
                     {hasExemptSemesters ? (
                         <Box sx={{ mt: 2 }}>
                             <Typography variant="body1">Exempt Semesters:</Typography>
-                            {hasExemptSemesters ? (
-                                <ul>
-                                    {exemptSemesters.map(semester => (
-                                        <li key={semester.SemesterID}>{semester.TermName}</li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <Typography variant="body2">No exempt semesters found.</Typography>
-                            )}
+                            <ul>
+                                {exemptSemesters.map(semester => (
+                                    <li key={semester.SemesterID}>{semester.TermName}</li>
+                                ))}
+                            </ul>
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
                                 <Button
                                     variant="contained"
@@ -63,24 +59,24 @@ export default function ExemptStatusToggle({
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                            <FormControl fullWidth>
-                                <InputLabel>Start Semester</InputLabel>
-                                <Select
+                            <FormControl component="fieldset">
+                                <Typography>Set Exempt status starting:</Typography>
+                                <RadioGroup
+                                    row
                                     value={exemptStartSemester}
-                                    onChange={(e) => setExemptStartSemester(e.target.value)}
-                                    label="Start Semester"
+                                    onChange={(e) => setExemptStartSemester(parseInt(e.target.value, 10))}
                                 >
-                                    {semesters
-                                        .filter(semester => {
-                                            if (!activeSemester) return true;
-                                            return dayjs(semester.StartDate).isSameOrAfter(dayjs(activeSemester.StartDate));
-                                        })
-                                        .map(semester => (
-                                            <MenuItem key={semester.SemesterID} value={semester.SemesterID}>
-                                                {semester.TermName}
-                                            </MenuItem>
-                                        ))}
-                                </Select>
+                                    <FormControlLabel
+                                        value={activeSemester?.SemesterID ?? ''}
+                                        control={<Radio />}
+                                        label="This Semester"
+                                    />
+                                    <FormControlLabel
+                                        value={activeSemester ? activeSemester.SemesterID + 1 : ''}
+                                        control={<Radio />}
+                                        label="Next Semester"
+                                    />
+                                </RadioGroup>
                             </FormControl>
                             <FormControl fullWidth>
                                 <InputLabel>Duration</InputLabel>

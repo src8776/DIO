@@ -577,68 +577,92 @@ router.get('/exemptSemesters', async (req, res) => {
 router.post('/undoExemptStatus', async (req, res) => {
     const { memberID, organizationID, semesterID } = req.body;
 
+    console.log('Received POST /undoExemptStatus with:', { memberID, organizationID, semesterID });
+
     // Validate input parameters
     if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID)) {
+        console.log('Invalid input parameters');
         return res.status(400).json({ error: 'Invalid input parameters' });
     }
 
     try {
         // Fetch the semester record
+        console.log('Fetching semester record for SemesterID:', semesterID);
         const [semesterRows] = await db.query(
             'SELECT * FROM Semesters WHERE SemesterID = ?',
             [semesterID]
         );
         if (!semesterRows.length) {
+            console.log('Semester record not found for SemesterID:', semesterID);
             return res.status(404).json({ error: 'Semester not found' });
         }
         const semester = semesterRows[0];
+        console.log('Semester record found:', semester);
 
         // Step 1: Handle the specified semester
+        console.log('Fetching membership record for memberID:', memberID, 'organizationID:', organizationID, 'semesterID:', semesterID);
         const [memberRows] = await db.query(
             'SELECT Status FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?',
             [memberID, organizationID, semesterID]
         );
-
+        console.log('Membership record(s) retrieved:', memberRows);
         if (memberRows.length > 0 && memberRows[0].Status === 'Exempt') {
+            console.log('Member status is Exempt. Finding previous semester.');
             // Find the previous semester
             const [prevSemesterRows] = await db.query(
                 'SELECT MAX(SemesterID) AS prevSemesterID FROM Semesters WHERE SemesterID < ?',
                 [semesterID]
             );
             const prevSemesterID = prevSemesterRows[0].prevSemesterID;
+            console.log('Previous semester ID retrieved:', prevSemesterID);
 
             // Determine new status based on previous semester
             let newStatus = 'General';
             if (prevSemesterID) {
+                console.log('Fetching membership record for previous semester (SemesterID:', prevSemesterID, ')');
                 const [prevMemberRows] = await db.query(
                     'SELECT Status FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?',
                     [memberID, organizationID, prevSemesterID]
                 );
+                console.log('Previous membership record:', prevMemberRows);
                 if (prevMemberRows.length > 0 && 
                     (prevMemberRows[0].Status === 'Active' || prevMemberRows[0].Status === 'Exempt')) {
                     newStatus = 'CarryoverActive';
+                    console.log('Setting newStatus to CarryoverActive based on previous semester status.');
+                } else {
+                    console.log('Previous semester status did not meet conditions. newStatus remains General.');
                 }
+            } else {
+                console.log('No previous semester found. newStatus remains General.');
             }
 
+            console.log('Updating status for memberID:', memberID, 'to newStatus:', newStatus, 'for SemesterID:', semesterID);
             // Update the specified semester's status
             await db.query(
                 'UPDATE OrganizationMembers SET Status = ? WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?',
                 [newStatus, memberID, organizationID, semesterID]
             );
+        } else {
+            console.log('Member record does not exist or is not Exempt for SemesterID:', semesterID);
         }
 
-        // Step 2: Update future semesters
+        // Step 2: Update account status if the specified semester is active
+        if (semester.IsActive === 1) {
+            console.log('Semester is active. Updating account status for memberID:', memberID);
+            await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
+        } else {
+            console.log('Semester is not active. Skipping account status update.');
+        }
+
+        // Step 3: Update future semesters
+        console.log('Updating future semesters for memberID:', memberID, 'to status General for semesters >', semesterID);
         await db.query(
             'UPDATE OrganizationMembers SET Status = "General" WHERE MemberID = ? AND OrganizationID = ? AND SemesterID > ? AND Status = "Exempt"',
             [memberID, organizationID, semesterID]
         );
 
-        // Step 3: Update account status if the specified semester is active
-        if (semester.IsActive === 1) {
-            await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
-        }
 
-        // Send success response
+        console.log('Exempt status undo complete. Sending success response.');
         res.status(200).json({
             message: `Exempt status undone for semester "${semester.TermName}" and future semesters.`
         });

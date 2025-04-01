@@ -205,8 +205,8 @@ export default function DataTable({ orgID, memberData, isLoading, selectedSemest
     const handleSearchChange = (event) => setSearchQuery(event.target.value);
 
     const filteredRows = rows.filter((row) =>
-        row.FullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        row.Status.toLowerCase().includes(searchQuery.toLowerCase())
+        (row.FullName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (row.Status?.toLowerCase() || '').includes(searchQuery.toLowerCase())
     );
 
     const handleSelectAllClick = (event) => {

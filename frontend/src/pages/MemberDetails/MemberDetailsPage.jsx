@@ -84,17 +84,22 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
 
   // Handle exempt status for 'Exempt' members
   React.useEffect(() => {
-    if (memberStatus === 'Exempt') {
-      setExemptEnabled(true);
-      const currentSemesterID = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
-      if (currentSemesterID) {
-        fetch(`/api/memberDetails/exemptSemesters?memberID=${memberID}&organizationID=${orgID}&semesterID=${currentSemesterID}`)
-          .then(resp => resp.json())
-          .then(data => setExemptSemesters(data))
-          .catch(err => console.error("Error fetching exempt semesters:", err));
-      }
+    const currentSemesterID = selectedSemester ? selectedSemester.SemesterID : activeSemester?.SemesterID;
+    if (currentSemesterID) {
+      fetch(`/api/memberDetails/exemptSemesters?memberID=${memberID}&organizationID=${orgID}&semesterID=${currentSemesterID}`)
+        .then(resp => resp.json())
+        .then(data => {
+          setExemptSemesters(data);
+          console.log('Exempt Semesters:', data); // For debugging purposes
+          if (Array.isArray(data) && data.length > 0) {
+            setExemptEnabled(true);
+          } else {
+            setExemptEnabled(false);
+          }
+        })
+        .catch(err => console.error("Error fetching exempt semesters:", err));
     }
-  }, [memberStatus, memberID, orgID, selectedSemester, activeSemester]);
+  }, [memberID, orgID, selectedSemester, activeSemester]);
 
   // Fetch member data
   React.useEffect(() => {
@@ -369,7 +374,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
               semesterStart={semesterStart}
               semesterEnd={semesterEnd}
             />
-            {(memberStatus === 'Active' || memberStatus === 'CarryoverActive') && (
+            {(memberStatus === 'Active' || memberStatus === 'CarryoverActive' || memberStatus === 'Exempt') && (
               <ExemptStatusToggle
                 exemptEnabled={exemptEnabled}
                 setExemptEnabled={setExemptEnabled}
@@ -378,7 +383,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
                 exemptDuration={exemptDuration}
                 setExemptDuration={setExemptDuration}
                 exemptSemesters={exemptSemesters}
-                memberStatus={memberStatus}
+                memberStatus={effectiveStatus}
                 semesters={semesters}
                 activeSemester={activeSemester}
                 onExemptSubmit={handleExemptSubmit}

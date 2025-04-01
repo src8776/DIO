@@ -23,6 +23,7 @@ export default function ExemptStatusToggle({
     onExemptUndo
 }) {
     const handleExemptToggle = (e) => setExemptEnabled(e.target.checked);
+    const hasExemptSemesters = exemptSemesters.length > 0;
 
     return (
         <Paper elevation={1} sx={{ p: 2, mt: 2 }}>
@@ -33,15 +34,15 @@ export default function ExemptStatusToggle({
                     onChange={handleExemptToggle}
                     name="exemptToggle"
                     color="primary"
-                    disabled={memberStatus === 'Exempt'}
+                    disabled={hasExemptSemesters}
                 />
             </Box>
             {exemptEnabled && (
                 <>
-                    {memberStatus === 'Exempt' ? (
+                    {hasExemptSemesters ? (
                         <Box sx={{ mt: 2 }}>
                             <Typography variant="body1">Exempt Semesters:</Typography>
-                            {exemptSemesters.length > 0 ? (
+                            {hasExemptSemesters ? (
                                 <ul>
                                     {exemptSemesters.map(semester => (
                                         <li key={semester.SemesterID}>{semester.TermName}</li>

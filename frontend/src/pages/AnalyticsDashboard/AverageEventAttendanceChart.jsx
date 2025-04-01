@@ -239,15 +239,17 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     })()
                 ) : viewMode === 'instances' && !isFetchingInstances && Array.isArray(eventInstances) && eventInstances.length > 0 ? (
                     (() => {
-                        const data = eventInstances.map(instance => {
-                            const date = new Date(instance.EventDate);
-                            const month = date.toLocaleDateString('en-US', { month: 'short' });
-                            const day = date.getDate();
-                            return {
-                                ...instance,
-                                name: `${month} ${day}`,
-                            };
-                        });
+                        const data = eventInstances
+                            .filter(instance => instance.attendanceCount > 0) // Filter out instances with 0 attendees
+                            .map(instance => {
+                                const date = new Date(instance.EventDate);
+                                const month = date.toLocaleDateString('en-US', { month: 'short' });
+                                const day = date.getDate();
+                                return {
+                                    ...instance,
+                                    name: `${month} ${day}`,
+                                };
+                            });
                         const maxAttendance = Math.max(...data.map(item => item.attendanceCount));
                         return (
                             <>

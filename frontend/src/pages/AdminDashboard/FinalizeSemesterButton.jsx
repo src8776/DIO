@@ -1,9 +1,19 @@
 import * as React from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 export default function FinalizeSemesterButton({ selectedSemester }) {
     const [open, setOpen] = React.useState(false);
+
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('success');
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const showAlert = (message, severity) => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setOpenSnackbar(true);
+      };
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -15,7 +25,33 @@ export default function FinalizeSemesterButton({ selectedSemester }) {
 
     const handleConfirm = () => {
         // TODO: Add your finalization logic here
+        
+        const finalizeCommand = {
+            orgID: orgID,
+            selectedSemester: selectedSemester,
+        }
+
+        fetch(`/api/finalizeSemester`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(finalizeCommand),
+        })
+        .then(response => response.json())
+        .then(data => {
+        if (data.success) {
+          showAlert(`Successfully finalized semester`, 'success');
+        } else {
+          showAlert(`Failed to finalize semester due to ${data.error}`, 'error');
+        }
+      })
+      .catch(() => {
+        showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
+      })
+      .finally(() => {
         setOpen(false);
+      });
     };
 
     return (
@@ -60,6 +96,12 @@ export default function FinalizeSemesterButton({ selectedSemester }) {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <SnackbarAlert
+                    open={openSnackbar}
+                    message={alertMessage}
+                    severity={alertSeverity}
+                    onClose={() => setOpenSnackbar(false)}
+                  />
         </>
     );
 }

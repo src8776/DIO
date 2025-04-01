@@ -74,7 +74,21 @@ class Semester {
             return null;
         }
     }
+
+    static async getNextSemester(currentSemester) {
+        try {
+            const [rows] = await db.query(`SELECT SemesterID FROM Semesters WHERE SemesterID > ? ORDER BY SemesterID DESC LIMIT 1`, [currentSemester]);
+            if (rows.length > 0) {
+                return rows[0].SemesterID;
+            } else {
+                console.log(`[@Semester] No next Semester found for TermCode: ${currentSemester}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`[@Semester] Error fetching next Semester for TermCode ${currentSemester}:`, error);
+            return null;
+        }
+    }
 }
 
 module.exports = Semester;
-

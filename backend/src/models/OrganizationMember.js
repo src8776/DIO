@@ -34,6 +34,20 @@ class OrganizationMember {
     }
   }
 
+  static async insertOrganizationMemberWithRoleStatus(organizationID, memberID, semesterID, roleID, status) {
+    try {
+      await db.query(
+        `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, Status, RoleID)
+          VALUES (?, ?, ?, ?, ?)`,
+        [organizationID, memberID, semesterID, status, roleID]
+      );
+      console.log(`Added to OrganizationMembers: MemberID ${memberID}, Status: ${status}, RoleID ${roleID}, SemesterID ${semesterID}`);
+    } catch (err) {
+      console.error('Error inserting into OrganizationMembers:', err);
+      throw err;
+    }
+  }
+
   static async updateMemberStatus(memberID, organizationID, status, semesterID) {
     // Update if exists, insert if not (upsert logic might be needed)
     const [existing] = await db.query(
@@ -143,6 +157,22 @@ class OrganizationMember {
       return member || null;
     } catch (err) {
       console.error('Error fetching member:', err);
+      throw err;
+    }
+  }
+
+  static async getAllMembersByOrgAndSemester(organizationID, semesterID) {
+    try {
+      const [members] = await db.query(
+        `SELECT Members.MemberID, OrganizationMembers.Status, Semesters.SemesterID AS GraduationSemesterID, OrganizationMembers.RoleID FROM OrganizationMembers 
+        JOIN Members ON OrganizationMembers.MemberID = Members.MemberID
+        JOIN Semesters ON Members.GraduationSemester = Semesters.TermCode
+         WHERE OrganizationID = ? AND SemesterID = ?`,
+        [organizationID, semesterID]
+      );
+      return members;
+    } catch (err) {
+      console.error('Error fetching members:', err);
       throw err;
     }
   }

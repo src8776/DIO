@@ -66,6 +66,21 @@ class OrganizationMember {
     }
   }
 
+  static async removeRecordsAfterSemester(organizationID, memberID, semesterID) {
+    try {
+        const [result] = await db.query(
+            `DELETE FROM OrganizationMembers
+             WHERE OrganizationID = ? AND MemberID = ? AND SemesterID > ?`,
+            [organizationID, memberID, semesterID]
+        );
+        console.log(`Removed ${result.affectedRows} records for MemberID ${memberID} in OrganizationID ${organizationID} after SemesterID ${semesterID}`);
+        return result.affectedRows;
+    } catch (err) {
+        console.error(`Error removing records for MemberID ${memberID} in OrganizationID ${organizationID} after SemesterID ${semesterID}:`, err);
+        throw err;
+    }
+}
+
   static async updateMemberStatus(memberID, organizationID, status, semesterID) {
     // Update if exists, insert if not (upsert logic might be needed)
     const [existing] = await db.query(

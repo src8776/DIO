@@ -38,6 +38,8 @@ const finalizeSemester = async (semesterID, organizationID) => {
         if (member.GraduationSemester === currentSemester.TermCode) {
             console.log(`Member ${member.MemberID} is graduating this semester, updating status to Alumni...`);
             await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, 'Alumni');
+            console.log('Cleaning out member from future semesters...');
+            await OrganizationMember.removeRecordsAfterSemester(organizationID, member.MemberID, nextSemesterID);
         }
         // } else if (member.Status === 'Active' || member.Status === 'Exempt') {
         //     const nextSemesterStatus = await OrganizationMember.getMemberStatus(member.MemberID, organizationID, nextSemesterID);

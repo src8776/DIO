@@ -5,6 +5,7 @@ import {
   DialogContent, DialogContentText,
   DialogTitle, IconButton
 } from "@mui/material";
+import { normalizeTermCode } from '../../utils/normalizeTermCode';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import SnackbarAlert from '../../components/SnackbarAlert';
@@ -314,9 +315,23 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
     );
   }
 
-  const { MemberID: id, UserName, FirstName, LastName, Email, Major, GraduationYear, AcademicYear, attendanceRecords, RoleName, ShirtSize, PantSize } = memberInfo[0];
-  console.log('Member Info Status:', memberInfo);
-  console.log('Effective Status:', effectiveStatus);
+  const {
+    MemberID: id,
+    UserName,
+    FirstName,
+    LastName,
+    Email,
+    Major,
+    GraduationSemester,
+    AcademicYear,
+    attendanceRecords,
+    RoleName,
+    ShirtSize,
+    PantSize
+  } = memberInfo[0];
+
+  const normalizedGraduationSemester = normalizeTermCode(GraduationSemester);
+
   return (
     <>
       {/* Full-width Header */}
@@ -358,7 +373,7 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
               <Paper elevation={1} sx={{ flex: 1, p: 2 }}>
                 <Typography variant="h6" sx={{ mb: 1 }}>Academic Info</Typography>
                 <Typography variant="body2"><strong>Major:</strong> {Major || "N/A"}</Typography>
-                <Typography variant="body2"><strong>Grad Year:</strong> {GraduationYear || "N/A"}</Typography>
+                <Typography variant="body2"><strong>Grad Term:</strong> {normalizedGraduationSemester || "N/A"}</Typography>
                 <Typography variant="body2"><strong>Academic Year:</strong> {AcademicYear || "N/A"}</Typography>
               </Paper>
             </Box>

@@ -100,21 +100,21 @@ class OrganizationMember {
 
   static async getMemberStatsByOrgAndSemester(organizationID, semesterID) {
     try {
-        const query = `
+      const query = `
             SELECT 
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
                 SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
             FROM OrganizationMembers
             WHERE OrganizationID = ? AND SemesterID = ?
         `;
-        const [[result]] = await db.query(query, [organizationID, semesterID]);
-        return {
-            activeMembers: parseInt(result.activeMembers),
-            generalMembers: parseInt(result.generalMembers)
-        };
+      const [[result]] = await db.query(query, [organizationID, semesterID]);
+      return {
+        activeMembers: parseInt(result.activeMembers),
+        generalMembers: parseInt(result.generalMembers)
+      };
     } catch (error) {
-        console.error('Error fetching member stats:', error);
-        throw error;
+      console.error('Error fetching member stats:', error);
+      throw error;
     }
   }
 
@@ -164,10 +164,10 @@ class OrganizationMember {
   static async getAllMembersByOrgAndSemester(organizationID, semesterID) {
     try {
       const [members] = await db.query(
-        `SELECT Members.MemberID, OrganizationMembers.Status, Semesters.SemesterID AS GraduationSemesterID, OrganizationMembers.RoleID FROM OrganizationMembers 
-        JOIN Members ON OrganizationMembers.MemberID = Members.MemberID
-        JOIN Semesters ON Members.GraduationSemester = Semesters.TermCode
-         WHERE OrganizationID = ? AND Semesters.SemesterID = ?`,
+        `SELECT DISTINCT Members.MemberID, Members.GraduationSemester, OrganizationMembers.Status, OrganizationMembers.RoleID 
+         FROM OrganizationMembers 
+         JOIN Members ON OrganizationMembers.MemberID = Members.MemberID
+         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?`,
         [organizationID, semesterID]
       );
       return members;
@@ -176,7 +176,6 @@ class OrganizationMember {
       throw err;
     }
   }
-
 }
 
 module.exports = OrganizationMember;

@@ -30,7 +30,7 @@ const updateEventOccurrences = async (semesterID, organizationID) => {
 
 const finalizeSemester = async (semesterID, organizationID) => {
     const allMembers = await OrganizationMember.getAllMembersByOrgAndSemester(organizationID, semesterID);
-    console.log(`Found ${allMembers.length} members for organization ${organizationID} in semester ${semesterID}`);
+    console.log(`Found ${allMembers.length} members for organization ${organizationID} in semester ${semesterID}:\n`, allMembers);
     const nextSemesterID = await Semester.getNextSemester(semesterID);
     for (const member of allMembers) {
         console.log(`Processing member ${member.MemberID} with status ${member.Status}...`);

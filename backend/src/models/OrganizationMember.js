@@ -115,6 +115,8 @@ class OrganizationMember {
     }
   }
 
+  
+
   static async getMemberRole(memberID, organizationID) {
     try {
       const query = `

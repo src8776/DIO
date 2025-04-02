@@ -100,6 +100,46 @@ class EventInstance {
             return null;
         }
     }
+
+    static async updateEventOccurrences(organizationID, semesterID) {
+        try {
+            // Get the term code for the given semester
+            const [semesterRows] = await db.query(
+                `SELECT TermCode FROM Semesters WHERE SemesterID = ? LIMIT 1`,
+                [semesterID]
+            );
+            if (semesterRows.length === 0) {
+                console.error(`No Semester found for SemesterID: ${semesterID}`);
+                return;
+            }
+            const termCode = semesterRows[0].TermCode;
+            
+            // Tally the number of EventInstances per EventTypeID for this organization and term
+            const [counts] = await db.query(
+                `SELECT EventTypeID, COUNT(*) AS total
+                 FROM EventInstances
+                 WHERE OrganizationID = ? AND TermCode = ?
+                 GROUP BY EventTypeID`,
+                [organizationID, termCode]
+            );
+            
+            // Update the OccurrenceTotal in the EventTypes table for each EventTypeID in this semester
+            for (const row of counts) {
+                await db.query(
+                    `UPDATE EventTypes
+                     SET OccurrenceTotal = ?
+                     WHERE EventTypeID = ? 
+                       AND OrganizationID = ? 
+                       AND SemesterID = ?`,
+                    [row.total, row.EventTypeID, organizationID, semesterID]
+                );
+            }
+            console.log(`Updated occurrence totals for EventTypes in Organization ${organizationID} for SemesterID ${semesterID}`);
+        } catch (error) {
+            console.error("[@EventInstance] Error updating event occurrence totals:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = EventInstance;

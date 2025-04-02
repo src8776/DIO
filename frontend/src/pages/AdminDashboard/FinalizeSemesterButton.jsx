@@ -3,17 +3,17 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import CheckIcon from '@mui/icons-material/Check';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-export default function FinalizeSemesterButton({ selectedSemester }) {
+export default function FinalizeSemesterButton({ orgID, selectedSemester }) {
     const [open, setOpen] = React.useState(false);
 
-    const [alertMessage, setAlertMessage] = useState('');
-    const [alertSeverity, setAlertSeverity] = useState('success');
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const showAlert = (message, severity) => {
-        setAlertMessage(message);
-        setAlertSeverity(severity);
-        setOpenSnackbar(true);
-      };
+    // const [alertMessage, setAlertMessage] = useState('');
+    // const [alertSeverity, setAlertSeverity] = useState('success');
+    // const [openSnackbar, setOpenSnackbar] = useState(false);
+    // const showAlert = (message, severity) => {
+    //     setAlertMessage(message);
+    //     setAlertSeverity(severity);
+    //     setOpenSnackbar(true);
+    //   };
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -41,13 +41,13 @@ export default function FinalizeSemesterButton({ selectedSemester }) {
         .then(response => response.json())
         .then(data => {
         if (data.success) {
-          showAlert(`Successfully finalized semester`, 'success');
+          //showAlert(`Successfully finalized semester`, 'success');
         } else {
-          showAlert(`Failed to finalize semester due to ${data.error}`, 'error');
+          //showAlert(`Failed to finalize semester due to ${data.error}`, 'error');
         }
       })
       .catch(() => {
-        showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
+        //showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
       })
       .finally(() => {
         setOpen(false);
@@ -96,12 +96,12 @@ export default function FinalizeSemesterButton({ selectedSemester }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <SnackbarAlert
+            {/* <SnackbarAlert
                     open={openSnackbar}
                     message={alertMessage}
                     severity={alertSeverity}
                     onClose={() => setOpenSnackbar(false)}
-                  />
+                  /> */}
         </>
     );
 }

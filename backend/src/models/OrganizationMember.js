@@ -167,7 +167,7 @@ class OrganizationMember {
         `SELECT Members.MemberID, OrganizationMembers.Status, Semesters.SemesterID AS GraduationSemesterID, OrganizationMembers.RoleID FROM OrganizationMembers 
         JOIN Members ON OrganizationMembers.MemberID = Members.MemberID
         JOIN Semesters ON Members.GraduationSemester = Semesters.TermCode
-         WHERE OrganizationID = ? AND SemesterID = ?`,
+         WHERE OrganizationID = ? AND Semesters.SemesterID = ?`,
         [organizationID, semesterID]
       );
       return members;

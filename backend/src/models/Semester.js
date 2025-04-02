@@ -77,7 +77,7 @@ class Semester {
 
     static async getNextSemester(currentSemester) {
         try {
-            const [rows] = await db.query(`SELECT SemesterID FROM Semesters WHERE SemesterID > ? ORDER BY SemesterID DESC LIMIT 1`, [currentSemester]);
+            const [rows] = await db.query(`SELECT SemesterID FROM Semesters WHERE SemesterID > ? ORDER BY SemesterID ASC LIMIT 1`, [currentSemester]);
             if (rows.length > 0) {
                 return rows[0].SemesterID;
             } else {

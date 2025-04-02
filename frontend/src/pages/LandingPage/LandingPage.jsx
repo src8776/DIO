@@ -3,8 +3,11 @@ import { Box, Container, Skeleton, Button, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
 import ClubCard from './ClubCard';
 import AddClubCard from "./AddClubCard";
+import AccountOverview from "../AccountOverview/AccountOverviewPage";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
+
 
 function LandingPage() {
     const [memberID, setMemberID] = useState(isProduction ? null : 2790);
@@ -13,6 +16,7 @@ function LandingPage() {
     const [activeSemester, setActiveSemester] = React.useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedOrgDetails, setSelectedOrgDetails] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,6 +60,10 @@ function LandingPage() {
         window.location.href = '/saml2/login'; // Redirect to backend API for authentication
     };
 
+    const handleSelectOrg = (orgDetails) => {
+        setSelectedOrgDetails(orgDetails);
+    };
+
     if (error) {
         return (
             <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -72,40 +80,60 @@ function LandingPage() {
         );
     }
 
-    if (error) {
-        return (
-            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <Box sx={{ color: 'red' }}>{error}</Box> {/* Display error message */}
-            </Container>
-        );
-    }
-
     return (
-        <Container sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, flexWrap: 'wrap', alignItems: 'center', gap: 4, pt: 4 }}>
-            {/* Generate ClubCard components for each organizationID */}
-            {organizationIDs.length > 0 ? (
-                organizationIDs.map(org => (
-                    <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} semesters={semesters} activeSemester={activeSemester} />
-                ))
-            ) : (
-                <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                    <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                            You are not affiliated with any organizations yet.
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            Please contact support or check your credentials.
-                        </Typography>
-                        <Box sx={{ mt: 4 }}>
-                            <Button variant="contained" color="primary" onClick={handleLogin}>
-                                Login
-                            </Button>
+        <Container
+            data-testid="landing-page-container"
+            maxWidth={false}
+            sx={{ display: 'flex', flexDirection: 'row', margin: 0, gap: 2, pt: 4, width: '100%' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {/* Generate ClubCard components for each organizationID */}
+                {organizationIDs.length > 0 ? (
+                    organizationIDs.map(org => (
+                        <ClubCard
+                            key={org.OrganizationID}
+                            memberID={memberID}
+                            orgID={org.OrganizationID}
+                            semesters={semesters}
+                            activeSemester={activeSemester}
+                            onSelectOrg={handleSelectOrg} // Pass handler to ClubCard
+                            selected={selectedOrgDetails && selectedOrgDetails.orgID === org.OrganizationID}
+                            noneSelected={!selectedOrgDetails}
+                        />
+                    ))
+                ) : (
+                    <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                                You are not affiliated with any organizations yet.
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                                Please contact support or check your credentials.
+                            </Typography>
+                            <Box sx={{ mt: 4 }}>
+                                <Button variant="contained" color="primary" onClick={handleLogin}>
+                                    Login
+                                </Button>
+                            </Box>
                         </Box>
-                    </Box>
-                </Container>
+                    </Container>
+                )}
+            </Box>
+            {/* Render AccountOverview if an organization is selected */}
+            {selectedOrgDetails && (
+                <Box sx={{ flex: 2 }}>
+                    <AccountOverview
+                        memberID={memberID}
+                        orgID={selectedOrgDetails.orgID}
+                        activeRequirement={selectedOrgDetails.activeRequirement}
+                        requirementType={selectedOrgDetails.requirementType}
+                        userAttendance={selectedOrgDetails.userAttendance}
+                        statusObject={selectedOrgDetails.statusObject}
+                        semesters={semesters}
+                        activeSemester={activeSemester}
+                        onClose={() => setSelectedOrgDetails(null)} // Allow closing the AccountOverview
+                    />
+                </Box>
             )}
-            {/* Setting up for expandability */}
-            {/* <AddClubCard/> */}
         </Container>
     );
 }

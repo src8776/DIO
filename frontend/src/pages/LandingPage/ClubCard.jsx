@@ -5,14 +5,11 @@ import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
 
 
-export default function ClubCard({ memberID, orgID, semesters, activeSemester }) {
+export default function ClubCard({ memberID, orgID, semesters, activeSemester, onSelectOrg, selected, noneSelected }) {
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID, activeSemester);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
     const [memberRole, setMemberRole] = React.useState('');
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
 
     React.useEffect(() => {
         if (!orgID) return;
@@ -64,8 +61,18 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
 
     const clubInfo = orgID === 2 ? comsInfo : wicInfo;
 
+    const handleViewInfo = () => {
+        onSelectOrg({
+            orgID,
+            activeRequirement,
+            requirementType,
+            userAttendance,
+            statusObject,
+        });
+    };
+
     return (
-        <Card sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
+        <Card elevation={ noneSelected ? 1 : (selected ? 5 : 0) } sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
             <CardMedia
                 component="img"
                 sx={{
@@ -86,7 +93,6 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    {/* Show the member role if applicable */}
                     {(memberRole === 'Admin' || memberRole === 'Eboard') && (
                         <Typography sx={{ color: "text.secondary" }}>
                             {memberRole}
@@ -108,18 +114,9 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                 </Box>
             </CardContent>
             <CardActions sx={{ justifyContent: "space-between" }}>
-                <Button onClick={handleOpen} aria-label="account overview">
+                <Button onClick={handleViewInfo} aria-label="account overview">
                     View Info
                 </Button>
-                <Modal open={open} onClose={handleClose}>
-                    <Box>
-                        <AccountOverview
-                            memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
-                            requirementType={requirementType} userAttendance={userAttendance}
-                            statusObject={statusObject} semesters={semesters} activeSemester={activeSemester}
-                        />
-                    </Box>
-                </Modal>
                 {(memberRole === 'Admin' || memberRole === 'Eboard') &&
                     <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
                         Admin Dashboard

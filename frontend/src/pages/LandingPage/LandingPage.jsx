@@ -22,7 +22,7 @@ function LandingPage() {
     const [loading, setLoading] = useState(true);
     const [selectedOrgDetails, setSelectedOrgDetails] = useState(null);
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));  // detect mobile screens
+    const isMobile = useMediaQuery('(max-width:915px)');  // detect mobile screens
 
 
     useEffect(() => {
@@ -92,7 +92,16 @@ function LandingPage() {
             data-testid="landing-page-container"
             maxWidth={false}
             sx={{ display: 'flex', flexDirection: 'row', margin: 0, gap: 2, pt: 4, height: '90vh' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, pr: 1, height: '85vh', overflowY: 'auto', flexShrink: 0, position: 'sticky' }}>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                pr: 2,
+                height: '85vh',
+                overflowY: 'auto',
+                flexShrink: 0,
+                position: 'sticky'
+            }}>
                 {/* Generate ClubCard components for each organizationID */}
                 {organizationIDs.length > 0 ? (
                     organizationIDs.map(org => (

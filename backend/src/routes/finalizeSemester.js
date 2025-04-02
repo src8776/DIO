@@ -31,7 +31,7 @@ const finalizeSemester = async (semesterID, organizationID) => {
     console.log(`Found ${allMembers.length} members for organization ${organizationID} in semester ${semesterID}:\n`, allMembers);
     const nextSemesterID = await Semester.getNextSemester(semesterID);
     for (const member of allMembers) {
-        console.log('Recalculating all member statuses...')
+        console.log('Recalculating current member status...')
         await UseAccountStatus.updateMemberStatus(member.MemberID, organizationID, currentSemester);
         console.log(`Processing member ${member.MemberID} with status ${member.Status}...`);
         if (member.GraduationSemester === currentSemester.TermCode) {

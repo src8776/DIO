@@ -16,14 +16,14 @@ export default function ActivePath({ progressByType, loading, requirementType, a
     // Sort event types by number of rules (descending)
     const sortedProgressByType = React.useMemo(() => {
         if (!progressByType || progressByType.length === 0) return [];
-        return [...progressByType].sort((a, b) => 
+        return [...progressByType].sort((a, b) =>
             (b.progress?.progressDetails?.length || 0) - (a.progress?.progressDetails?.length || 0)
         );
     }, [progressByType]);
 
     return (
-        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', p: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Paper elevation={1} sx={{ display: 'flex', flexDirection: 'column', flex: 1.5, maxHeight: '500px', borderRadius: 2, m: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', boxShadow: 1, p: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
                     <RouteIcon />
                     <Typography variant="h5">Active Path</Typography>
@@ -32,7 +32,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                     {requirementType === 'points' ? `earn ${activeRequirement} points by attending events` : `meet ${activeRequirement} criteria by attending events`}
                 </Typography>
             </Box>
-            <Box sx={{ overflowY: 'auto' }}>
+            <Box sx={{ overflowY: 'auto', pb: 1 }}>
                 {loading ? (
                     Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} variant="rectangular" height={60} sx={{ m: 1 }} />)
                 ) : sortedProgressByType.length > 0 ? (

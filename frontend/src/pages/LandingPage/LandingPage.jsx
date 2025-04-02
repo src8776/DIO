@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Skeleton, Button, Typography } from "@mui/material";
+import {
+    Box, Container, Skeleton,
+    Button, Typography, useMediaQuery,
+    useTheme
+} from "@mui/material";
 import { Link } from 'react-router-dom';
 import ClubCard from './ClubCard';
 import AddClubCard from "./AddClubCard";
@@ -17,6 +21,9 @@ function LandingPage() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedOrgDetails, setSelectedOrgDetails] = useState(null);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));  // detect mobile screens
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -84,8 +91,8 @@ function LandingPage() {
         <Container
             data-testid="landing-page-container"
             maxWidth={false}
-            sx={{ display: 'flex', flexDirection: 'row', margin: 0, gap: 2, pt: 4, width: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            sx={{ display: 'flex', flexDirection: 'row', margin: 0, gap: 2, pt: 4, height: '90vh' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, pr: 1, height: '85vh', overflowY: 'auto', flexShrink: 0, position: 'sticky' }}>
                 {/* Generate ClubCard components for each organizationID */}
                 {organizationIDs.length > 0 ? (
                     organizationIDs.map(org => (
@@ -120,7 +127,32 @@ function LandingPage() {
             </Box>
             {/* Render AccountOverview if an organization is selected */}
             {selectedOrgDetails && (
-                <Box sx={{ flex: 2 }}>
+                <Container
+                    sx={
+                        isMobile
+                            ? {
+                                position: 'fixed',
+                                top: 56, // header height
+                                left: 0,
+                                width: '100vw',
+                                height: 'calc(100vh - 56px)', // full viewport minus header
+                                zIndex: 1300,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflowY: 'auto',
+                                backgroundColor: 'background.default',
+                                p: 2
+                            }
+                            : {
+                                flex: 'auto',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                height: '80vh',
+                                overflowY: 'auto',
+                                justifyContent: 'center'
+                            }
+                    }
+                    data-testid="account-overview-outer-container">
                     <AccountOverview
                         memberID={memberID}
                         orgID={selectedOrgDetails.orgID}
@@ -130,9 +162,9 @@ function LandingPage() {
                         statusObject={selectedOrgDetails.statusObject}
                         semesters={semesters}
                         activeSemester={activeSemester}
-                        onClose={() => setSelectedOrgDetails(null)} // Allow closing the AccountOverview
+                        onClose={() => setSelectedOrgDetails(null)}
                     />
-                </Box>
+                </Container>
             )}
         </Container>
     );

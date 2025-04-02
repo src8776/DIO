@@ -33,7 +33,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
     })();
 
     return (
-        <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
+        <Paper elevation={1} sx={{ p: 2, m: 1, borderRadius: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1 }}>
                     <PeopleAltIcon />

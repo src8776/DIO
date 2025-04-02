@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Container, Typography,
-    Box, Skeleton, Button
+    Box, Skeleton, Button, Paper
 } from "@mui/material";
 import MemberMetrics from './MemberMetrics';
 import ActivePath from './ActivePath';
@@ -185,46 +185,46 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
 
     return (
         <Container
-            data-testid="account-overview-container"
-            sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}
+            data-testid="account-overview-inner-container"
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
         >
-            <Box sx={{ overflowY: 'auto', flex: 1, p: 0 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', pb: 1 }}>
+            <Paper elevation={1} sx={{ position: 'sticky', top: 0, zIndex: 5, p: 1, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography>
                     {onClose && (
                         <Button onClick={onClose}>
                             Close
                         </Button>
                     )}
                 </Box>
-                {/* Basic Info */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
                     {loading ? (
                         <Skeleton variant="text" width={100} height={30} />
                     ) : (
                         <Typography variant="h6">{activeSemester.TermName}</Typography>
                     )}
                 </Box>
-                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-                <MemberMetrics
-                    memberName={memberName}
+            </Paper>
+            {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+            <MemberMetrics
+                memberName={memberName}
+                statusObject={statusObject}
+                requirementType={requirementType}
+                activeRequirement={activeRequirement}
+                userAttendance={userAttendance}
+            />
+
+
+            {/* Path and Past Events Container */}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 2 }}>
+                <ActivePath
                     statusObject={statusObject}
+                    progressByType={progressByType}
+                    loading={loading}
                     requirementType={requirementType}
                     activeRequirement={activeRequirement}
-                    userAttendance={userAttendance}
                 />
-
-                {/* Path and Past Events Container */}
-                <Box sx={{ display: 'flex', flexDirection: { s: 'column', md: 'row' }, gap: 2 }}>
-                    <ActivePath
-                        statusObject={statusObject}
-                        progressByType={progressByType}
-                        loading={loading}
-                        requirementType={requirementType}
-                        activeRequirement={activeRequirement}
-                    />
-                    <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
-                </Box>
+                <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
             </Box>
         </Container>
     );

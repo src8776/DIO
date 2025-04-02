@@ -72,7 +72,17 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester, o
     };
 
     return (
-        <Card elevation={ noneSelected ? 1 : (selected ? 5 : 0) } sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
+        <Card
+            elevation={noneSelected ? 1 : (selected ? 5 : 0)}
+            sx={{
+                width: 350,      // Fixed width
+                height: 340,     // Fixed height
+                flexShrink: 0,
+                display: "flex",
+                flexDirection: "column",
+                transform: selected ? "translateX(8px)" : "translateX(0px)",
+                transition: 'transform 0.2s ease-in-out',
+            }}>
             <CardMedia
                 component="img"
                 sx={{

@@ -34,11 +34,13 @@ const finalizeSemester = async (semesterID, organizationID) => {
         console.log('Recalculating current member status...')
         await UseAccountStatus.updateMemberStatus(member.MemberID, organizationID, currentSemester);
         console.log(`Processing member ${member.MemberID} with status ${member.Status}...`);
+        // Graduation Case
         if (member.GraduationSemester === currentSemester.TermCode) {
             console.log(`Member ${member.MemberID} is graduating this semester, updating status to Alumni...`);
             await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, 'Alumni');
             console.log('Cleaning out member from future semesters...');
             await OrganizationMember.removeRecordsAfterSemester(organizationID, member.MemberID, nextSemesterID);
+        // General Case
         } else if (member.Status === 'General') {
             console.log(`Member ${member.MemberID} has status: ${member.Status}, skipping...`)
         }

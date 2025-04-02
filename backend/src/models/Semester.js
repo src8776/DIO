@@ -89,6 +89,24 @@ class Semester {
             return null;
         }
     }
+
+    static async getSemesterByID(semesterID) {
+        try {
+            const [rows] = await db.query(
+                'SELECT * FROM Semesters WHERE SemesterID = ?',
+                [semesterID]
+            );
+            if (rows.length > 0) {
+                return rows[0];
+            } else {
+                console.log(`[@Semester] No Semester found for SemesterID: ${semesterID}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`[@Semester] Error fetching Semester for SemesterID ${semesterID}:`, error);
+            return null;
+        }
+    }
 }
 
 module.exports = Semester;

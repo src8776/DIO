@@ -29,14 +29,16 @@ const updateEventOccurrences = async (semesterID, organizationID) => {
 }
 
 const finalizeSemester = async (semesterID, organizationID) => {
+    const currentSemester = await Semester.getSemesterByID(semesterID);
     const allMembers = await OrganizationMember.getAllMembersByOrgAndSemester(organizationID, semesterID);
     console.log(`Found ${allMembers.length} members for organization ${organizationID} in semester ${semesterID}:\n`, allMembers);
     const nextSemesterID = await Semester.getNextSemester(semesterID);
     for (const member of allMembers) {
         console.log(`Processing member ${member.MemberID} with status ${member.Status}...`);
-        // if (member.GraduationSemesterID === semesterID) {
-        //     console.log(`Member ${member.MemberID} is graduating this semester, updating status...`);
-        //     await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, 'Alumni');
+        if (member.GraduationSemester === currentSemester.TermCode) {
+            console.log(`Member ${member.MemberID} is graduating this semester, updating status to Alumni...`);
+            await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, 'Alumni');
+        }
         // } else if (member.Status === 'Active' || member.Status === 'Exempt') {
         //     const nextSemesterStatus = await OrganizationMember.getMemberStatus(member.MemberID, organizationID, nextSemesterID);
         //     if (nextSemesterStatus !== 'Exempt') {

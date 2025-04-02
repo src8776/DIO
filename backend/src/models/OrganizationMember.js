@@ -36,14 +36,32 @@ class OrganizationMember {
 
   static async insertOrganizationMemberWithRoleStatus(organizationID, memberID, semesterID, roleID, status) {
     try {
-      await db.query(
-        `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, Status, RoleID)
-          VALUES (?, ?, ?, ?, ?)`,
-        [organizationID, memberID, semesterID, status, roleID]
+      // Check if the record already exists
+      const [[exists]] = await db.query(
+        'SELECT 1 FROM OrganizationMembers WHERE OrganizationID = ? AND MemberID = ? AND SemesterID = ?',
+        [organizationID, memberID, semesterID]
       );
-      console.log(`Added to OrganizationMembers: MemberID ${memberID}, Status: ${status}, RoleID ${roleID}, SemesterID ${semesterID}`);
+
+      if (exists) {
+        // Update existing record
+        await db.query(
+          `UPDATE OrganizationMembers 
+                 SET Status = ?, RoleID = ? 
+                 WHERE OrganizationID = ? AND MemberID = ? AND SemesterID = ?`,
+          [status, roleID, organizationID, memberID, semesterID]
+        );
+        console.log(`Updated OrganizationMembers: MemberID ${memberID}, Status: ${status}, RoleID ${roleID}, SemesterID ${semesterID}`);
+      } else {
+        // Insert new record
+        await db.query(
+          `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, Status, RoleID)
+                 VALUES (?, ?, ?, ?, ?)`,
+          [organizationID, memberID, semesterID, status, roleID]
+        );
+        console.log(`Added to OrganizationMembers: MemberID ${memberID}, Status: ${status}, RoleID ${roleID}, SemesterID ${semesterID}`);
+      }
     } catch (err) {
-      console.error('Error inserting into OrganizationMembers:', err);
+      console.error('Error inserting/updating OrganizationMembers:', err);
       throw err;
     }
   }

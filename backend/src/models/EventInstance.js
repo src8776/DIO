@@ -113,7 +113,15 @@ class EventInstance {
                 return;
             }
             const termCode = semesterRows[0].TermCode;
-            
+
+            // Reset OccurrenceTotal to 0 for all event types for this organization and semester
+            await db.query(
+                `UPDATE EventTypes
+                 SET OccurrenceTotal = 0
+                 WHERE OrganizationID = ? AND SemesterID = ?`,
+                [organizationID, semesterID]
+            );
+
             // Tally the number of EventInstances per EventTypeID for this organization and term
             const [counts] = await db.query(
                 `SELECT EventTypeID, COUNT(*) AS total
@@ -122,7 +130,7 @@ class EventInstance {
                  GROUP BY EventTypeID`,
                 [organizationID, termCode]
             );
-            
+
             // Update the OccurrenceTotal in the EventTypes table for each EventTypeID in this semester
             for (const row of counts) {
                 await db.query(

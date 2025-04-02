@@ -24,6 +24,7 @@ router.post('/', async (req, res) => {
 
 
 const finalizeSemester = async (semesterID, organizationID) => {
+    const startTime = Date.now();
     //count event occurences of each eventtype in the current semester and update it in the database
     await EventInstance.updateEventOccurrences(organizationID, semesterID);
     const currentSemester = await Semester.getSemesterByID(semesterID);
@@ -55,6 +56,8 @@ const finalizeSemester = async (semesterID, organizationID) => {
         //     await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, 'General');
         // } 
     }
+    const endTime = Date.now();
+    console.log(`Finalize Semester completed in ${endTime - startTime} ms`);
 }
 
 module.exports = router;

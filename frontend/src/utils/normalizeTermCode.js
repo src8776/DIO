@@ -16,7 +16,7 @@ export function normalizeTermCode(termCode) {
     }
     
     // Extract the two-digit year and suffix digit.
-    const yearDigits = termCode.substr(1, 2);
+    const yearDigits = termCode.slice(1, 3);
     const suffix = termCode.charAt(3);
     const baseYear = parseInt('20' + yearDigits, 10);
 

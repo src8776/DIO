@@ -175,177 +175,173 @@ export default function AccountSetup() {
   };
 
   return (
-    <Container sx={{ width: { xs: '100%', md: '50%' }, p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-
-      <Paper component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
-        <Typography variant='h5' >Account Settings</Typography>
-
-        <Paper elevation={1} sx={{ minWidth: '100%', }}>
-          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-evenly', gap: 2 }}>
-              <Typography variant='h6'>Name: {fullName}</Typography>
-              <Typography variant='h6'>Email: {email}</Typography>
-            </Box>
-
-            {/* First row: Student Year and Major */}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="student-year-select-label">Student Year</InputLabel>
-                <Select
-                  required
-                  labelId="student-year-select-label"
-                  value={studentYear}
-                  label="Student Year"
-                  onChange={(e) => setStudentYear(e.target.value)}
-                >
-                  <MenuItem value={'freshman'}>Freshman</MenuItem>
-                  <MenuItem value={'sophomore'}>Sophomore</MenuItem>
-                  <MenuItem value={'junior'}>Junior</MenuItem>
-                  <MenuItem value={'senior'}>Senior</MenuItem>
-                  <MenuItem value={'super_senior'}>Super Senior</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="major-select-label">Major</InputLabel>
-                <Select
-                  required
-                  labelId="major-select-label"
-                  value={major}
-                  label="Major"
-                  onChange={(e) => setMajor(e.target.value)}
-                >
-                  {majors.map((majorItem) => (
-                    <MenuItem key={majorItem.Title} value={majorItem.Title}>
-                      {majorItem.Title}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Second row: Graduation Term and Graduation Year */}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="graduation-term-select-label">Graduation Term</InputLabel>
-                <Select
-                  required
-                  labelId="graduation-term-select-label"
-                  value={graduationTerm}
-                  label="Graduation Term"
-                  onChange={(e) => setGraduationTerm(e.target.value)}
-                >
-                  <MenuItem value="Fall">Fall</MenuItem>
-                  <MenuItem value="Spring">Spring</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="graduation-year-select-label">Graduation Year</InputLabel>
-                <Select
-                  required
-                  labelId="graduation-year-select-label"
-                  value={graduationYear}
-                  label="Graduation Year"
-                  onChange={(e) => setGraduationYear(e.target.value)}
-                >
-                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
-                    <MenuItem key={year} value={year}>
-                      {year}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="shirt-size-select-label">Shirt Size</InputLabel>
-                <Select
-                  required
-                  labelId="shirt-size-select-label"
-                  value={shirtSize}
-                  label="Shirt Size"
-                  onChange={(e) => setShirtSize(e.target.value)}
-                >
-                  <MenuItem value={'XS'}>XS</MenuItem>
-                  <MenuItem value={'S'}>S</MenuItem>
-                  <MenuItem value={'M'}>M</MenuItem>
-                  <MenuItem value={'L'}>L</MenuItem>
-                  <MenuItem value={'XL'}>XL</MenuItem>
-                  <MenuItem value={'XXL'}>XXL</MenuItem>
-                  <MenuItem value={'XXXL'}>XXXL</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="pant-size-select-label">Pant Size</InputLabel>
-                <Select
-                  required
-                  labelId="pant-size-select-label"
-                  value={pantSize}
-                  label="Pant Size"
-                  onChange={(e) => setPantSize(e.target.value)}
-                >
-                  <MenuItem value={'28'}>28</MenuItem>
-                  <MenuItem value={'30'}>30</MenuItem>
-                  <MenuItem value={'32'}>32</MenuItem>
-                  <MenuItem value={'34'}>34</MenuItem>
-                  <MenuItem value={'36'}>36</MenuItem>
-                  <MenuItem value={'38'}>38</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="race-select-label">Race</InputLabel>
-                <Select
-                  required
-                  labelId="race-select-label"
-                  value={race}
-                  label="Race"
-                  onChange={(e) => setRace(e.target.value)}
-                >
-                  <MenuItem value={'asian'}>Asian</MenuItem>
-                  <MenuItem value={'black'}>Black or African American</MenuItem>
-                  <MenuItem value={'eastern'}>Middle Eastern or North African</MenuItem>
-                  <MenuItem value={'hispanic'}>Hispanic or Latino</MenuItem>
-                  <MenuItem value={'native'}>American Indian or Alaska Native</MenuItem>
-                  <MenuItem value={'islander'}>Native Hawaiian or other Pacific Islander</MenuItem>
-                  <MenuItem value={'white'}>White</MenuItem>
-                  <MenuItem value={'other'}>Other</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="gender-select-label">Gender</InputLabel>
-                <Select
-                  required
-                  labelId="gender-select-label"
-                  value={gender}
-                  label="Gender"
-                  onChange={(e) => setGender(e.target.value)}
-                >
-                  {genders.map((genderItem) => (
-                    <MenuItem key={genderItem.id} value={genderItem.id}>
-                      {genderItem.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+    <Container maxWidth="sm" sx={{ p: 2 }}>
+      <Typography variant="h4" align="center" gutterBottom>
+        Account Information
+      </Typography>
+      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="h6">Name: {fullName}</Typography>
+            <Typography variant="h6">Email: {email}</Typography>
           </Box>
 
+          {/* Student Year and Major */}
+          <Paper sx={{ p: 2 }}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="student-year-select-label">Student Year</InputLabel>
+              <Select
+                required
+                labelId="student-year-select-label"
+                value={studentYear}
+                label="Student Year"
+                onChange={(e) => setStudentYear(e.target.value)}
+              >
+                <MenuItem value="freshman">Freshman</MenuItem>
+                <MenuItem value="sophomore">Sophomore</MenuItem>
+                <MenuItem value="junior">Junior</MenuItem>
+                <MenuItem value="senior">Senior</MenuItem>
+                <MenuItem value="super_senior">Super Senior</MenuItem>
+              </Select>
+            </FormControl>
 
-        </Paper>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="major-select-label">Major</InputLabel>
+              <Select
+                required
+                labelId="major-select-label"
+                value={major}
+                label="Major"
+                onChange={(e) => setMajor(e.target.value)}
+              >
+                {majors.map((majorItem) => (
+                  <MenuItem key={majorItem.Title} value={majorItem.Title}>
+                    {majorItem.Title}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
 
-        <Box sx={{ display: "flex", justifyContent: "end" }}>
-          <Button variant='contained' onClick={handleSubmit}>
+          {/* Graduation Term and Graduation Year */}
+          <Paper sx={{ p: 2 }}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="graduation-term-select-label">Graduation Term</InputLabel>
+              <Select
+                required
+                labelId="graduation-term-select-label"
+                value={graduationTerm}
+                label="Graduation Term"
+                onChange={(e) => setGraduationTerm(e.target.value)}
+              >
+                <MenuItem value="Fall">Fall</MenuItem>
+                <MenuItem value="Spring">Spring</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="graduation-year-select-label">Graduation Year</InputLabel>
+              <Select
+                required
+                labelId="graduation-year-select-label"
+                value={graduationYear}
+                label="Graduation Year"
+                onChange={(e) => setGraduationYear(e.target.value)}
+              >
+                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
+                  <MenuItem key={year} value={year}>
+                    {year}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
+
+          {/* Shirt Size and Pant Size */}
+          <Paper sx={{ p: 2 }}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="shirt-size-select-label">Shirt Size</InputLabel>
+              <Select
+                required
+                labelId="shirt-size-select-label"
+                value={shirtSize}
+                label="Shirt Size"
+                onChange={(e) => setShirtSize(e.target.value)}
+              >
+                <MenuItem value="XS">XS</MenuItem>
+                <MenuItem value="S">S</MenuItem>
+                <MenuItem value="M">M</MenuItem>
+                <MenuItem value="L">L</MenuItem>
+                <MenuItem value="XL">XL</MenuItem>
+                <MenuItem value="XXL">XXL</MenuItem>
+                <MenuItem value="XXXL">XXXL</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="pant-size-select-label">Pant Size</InputLabel>
+              <Select
+                required
+                labelId="pant-size-select-label"
+                value={pantSize}
+                label="Pant Size"
+                onChange={(e) => setPantSize(e.target.value)}
+              >
+                <MenuItem value="28">28</MenuItem>
+                <MenuItem value="30">30</MenuItem>
+                <MenuItem value="32">32</MenuItem>
+                <MenuItem value="34">34</MenuItem>
+                <MenuItem value="36">36</MenuItem>
+                <MenuItem value="38">38</MenuItem>
+              </Select>
+            </FormControl>
+          </Paper>
+
+          {/* Race and Gender */}
+          <Paper sx={{ p: 2 }}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="race-select-label">Race</InputLabel>
+              <Select
+                required
+                labelId="race-select-label"
+                value={race}
+                label="Race"
+                onChange={(e) => setRace(e.target.value)}
+              >
+                <MenuItem value="asian">Asian</MenuItem>
+                <MenuItem value="black">Black or African American</MenuItem>
+                <MenuItem value="eastern">Middle Eastern or North African</MenuItem>
+                <MenuItem value="hispanic">Hispanic or Latino</MenuItem>
+                <MenuItem value="native">American Indian or Alaska Native</MenuItem>
+                <MenuItem value="islander">Native Hawaiian or other Pacific Islander</MenuItem>
+                <MenuItem value="white">White</MenuItem>
+                <MenuItem value="other">Other</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="gender-select-label">Gender</InputLabel>
+              <Select
+                required
+                labelId="gender-select-label"
+                value={gender}
+                label="Gender"
+                onChange={(e) => setGender(e.target.value)}
+              >
+                {genders.map((genderItem) => (
+                  <MenuItem key={genderItem.id} value={genderItem.id}>
+                    {genderItem.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
+
+          <Button type="submit" variant="contained" fullWidth>
             {isProfileComplete ? 'Save Changes' : 'Complete Profile'}
           </Button>
         </Box>
-      </Paper>
+      </form>
       <SnackbarAlert
         open={openSnackbar}
         message={alertMessage}
@@ -353,6 +349,5 @@ export default function AccountSetup() {
         onClose={() => setOpenSnackbar(false)}
       />
     </Container>
-
   );
 }

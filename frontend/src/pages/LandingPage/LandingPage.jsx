@@ -137,6 +137,7 @@ function LandingPage() {
             {/* Render AccountOverview if an organization is selected */}
             {selectedOrgDetails && (
                 <Container
+                disableGutters
                     sx={
                         isMobile
                             ? {
@@ -158,7 +159,8 @@ function LandingPage() {
                                 flexDirection: 'row',
                                 height: '80vh',
                                 overflowY: 'auto',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                
                             }
                     }
                     data-testid="account-overview-outer-container">

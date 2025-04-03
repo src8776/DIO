@@ -235,6 +235,7 @@ router.post('/addIndividualAttendance', async (req, res) => {
 
     // Input validation
     if (isNaN(memberID) || isNaN(organizationID) || isNaN(semesterID) || !eventType || !eventDate || !attendanceStatus || !attendanceSource) {
+        console.log('Invalid input parameters, blocking request.');
         return res.status(400).json({ error: 'Invalid input parameters' });
     }
 

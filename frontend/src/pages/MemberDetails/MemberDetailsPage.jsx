@@ -125,6 +125,17 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
 
   // Handlers
   const handleSubmit = () => {
+    if (!formData.eventType || !formData.eventDate || !formData.attendanceStatus) {
+      setSnackbar({ open: true, severity: 'error', message: 'Please fill out all required fields.' });
+      return;
+    }
+
+    // Additional volunteer hours check
+    if (formData.eventType === 'Volunteer Event' && !formData.hours) {
+      setSnackbar({ open: true, severity: 'error', message: 'Please provide volunteer hours.' });
+      return;
+    }
+
     if (memberInfo && memberInfo[0]?.attendanceRecords) {
       const duplicate = memberInfo[0].attendanceRecords.some(record =>
         record.EventType === formData.eventType &&

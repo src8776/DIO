@@ -25,6 +25,7 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
                         value={formData.eventType}
                         onChange={handleChange}
                         label="Event Type"
+                        required
                     >
                         {eventTypeItems.map((item) => (
                             <MenuItem key={item.EventTypeID} value={item.EventType}>{item.EventType}</MenuItem>
@@ -45,6 +46,7 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
                         onChange={handleDateChange}
                         minDate={dayjs(semesterStart)}
                         maxDate={dayjs(semesterEnd)}
+                        required
                     />
                 </LocalizationProvider>
                 <FormControl required fullWidth>
@@ -54,6 +56,7 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
                         value={formData.attendanceStatus}
                         onChange={handleChange}
                         label="Attendance Status"
+                        required
                     >
                         <MenuItem value="Attended">Attended</MenuItem>
                         <MenuItem value="Excused">Excused</MenuItem>
@@ -68,6 +71,7 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
                             onChange={handleChange}
                             label="Volunteer Hours"
                             size="small"
+                            required
                         >
                             {[...Array(9)].map((_, index) => (
                                 <MenuItem key={index} value={index + 1}>{index + 1} Hour{index + 1 > 1 ? 's' : ''}</MenuItem>

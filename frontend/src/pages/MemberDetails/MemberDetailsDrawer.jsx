@@ -26,7 +26,7 @@ export default function MemberDetailsDrawer({ memberID, orgID, memberStatus, sel
       >
         <InfoIcon fontSize="inherit" />
       </IconButton>
-      <Drawer onClick={(e) => e.stopPropagation()} anchor="right" open={open} onClose={handleClose} sx={{ overflowY: 'scroll' }} PaperProps={{
+      <Drawer onClick={(e) => e.stopPropagation()} anchor="left" open={open} onClose={handleClose} sx={{ overflowY: 'scroll' }} PaperProps={{
         sx: { width: { xs: '100%', sm: 500, md: 700 }, overflowY: 'scroll' }
       }}>
         <Box sx={{ p: { xs: 0, md: 0 } }}>

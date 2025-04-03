@@ -202,7 +202,8 @@ class OrganizationMember {
         `SELECT DISTINCT Members.MemberID, Members.GraduationSemester, OrganizationMembers.Status, OrganizationMembers.RoleID 
          FROM OrganizationMembers 
          JOIN Members ON OrganizationMembers.MemberID = Members.MemberID
-         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?`,
+         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?
+         ORDER BY Members.MemberID`,
         [organizationID, semesterID]
       );
       return members;

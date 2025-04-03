@@ -101,19 +101,8 @@ class EventInstance {
         }
     }
 
-    static async updateEventOccurrences(organizationID, semesterID) {
+    static async updateEventOccurrences(organizationID, termCode, semesterID) {
         try {
-            // Get the term code for the given semester
-            const [semesterRows] = await db.query(
-                `SELECT TermCode FROM Semesters WHERE SemesterID = ? LIMIT 1`,
-                [semesterID]
-            );
-            if (semesterRows.length === 0) {
-                console.error(`No Semester found for SemesterID: ${semesterID}`);
-                return;
-            }
-            const termCode = semesterRows[0].TermCode;
-
             // Reset OccurrenceTotal to 0 for all event types for this organization and semester
             await db.query(
                 `UPDATE EventTypes

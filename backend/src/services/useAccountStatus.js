@@ -36,6 +36,9 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
                 // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disabled to prevent spamming
                 console.log(`Would send email to ${memberEmail} (disabled)`);
             }
+            return statusObject.status;
+        } else {
+            return currentStatus;
         }
     } catch (error) {
         console.error(`Error updating status for member ${memberID}:`, error);

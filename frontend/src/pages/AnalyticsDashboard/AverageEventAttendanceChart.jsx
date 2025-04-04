@@ -3,16 +3,11 @@ import {
     Paper, Typography, Button, Box, Drawer,
     List, ListItem, ListItemText, TextField
 } from '@mui/material';
-import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+    Tooltip, ResponsiveContainer
 } from 'recharts';
+import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
 import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
 
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
@@ -82,6 +77,41 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             setAttendees([]);
         }
     }, [selectedEventInstance]);
+
+    // Define refreshData callback to update charts and attendees
+    const refreshData = React.useCallback(() => {
+        // Refetch averages
+        fetch(`/api/analytics/averageAttendance?organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
+            .then((response) => response.json())
+            .then((data) => setAverages(data))
+            .catch((error) => console.error('Error fetching averages:', error));
+
+        // Refetch event instances if in 'instances' view
+        if (viewMode === 'instances' && selectedEventType) {
+            setIsFetchingInstances(true);
+            fetch(`/api/analytics/eventInstanceAttendance?eventTypeID=${selectedEventType.EventTypeID}&semesterID=${selectedSemester.SemesterID}&organizationID=${organizationID}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setEventInstances(data);
+                    setIsFetchingInstances(false);
+                })
+                .catch((error) => {
+                    console.error('Error fetching event instances:', error);
+                    setIsFetchingInstances(false);
+                });
+        }
+
+        // Refetch attendees if an event instance is selected
+        if (selectedEventInstance) {
+            fetch(`/api/analytics/attendeesOfEvent?eventID=${selectedEventInstance.EventID}`)
+                .then((response) => response.json())
+                .then((data) => setAttendees(data))
+                .catch((error) => {
+                    console.error('Error fetching attendees:', error);
+                    setAttendees([]);
+                });
+        }
+    }, [organizationID, selectedSemester?.SemesterID, viewMode, selectedEventType, selectedEventInstance]);
 
     const renderAverageLabel = (props) => {
         const { x, y, width, height, value } = props;
@@ -389,6 +419,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                             orgID={organizationID}
                             selectedSemester={selectedSemester}
                             onClose={() => setMemberDrawerOpen(false)}
+                            onAttendanceUpdate={refreshData} // Refresh data when attendance is updated
                         />
                     )}
                 </Box>

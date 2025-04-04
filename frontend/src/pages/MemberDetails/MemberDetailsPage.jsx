@@ -42,7 +42,9 @@ const StatusChip = ({ memberStatus, ...props }) => {
   return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
 };
 
-export default function MemberDetailsPage({ memberID, orgID, memberStatus, selectedSemester, onMemberUpdate, onClose }) {
+export default function MemberDetailsPage({
+  memberID, orgID, memberStatus, selectedSemester, onMemberUpdate, onClose, onAttendanceUpdate
+}) {
   const [memberInfo, setMemberInfo] = React.useState(null);
   const [editMode, setEditMode] = React.useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
@@ -163,7 +165,10 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
         if (data.updatedMember && onMemberUpdate) onMemberUpdate(data.updatedMember);
         fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
           .then(response => response.json())
-          .then(data => setMemberInfo(data));
+          .then(data => {
+            setMemberInfo(data);
+            if (onAttendanceUpdate) onAttendanceUpdate(); // analytics dash callback
+          });
       })
       .catch(error => {
         console.error('Error:', error);
@@ -201,7 +206,10 @@ export default function MemberDetailsPage({ memberID, orgID, memberStatus, selec
         setAttendanceToDelete(null);
         fetch(`/api/memberDetails/detailsBySemester?memberID=${memberID}&organizationID=${orgID}&termCode=${selectedSemester.TermCode}`)
           .then(response => response.json())
-          .then(data => setMemberInfo(data));
+          .then(data => {
+            setMemberInfo(data);
+            if (onAttendanceUpdate) onAttendanceUpdate(); // analytics dash callback
+          });
       })
       .catch(error => {
         console.error('Error:', error);

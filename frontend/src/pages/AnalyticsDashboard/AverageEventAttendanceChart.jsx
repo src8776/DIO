@@ -296,12 +296,23 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     </>
                 )}
             </Paper>
+            {/* attendees drawer */}
             <Drawer
-                anchor="right"
+                anchor="left"
                 open={drawerOpen}
-                onClose={() => setDrawerOpen(false)}
+                onClose={() => {
+                    setDrawerOpen(false);
+                    setMemberDrawerOpen(false); // Close both drawers when attendees drawer closes
+                }}
+                sx={{
+                    zIndex: 1200,
+                    '& .MuiDrawer-paper': {
+                        width: 400,
+                        left: 0
+                    },
+                }}
             >
-                <Box sx={{ width: 400, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ width: 400, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
                     {selectedEventInstance && (
                         <>
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -356,17 +367,18 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     )}
                 </Box>
             </Drawer>
+            {/* member details drawer */}
             <Drawer
-                anchor="right"
+                anchor="left"
                 open={memberDrawerOpen}
                 onClose={() => setMemberDrawerOpen(false)}
-                // hideBackdrop
+                variant="persistent"
                 sx={{
                     zIndex: 1300,
-                    // Shift the member drawer left by the width of the attendees drawer
+                    // Shift the member drawer right by the width of the attendees drawer
                     '& .MuiDrawer-paper': {
                         width: { xs: '100%', sm: 500, md: 700 },
-                        right: 400
+                        left: 400
                     }
                 }}
             >

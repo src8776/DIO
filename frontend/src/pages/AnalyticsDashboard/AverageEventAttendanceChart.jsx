@@ -1,14 +1,16 @@
 import * as React from 'react';
 import {
     Paper, Typography, Button, Box, Drawer,
-    List, ListItem, ListItemText, TextField
+    List, ListItem, ListItemText, TextField,
+    IconButton
 } from '@mui/material';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts';
 import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
 import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
@@ -337,12 +339,22 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                 sx={{
                     zIndex: 1200,
                     '& .MuiDrawer-paper': {
-                        width: 400,
+                        width: { xs: 300, sm: 400 },
                         left: 0
                     },
                 }}
             >
-                <Box sx={{ width: 400, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
+                <Box sx={{ width: { xs: 300, sm: 400 }, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <IconButton
+                            onClick={() => {
+                                setDrawerOpen(false);
+                                setMemberDrawerOpen(false);
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
                     {selectedEventInstance && (
                         <>
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -408,7 +420,9 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     // Shift the member drawer right by the width of the attendees drawer
                     '& .MuiDrawer-paper': {
                         width: { xs: '100%', sm: 500, md: 700 },
-                        left: 400
+                        '@media (min-width:1102px)': {
+                            left: 400, // when viewport is 1102px or greater
+                        }
                     }
                 }}
             >

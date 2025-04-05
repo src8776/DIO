@@ -24,6 +24,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
     const [attendeeSearch, setAttendeeSearch] = React.useState("");
     const [selectedMemberID, setSelectedMemberID] = React.useState(null);
     const [memberDrawerOpen, setMemberDrawerOpen] = React.useState(false);
+    const [isMobile, setIsMobile] = React.useState(false);
 
     // Fetch average attendance data
     React.useEffect(() => {
@@ -227,6 +228,13 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return fullName.includes(attendeeSearch.toLowerCase());
     });
 
+    // mobile detection
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 740);
+        window.addEventListener("resize", handleResize);
+        handleResize();
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <>
@@ -252,11 +260,14 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="name" label={{ value: 'Event Type', position: 'insideBottom', offset: -10 }} />
                                             <YAxis domain={[0, 100]} label={{ value: 'Attendance Rate (%)', angle: -90, position: 'insideLeft', offset: 10, dy: 60 }} />
-                                            <Tooltip
-                                                formatter={(value) => `${value.toFixed(3)}%`}
-                                                contentStyle={{ color: '#000' }}
-                                                labelStyle={{ color: '#000' }}
-                                            />
+                                            {/* Only render Tooltip on non-mobile */}
+                                            {!isMobile && (
+                                                <Tooltip
+                                                    formatter={(value) => `${value.toFixed(3)}%`}
+                                                    contentStyle={{ color: '#000' }}
+                                                    labelStyle={{ color: '#000' }}
+                                                />
+                                            )}
                                             <Bar
                                                 dataKey="attendanceRate"
                                                 shape={<CustomBarShape fill="#F76902" />}
@@ -299,11 +310,14 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: 'middle' }} label={{ value: 'Date', position: 'insideBottom', offset: -10 }} />
                                             <YAxis label={{ value: 'Attendance Count', angle: -90, position: 'insideLeft', offset: 10, dy: 50 }} />
-                                            <Tooltip
-                                                content={renderInstanceTooltip}
-                                                contentStyle={{ color: '#000' }}
-                                                labelStyle={{ color: '#000' }}
-                                            />
+                                            {/* Only render Tooltip on non-mobile */}
+                                            {!isMobile && (
+                                                <Tooltip
+                                                    content={renderInstanceTooltip}
+                                                    contentStyle={{ color: '#000' }}
+                                                    labelStyle={{ color: '#000' }}
+                                                />
+                                            )}
                                             <Bar
                                                 dataKey="attendanceCount"
                                                 fill="#F76902"

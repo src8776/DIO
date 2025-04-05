@@ -7,21 +7,6 @@ import MemberMetrics from './MemberMetrics';
 import ActivePath from './ActivePath';
 import AttendanceHistory from './AttendanceHistory';
 
-// TODO: Normalize this style for modals and house it somewhere else
-const modalStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'left',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    bgcolor: 'background.paper',
-    width: { xs: '90%', sm: '500px', md: '900px' },
-    maxWidth: '100%',
-    maxHeight: '95%',
-};
-
 /**
  * Generates a human-readable description for a rule based on its type and criteria.
  * @param {Object} rule - The rule object with criteria, criteriaValue, and pointValue.
@@ -199,40 +184,36 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
     }, [orgRules, safeUserAttendance, requirementType]);
 
     return (
-        <Container>
-            <Paper sx={modalStyle}>
-                <Box sx={{ overflowY: 'auto', p: 4 }}>
-                    {/* Basic Info */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                        <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography>
-                        {loading ? (
-                            <Skeleton variant="text" width={100} height={30} />
-                        ) : (
-                            <Typography variant="h6">{activeSemester.TermName}</Typography>
-                        )}
-                    </Box>
-                    {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-                    <MemberMetrics
-                        memberName={memberName}
+        <Container sx={{ width: '100%', p: 2, overflowY: 'auto'}}>
+                {/* Basic Info */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    {/* <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography> */}
+                    {loading ? (
+                        <Skeleton variant="text" width={100} height={30} />
+                    ) : (
+                        <Typography variant="h6">{activeSemester.TermName}</Typography>
+                    )}
+                </Box>
+                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+                <MemberMetrics
+                    memberName={memberName}
+                    statusObject={statusObject}
+                    requirementType={requirementType}
+                    activeRequirement={activeRequirement}
+                    userAttendance={userAttendance}
+                />
+
+                {/* Path and Past Events Container */}
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+                    <ActivePath
                         statusObject={statusObject}
+                        progressByType={progressByType}
+                        loading={loading}
                         requirementType={requirementType}
                         activeRequirement={activeRequirement}
-                        userAttendance={userAttendance}
                     />
-
-                    {/* Path and Past Events Container */}
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-                        <ActivePath
-                            statusObject={statusObject}
-                            progressByType={progressByType}
-                            loading={loading}
-                            requirementType={requirementType}
-                            activeRequirement={activeRequirement}
-                        />
-                        <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
-                    </Box>
+                    <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
                 </Box>
-            </Paper>
         </Container>
     );
 };

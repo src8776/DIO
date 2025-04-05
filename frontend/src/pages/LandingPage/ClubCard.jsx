@@ -1,5 +1,9 @@
 import React from "react";
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Modal, Typography } from "@mui/material";
+import {
+    Box, Button, Card, CardActions,
+    CardContent, CardMedia, Typography,
+    Collapse
+} from "@mui/material";
 import { Link } from 'react-router-dom';
 import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
@@ -10,9 +14,7 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
     const [memberStatus, setMemberStatus] = React.useState(null);
     const [memberRole, setMemberRole] = React.useState('');
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const [isExpanded, setIsExpanded] = React.useState(false);
 
     React.useEffect(() => {
         if (!orgID) return;
@@ -41,7 +43,6 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
         fetch(`/api/memberDetails/role?memberID=${memberID}&organizationID=${orgID}`)
             .then(response => response.json())
             .then(data => {
-                // console.log("Member Role Data:", data);
                 setMemberRole(data.role || 'No role assigned');
             })
             .catch(error => console.error('Error fetching data for MemberName:', error));
@@ -51,48 +52,92 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
 
     // TODO: Store image paths in database
     const comsInfo = {
-        image: "/COMS.png",
-        imageFit: "contain",
+        image: "/com_logo.png",
         title: "Computing Organization for Multicultural Students",
     };
 
     const wicInfo = {
         image: "/WiC.png",
-        imageFit: "contain",
         title: "Women in Computing",
     };
 
     const clubInfo = orgID === 2 ? comsInfo : wicInfo;
 
     return (
-        <Card sx={{ width: 350, display: "flex", flexDirection: "column", height: 340 }}>
-            <CardMedia
-                component="img"
-                sx={{
-                    width: "100%",
-                    height: 118,
-                    objectFit: clubInfo.imageFit,
-                }}
-                image={clubInfo.image}
-                title={clubInfo.title}
-            />
-            <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between', borderTop: "1px solid #f0f0f0", }}>
-                <Box>
-                    <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                        {orgAbbreviation.toUpperCase()}
-                    </Typography>
-                    <Typography variant="h5">
-                        {clubInfo.title}
-                    </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    {/* Show the member role if applicable */}
+        <Card sx={{
+            width: { xs: '100%', sm: '90%' }, // Full width on mobile, 90% on larger screens
+            maxWidth: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            m: { xs: 1, sm: 2 }, // Smaller margins on mobile
+        }}>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' }, // Stack vertically on mobile
+                flexGrow: 1,
+                alignItems: { xs: 'center', sm: 'stretch' }, // Center on mobile
+            }}>
+                <CardMedia
+                    component="img"
+                    sx={{
+                        width: { xs: 80, sm: 118 }, // Smaller image on mobile
+                        height: { xs: 80, sm: 118 },
+                        alignSelf: 'center',
+                        m: { xs: 1, sm: 2 },
+                    }}
+                    image={clubInfo.image}
+                    title={clubInfo.title}
+                />
+                <CardContent sx={{
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: { xs: 1, sm: 2 }, // Smaller gap on mobile
+                    textAlign: { xs: 'center', sm: 'left' }, // Center text on mobile
+                    p: { xs: 1, sm: 2 }, // Adjust padding
+                }}>
+                    {/* Club Info and Buttons */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}>
+                        <Typography variant="h5">
+                            {clubInfo.title}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                aria-label="account overview"
+                            >
+                                {isExpanded ? 'Hide Overview' : 'Account Overview'}
+                            </Button>
+                            {(memberRole === 'Admin' || memberRole === 'Eboard') && (
+                                <>
+                                    <Typography sx={{ color: 'text.secondary' }}>|</Typography>
+                                    <Button
+                                        component={Link}
+                                        to={`/admin/${orgAbbreviation}`}
+                                        variant="contained"
+                                    >
+                                        Admin Dashboard
+                                    </Button>
+                                </>
+                            )}
+                        </Box>
+                    </Box>
+                    {/* User Info */}
+                </CardContent>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    p: { xs: 1, sm: 2 },
+                    textAlign: 'center',
+                }}>
                     {(memberRole === 'Admin' || memberRole === 'Eboard') && (
-                        <Typography sx={{ color: "text.secondary" }}>
+                        <Typography>
                             {memberRole}
                         </Typography>
                     )}
-                    {(() => {
+                    {/* {(() => {
                         const displayStatus = memberStatus === 'Active' ? 'Active Member'
                             : memberStatus === 'Inactive' ? 'Inactive Member'
                                 : 'General Member';
@@ -100,32 +145,26 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                             : memberStatus === 'Inactive' ? '#5C6773'
                                 : '#7C8796';
                         return (
-                            <Typography sx={{ fontWeight: 'bold', color: statusColor }}>
+                            <Typography sx={{ color: statusColor }}>
                                 {displayStatus}
                             </Typography>
                         );
-                    })()}
+                    })()} */}
                 </Box>
-            </CardContent>
-            <CardActions sx={{ justifyContent: "space-between" }}>
-                <Button onClick={handleOpen} aria-label="account overview">
-                    View Info
-                </Button>
-                <Modal open={open} onClose={handleClose}>
-                    <Box>
-                        <AccountOverview
-                            memberID={memberID} orgID={orgID} activeRequirement={activeRequirement}
-                            requirementType={requirementType} userAttendance={userAttendance}
-                            statusObject={statusObject} semesters={semesters} activeSemester={activeSemester}
-                        />
-                    </Box>
-                </Modal>
-                {(memberRole === 'Admin' || memberRole === 'Eboard') &&
-                    <Button component={Link} to={`/admin/${orgAbbreviation}`} variant="contained">
-                        Admin Dashboard
-                    </Button>
-                }
-            </CardActions>
+            </Box>
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                <AccountOverview
+                    variant="inline"
+                    memberID={memberID}
+                    orgID={orgID}
+                    activeRequirement={activeRequirement}
+                    requirementType={requirementType}
+                    userAttendance={userAttendance}
+                    statusObject={statusObject}
+                    semesters={semesters}
+                    activeSemester={activeSemester}
+                />
+            </Collapse>
         </Card>
     );
 }

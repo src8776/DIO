@@ -626,7 +626,7 @@ router.post('/undoExemptStatus', async (req, res) => {
                     [memberID, organizationID, prevSemesterID]
                 );
                 console.log('Previous membership record:', prevMemberRows);
-                if (prevMemberRows.length > 0 && 
+                if (prevMemberRows.length > 0 &&
                     (prevMemberRows[0].Status === 'Active' || prevMemberRows[0].Status === 'Exempt')) {
                     newStatus = 'CarryoverActive';
                     console.log('Setting newStatus to CarryoverActive based on previous semester status.');
@@ -669,6 +669,33 @@ router.post('/undoExemptStatus', async (req, res) => {
         });
     } catch (error) {
         console.error('Error undoing exempt status:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/activeSemestersCount', async (req, res) => {
+    const memberID = parseInt(req.query.memberID, 10);
+    const organizationID = parseInt(req.query.organizationID, 10);
+    console.log('Received request at /activeSemestersCount');
+    console.log('Query Parameters:', req.query);
+
+    if (isNaN(memberID) || isNaN(organizationID)) {
+        return res.status(400).json({ error: 'Invalid memberID or organizationID parameter' });
+    }
+
+    try {
+        const query = `
+            SELECT 
+                SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeCount,
+                COUNT(*) AS totalCount
+            FROM OrganizationMembers
+            WHERE MemberID = ? AND OrganizationID = ?;
+        `;
+        const [rows] = await db.query(query, [memberID, organizationID]);
+        res.status(200).json({ activeSemesters: rows[0].activeCount, totalSemesters: rows[0].totalCount });
+    } catch (error) {
+        console.error('Error fetching active semesters count:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });

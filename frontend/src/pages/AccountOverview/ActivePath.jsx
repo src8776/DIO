@@ -24,8 +24,8 @@ export default function ActivePath({ progressByType, loading, requirementType, a
     }, [progressByType]);
 
     return (
-        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px'}}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
+        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flex: 1.5, maxHeight: '500px', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', boxShadow: 1, p: 2, mb: 1 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
                     <RouteIcon />
                     <Typography variant="h5">Active Path</Typography>
@@ -41,7 +41,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                     <>
                         {sortedProgressByType.map((eventType, index) => (
                             <React.Fragment key={index}>
-                                <Accordion defaultExpanded={false} sx={{ m: 0 }}>
+                                <Accordion defaultExpanded={false}>
                                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Typography variant="h6">{eventType.name}</Typography>

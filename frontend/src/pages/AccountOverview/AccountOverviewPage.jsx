@@ -184,8 +184,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
     }, [orgRules, safeUserAttendance, requirementType]);
 
     return (
-        <Container sx={{ width: '100%', p: 2 }}>
-            <Box sx={{ overflowY: 'auto', p: 4 }}>
+        <Container sx={{ width: '100%', p: 2, overflowY: 'auto'}}>
                 {/* Basic Info */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                     <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography>
@@ -215,7 +214,6 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
                     />
                     <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
                 </Box>
-            </Box>
         </Container>
     );
 };

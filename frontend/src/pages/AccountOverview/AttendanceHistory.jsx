@@ -14,8 +14,8 @@ export default function AttendanceHistory({ userAttendance, loading }) {
     const sortedAttendance = [...safeUserAttendance].sort((a, b) => new Date(b.eventDate) - new Date(a.eventDate));
 
     return (
-        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '45%' }, height: '390px', borderRadius: 2, p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flex: 1, maxHeight: '500px', borderRadius: 2, m: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2}}>
                 <EventAvailableIcon />
                 <Typography variant="h5">Attendance History</Typography>
             </Box>

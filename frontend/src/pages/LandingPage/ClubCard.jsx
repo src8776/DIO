@@ -108,7 +108,7 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                     })()}
                 </Box>
             </CardContent>
-            <CardActions sx={{ justifyContent: "space-between" }}>
+            <CardActions sx={{ justifyContent: "space-between", borderBottom: "1px solid #f0f0f0" }}>
                 <Button onClick={() => setIsExpanded(!isExpanded)} aria-label="account overview">
                     {isExpanded ? 'Hide Overview' : 'Account Overview'}
                 </Button>

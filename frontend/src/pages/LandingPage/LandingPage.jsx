@@ -74,7 +74,23 @@ function LandingPage() {
     }
 
     return (
-        <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, pt: 4 }}>
+        <Container sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+            pt: { xs: 2, sm: 4 }, // Smaller padding on mobile
+            px: { xs: 1, sm: 2 },
+        }}>
+            <Typography
+                variant="h1"
+                sx={{
+                    alignSelf: 'flex-start',
+                    fontSize: { xs: '2rem', sm: '3rem' }, // Smaller heading on mobile
+                }}
+            >
+                My Clubs
+            </Typography>
             {/* Generate ClubCard components for each organizationID */}
             {organizationIDs.length > 0 ? (
                 organizationIDs.map(org => (

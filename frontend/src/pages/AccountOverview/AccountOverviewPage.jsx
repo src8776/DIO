@@ -187,7 +187,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
         <Container sx={{ width: '100%', p: 2, overflowY: 'auto'}}>
                 {/* Basic Info */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography>
+                    {/* <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography> */}
                     {loading ? (
                         <Skeleton variant="text" width={100} height={30} />
                     ) : (

@@ -3,6 +3,7 @@ import { Box, Container, Skeleton, Button, Typography } from "@mui/material";
 import { Link } from 'react-router-dom';
 import ClubCard from './ClubCard';
 import AddClubCard from "./AddClubCard";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
@@ -72,20 +73,18 @@ function LandingPage() {
         );
     }
 
-    if (error) {
-        return (
-            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <Box sx={{ color: 'red' }}>{error}</Box> {/* Display error message */}
-            </Container>
-        );
-    }
-
     return (
-        <Container sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, flexWrap: 'wrap', alignItems: 'center', gap: 4, pt: 4 }}>
+        <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, pt: 4 }}>
             {/* Generate ClubCard components for each organizationID */}
             {organizationIDs.length > 0 ? (
                 organizationIDs.map(org => (
-                    <ClubCard key={org.OrganizationID} memberID={memberID} orgID={org.OrganizationID} semesters={semesters} activeSemester={activeSemester} />
+                    <ClubCard
+                        key={org.OrganizationID}
+                        memberID={memberID}
+                        orgID={org.OrganizationID}
+                        semesters={semesters}
+                        activeSemester={activeSemester}
+                    />
                 ))
             ) : (
                 <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

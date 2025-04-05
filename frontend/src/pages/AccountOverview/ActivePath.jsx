@@ -24,8 +24,8 @@ export default function ActivePath({ progressByType, loading, requirementType, a
     }, [progressByType]);
 
     return (
-        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px', p: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', md: '55%' }, height: '390px'}}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1 }}>
                     <RouteIcon />
                     <Typography variant="h5">Active Path</Typography>
@@ -41,7 +41,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                     <>
                         {sortedProgressByType.map((eventType, index) => (
                             <React.Fragment key={index}>
-                                <Accordion defaultExpanded={false}>
+                                <Accordion defaultExpanded={false} sx={{ m: 0 }}>
                                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Typography variant="h6">{eventType.name}</Typography>
@@ -57,7 +57,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                                             </ListItem>
                                         )}
                                         {eventType.progress.progressDetails.map((rule, ruleIndex) => (
-                                            <ListItem key={ruleIndex} sx={{ justifyContent: 'space-between', py: 0.5 }}>
+                                            <ListItem key={ruleIndex} sx={{ justifyContent: 'space-between', py: 0 }}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                     <Box sx={{ width: 24, textAlign: 'center' }}>
                                                         {rule.criteria === "minimum threshold hours" ? (

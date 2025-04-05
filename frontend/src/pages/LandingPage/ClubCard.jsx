@@ -65,22 +65,23 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
 
     return (
         <Card sx={{
-            width: { xs: '100%', sm: '90%' }, // Full width on mobile, 90% on larger screens
+            width: { xs: '100%', sm: '90%' },
             maxWidth: 1000,
             display: 'flex',
             flexDirection: 'column',
-            m: { xs: 1, sm: 2 }, // Smaller margins on mobile
+            m: { xs: 1, sm: 2 },
         }}>
             <Box sx={{
                 display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' }, // Stack vertically on mobile
+                flexDirection: { xs: 'column', sm: 'row' },
                 flexGrow: 1,
-                alignItems: { xs: 'center', sm: 'stretch' }, // Center on mobile
+                alignItems: { xs: 'center', sm: 'stretch' },
+                borderBottom: '1px solid #ccc',
             }}>
                 <CardMedia
                     component="img"
                     sx={{
-                        width: { xs: 80, sm: 118 }, // Smaller image on mobile
+                        width: { xs: 80, sm: 118 },
                         height: { xs: 80, sm: 118 },
                         alignSelf: 'center',
                         m: { xs: 1, sm: 2 },
@@ -92,9 +93,9 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                     flexGrow: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: { xs: 1, sm: 2 }, // Smaller gap on mobile
-                    textAlign: { xs: 'center', sm: 'left' }, // Center text on mobile
-                    p: { xs: 1, sm: 2 }, // Adjust padding
+                    gap: { xs: 1, sm: 2 },
+                    textAlign: { xs: 'center', sm: 'left' },
+                    p: { xs: 1, sm: 2 },
                 }}>
                     {/* Club Info and Buttons */}
                     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}>

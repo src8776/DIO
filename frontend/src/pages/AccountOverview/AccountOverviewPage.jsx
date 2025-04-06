@@ -128,6 +128,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
     const [orgRules, setOrgRules] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
+    const [activeCount, setActiveCount] = React.useState(null);
 
     // Fetch member name
     React.useEffect(() => {
@@ -161,6 +162,19 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
             });
     }, [orgID]);
 
+    // Fetch active semesters count
+    React.useEffect(() => {
+        if (!memberID || !orgID) return;
+        fetch(`/api/memberDetails/activeSemestersCount?memberID=${memberID}&organizationID=${orgID}`)
+            .then(response => response.json())
+            .then(data => {
+                setActiveCount(data);
+            })
+            .catch(err => {
+                console.error("Error fetching active semesters count:", err);
+            });
+    }, [memberID, orgID]);
+
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
 
     const progressByType = React.useMemo(() => {
@@ -184,36 +198,38 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
     }, [orgRules, safeUserAttendance, requirementType]);
 
     return (
-        <Container sx={{ width: '100%', p: 2, overflowY: 'auto'}}>
-                {/* Basic Info */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    {/* <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography> */}
-                    {loading ? (
-                        <Skeleton variant="text" width={100} height={30} />
-                    ) : (
-                        <Typography variant="h6">{activeSemester.TermName}</Typography>
-                    )}
-                </Box>
-                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-                <MemberMetrics
-                    memberName={memberName}
+        <Container sx={{ width: '100%', p: 2, overflowY: 'auto' }}>
+            {/* Basic Info */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                {/* <Typography variant="h5">Account Overview - {orgID === 2 ? 'COMS' : 'WiC'}</Typography> */}
+                {loading ? (
+                    <Skeleton variant="text" width={100} height={30} />
+                ) : (
+                    <Typography variant="h6">{activeSemester.TermName}</Typography>
+                )}
+                <Typography variant="h6">{memberName.fullName || 'Unknown Member'}</Typography>
+            </Box>
+            {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+            <MemberMetrics
+                memberName={memberName}
+                statusObject={statusObject}
+                requirementType={requirementType}
+                activeRequirement={activeRequirement}
+                userAttendance={userAttendance}
+                activeCount={activeCount}
+            />
+
+            {/* Path and Past Events Container */}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+                <ActivePath
                     statusObject={statusObject}
+                    progressByType={progressByType}
+                    loading={loading}
                     requirementType={requirementType}
                     activeRequirement={activeRequirement}
-                    userAttendance={userAttendance}
                 />
-
-                {/* Path and Past Events Container */}
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-                    <ActivePath
-                        statusObject={statusObject}
-                        progressByType={progressByType}
-                        loading={loading}
-                        requirementType={requirementType}
-                        activeRequirement={activeRequirement}
-                    />
-                    <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
-                </Box>
+                <AttendanceHistory userAttendance={safeUserAttendance} loading={loading} />
+            </Box>
         </Container>
     );
 };

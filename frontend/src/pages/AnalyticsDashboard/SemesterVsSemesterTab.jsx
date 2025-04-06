@@ -4,6 +4,7 @@ import {
     CircularProgress, Typography
 } from '@mui/material';
 import EventTypeComparisonChart from './EventTypeComparisonChart';
+import AttendanceComparisonChart from './AttendanceComparisonChart';
 import ActiveMemberComparison from './ActiveMemberComparison';
 
 export default function SemesterVsSemesterTab({ organizationID }) {
@@ -57,14 +58,14 @@ export default function SemesterVsSemesterTab({ organizationID }) {
             {/* Semester Selectors */}
             <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', gap: 2, mb: 2 }}>
                 <Select
-                    value={firstSemester ? firstSemester.SemesterID : ''} 
+                    value={firstSemester ? firstSemester.SemesterID : ''}
                     onChange={handleFirstSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select First Semester' }}
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    
+
                     {semesters.map((sem) => (
                         <MenuItem
                             key={sem.SemesterID}
@@ -79,14 +80,14 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                 <Typography>vs</Typography>
 
                 <Select
-                    value={secondSemester ? secondSemester.SemesterID : ''} 
+                    value={secondSemester ? secondSemester.SemesterID : ''}
                     onChange={handleSecondSemesterChange}
                     displayEmpty
                     inputProps={{ 'aria-label': 'Select Second Semester' }}
                     size='small'
                     sx={{ width: 150 }}
                 >
-                    
+
                     {semesters.map((sem) => (
                         <MenuItem
                             key={sem.SemesterID}
@@ -110,7 +111,12 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                         firstSemester={firstSemester}
                         secondSemester={secondSemester}
                     />
-                    <ActiveMemberComparison organizationID={organizationID} semesters={semesters}/>
+                    <AttendanceComparisonChart
+                        organizationID={organizationID}
+                        firstSemester={firstSemester}
+                        secondSemester={secondSemester}
+                    />
+                    <ActiveMemberComparison organizationID={organizationID} semesters={semesters} />
                 </Box>
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

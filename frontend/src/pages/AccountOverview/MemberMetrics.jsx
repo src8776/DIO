@@ -6,7 +6,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 /**
  * Displays member metrics such as status, points/requirements, and events attended.
  */
-export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance, memberName }) {
+export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance, memberName, activeCount }) {
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
 
     const displayStatus = (() => {
@@ -32,20 +32,30 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
         }
     })();
 
+    console.log("active count", activeCount);
+
     return (
         <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1 }}>
                     <PeopleAltIcon />
-                    <Typography variant="h5">Member Metrics</Typography>
+                    <Typography variant="h5" sx={{color: 'primary'}}>Member Metrics</Typography>
                 </Box>
-                <Typography variant="h6">{memberName.fullName || 'Unknown Member'}</Typography>
+                {/* <Typography variant="h6">{memberName.fullName || 'Unknown Member'}</Typography> */}
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'space-around', overflowX: 'auto' }}>
                 <Box>
                     <Typography variant="h6">Status</Typography>
                     <Typography variant="h5" sx={{ color: statusColor }}>
                         {displayStatus}
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
+                        {activeCount && activeCount.activeSemesters === '0'
+                            ? (requirementType === 'points'
+                                ? "Earn points to become active!"
+                                : "Meet the criteria to become active!")
+                            : `You have been active ${activeCount?.activeSemesters} out of ${activeCount?.totalSemesters} ${activeCount?.totalSemesters > 1 ? 'semesters' : 'semester'}.`
+                        }
                     </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem />

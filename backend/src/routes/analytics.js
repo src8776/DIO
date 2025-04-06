@@ -409,6 +409,63 @@ router.get('/commonEventTypes', async (req, res) => {
 });
 
 
+router.get('/attendanceCountByMember', async (req, res) => {
+    const { organizationID, firstSemesterID, secondSemesterID } = req.query;
+
+    if (!organizationID || !firstSemesterID || !secondSemesterID) {
+        return res.status(400).json({
+            error: 'Missing required parameters: organizationID, firstSemesterID, or secondSemesterID'
+        });
+    }
+
+    try {
+        // Query attendance for members in the first semester (MemberID only)
+        const [firstSemesterResults] = await db.query(
+            `SELECT 
+                om.MemberID,
+                (
+                    SELECT COUNT(*) 
+                    FROM Attendance a
+                    JOIN EventInstances ei ON a.EventID = ei.EventID
+                    JOIN Semesters s ON ei.TermCode = s.TermCode
+                    WHERE a.MemberID = om.MemberID 
+                      AND s.SemesterID = ?
+                      AND ei.OrganizationID = ?
+                ) AS attendanceCount
+             FROM OrganizationMembers om
+             WHERE om.OrganizationID = ? AND om.SemesterID = ?`,
+            [firstSemesterID, organizationID, organizationID, firstSemesterID]
+        );
+
+        // Query attendance for members in the second semester (MemberID only)
+        const [secondSemesterResults] = await db.query(
+            `SELECT 
+                om.MemberID,
+                (
+                    SELECT COUNT(*) 
+                    FROM Attendance a
+                    JOIN EventInstances ei ON a.EventID = ei.EventID
+                    JOIN Semesters s ON ei.TermCode = s.TermCode
+                    WHERE a.MemberID = om.MemberID 
+                      AND s.SemesterID = ?
+                      AND ei.OrganizationID = ?
+                ) AS attendanceCount
+             FROM OrganizationMembers om
+             WHERE om.OrganizationID = ? AND om.SemesterID = ?`,
+            [secondSemesterID, organizationID, organizationID, secondSemesterID]
+        );
+
+        res.json({
+            firstSemester: firstSemesterResults,
+            secondSemester: secondSemesterResults
+        });
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/genderRaceTallies', async (req, res) => {
     const { organizationID, semesterID } = req.query;
 

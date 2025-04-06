@@ -10,6 +10,7 @@ import MajorTalliesChart from './MajorTalliesChart';
 import GraduatingMembersChart from './GraduatingMembersChart';
 
 
+
 export default function SemesterOverviewTab({ organizationID }) {
     const [semesters, setSemesters] = React.useState([]);
     const [selectedSemester, setSelectedSemester] = React.useState(null);

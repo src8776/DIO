@@ -79,14 +79,14 @@ function LandingPage() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: 2,
-            pt: { xs: 2, sm: 4 }, // Smaller padding on mobile
+            pt: { xs: 2, sm: 4 },
             px: { xs: 1, sm: 2 },
         }}>
             <Typography
                 variant="h1"
                 sx={{
                     alignSelf: 'flex-start',
-                    fontSize: { xs: '2rem', sm: '3rem' }, // Smaller heading on mobile
+                    fontSize: { xs: '2rem', sm: '3rem' },
                 }}
             >
                 My Clubs

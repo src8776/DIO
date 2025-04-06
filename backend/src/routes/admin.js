@@ -140,6 +140,7 @@ router.get('/getOfficersAndAdmin', async (req, res) => {
     }
 });
 
+
 // PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
 router.post('/setOfficer', async (req, res) => {
     console.log('Received request at /admin/setOfficer');

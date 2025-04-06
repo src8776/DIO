@@ -33,9 +33,16 @@ export default function AddAdminPage({ orgID, handleSave }) {
 
   const addMemberToList = (member) => {
     if (!selectedMembers.some(m => m.MemberID === member.MemberID)) {
-      setSelectedMembers([...selectedMembers, { ...member }]);
+      setSelectedMembers([...selectedMembers, { ...member, role: 'Officer' }]); // default role
     }
   };
+  
+  const handleRoleChange = (memberId, newRole) => {
+    setSelectedMembers(prev =>
+      prev.map(m => m.MemberID === memberId ? { ...m, role: newRole } : m)
+    );
+  };
+  
 
   const removeMemberFromList = (memberId) => {
     setSelectedMembers(selectedMembers.filter(member => member.MemberID !== memberId));
@@ -75,6 +82,7 @@ export default function AddAdminPage({ orgID, handleSave }) {
               <TableHead>
                 <TableRow>
                   <TableCell>Member</TableCell>
+                  <TableCell>Role</TableCell>
                   <TableCell align="center">Remove</TableCell>
                 </TableRow>
               </TableHead>
@@ -82,6 +90,17 @@ export default function AddAdminPage({ orgID, handleSave }) {
                 {selectedMembers.map((member) => (
                   <TableRow key={member.MemberID}>
                     <TableCell>{member.FullName}</TableCell>
+                    <TableCell>
+                      <FormControl fullWidth>
+                        <Select
+                          value={member.role}
+                          onChange={(e) => handleRoleChange(member.MemberID, e.target.value)}
+                        >
+                          <MenuItem value="Admin">Admin</MenuItem>
+                          <MenuItem value="Officer">Officer</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </TableCell>
                     <TableCell align="center">
                       <IconButton onClick={() => removeMemberFromList(member.MemberID)}>
                         <Remove />

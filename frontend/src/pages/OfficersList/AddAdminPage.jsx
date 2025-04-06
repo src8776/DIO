@@ -33,7 +33,7 @@ export default function AddAdminPage({ orgID, handleSave }) {
 
   const addMemberToList = (member) => {
     if (!selectedMembers.some(m => m.MemberID === member.MemberID)) {
-      setSelectedMembers([...selectedMembers, { ...member, role: 'Officer' }]); // default role
+      setSelectedMembers([...selectedMembers, { ...member, role: 'Eboard' }]); // default role
     }
   };
   
@@ -97,7 +97,7 @@ export default function AddAdminPage({ orgID, handleSave }) {
                           onChange={(e) => handleRoleChange(member.MemberID, e.target.value)}
                         >
                           <MenuItem value="Admin">Admin</MenuItem>
-                          <MenuItem value="Officer">Officer</MenuItem>
+                          <MenuItem value="Eboard">Eboard</MenuItem>
                         </Select>
                       </FormControl>
                     </TableCell>

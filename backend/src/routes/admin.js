@@ -140,7 +140,7 @@ router.get('/getOfficersAndAdmin', async (req, res) => {
     }
 });
 
-router.post('/setOfficer', async (req, res) => {
+router.post('/setEboard', async (req, res) => {
     console.log('Received request at /admin/setOfficer');
     let organizationID = parseInt(req.query.organizationID, 10);
     let memberID = parseInt(req.query.memberID, 10);

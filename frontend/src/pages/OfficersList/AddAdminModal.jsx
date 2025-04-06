@@ -10,7 +10,7 @@ export default function AddMemberModal({orgID}) {
 
   const handleSave = (members) => {
     members.forEach((user) => {
-      const endpoint = user.role === 'Admin' ? 'setAdmin' : 'setOfficer';
+      const endpoint = user.role === 'Admin' ? 'setAdmin' : 'setEboard';
   
       fetch(`/api/admin/${endpoint}?organizationID=${orgID}&memberID=${user.MemberID}`, {
         method: 'POST'

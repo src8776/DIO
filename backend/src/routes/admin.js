@@ -140,6 +140,7 @@ router.get('/getOfficersAndAdmin', async (req, res) => {
     }
 });
 
+// PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
 router.post('/setOfficer', async (req, res) => {
     console.log('Received request at /admin/setOfficer');
     let organizationID = parseInt(req.query.organizationID, 10);
@@ -160,6 +161,7 @@ router.post('/setOfficer', async (req, res) => {
     }
 });
 
+// PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
 router.post('/setAdmin', async (req, res) => {
     console.log('Received request at /admin/setAdmin');
     let organizationID = parseInt(req.query.organizationID, 10);

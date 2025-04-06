@@ -39,7 +39,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1 }}>
                     <PeopleAltIcon />
-                    <Typography variant="h5">Member Metrics</Typography>
+                    <Typography variant="h5" sx={{color: 'primary'}}>Member Metrics</Typography>
                 </Box>
                 {/* <Typography variant="h6">{memberName.fullName || 'Unknown Member'}</Typography> */}
             </Box>

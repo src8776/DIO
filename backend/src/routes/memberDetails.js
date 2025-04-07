@@ -7,6 +7,13 @@ const Semester = require('../models/Semester');
 const generateTermCode = require('../utils/termCode').generateTermCode;
 const router = express.Router();
 
+const requireAuth = async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    next();
+}
+router.use(requireAuth);
 
 router.get('/allDetails', async (req, res) => {
     let memberID = parseInt(req.query.memberID, 10);

@@ -3,6 +3,14 @@ const db = require('../config/db');
 
 const router = express.Router();
 
+const requireAuth = async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    next();
+}
+router.use(requireAuth);
+
 router.get('/names', async (req, res) => {
     console.log('Received request at /api/admin/members/names');
 

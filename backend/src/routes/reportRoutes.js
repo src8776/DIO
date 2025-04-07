@@ -6,6 +6,14 @@ const OrganizationSetting = require('../models/OrganizationSetting');
 const EventInstance = require('../models/EventInstance');
 const Member = require('../models/Member');
 
+const requireAuth = async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    next();
+}
+router.use(requireAuth);
+
 router.post('/', async (req, res) => {
     console.log('Received request at /api/admin/report');
     const data = req.body;

@@ -9,8 +9,9 @@ const requireAuth = async (req, res, next) => {
     }
     next();
 }
+router.use(requireAuth);
 
-router.get('/datatableAllTerms', requireAuth, async (req, res) => {
+router.get('/datatableAllTerms', async (req, res) => {
     console.log('Received request at /admin/datatableAllTerms');
 
     let organizationID = parseInt(req.query.organizationID, 10);
@@ -55,7 +56,7 @@ router.get('/datatableAllTerms', requireAuth, async (req, res) => {
 });
 
 
-router.get('/datatableByTerm', requireAuth, async (req, res) => {
+router.get('/datatableByTerm', async (req, res) => {
     console.log('Received request at /admin/datatableByTerm');
 
     let termCode = req.query.termCode;
@@ -102,7 +103,7 @@ router.get('/datatableByTerm', requireAuth, async (req, res) => {
 });
 
 
-router.get('/getSemesters', requireAuth, async (req, res) => {
+router.get('/getSemesters', async (req, res) => {
     console.log('Received request at /admin/getSemesters');
 
     try {
@@ -120,7 +121,7 @@ router.get('/getSemesters', requireAuth, async (req, res) => {
     }
 });
 
-router.get('/getOfficersAndAdmin', requireAuth, async (req, res) => {
+router.get('/getOfficersAndAdmin', async (req, res) => {
     console.log('Received request at /admin/getOfficersAndAdmin');
     let organizationID = parseInt(req.query.organizationID, 10);
 
@@ -149,7 +150,7 @@ router.get('/getOfficersAndAdmin', requireAuth, async (req, res) => {
 
 
 // PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
-router.post('/setOfficer', requireAuth, async (req, res) => {
+router.post('/setOfficer', async (req, res) => {
     console.log('Received request at /admin/setOfficer');
     let organizationID = parseInt(req.query.organizationID, 10);
     let memberID = parseInt(req.query.memberID, 10);
@@ -170,7 +171,7 @@ router.post('/setOfficer', requireAuth, async (req, res) => {
 });
 
 // PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
-router.post('/setAdmin', requireAuth, async (req, res) => {
+router.post('/setAdmin', async (req, res) => {
     console.log('Received request at /admin/setAdmin');
     let organizationID = parseInt(req.query.organizationID, 10);
     let memberID = parseInt(req.query.memberID, 10);
@@ -191,7 +192,7 @@ router.post('/setAdmin', requireAuth, async (req, res) => {
 });
 
 // used to remove admin/officer role
-router.post('/setMember', requireAuth, async (req, res) => {
+router.post('/setMember', async (req, res) => {
     console.log('Received request at /admin/setMember');
     let organizationID = parseInt(req.query.organizationID, 10);
     let memberID = parseInt(req.query.memberID, 10);

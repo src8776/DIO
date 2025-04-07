@@ -17,6 +17,18 @@ const darkTheme = createTheme({
           primary: '#ffffff',
           secondary: '#b0b0b0',
         },
+        memberPerMajorText: {
+          default: '#ffffff',
+        },
+        activeStatus: {
+          default: '#3ab13e'
+        },
+        generalStatus: {
+          default: '#ff3c3c'
+        },
+        generalMeetingBar: {
+          default: '#4394E5'
+        }
       },
       components: {
         MuiAppBar: {

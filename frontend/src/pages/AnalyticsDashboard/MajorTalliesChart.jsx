@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-    Paper, Typography, Box,
+    useTheme, Paper, Typography, Box,
     CircularProgress, Switch,
     ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 
 export default function MajorTalliesChart({ organizationID, selectedSemester }) {
+    const theme = useTheme();
     const [majorTallies, setMajorTallies] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
     const [showPie, setShowPie] = React.useState(true);
@@ -66,6 +67,7 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
         );
     };
 
+    console.log(theme.palette.memberPerMajorText.default);
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -112,7 +114,15 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
                                     />
                                 ))}
                             </Pie>
-                            <Legend layout="vertical" align="right" verticalAlign="middle" />
+                            <Legend
+                                layout="vertical"
+                                align="right"
+                                verticalAlign="middle"
+                                formatter={(value) => (
+                                    <span style={{ color: theme.palette.memberPerMajorText.default }}>
+                                        {value}
+                                    </span>
+                                )} />
                             <Tooltip />
                         </PieChart>
                     </ResponsiveContainer>

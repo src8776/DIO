@@ -49,7 +49,7 @@ export default function GraduatingMembersChart({ organizationID, semesterID }) {
                         <XAxis dataKey="name" />
                         {/* <YAxis allowDecimals={false} /> */}
                         <Tooltip />
-                        <Bar dataKey="count" fill="#8884d8" label={renderBarLabel} />
+                        <Bar dataKey="count" fill="#b5ddce" label={renderBarLabel} />
                     </BarChart>
                 </ResponsiveContainer>
 

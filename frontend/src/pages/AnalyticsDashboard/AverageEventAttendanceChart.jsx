@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {
-    Paper, Typography, Button, Box, Drawer,
-    List, ListItem, ListItemText, TextField,
-    IconButton
+    useTheme, Paper, Typography, Button, Box,
+    Drawer, List, ListItem, ListItemText,
+    TextField, IconButton
 } from '@mui/material';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -186,6 +186,52 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     };
 
+    const AverageBarShape = (props) => {
+        const eventTypeColors = {
+            "General Meeting": "#4394E5",
+            "Volunteer Event": "#87BB62",
+            "Workshop": "#F5921B",
+            "Mentor Event": "#876FD4"
+        };
+        // Choose the color based on the event type; use default if undefined
+        const fillColor = eventTypeColors[props.payload?.original?.EventType] || "#F76902";
+        const { x, y, width, height } = props;
+        return (
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill={fillColor}
+                pointerEvents="none"
+            />
+        );
+    };
+
+    const InstanceBarShape = (props) => {
+        const eventTypeColors = {
+            "General Meeting": "#4394E5",
+            "Volunteer Event": "#87BB62",
+            "Workshop": "#F5921B",
+            "Mentor Event": "#876FD4"
+        };
+        // Use the instance's event type if available (or fallback to the selectedEventType)
+        // Note: selectedEventType is available via closure in this component.
+        const eventType = props.payload?.EventType || selectedEventType?.EventType;
+        const fillColor = eventTypeColors[eventType] || "#F76902";
+        const { x, y, width, height } = props;
+        return (
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill={fillColor}
+                pointerEvents="none"
+            />
+        );
+    };
+
     // TODO: If container width is < 740px, hide labels 
     // Label renderer for Instance Chart
     const renderInstanceLabel = (maxAttendance) => (props) => {
@@ -270,7 +316,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                             )}
                                             <Bar
                                                 dataKey="attendanceRate"
-                                                shape={<CustomBarShape fill="#F76902" />}
+                                                shape={<AverageBarShape />}
                                                 background={<CustomBackground />}
                                                 label={renderAverageLabel}
                                             />
@@ -322,7 +368,7 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                                                 dataKey="attendanceCount"
                                                 fill="#F76902"
                                                 label={renderInstanceLabel(maxAttendance)}
-                                                shape={<CustomBarShape fill="#F76902" />}
+                                                shape={<InstanceBarShape />}
                                                 background={<CustomInstanceBackground />}
                                             />
                                         </BarChart>

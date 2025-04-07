@@ -17,6 +17,18 @@ const theme = createTheme ({
           primary: '#000000',
           secondary: '#5f5f5f',
         },
+        memberPerMajorText: {
+          default: '#4c4c4c',
+        },
+        activeStatus: {
+          default: '#256528'
+        },
+        generalStatus: {
+          default: '#941a00'
+        },
+        generalMeetingBar: {
+          default: '#4394E5'
+        }
       },
       components: {
         MuiAppBar: {

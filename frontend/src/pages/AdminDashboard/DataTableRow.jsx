@@ -1,24 +1,25 @@
 import React from "react";
-import { TableRow, TableCell, Checkbox } from '@mui/material';
+import { useTheme, TableRow, TableCell, Checkbox } from '@mui/material';
 import MemberDetailsDrawer from '../MemberDetails/MemberDetailsDrawer';
 
 
 const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {
+    const theme = useTheme();
     const memberStatus = row.Status || 'N/A';
     const displayStatus = memberStatus === 'CarryoverActive' ? 'Active*' : memberStatus;
 
     const statusColor = (() => {
         switch (memberStatus) {
             case 'Active':
-                return '#2DD4BF';
+                return  `${theme.palette.activeStatus.default}`;
             case 'CarryoverActive':
                 return '#FBBF24';
             case 'Exempt':
                 return '#be9bc4';
             case 'General':
-                return '#7C8796';
+                return `${theme.palette.generalStatus.default}`;
             case 'Inactive':
                 return '#5C6773'; // slightly darker gray than General
             default:

@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {
-    Typography, Paper, Button,
-    Box, Select, MenuItem,
-    FormControl, InputLabel,
+    Typography, Paper, Box,
     CircularProgress
 } from '@mui/material';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import {
+    ResponsiveContainer, BarChart, Bar,
+    XAxis, YAxis, CartesianGrid, Tooltip,
+    Legend
+} from 'recharts';
 
 export default function ActiveMemberComparison({ organizationID, semesters }) {
     const [comparisonData, setComparisonData] = React.useState(null);
@@ -36,9 +38,9 @@ export default function ActiveMemberComparison({ organizationID, semesters }) {
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
-                <Typography sx={{flex: 2}}>
-                    Compare Active and General Member counts across semesters.
-                </Typography>
+            <Typography sx={{ flex: 2 }}>
+                Compare Active and General Member counts across semesters.
+            </Typography>
             <Box sx={{ p: 2 }}>
                 {comparisonData ? (
                     <ResponsiveContainer width="100%" height={300}>
@@ -48,8 +50,8 @@ export default function ActiveMemberComparison({ organizationID, semesters }) {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Bar dataKey="activeMembers" fill="#8884d8" name="Active Members" />
-                            <Bar dataKey="generalMembers" fill="#82ca9d" name="General Members" />
+                            <Bar dataKey="activeMembers" fill="#21BDE5" name="Active Members" />
+                            <Bar dataKey="generalMembers" fill="#2D3846" name="General Members" />
                         </BarChart>
                     </ResponsiveContainer>
                 ) : (

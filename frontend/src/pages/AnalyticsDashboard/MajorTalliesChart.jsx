@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
     Paper, Typography, Box,
     CircularProgress, Switch,
-    useTheme, useMediaQuery
+    ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
 import {
     BarChart, Bar, XAxis,
@@ -71,14 +71,19 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography>Members per Major</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2">Bar Chart</Typography>
-                    <Switch
-                        checked={showPie}
-                        onChange={() => setShowPie(!showPie)}
-                        color="primary"
-                        inputProps={{ 'aria-label': 'chart type toggle' }}
-                    />
-                    <Typography variant="body2">Pie Chart</Typography>
+                    <ToggleButtonGroup
+                        value={showPie ? 'pie' : 'bar'}
+                        exclusive
+                        onChange={(event, newValue) => {
+                            if (newValue !== null) {
+                                setShowPie(newValue === 'pie');
+                            }
+                        }}
+                        size="small"
+                    >
+                        <ToggleButton value="bar">Bar Chart</ToggleButton>
+                        <ToggleButton value="pie">Pie Chart</ToggleButton>
+                    </ToggleButtonGroup>
                 </Box>
             </Box>
             {isLoading ? (

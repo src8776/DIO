@@ -466,6 +466,91 @@ router.get('/attendanceCountByMember', async (req, res) => {
 });
 
 
+router.get('/attendanceCountByMemberByEventType', async (req, res) => {
+    const { organizationID, firstSemesterID, secondSemesterID, eventTypeID } = req.query;
+    console.log('Received request at /attendanceCountByMemberByEventType');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID || !firstSemesterID || !secondSemesterID || !eventTypeID) {
+        return res.status(400).json({
+            error: 'Missing required parameters: organizationID, firstSemesterID, secondSemesterID, or eventTypeID'
+        });
+    }
+
+    try {
+        // Retrieve event type name from the second semester event type
+        const [eventTypeInfo] = await db.query(
+            `SELECT EventType 
+             FROM EventTypes 
+             WHERE EventTypeID = ? AND OrganizationID = ? AND SemesterID = ?`,
+            [eventTypeID, organizationID, secondSemesterID]
+        );
+        if (eventTypeInfo.length === 0) {
+            return res.status(404).json({ error: 'Event type not found for the second semester' });
+        }
+        const eventTypeName = eventTypeInfo[0].EventType;
+
+        // Retrieve corresponding event type for the first semester using the event type name
+        const [firstSemesterEventType] = await db.query(
+            `SELECT EventTypeID 
+             FROM EventTypes 
+             WHERE EventType = ? AND OrganizationID = ? AND SemesterID = ?`,
+            [eventTypeName, organizationID, firstSemesterID]
+        );
+        if (firstSemesterEventType.length === 0) {
+            return res.status(404).json({ error: 'Matching event type not found for the first semester' });
+        }
+        const firstSemesterEventTypeID = firstSemesterEventType[0].EventTypeID;
+
+        // Query attendance for members in the first semester (using the firstSemesterEventTypeID)
+        const [firstSemesterResults] = await db.query(
+            `SELECT 
+                om.MemberID,
+                (
+                    SELECT COUNT(*) 
+                    FROM Attendance a
+                    JOIN EventInstances ei ON a.EventID = ei.EventID
+                    JOIN Semesters s ON ei.TermCode = s.TermCode
+                    WHERE a.MemberID = om.MemberID 
+                      AND s.SemesterID = ?
+                      AND ei.OrganizationID = ?
+                      AND ei.EventTypeID = ?
+                ) AS attendanceCount
+             FROM OrganizationMembers om
+             WHERE om.OrganizationID = ? AND om.SemesterID = ?`,
+            [firstSemesterID, organizationID, firstSemesterEventTypeID, organizationID, firstSemesterID]
+        );
+
+        // Query attendance for members in the second semester (using the provided eventTypeID)
+        const [secondSemesterResults] = await db.query(
+            `SELECT 
+                om.MemberID,
+                (
+                    SELECT COUNT(*) 
+                    FROM Attendance a
+                    JOIN EventInstances ei ON a.EventID = ei.EventID
+                    JOIN Semesters s ON ei.TermCode = s.TermCode
+                    WHERE a.MemberID = om.MemberID 
+                      AND s.SemesterID = ?
+                      AND ei.OrganizationID = ?
+                      AND ei.EventTypeID = ?
+                ) AS attendanceCount
+             FROM OrganizationMembers om
+             WHERE om.OrganizationID = ? AND om.SemesterID = ?`,
+            [secondSemesterID, organizationID, eventTypeID, organizationID, secondSemesterID]
+        );
+
+        res.json({
+            firstSemester: firstSemesterResults,
+            secondSemester: secondSemesterResults
+        });
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 router.get('/genderRaceTallies', async (req, res) => {
     const { organizationID, semesterID } = req.query;
 

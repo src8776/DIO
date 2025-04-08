@@ -90,6 +90,7 @@ export default function AccountSetup() {
   const [race, setRace] = useState('');
   const [gender, setGender] = useState('');
   const [genders, setGenders] = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const [alertMessage, setAlertMessage] = useState('');
@@ -119,6 +120,7 @@ export default function AccountSetup() {
         setPantSize(profileData.pantSize);
         setRace(profileData.race);
         setGender(profileData.gender);
+        setPhoneNumber(profileData.phoneNumber);
       }
     };
 
@@ -153,6 +155,12 @@ export default function AccountSetup() {
       return;
     }
 
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      showAlert('Please enter a valid 10-digit phone number', 'error');
+      return;
+    }
+
     // Compute academicYear based on term and selected year
     const academicYear = graduationTerm === 'Spring' ? Number(graduationYear) - 1 : Number(graduationYear);
     const termCode = `2${String(academicYear).slice(-2)}${graduationTerm === 'Fall' ? '1' : '5'}`;
@@ -164,7 +172,8 @@ export default function AccountSetup() {
       shirtSize,
       pantSize,
       race,
-      gender
+      gender,
+      phoneNumber
     });
 
     if (result.success) {
@@ -334,6 +343,24 @@ export default function AccountSetup() {
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+          </Paper>
+
+          <Paper sx={{ p: 2 }}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="phoneNumber-select-label">Phone Number</InputLabel>
+              <TextField
+                required
+                id="phoneNumber-input"
+                label="Phone Number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                type="tel"
+                inputProps={{
+                  pattern: "[0-9]{10}",
+                  maxLength: 10,
+                }}
+              />
             </FormControl>
           </Paper>
 

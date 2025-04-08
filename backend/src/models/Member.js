@@ -51,8 +51,8 @@ class Member {
 
       // Insert the member
       const [result] = await DBHelper.runQuery(
-        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationSemester, AcademicYear, ShirtSize, PantSize, Race, Gender)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationSemester, AcademicYear, ShirtSize, PantSize, Race, Gender, PhoneNumber)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE 
            UserName = VALUES(UserName),
            FirstName = VALUES(FirstName),
@@ -64,7 +64,8 @@ class Member {
            ShirtSize = VALUES(ShirtSize),
            PantSize = VALUES(PantSize),
            Race = VALUES(Race),
-           Gender = VALUES(Gender)`,
+           Gender = VALUES(Gender),
+           PhoneNumber = VALUES(PhoneNumber)`,
         [
           username,
           firstName,
@@ -77,7 +78,8 @@ class Member {
           member.shirtSize || null,
           member.pantSize || null,
           member.race || null,
-          member.gender || null
+          member.gender || null,
+          member.phoneNumber || null
         ], connection
       );
 

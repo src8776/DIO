@@ -67,6 +67,7 @@ router.get('/profile', attachMemberData, async (req, res) => {
         pantSize: member?.PantSize || 'Unknown',
         gender: member?.Gender || 'Unknown',
         race: member?.Race || 'Unknown',
+        phoneNumber: member?.PhoneNumber || 'Unknown',
       };
   
       res.json(userProfile);
@@ -100,6 +101,7 @@ router.post('/profile', attachMemberData, async (req, res) => {
         pantSize: updatedProfile.pantSize,
         gender: updatedProfile.gender,
         race: updatedProfile.race,
+        phoneNumber: updatedProfile.phoneNumber,
       };
   
       const memberId = await Member.updateMemberProfile(memberData);
@@ -171,7 +173,8 @@ router.get('/profileCompletion', attachMemberData, async (req, res) => {
     !member.ShirtSize ||
     !member.PantSize ||
     !member.Race ||
-    !member.Gender
+    !member.Gender ||
+    !member.PhoneNumber
   ) {
     isCompleted = false;
   }

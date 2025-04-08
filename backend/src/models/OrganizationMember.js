@@ -1,11 +1,12 @@
 const db = require('../config/db');
+const DBHelper = require('../utils/DBHelper');
 
 class OrganizationMember {
-  static async insertOrganizationMember(organizationID, memberID, semesterID, role = 'Member') {
+  static async insertOrganizationMember(organizationID, memberID, semesterID, role = 'Member', connection = null) {
     try {
-      const [[roleResult]] = await db.query(
+      const [[roleResult]] = await DBHelper.runQuery(
         'SELECT RoleID FROM Roles WHERE RoleName = ?',
-        [role]
+        [role], connection
       );
 
       if (!roleResult) {
@@ -15,16 +16,16 @@ class OrganizationMember {
 
       const roleID = roleResult.RoleID;
 
-      const [[exists]] = await db.query(
+      const [[exists]] = await DBHelper.runQuery(
         'SELECT 1 FROM OrganizationMembers WHERE OrganizationID = ? AND MemberID = ? AND SemesterID = ?',
-        [organizationID, memberID, semesterID]
+        [organizationID, memberID, semesterID], connection
       );
 
       if (!exists) {
-        await db.query(
+        await DBHelper.runQuery(
           `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, Status, RoleID)
            VALUES (?, ?, ?, ?, ?)`,
-          [organizationID, memberID, semesterID, 'General', roleID]
+          [organizationID, memberID, semesterID, 'General', roleID], connection
         );
         console.log(`Added to OrganizationMembers: MemberID ${memberID}, Status: General, RoleID ${roleID}, SemesterID ${semesterID}`);
       }
@@ -34,29 +35,26 @@ class OrganizationMember {
     }
   }
 
-  static async insertOrganizationMemberWithRoleStatus(organizationID, memberID, semesterID, roleID, status) {
+  static async insertOrganizationMemberWithRoleStatus(organizationID, memberID, semesterID, roleID, status, connection = null) {
     try {
-      // Check if the record already exists
-      const [[exists]] = await db.query(
+      const [[exists]] = await DBHelper.runQuery(
         'SELECT 1 FROM OrganizationMembers WHERE OrganizationID = ? AND MemberID = ? AND SemesterID = ?',
-        [organizationID, memberID, semesterID]
+        [organizationID, memberID, semesterID], connection
       );
 
       if (exists) {
-        // Update existing record
-        await db.query(
+        await DBHelper.runQuery(
           `UPDATE OrganizationMembers 
-                 SET Status = ?, RoleID = ? 
-                 WHERE OrganizationID = ? AND MemberID = ? AND SemesterID = ?`,
-          [status, roleID, organizationID, memberID, semesterID]
+           SET Status = ?, RoleID = ? 
+           WHERE OrganizationID = ? AND MemberID = ? AND SemesterID = ?`,
+          [status, roleID, organizationID, memberID, semesterID], connection
         );
         console.log(`Updated OrganizationMembers: MemberID ${memberID}, Status: ${status}, RoleID ${roleID}, SemesterID ${semesterID}`);
       } else {
-        // Insert new record
-        await db.query(
+        await DBHelper.runQuery(
           `INSERT INTO OrganizationMembers (OrganizationID, MemberID, SemesterID, Status, RoleID)
-                 VALUES (?, ?, ?, ?, ?)`,
-          [organizationID, memberID, semesterID, status, roleID]
+           VALUES (?, ?, ?, ?, ?)`,
+          [organizationID, memberID, semesterID, status, roleID], connection
         );
         console.log(`Added to OrganizationMembers: MemberID ${memberID}, Status: ${status}, RoleID ${roleID}, SemesterID ${semesterID}`);
       }
@@ -66,47 +64,52 @@ class OrganizationMember {
     }
   }
 
-  static async removeRecordsAfterSemester(organizationID, memberID, semesterID) {
+  static async removeRecordsAfterSemester(organizationID, memberID, semesterID, connection = null) {
     try {
-        const [result] = await db.query(
-            `DELETE FROM OrganizationMembers
-             WHERE OrganizationID = ? AND MemberID = ? AND SemesterID > ?`,
-            [organizationID, memberID, semesterID]
-        );
-        console.log(`Removed ${result.affectedRows} records for MemberID ${memberID} in OrganizationID ${organizationID} after SemesterID ${semesterID}`);
-        return result.affectedRows;
+      const [result] = await DBHelper.runQuery(
+        `DELETE FROM OrganizationMembers
+         WHERE OrganizationID = ? AND MemberID = ? AND SemesterID > ?`,
+        [organizationID, memberID, semesterID], connection
+      );
+      console.log(`Removed ${result.affectedRows} records for MemberID ${memberID} in OrganizationID ${organizationID} after SemesterID ${semesterID}`);
+      return result.affectedRows;
     } catch (err) {
-        console.error(`Error removing records for MemberID ${memberID} in OrganizationID ${organizationID} after SemesterID ${semesterID}:`, err);
-        throw err;
-    }
-}
-
-  static async updateMemberStatus(memberID, organizationID, status, semesterID) {
-    // Update if exists, insert if not (upsert logic might be needed)
-    const [existing] = await db.query(
-      `SELECT 1 FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
-      [memberID, organizationID, semesterID]
-    );
-    if (existing.length > 0) {
-      await db.query(
-        `UPDATE OrganizationMembers SET Status = ? WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
-        [status, memberID, organizationID, semesterID]
-      );
-    } else {
-      await db.query(
-        `INSERT INTO OrganizationMembers (MemberID, OrganizationID, status, semesterID) VALUES (?, ?, ?, ?)`,
-        [memberID, organizationID, status, semesterID]
-      );
+      console.error(`Error removing records for MemberID ${memberID} in OrganizationID ${organizationID} after SemesterID ${semesterID}:`, err);
+      throw err;
     }
   }
 
-  static async getMemberStatus(memberID, organizationID, semesterID) {
+  static async updateMemberStatus(memberID, organizationID, status, semesterID, connection = null) {
     try {
-      const [[result]] = await db.query(
+      const [[existing]] = await DBHelper.runQuery(
+        `SELECT 1 FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
+        [memberID, organizationID, semesterID], connection
+      );
+
+      if (existing) {
+        await DBHelper.runQuery(
+          `UPDATE OrganizationMembers SET Status = ? WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
+          [status, memberID, organizationID, semesterID], connection
+        );
+      } else {
+        await DBHelper.runQuery(
+          `INSERT INTO OrganizationMembers (MemberID, OrganizationID, Status, SemesterID) VALUES (?, ?, ?, ?)`,
+          [memberID, organizationID, status, semesterID], connection
+        );
+      }
+    } catch (err) {
+      console.error('Error updating member status:', err);
+      throw err;
+    }
+  }
+
+  static async getMemberStatus(memberID, organizationID, semesterID, connection = null) {
+    try {
+      const [[result]] = await DBHelper.runQuery(
         `SELECT Status
          FROM OrganizationMembers
          WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?`,
-        [memberID, organizationID, semesterID]
+        [memberID, organizationID, semesterID], connection
       );
       return result?.Status;
     } catch (error) {
@@ -115,9 +118,7 @@ class OrganizationMember {
     }
   }
 
-  
-
-  static async getMemberRole(memberID, organizationID) {
+  static async getMemberRole(memberID, organizationID, connection = null) {
     try {
       const query = `
             SELECT Roles.RoleName
@@ -125,7 +126,7 @@ class OrganizationMember {
             JOIN Roles ON OrganizationMembers.RoleID = Roles.RoleID
             WHERE OrganizationMembers.MemberID = ? AND OrganizationMembers.OrganizationID = ?
         `;
-      const [[result]] = await db.query(query, [memberID, organizationID]);
+      const [[result]] = await DBHelper.runQuery(query, [memberID, organizationID], connection);
       return result?.RoleName;
     } catch (error) {
       console.error('Error fetching member role:', error);
@@ -133,7 +134,7 @@ class OrganizationMember {
     }
   }
 
-  static async getMemberStatsByOrgAndSemester(organizationID, semesterID) {
+  static async getMemberStatsByOrgAndSemester(organizationID, semesterID, connection = null) {
     try {
       const query = `
             SELECT 
@@ -142,7 +143,7 @@ class OrganizationMember {
             FROM OrganizationMembers
             WHERE OrganizationID = ? AND SemesterID = ?
         `;
-      const [[result]] = await db.query(query, [organizationID, semesterID]);
+      const [[result]] = await DBHelper.runQuery(query, [organizationID, semesterID], connection);
       return {
         activeMembers: parseInt(result.activeMembers),
         generalMembers: parseInt(result.generalMembers)
@@ -153,11 +154,11 @@ class OrganizationMember {
     }
   }
 
-  static async getMemberByID(memberID) {
+  static async getMemberByID(memberID, connection = null) {
     try {
-      const [[member]] = await db.query(
+      const [[member]] = await DBHelper.runQuery(
         'SELECT * FROM OrganizationMembers WHERE MemberID = ?',
-        [memberID]
+        [memberID], connection
       );
       return member || null;
     } catch (err) {
@@ -166,13 +167,13 @@ class OrganizationMember {
     }
   }
 
-  static async getComsMemberByID(memberID, orgID) {
+  static async getComsMemberByID(memberID, orgID, connection = null) {
     try {
-      const [[member]] = await db.query(
+      const [[member]] = await DBHelper.runQuery(
         `SELECT * FROM OrganizationMembers 
          WHERE MemberID = ? AND OrganizationID = ? 
          ORDER BY SemesterID DESC LIMIT 1`,
-        [memberID, orgID]
+        [memberID, orgID], connection
       );
       return member || null;
     } catch (err) {
@@ -181,13 +182,13 @@ class OrganizationMember {
     }
   }
 
-  static async getWicMemberByID(memberID, orgID) {
+  static async getWicMemberByID(memberID, orgID, connection = null) {
     try {
-      const [[member]] = await db.query(
+      const [[member]] = await DBHelper.runQuery(
         `SELECT * FROM OrganizationMembers 
          WHERE MemberID = ? AND OrganizationID = ? 
          ORDER BY SemesterID DESC LIMIT 1`,
-        [memberID, orgID]
+        [memberID, orgID], connection
       );
       return member || null;
     } catch (err) {
@@ -196,15 +197,15 @@ class OrganizationMember {
     }
   }
 
-  static async getAllMembersByOrgAndSemester(organizationID, semesterID) {
+  static async getAllMembersByOrgAndSemester(organizationID, semesterID, connection = null) {
     try {
-      const [members] = await db.query(
+      const [members] = await DBHelper.runQuery(
         `SELECT DISTINCT Members.MemberID, Members.GraduationSemester, OrganizationMembers.Status, OrganizationMembers.RoleID 
          FROM OrganizationMembers 
          JOIN Members ON OrganizationMembers.MemberID = Members.MemberID
          WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?
          ORDER BY Members.MemberID`,
-        [organizationID, semesterID]
+        [organizationID, semesterID], connection
       );
       return members;
     } catch (err) {

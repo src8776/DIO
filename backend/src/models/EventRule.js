@@ -1,7 +1,8 @@
 const db = require("../config/db");
+const DBHelper = require('../utils/DBHelper');
 
 class EventRule {
-    static async getEventRulesByOrgAndSemester(organizationID, semesterID) {
+    static async getEventRulesByOrgAndSemester(organizationID, semesterID, connection = null) {
         try {
             const query = `
                 SELECT 
@@ -27,7 +28,7 @@ class EventRule {
                 AND et.SemesterID = ? 
                 AND (er.SemesterID = ? OR er.SemesterID IS NULL);
             `;
-            const [rows] = await db.query(query, [semesterID, semesterID, organizationID, semesterID, semesterID]);
+            const [rows] = await DBHelper.runQuery(query, [semesterID, semesterID, organizationID, semesterID, semesterID], connection);
 
             // Transform the flat array into a nested structure
             const eventTypesMap = {};

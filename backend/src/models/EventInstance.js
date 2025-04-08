@@ -1,9 +1,10 @@
 const db = require('../config/db');
 const Semester = require('./Semester');
+const DBHelper = require('../utils/DBHelper');
 
 class EventInstance {
     // Get EventID for that CSV file based on Selected EventType and Date
-    static async getEventID(eventType, checkInDate, organizationID, customEventTitle = '') {
+    static async getEventID(eventType, checkInDate, organizationID, customEventTitle = '', connection = null) {
         try {
             const eventDate = checkInDate; // Extract only the date
             console.log(`[@EventInstance] Looking up EventID: EventType = ${eventType}, EventDate = ${eventDate}, OrgID = ${organizationID}`);
@@ -17,9 +18,9 @@ class EventInstance {
             console.log(`[@EventInstance] Looking up EventID for: ${eventType} on ${checkInDate}, OrgID: ${organizationID}, TermCode: ${termCode}`);
 
             // Get SemesterID from TermCode
-            const [semesterRow] = await db.query(
+            const [semesterRow] = await DBHelper.runQuery(
                 `SELECT SemesterID FROM Semesters WHERE TermCode = ? LIMIT 1`,
-                [termCode]
+                [termCode], connection
             );
 
             if (semesterRow.length === 0) {
@@ -34,7 +35,7 @@ class EventInstance {
                 `${eventType} on ${new Date(checkInDate.split(' ')[0] + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
 
             // First, check if the event already exists
-            const [existingEvents] = await db.query(
+            const [existingEvents] = await DBHelper.runQuery(
                 `SELECT e.EventID 
                  FROM EventInstances e 
                  JOIN EventTypes et 
@@ -45,7 +46,7 @@ class EventInstance {
                  AND e.TermCode = ?
                  AND e.EventTitle = ?
                  LIMIT 1`,
-                [eventDate, eventType, organizationID, termCode, finalEventTitle]
+                [eventDate, eventType, organizationID, termCode, finalEventTitle], connection
             );
 
             if (existingEvents.length > 0) {
@@ -56,10 +57,10 @@ class EventInstance {
             console.warn(`[@EventInstance] No EventID found for ${eventType} on ${eventDate}, inserting new event...`);
 
             // Retrieve EventTypeID first - now filtering by SemesterID
-            const [eventTypeRows] = await db.query(
+            const [eventTypeRows] = await DBHelper.runQuery(
                 `SELECT EventTypeID FROM EventTypes 
                  WHERE EventType = ? AND OrganizationID = ? AND SemesterID = ? LIMIT 1`,
-                [eventType, organizationID, semesterID]
+                [eventType, organizationID, semesterID], connection
             );
 
             if (eventTypeRows.length === 0) {
@@ -70,9 +71,9 @@ class EventInstance {
             const eventTypeID = eventTypeRows[0].EventTypeID;
 
             // Insert new event instance and return the new EventID
-            const [insertResult] = await db.query(
+            const [insertResult] = await DBHelper.runQuery(
                 `INSERT INTO EventInstances (EventDate, TermCode, EventTypeID, OrganizationID, EventTitle) VALUES (?, ?, ?, ?, ?)`,
-                [eventDate, termCode, eventTypeID, organizationID, finalEventTitle]
+                [eventDate, termCode, eventTypeID, organizationID, finalEventTitle], connection
             );
 
             console.log(`[@EventInstance] New EventID created: ${insertResult.insertId}`);
@@ -84,14 +85,14 @@ class EventInstance {
         }
     }
 
-    static async getNumberOfEventInstances(organizationID, termCode) {
+    static async getNumberOfEventInstances(organizationID, termCode, connection = null) {
         try {
-            const [result] = await db.query(
+            const [result] = await DBHelper.runQuery(
                 `SELECT COUNT(*) as EventCount
                  FROM EventInstances
                  WHERE OrganizationID = ?
                  AND TermCode = ?`,
-                [organizationID, termCode]
+                [organizationID, termCode], connection
             );
 
             return result[0].EventCount;
@@ -101,34 +102,34 @@ class EventInstance {
         }
     }
 
-    static async updateEventOccurrences(organizationID, termCode, semesterID) {
+    static async updateEventOccurrences(organizationID, termCode, semesterID, connection = null) {
         try {
             // Reset OccurrenceTotal to 0 for all event types for this organization and semester
-            await db.query(
+            await DBHelper.runQuery(
                 `UPDATE EventTypes
                  SET OccurrenceTotal = 0
                  WHERE OrganizationID = ? AND SemesterID = ?`,
-                [organizationID, semesterID]
+                [organizationID, semesterID], connection
             );
 
             // Tally the number of EventInstances per EventTypeID for this organization and term
-            const [counts] = await db.query(
+            const [counts] = await DBHelper.runQuery(
                 `SELECT EventTypeID, COUNT(*) AS total
                  FROM EventInstances
                  WHERE OrganizationID = ? AND TermCode = ?
                  GROUP BY EventTypeID`,
-                [organizationID, termCode]
+                [organizationID, termCode], connection
             );
 
             // Update the OccurrenceTotal in the EventTypes table for each EventTypeID in this semester
             for (const row of counts) {
-                await db.query(
+                await DBHelper.runQuery(
                     `UPDATE EventTypes
                      SET OccurrenceTotal = ?
                      WHERE EventTypeID = ? 
                        AND OrganizationID = ? 
                        AND SemesterID = ?`,
-                    [row.total, row.EventTypeID, organizationID, semesterID]
+                    [row.total, row.EventTypeID, organizationID, semesterID], connection
                 );
             }
             console.log(`Updated occurrence totals for EventTypes in Organization ${organizationID} for SemesterID ${semesterID}`);

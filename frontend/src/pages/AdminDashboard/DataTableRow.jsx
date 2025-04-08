@@ -20,8 +20,8 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
                 return `${theme.palette.exemptStatus.default}`;
             case 'General':
                 return `${theme.palette.generalStatus.default}`;
-            case 'Inactive':
-                return '#5C6773'; // slightly darker gray than General
+            case 'Alumni':
+                return 'rgb(133, 113, 1)';
             default:
                 return '#B0B0B0';
         }

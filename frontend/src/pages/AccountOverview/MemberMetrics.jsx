@@ -10,19 +10,6 @@ export default function MemberMetrics({ memberStatus, statusObject, requirementT
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
     const theme = useTheme();
 
-    const displayStatus = (() => {
-        switch (statusObject.status?.toLowerCase()) {
-            case 'active':
-                return 'Active';
-            case 'inactive':
-                return 'Inactive';
-            case 'exempt':
-                return 'Exempt';
-            default:
-                return 'General';
-        }
-    })();
-
     const statusColor = (() => {
         switch (memberStatus) {
             case 'Active':
@@ -33,15 +20,10 @@ export default function MemberMetrics({ memberStatus, statusObject, requirementT
                 return `${theme.palette.exemptStatus.default}`;
             case 'General':
                 return `${theme.palette.generalStatus.default}`;
-            case 'Inactive':
-                return '#5C6773'; // slightly darker gray than General
             default:
-                return '#B0B0B0';
+                return `${theme.palette.generalStatus.default}`;
         }
     })();
-
-    console.log("member status", memberStatus);
-    console.log("active count", activeCount);
 
     return (
         <Paper elevation={2} sx={{ p: 2, mb: 2 }}>

@@ -46,35 +46,47 @@ export default function MemberDetailsPage({
   const effectiveStatus = memberInfo && memberInfo[0]?.status ? memberInfo[0].status : memberStatus;
   const theme = useTheme();
 
+  console.log('effective status:', effectiveStatus);
   const StatusChip = ({ memberStatus, ...props }) => {
     let displayedStatus = memberStatus;
     let backgroundColor, textColor;
-  
-    if (memberStatus === 'Active') {
-      displayedStatus = 'Active';
-      backgroundColor = '#e6ffe6';
-      textColor = '#2e7d32';
-    } else if (memberStatus === 'Exempt') {
-      displayedStatus = 'Exempt';
-      backgroundColor = '#e1bee7';
-      textColor = '#6a1b9a';      
-    } else if (memberStatus === 'CarryoverActive') {
-      displayedStatus = 'Active*';
-      backgroundColor = '#e6ffe6';  
-      textColor = '#2e7d32';        
-    } else if (memberStatus === 'N/A') {
-      displayedStatus = 'N/A';
-      backgroundColor = '#ffe6e6';
-      textColor = '#c62828';
+
+    switch (memberStatus) {
+      case 'Active':
+        displayedStatus = 'Active';
+        backgroundColor = ' #e6ffe6';
+        textColor = theme.palette.activeStatus.default;
+        break;
+      case 'CarryoverActive':
+        displayedStatus = 'Active*';
+        backgroundColor = ' #e6ffe6';
+        textColor = theme.palette.activeStatus.default;
+        break;
+      case 'Exempt':
+        displayedStatus = 'Exempt';
+        backgroundColor = '#e1bee7';
+        textColor = theme.palette.exemptStatus.default;
+        break;
+      case 'N/A':
+        displayedStatus = 'N/A';
+        backgroundColor = '#ffe6e6';
+        textColor = theme.palette.generalStatus.default;
+        break;
+      case 'Alumni':
+        displayedStatus = 'Alumni';
+        backgroundColor = '#eecc0e';
+        textColor = '#000000';
+        break;
+      default:
+        displayedStatus = 'General';
+        backgroundColor = '#fffff';
+        textColor = theme.palette.generalStatus.default;
+        break;
     }
-    else {
-      displayedStatus = 'General';
-      backgroundColor = '#ffe6e6';
-      textColor = '#c62828';
-    }
-  
+
     return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
   };
+  console.log('member status:', memberStatus);
 
   // Fetch semesters
   React.useEffect(() => {

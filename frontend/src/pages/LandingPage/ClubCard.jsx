@@ -78,17 +78,23 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                 alignItems: { xs: 'center', sm: 'stretch' },
                 borderBottom: '1px solid #ccc',
             }}>
-                <CardMedia
-                    component="img"
-                    sx={{
-                        width: { xs: 80, sm: 118 },
-                        height: { xs: 80, sm: 118 },
-                        alignSelf: 'center',
-                        m: { xs: 1, sm: 2 },
-                    }}
-                    image={clubInfo.image}
-                    title={clubInfo.title}
-                />
+                <Box sx={{
+                    width: { xs: 80, sm: 118 },
+                    height: { xs: 80, sm: 118 },
+                    alignSelf: 'center',
+                    m: { xs: 1, sm: 2 },
+                    backgroundColor: 'white',
+                }}>
+                    <CardMedia
+                        component="img"
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                        }}
+                        image={clubInfo.image}
+                        title={clubInfo.title}
+                    />
+                </Box>
                 <CardContent sx={{
                     flexGrow: 1,
                     display: 'flex',

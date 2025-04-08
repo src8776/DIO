@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, InputLabel, MenuItem, FormControl, Paper, Select, Typography, Button, TextField } from '@mui/material';
+import {
+  Box, Container, InputLabel, MenuItem,
+  FormControl, Paper, Select,
+  Typography, Button, TextField, Chip
+} from '@mui/material';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 
@@ -190,9 +194,17 @@ export default function AccountSetup() {
       </Typography>
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="h6">Name: {fullName}</Typography>
-            <Typography variant="h6">Email: {email}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+            <Chip
+              label={fullName}
+              variant="filled"
+              sx={{ fontSize: '1.25rem', height: 'auto', padding: .5 }}
+            />
+            <Chip
+              label={email}
+              variant="filled"
+              sx={{ fontSize: '1.25rem', height: 'auto', padding: .5 }}
+            />
           </Box>
 
           {/* Student Year and Major */}

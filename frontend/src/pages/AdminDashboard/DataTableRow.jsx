@@ -15,9 +15,9 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
             case 'Active':
                 return  `${theme.palette.activeStatus.default}`;
             case 'CarryoverActive':
-                return '#FBBF24';
+                return `${theme.palette.activeStatus.default}`;
             case 'Exempt':
-                return '#be9bc4';
+                return `${theme.palette.exemptStatus.default}`;
             case 'General':
                 return `${theme.palette.generalStatus.default}`;
             case 'Inactive':

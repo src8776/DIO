@@ -21,13 +21,13 @@ const theme = createTheme ({
           default: '#4c4c4c',
         },
         activeStatus: {
-          default: '#256528'
+          default: '#009605'
         },
         generalStatus: {
-          default: '#941a00'
+          default: '#575757'
         },
-        generalMeetingBar: {
-          default: '#4394E5'
+        exemptStatus: {
+          default: ' #980aae'
         }
       },
       components: {

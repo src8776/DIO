@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  Container, Typography, Paper, Box,
+  useTheme, Container, Typography, Paper, Box,
   Chip, Button, Dialog, DialogActions,
   DialogContent, DialogContentText,
   DialogTitle, IconButton
@@ -12,35 +12,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import AttendanceHistoryAdmin from './AttendanceHistoryAdmin';
 import ExemptStatusToggle from './ExemptStatusToggle';
 
-const StatusChip = ({ memberStatus, ...props }) => {
-  let displayedStatus = memberStatus;
-  let backgroundColor, textColor;
 
-  if (memberStatus === 'Active') {
-    displayedStatus = 'Active';
-    backgroundColor = '#e6ffe6';
-    textColor = '#2e7d32';
-  } else if (memberStatus === 'Exempt') {
-    displayedStatus = 'Exempt';
-    backgroundColor = '#e1bee7';  // light purple background for Exempt
-    textColor = '#6a1b9a';         // purple text for Exempt
-  } else if (memberStatus === 'CarryoverActive') {
-    displayedStatus = 'Active*';
-    backgroundColor = '#FFEB3B';  // yellow background
-    textColor = '#000000';        // black text for contrast
-  } else if (memberStatus === 'N/A') {
-    displayedStatus = 'N/A';
-    backgroundColor = '#ffe6e6';
-    textColor = '#c62828';
-  }
-  else {
-    displayedStatus = 'General';
-    backgroundColor = '#ffe6e6';
-    textColor = '#c62828';
-  }
-
-  return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
-};
 
 export default function MemberDetailsPage({
   memberID, orgID, memberStatus, selectedSemester, onMemberUpdate, onClose, onAttendanceUpdate
@@ -72,6 +44,37 @@ export default function MemberDetailsPage({
   const [exemptSemesters, setExemptSemesters] = React.useState([]);
   const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
   const effectiveStatus = memberInfo && memberInfo[0]?.status ? memberInfo[0].status : memberStatus;
+  const theme = useTheme();
+
+  const StatusChip = ({ memberStatus, ...props }) => {
+    let displayedStatus = memberStatus;
+    let backgroundColor, textColor;
+  
+    if (memberStatus === 'Active') {
+      displayedStatus = 'Active';
+      backgroundColor = '#e6ffe6';
+      textColor = '#2e7d32';
+    } else if (memberStatus === 'Exempt') {
+      displayedStatus = 'Exempt';
+      backgroundColor = '#e1bee7';
+      textColor = '#6a1b9a';      
+    } else if (memberStatus === 'CarryoverActive') {
+      displayedStatus = 'Active*';
+      backgroundColor = '#e6ffe6';  
+      textColor = '#2e7d32';        
+    } else if (memberStatus === 'N/A') {
+      displayedStatus = 'N/A';
+      backgroundColor = '#ffe6e6';
+      textColor = '#c62828';
+    }
+    else {
+      displayedStatus = 'General';
+      backgroundColor = '#ffe6e6';
+      textColor = '#c62828';
+    }
+  
+    return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
+  };
 
   // Fetch semesters
   React.useEffect(() => {
@@ -93,7 +96,6 @@ export default function MemberDetailsPage({
         .then(resp => resp.json())
         .then(data => {
           setExemptSemesters(data);
-          console.log('Exempt Semesters:', data); // For debugging purposes
           if (Array.isArray(data) && data.length > 0) {
             setExemptEnabled(true);
           } else {

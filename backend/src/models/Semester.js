@@ -1,7 +1,7 @@
-const db = require('../config/db');
+const DBHelper = require('../utils/DBHelper');
 
 class Semester {
-    static async getOrCreateTermCode(checkInDate) {
+    static async getOrCreateTermCode(checkInDate, connection = null) {
         const date = new Date(checkInDate);
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // JS months are 0-indexed
@@ -30,26 +30,20 @@ class Semester {
 
         try {
             // check if semester already exists
-            const [rows] = await db.query(`SELECT * FROM Semesters WHERE TermCode = ?`, [termCode]);
+            const [rows] = await DBHelper.runQuery(`SELECT * FROM Semesters WHERE TermCode = ?`, [termCode], connection);
 
             if (rows.length > 0) {
                 console.log(`[@Semester] Semester already exists for TermCode: ${rows[0].TermCode} for ${season} ${year}`);
                 return rows[0].TermCode;
-                // return {
-                //     TermCode: rows[0].TermCode,
-                //     TermName: rows[0].TermName,
-                //     AcademicYear: rows[0].AcademicYear,
-                //     SemesterID: rows[0].SemesterID
-                // };
             }
 
             // if not found, insert new semester
             const startDate = season === 'Fall' ? `${academicYearStart}-08-01` : `${academicYearEnd}-01-01`;
             const endDate = season === 'Fall' ? `${academicYearStart}-12-31` : `${academicYearEnd}-05-31`;
 
-            const [result] = await db.query(
+            const [result] = await DBHelper.runQuery(
                 `INSERT INTO Semesters (TermCode, TermName, StartDate, EndDate, AcademicYear) VALUES (?, ?, ?, ?, ?)`,
-                [termCode, `${season} ${year}`, startDate, endDate, academicYear]
+                [termCode, `${season} ${year}`, startDate, endDate, academicYear], connection
             );
 
             console.log(`[@Semester] Created new Semester: ${season} ${year} (ID: ${result.insertId})`);
@@ -60,9 +54,9 @@ class Semester {
         }
     }
 
-    static async getSemesterByTermCode(termCode) {
+    static async getSemesterByTermCode(termCode, connection = null) {
         try {
-            const [rows] = await db.query(`SELECT * FROM Semesters WHERE TermCode = ?`, [termCode]);
+            const [rows] = await DBHelper.runQuery(`SELECT * FROM Semesters WHERE TermCode = ?`, [termCode], connection);
             if (rows.length > 0) {
                 return rows[0];
             } else {
@@ -74,7 +68,39 @@ class Semester {
             return null;
         }
     }
+
+    static async getNextSemester(currentSemester, connection = null) {
+        try {
+            const [rows] = await DBHelper.runQuery(`SELECT SemesterID FROM Semesters WHERE SemesterID > ? ORDER BY SemesterID ASC LIMIT 1`, [currentSemester], connection);
+            if (rows.length > 0) {
+                return rows[0].SemesterID;
+            } else {
+                console.log(`[@Semester] No next Semester found for TermCode: ${currentSemester}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`[@Semester] Error fetching next Semester for TermCode ${currentSemester}:`, error);
+            return null;
+        }
+    }
+
+    static async getSemesterByID(semesterID, connection = null) {
+        try {
+            const [rows] = await DBHelper.runQuery(
+                'SELECT * FROM Semesters WHERE SemesterID = ?',
+                [semesterID], connection
+            );
+            if (rows.length > 0) {
+                return rows[0];
+            } else {
+                console.log(`[@Semester] No Semester found for SemesterID: ${semesterID}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`[@Semester] Error fetching Semester for SemesterID ${semesterID}:`, error);
+            return null;
+        }
+    }
 }
 
 module.exports = Semester;
-

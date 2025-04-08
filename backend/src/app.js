@@ -145,5 +145,8 @@ app.use('/api/user', userRoutes);
 const analyticsRoutes = require('./routes/analytics');
 app.use('/api/analytics', analyticsRoutes);
 
+const finalizeSemesterRoutes = require('./routes/finalizeSemester');
+app.use('/api/finalizeSemester', finalizeSemesterRoutes);
+
 // TODO: Add more REST endpoints here
 module.exports = app;

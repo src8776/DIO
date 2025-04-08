@@ -36,6 +36,9 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
                 // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disabled to prevent spamming
                 console.log(`Would send email to ${memberEmail} (disabled)`);
             }
+            return statusObject.status;
+        } else {
+            return currentStatus;
         }
     } catch (error) {
         console.error(`Error updating status for member ${memberID}:`, error);
@@ -60,7 +63,7 @@ const useAccountStatus = (activeReqData, orgRulesData, attendanceData, currentSt
     const attendanceRecords = attendanceData.length > 0 ? attendanceData[0].attendanceRecord : [];
     console.log('Attendance Records Used to Determine Status:', attendanceRecords);
     // Once all data is available, call the algorithm.
-    if (orgRulesData && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
+    if (orgRulesData && attendanceRecords && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
         statusObject = membershipStatus.determineMembershipStatusModular(
             attendanceRecords,
             { eventTypes: orgRulesData },

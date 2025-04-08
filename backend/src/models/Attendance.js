@@ -1,7 +1,7 @@
-const db = require('../config/db');
+const DBHelper = require('../utils/DBHelper');
 
 class Attendance {
-  static async insertAttendance(attendance, eventID, organizationID) {
+  static async insertAttendance(attendance, eventID, organizationID, connection = null) {
     if (!eventID) {
       console.error("Cannot insert attendance: EventID is null");
       return;
@@ -10,10 +10,9 @@ class Attendance {
     try {
       const { email, checkInDate } = attendance;
 
-      // Get MemberID
-      const [rows] = await db.query(
+      const [rows] = await DBHelper.runQuery(
         `SELECT MemberID FROM Members WHERE Email = ?`,
-        [email]
+        [email], connection
       );
 
       if (rows.length === 0) {
@@ -23,13 +22,13 @@ class Attendance {
 
       const memberID = rows[0].MemberID;
 
-      await db.query(
+      await DBHelper.runQuery(
         `INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, AttendanceSource, OrganizationID)
            VALUES (?, ?, ?, 'Attended', 'CSV Import', ?)
            ON DUPLICATE KEY UPDATE AttendanceStatus = VALUES(AttendanceStatus);`,
-        [memberID, eventID, checkInDate, organizationID]
+        [memberID, eventID, checkInDate, organizationID], connection
       );
-      //for logs
+
       console.log(`[@Attendance] Attendance added: MemberID = ${memberID}, EventID = ${eventID}, checkInDate = ${checkInDate}`);
     } catch (err) {
       console.error('[@Attendance] Error inserting attendance:', err);
@@ -37,19 +36,19 @@ class Attendance {
     }
   }
 
-  static async insertVolunteerHours(memberID, eventID, organizationID, hours, eventDate) {
+  static async insertVolunteerHours(memberID, eventID, organizationID, hours, eventDate, connection = null) {
     if (!eventID) {
       console.error("Cannot insert attendance: EventID is null");
       return;
     }
 
     try {
-      await db.query(
+      await DBHelper.runQuery(
         `INSERT INTO Attendance (MemberID, EventID, CheckInTime, AttendanceStatus, AttendanceSource, OrganizationID, Hours)
            VALUES (?, ?, ?, 'Attended', 'Volunteer Form', ?, ?);`,
-        [memberID, eventID, eventDate, organizationID, hours]
+        [memberID, eventID, eventDate, organizationID, hours], connection
       );
-      //for logs
+
       console.log(`[@Attendance] Volunteer hours added: MemberID = ${memberID}, EventID = ${eventID}, eventDate = ${eventDate}, hours = ${hours}`);
     } catch (err) {
       console.error('[@Attendance] Error inserting attendance:', err);
@@ -57,7 +56,7 @@ class Attendance {
     }
   }
 
-  static async getAttendanceByMemberAndOrg(memberID, organizationID, termCode) {
+  static async getAttendanceByMemberAndOrg(memberID, organizationID, termCode, connection = null) {
     console.log('Getting attendance data for member:', memberID, 'in organization:', organizationID, 'for term:', termCode);
     try {
       const query = `
@@ -79,13 +78,13 @@ class Attendance {
               ORDER BY ei.EventDate
           ) AS t;
       `;
-      const [rows] = await db.query(query, [organizationID, memberID, termCode]);
+      const [rows] = await DBHelper.runQuery(query, [organizationID, memberID, termCode], connection);
       console.log('Attendance Data From Query:', rows);
       return rows;
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching Organization Info data:', error);
       throw error;
-  }
+    }
   }
 }
 

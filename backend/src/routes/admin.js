@@ -94,7 +94,8 @@ router.get('/datatableByTerm', async (req, res) => {
                 Semesters ON OrganizationMembers.SemesterID = Semesters.SemesterID
             WHERE
                 OrganizationMembers.OrganizationID = ?
-                AND Semesters.TermCode = ?;
+                AND Semesters.TermCode = ?
+                AND OrganizationMembers.Status NOT LIKE 'Alumni';
         `;
         const [rows] = await db.query(query, [organizationID, termCode, organizationID, termCode, organizationID, termCode]);
         res.json(rows);

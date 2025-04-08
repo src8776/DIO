@@ -3,13 +3,15 @@ const db = require('../config/db');
 const EventRule = require('../models/EventRule');
 const router = express.Router();
 
-const requireAuth = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Not authenticated' });
+if (process.env.NODE_ENV === "production") {
+    const requireAuth = async (req, res, next) => {
+        if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: 'Not authenticated' });
+        }
+        next();
     }
-    next();
+    router.use(requireAuth);
 }
-router.use(requireAuth);
 
 router.get('/eventRules', async (req, res) => {
     const { organizationID, semesterID } = req.query;

@@ -6,6 +6,16 @@ const EventInstance = require('../models/EventInstance');
 const UseAccountStatus = require('../services/useAccountStatus');
 const db = require('../config/db');
 
+if (process.env.NODE_ENV === "production") {
+    const requireAuth = async (req, res, next) => {
+        if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: 'Not authenticated' });
+        }
+        next();
+    }
+    router.use(requireAuth);
+}
+
 router.post('/', async (req, res) => {
     console.log("Finalizing semester with data:", req.body);
     const orgID = req.body.orgID;

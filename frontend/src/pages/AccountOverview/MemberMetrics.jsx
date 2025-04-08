@@ -6,7 +6,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 /**
  * Displays member metrics such as status, points/requirements, and events attended.
  */
-export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance, memberName, activeCount }) {
+export default function MemberMetrics({ memberStatus, statusObject, requirementType, activeRequirement, userAttendance, activeCount }) {
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
     const theme = useTheme();
 
@@ -24,7 +24,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
     })();
 
     const statusColor = (() => {
-        switch (displayStatus) {
+        switch (memberStatus) {
             case 'Active':
                 return `${theme.palette.activeStatus.default}`;
             case 'CarryoverActive':
@@ -40,6 +40,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
         }
     })();
 
+    console.log("member status", memberStatus);
     console.log("active count", activeCount);
 
     return (
@@ -55,7 +56,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
                 <Box>
                     <Typography variant="h6">Status</Typography>
                     <Typography variant="h5" sx={{ color: statusColor }}>
-                        {displayStatus}
+                        {memberStatus}
                     </Typography>
                     <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
                         {activeCount && activeCount.activeSemesters === '0'

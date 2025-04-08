@@ -138,7 +138,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                                         )}
                                     </ListItem>
                                 ))}
-                                <ListItem sx={{ justifyContent: 'flex-end', py: 0.5 }}>
+                                <ListItem sx={{ justifyContent: 'flex-end', py: 0.5, pb: 1 }}>
                                     <Typography
                                         variant="body2"
                                         color={eventType.progress.uncappedPoints > eventType.progress.points ? 'error.main' : 'success.main'}

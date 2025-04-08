@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Typography, Paper, Box, Divider } from "@mui/material";
+import { useTheme, Typography, Paper, Box, Divider } from "@mui/material";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
 
@@ -8,6 +8,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
  */
 export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance, memberName, activeCount }) {
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
+    const theme = useTheme();
 
     const displayStatus = (() => {
         switch (statusObject.status?.toLowerCase()) {
@@ -15,6 +16,8 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
                 return 'Active';
             case 'inactive':
                 return 'Inactive';
+            case 'exempt':
+                return 'Exempt';
             default:
                 return 'General';
         }
@@ -23,12 +26,17 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
     const statusColor = (() => {
         switch (displayStatus) {
             case 'Active':
-                return '#2DD4BF';
+                return `${theme.palette.activeStatus.default}`;
+            case 'CarryoverActive':
+                return `${theme.palette.activeStatus.default}`;
+            case 'Exempt':
+                return `${theme.palette.exemptStatus.default}`;
+            case 'General':
+                return `${theme.palette.generalStatus.default}`;
             case 'Inactive':
                 return '#5C6773'; // slightly darker gray than General
-            case 'General':
             default:
-                return '#7C8796';
+                return '#B0B0B0';
         }
     })();
 

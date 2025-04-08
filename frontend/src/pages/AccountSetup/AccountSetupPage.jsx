@@ -346,6 +346,7 @@ export default function AccountSetup() {
             </FormControl>
           </Paper>
 
+          {/* Phone Number */}
           <Paper sx={{ p: 2 }}>
             <FormControl fullWidth margin="normal">
               <TextField

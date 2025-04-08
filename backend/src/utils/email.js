@@ -1,17 +1,18 @@
 const nodemailer = require('nodemailer');
 const OrganizationSetting = require('../models/OrganizationSetting');
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
+    /*
     host: "smtp-server.rit.edu",
     port: 25, 
     secure: false, // No TLS/SSL
-    /*
+    */
     service: 'gmail',
     auth: {
-        user: 'dreamteamdiotest@gmail.com', // Replace with DIO gmail
-        pass: 'ksrv umhe cgvl dglv'    // Replace with club's App Password (16 digit code from gmail)
+        user: process.env.GMAIL_USER, // Replace with DIO gmail
+        pass: process.env.GMAIL_PASS   // Replace with club's App Password (16 digit code from gmail)
     }
-        */
 });
 
 async function sendActiveStatusEmail(organizationID, memberName, memberEmail) {

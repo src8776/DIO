@@ -348,7 +348,6 @@ export default function AccountSetup() {
 
           <Paper sx={{ p: 2 }}>
             <FormControl fullWidth margin="normal">
-              <InputLabel id="phoneNumber-select-label">Phone Number</InputLabel>
               <TextField
                 required
                 id="phoneNumber-input"

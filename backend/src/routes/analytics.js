@@ -22,7 +22,9 @@ router.get('/memberTallies', async (req, res) => {
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
                 SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
             FROM OrganizationMembers
-            WHERE OrganizationID = ? AND SemesterID = ?`,
+            WHERE OrganizationID = ? 
+              AND SemesterID = ? 
+              AND Status NOT LIKE 'Alumni'`,
             [organizationID, semesterID]
         );
         res.json(rows[0]);
@@ -199,7 +201,9 @@ router.get('/membersByMajor', async (req, res) => {
             JOIN Members mem ON om.MemberID = mem.MemberID
             LEFT JOIN Majors m ON mem.MajorID = m.MajorID
             LEFT JOIN Colleges c ON m.CollegeID = c.CollegeID
-            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            WHERE om.OrganizationID = ? 
+                AND om.SemesterID = ? 
+                AND om.Status NOT LIKE 'Alumni'
             GROUP BY m.Title, c.Name
             ORDER BY memberCount DESC`,
             [organizationID, semesterID]
@@ -577,7 +581,9 @@ router.get('/genderRaceTallies', async (req, res) => {
                 COUNT(DISTINCT m.MemberID) AS count
             FROM OrganizationMembers om
             JOIN Members m ON om.MemberID = m.MemberID
-            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            WHERE om.OrganizationID = ? 
+                AND om.SemesterID = ?
+                AND om.Status NOT LIKE 'Alumni'
             GROUP BY m.Gender`,
             [organizationID, semesterID]
         );
@@ -589,7 +595,9 @@ router.get('/genderRaceTallies', async (req, res) => {
                 COUNT(DISTINCT m.MemberID) AS count
             FROM OrganizationMembers om
             JOIN Members m ON om.MemberID = m.MemberID
-            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            WHERE om.OrganizationID = ? 
+                AND om.SemesterID = ?
+                AND om.Status NOT LIKE 'Alumni'
             GROUP BY m.Race`,
             [organizationID, semesterID]
         );

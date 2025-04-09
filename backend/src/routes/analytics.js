@@ -728,4 +728,73 @@ router.get('/membersByStatusCategory', async (req, res) => {
 });
 
 
+router.get('/membersByGraduationStatus', async (req, res) => {
+    const { organizationID, semesterID, status } = req.query;
+    console.log('Received request at /membersByGraduationStatus');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID || !semesterID || !status) {
+        return res.status(400).json({ error: 'Missing required parameters: organizationID, semesterID, or status' });
+    }
+
+    if (status !== 'Graduating' && status !== 'Not Graduating') {
+        return res.status(400).json({ error: "Invalid status. Allowed values are 'Graduating' or 'Not Graduating'" });
+    }
+
+    try {
+        // Get the TermCode for the given semesterID
+        const [semesterRows] = await db.query(
+            `SELECT TermCode FROM Semesters WHERE SemesterID = ?`,
+            [semesterID]
+        );
+
+        if (semesterRows.length === 0) {
+            return res.status(404).json({ error: 'Semester not found' });
+        }
+
+        const termCode = semesterRows[0].TermCode;
+        console.log(`Resolved SemesterID ${semesterID} to TermCode: ${termCode}`);
+
+        // Prepare the query based on status
+        let query;
+        let queryParams;
+
+        if (status === 'Graduating') {
+            query = `
+                SELECT m.*
+                FROM OrganizationMembers om
+                JOIN Members m ON om.MemberID = m.MemberID
+                WHERE om.OrganizationID = ?
+                  AND om.SemesterID = ?
+                  AND m.GraduationSemester = ?
+            `;
+            queryParams = [organizationID, semesterID, termCode];
+        } else {
+            // For 'Not Graduating', include members where GraduationSemester is different or null
+            query = `
+                SELECT m.*
+                FROM OrganizationMembers om
+                JOIN Members m ON om.MemberID = m.MemberID
+                WHERE om.OrganizationID = ?
+                  AND om.SemesterID = ?
+                  AND (m.GraduationSemester <> ? OR m.GraduationSemester IS NULL)
+            `;
+            queryParams = [organizationID, semesterID, termCode];
+        }
+
+        const [rows] = await db.query(query, queryParams);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'No members found for the given graduation status and parameters' });
+        }
+
+        console.log(`Returning ${rows.length} members`);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error in /membersByGraduationStatus:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 module.exports = router;

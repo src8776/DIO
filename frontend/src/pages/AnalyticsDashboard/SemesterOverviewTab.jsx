@@ -78,7 +78,7 @@ export default function SemesterOverviewTab({ organizationID }) {
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 <TotalMembersChart organizationID={organizationID} selectedSemester={selectedSemester} />
                                 <OverAllAttendanceChart organizationID={organizationID} selectedSemester={selectedSemester} />
-                                <GraduatingMembersChart organizationID={organizationID} semesterID={selectedSemester.SemesterID} />
+                                <GraduatingMembersChart organizationID={organizationID} semesterID={selectedSemester} />
                             </Box>
 
                             <Box sx={{ display: 'flex', flexGrow: 3, flexDirection: 'column', gap: 2 }}>

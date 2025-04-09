@@ -110,7 +110,7 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={40}
-                                    outerRadius={50}
+                                    outerRadius={60}
                                     fill="#8884d8"
                                     labelLine={false}
                                     minAngle={50}
@@ -126,6 +126,7 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                                         <Cell
                                             key={`cell-${index}`}
                                             fill={entry.name === 'Graduating' ? 'rgb(75, 153, 105)' : '#8884d8'}
+                                            style={{ cursor: 'pointer' }} 
                                         />
                                     ))}
                                 </Pie>

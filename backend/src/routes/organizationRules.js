@@ -396,4 +396,30 @@ router.post('/copyRules', async (req, res) => {
     }
 });
 
+router.get('/isFinalized', async (req, res) => {
+    const { organizationID, semesterID } = req.query;
+    
+    if (!organizationID || !semesterID) {
+        return res.status(400).json({ error: 'Missing organizationID or semesterID parameter' });
+    }
+    
+    try {
+        const query = `
+            SELECT isFinalized 
+            FROM OrganizationSettings 
+            WHERE OrganizationID = ? AND SemesterID = ?
+        `;
+        const [results] = await db.query(query, [organizationID, semesterID]);
+        
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Organization settings not found' });
+        }
+        
+        res.json({ isFinalized: results[0].isFinalized });
+    } catch (error) {
+        console.error('Error fetching isFinalized:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

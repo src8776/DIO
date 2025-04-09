@@ -467,17 +467,19 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                                     <TableRow key={index}>
                                         <TableCell>{rule.ruleID}</TableCell>
                                         <TableCell>{generateRuleDescription(rule, requirementType)}</TableCell>
-                                        <TableCell align='right'>
-                                            <IconButton onClick={() => {
-                                                setAddRuleOpen(false);
-                                                handleEditRuleOpen(rule);
-                                            }
-                                            }
-                                                sx={{ color: '#015aa2' }}
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
-                                        </TableCell>
+                                        {isEditable && (
+                                            <TableCell align='right'>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        setAddRuleOpen(false);
+                                                        handleEditRuleOpen(rule);
+                                                    }}
+                                                    sx={{ color: '#015aa2' }}
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))
                             ) : (

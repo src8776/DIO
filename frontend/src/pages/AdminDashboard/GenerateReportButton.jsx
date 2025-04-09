@@ -4,11 +4,6 @@ import { Box, Button, Modal } from "@mui/material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import GenerateReportPage from '../GenerateReport/GenerateReportPage';
 
-// TODO: MVP Product - report shows list of all active members for the semester and for the year. 
-// TODO: Plug handleGenerateReport function into backend
-// TODO: Display report preview to user
-// TODO: Implement PDF download of report feature
-
 export default function GenerateReport({orgID, selectedSemester}) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);

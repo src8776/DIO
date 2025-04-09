@@ -1,8 +1,10 @@
 import * as React from 'react';
 import {
   Box, Container, Paper,
-  Typography, Select, MenuItem
+  Typography, Select, MenuItem,
+  IconButton, Menu
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useParams } from 'react-router-dom';
 import FinalizeSemesterButton from './FinalizeSemesterButton';
 import GenerateReportButton from './GenerateReportButton';
@@ -19,6 +21,7 @@ function AdminDash() {
   const [activeSemester, setActiveSemester] = React.useState(null);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   if (!allowedTypes.includes(org)) {
     return (
@@ -135,6 +138,14 @@ function AdminDash() {
     return semesterEnd > now && (semesterEnd - now) <= msInMonth;
   };
 
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -169,13 +180,33 @@ function AdminDash() {
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <UploadFileModal onUploadSuccess={handleUploadSuccess} selectedSemester={selectedSemester} />
-            <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
-            {/* {isWithinLastMonth() && ( */}
-              <FinalizeSemesterButton orgID={orgID} selectedSemester={selectedSemester} />
-            {/* )} */}
           </Box>
-          <AddMemberModal selectedSemester={selectedSemester} orgID={orgID} onUploadSuccess={handleUploadSuccess} />
+          {/* collapse these buttons to the right  */}
+
+          <IconButton onClick={handleMenuClick}>
+            <MoreVertIcon />
+          </IconButton>
+
+
         </Box>
+
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem>
+            <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
+          </MenuItem>
+          <MenuItem>
+            <AddMemberModal selectedSemester={selectedSemester} orgID={orgID} onUploadSuccess={handleUploadSuccess} />
+          </MenuItem>
+          {/* {isWithinLastMonth() && ( */}
+          <MenuItem>
+            <FinalizeSemesterButton orgID={orgID} selectedSemester={selectedSemester} />
+          </MenuItem>
+          {/* )} */}
+        </Menu>
 
         {/* Data Table */}
         <Paper elevation={0}>

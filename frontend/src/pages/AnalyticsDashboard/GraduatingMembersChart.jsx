@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Paper, Typography, Box,
+    Paper, Typography, Box, ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Label, Cell } from 'recharts';
 import NestedDrawers from './NestedDrawers';
@@ -15,6 +15,8 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
     const [selectedMemberID, setSelectedMemberID] = useState(null);
     const [memberDrawerOpen, setMemberDrawerOpen] = useState(false);
     const [memberSearch, setMemberSearch] = useState("");
+    const [showAlumni, setShowAlumni] = useState(false);
+    const [alumniCount, setAlumniCount] = useState(0);
 
     // Fetch member tallies (total members)
     React.useEffect(() => {
@@ -42,6 +44,21 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
             .catch(error => console.error('Error fetching graduating members:', error));
     }, [organizationID, selectedSemester.SemesterID]);
 
+    // Fetch alumni members
+    useEffect(() => {
+        if (!organizationID) return;
+        fetch(`/api/analytics/alumniMembers?organizationID=${organizationID}`)
+            .then(response => response.json())
+            .then(data => {
+                setAlumniCount(data.length);
+                console.log('alumni data', data);
+                if (showAlumni) {
+                    setMembersList(data); // Update membersList when alumni toggle is active
+                }
+            })
+            .catch(error => console.error('Error fetching alumni members:', error));
+    }, [organizationID, showAlumni]);
+
     // Close drawers when semester changes to avoid outdated data
     useEffect(() => {
         setDrawerOpen(false);
@@ -51,13 +68,19 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
     const totalMembers = memberTallies?.totalMembers || 0;
     const nonGraduating = totalMembers - gradCount;
 
-    // Data for the donut chart: graduating vs non-graduating
-    const data = [
-        { name: 'Graduating', value: gradCount },
-        { name: 'Non-Graduating', value: nonGraduating }
-    ];
+    // Data for the donut chart: graduating vs non-graduating or alumni
+    const data = showAlumni
+        ? [{ name: 'Alumni', value: alumniCount }]
+        : [{ name: 'Graduating', value: gradCount }, { name: 'Non-Graduating', value: nonGraduating }];
+
 
     const fetchMembersList = (category) => {
+        if (showAlumni) {
+            // Alumni data is already fetched, no need for additional API calls
+            setMembersList(category === 'Alumni' ? membersList : []);
+            return;
+        }
+
         const status = category === 'Graduating' ? 'Graduating' : 'Not Graduating';
         fetch(`/api/analytics/membersByGraduationStatus?status=${status}&organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
             .then((response) => response.json())
@@ -88,9 +111,35 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
         }
     };
 
+    console.log('alumniCount', alumniCount);
+
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Graduating Members</Typography>
+            <ToggleButtonGroup
+                size='small'
+                value={showAlumni ? 'alumni' : 'graduating'}
+                exclusive
+                onChange={(e, value) => {
+                    if (value === 'alumni') {
+                        setShowAlumni(true);
+                        setSelectedCategory(null); // Reset selected category when toggling
+                        setMembersList([]); // Clear members list to avoid stale data
+                    } else if (value === 'graduating') {
+                        setShowAlumni(false);
+                        setSelectedCategory(null);
+                        setMembersList([]);
+                    }
+                }}
+                aria-label="Toggle Alumni or Graduating Members"
+            >
+                <ToggleButton value="graduating" aria-label="Graduating Members">
+                    Graduating
+                </ToggleButton>
+                <ToggleButton value="alumni" aria-label="Alumni Members">
+                    Alumni
+                </ToggleButton>
+            </ToggleButtonGroup>
             {totalMembers === 0 ? (
                 <Typography variant="body1" color="text.secondary">No data to display</Typography>
             ) : (
@@ -116,17 +165,17 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                                         setDrawerOpen(true);
                                     }}
                                 >
-                                    <Label value={`${gradCount} / ${totalMembers}`} position="center" />
                                     {/* <Label value={`${totalMembers ? ((gradCount / totalMembers) * 100).toFixed(1) : 0}%`} position="center" /> */}
+                                    <Label value={showAlumni ? `${alumniCount}\nAlumni` : `${gradCount} / ${totalMembers}`} position="center" />
                                     {data.map((entry, index) => (
                                         <Cell
                                             key={`cell-${index}`}
-                                            fill={entry.name === 'Graduating' ? 'rgb(75, 153, 105)' : '#8884d8'}
+                                            fill={entry.name === 'Graduating' || entry.name === 'Alumni' ? 'rgb(75, 153, 105)' : '#8884d8'}
                                             style={{ cursor: 'pointer' }}
                                         />
                                     ))}
                                 </Pie>
-                                <Tooltip />
+                                {!showAlumni && <Tooltip />}
                             </PieChart>
                         </ResponsiveContainer>
                     </Box>

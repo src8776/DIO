@@ -797,4 +797,35 @@ router.get('/membersByGraduationStatus', async (req, res) => {
 });
 
 
+router.get('/alumniMembers', async (req, res) => {
+    const { organizationID } = req.query;
+    console.log('Received request at /alumniMembers');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID) {
+        return res.status(400).json({ error: 'Missing required parameter: organizationID' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT m.*
+             FROM OrganizationMembers om
+             JOIN Members m ON om.MemberID = m.MemberID
+             WHERE om.OrganizationID = ?
+               AND om.Status = 'Alumni'`,
+            [organizationID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No alumni members found for the given organizationID' });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 module.exports = router;

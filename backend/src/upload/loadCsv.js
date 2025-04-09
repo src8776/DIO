@@ -69,9 +69,9 @@ const insertFileInfo = async (filePath, connection) => {
  * @param {string} filePath - Path to the file.
  * @returns {Promise<boolean>} True if the file is a duplicate.
  */
-const isFileDuplicate = async (filePath) => {
+const isFileDuplicate = async (filePath, connection) => {
   const fileHash = await generateFileHash(filePath);
-  const [existingFile] = await db.query(
+  const [existingFile] = await connection.query(
     `SELECT FileID FROM UploadedFilesHistory WHERE FileHash = ?`,
     [fileHash]
   );
@@ -180,14 +180,14 @@ const handleMissingDates = async (records, assignDate, skipMissing) => {
  * @param {string} organizationID - Organization ID.
  * @returns {Promise<void>}
  */
-const insertAttendanceRecord = async (attendance, eventID, semester, organizationID) => {
+const insertAttendanceRecord = async (attendance, eventID, semester, organizationID, connection) => {
   const memberID = await Member.insertMember({
     username: attendance.email.split('@')[0],
     email: attendance.email,
     firstName: attendance.firstName,
     lastName: attendance.lastName,
     fullName: attendance.fullName
-  });
+  }, connection);
 
   if (!memberID) throw new Error(`Missing MemberID for email "${attendance.email}"`);
 
@@ -195,11 +195,12 @@ const insertAttendanceRecord = async (attendance, eventID, semester, organizatio
     organizationID,
     memberID,
     semester.SemesterID,
-    'Member'
+    'Member',
+    connection
   );
 
-  await Attendance.insertAttendance(attendance, eventID, organizationID);
-  await useAccountStatus.updateMemberStatus(memberID, organizationID, semester);
+  await Attendance.insertAttendance(attendance, eventID, organizationID, connection);
+  await useAccountStatus.updateMemberStatus(memberID, organizationID, semester, connection);
 };
 
 
@@ -228,7 +229,7 @@ const processCsv = async (
     await connection.beginTransaction();
 
     // Check for duplicate file
-    if (await isFileDuplicate(filePath)) {
+    if (await isFileDuplicate(filePath, connection)) {
       throw new Error('File already uploaded before!');
     }
 
@@ -271,27 +272,27 @@ const processCsv = async (
     // Process records by date
     const dates = [...new Set(uniqueRecords.map(record => record.checkInDate.split(' ')[0]))];
     if (dates.length === 1) {
-      const termCode = await Semester.getOrCreateTermCode(dates[0]);
-      const semester = await Semester.getSemesterByTermCode(termCode);
-      const eventID = await EventInstance.getEventID(eventType, dates[0], organizationID, customEventTitle);
+      const termCode = await Semester.getOrCreateTermCode(dates[0], connection);
+      const semester = await Semester.getSemesterByTermCode(termCode, connection);
+      const eventID = await EventInstance.getEventID(eventType, dates[0], organizationID, customEventTitle, connection);
       if (!eventID) throw new Error(`No EventID found for ${eventType}`);
 
       for (const record of uniqueRecords) {
-        await insertAttendanceRecord(record, eventID, semester, organizationID);
+        await insertAttendanceRecord(record, eventID, semester, organizationID, connection);
       }
     } else {
       const dateMap = new Map();
       await Promise.all(dates.map(async (date) => {
-        const termCode = await Semester.getOrCreateTermCode(date);
-        const semester = await Semester.getSemesterByTermCode(termCode);
-        const eventID = await EventInstance.getEventID(eventType, date, organizationID, customEventTitle);
+        const termCode = await Semester.getOrCreateTermCode(date, connection);
+        const semester = await Semester.getSemesterByTermCode(termCode, connection);
+        const eventID = await EventInstance.getEventID(eventType, date, organizationID, customEventTitle, connection);
         dateMap.set(date, { semester, eventID });
       }));
 
       for (const record of uniqueRecords) {
         const { semester, eventID } = dateMap.get(record.checkInDate.split(' ')[0]);
         if (!eventID) throw new Error(`No EventID for date ${record.checkInDate}`);
-        await insertAttendanceRecord(record, eventID, semester, organizationID);
+        await insertAttendanceRecord(record, eventID, semester, organizationID, connection);
       }
     }
 

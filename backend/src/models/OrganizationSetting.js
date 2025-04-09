@@ -36,6 +36,23 @@ class OrganizationSetting {
       throw error;
     }
   }
+
+  static async finalizeSemester(organizationID, semesterID, connection = null) {
+    try {
+      const query = `
+            UPDATE 
+                OrganizationSettings
+            SET 
+                isFinalized = true
+            WHERE 
+                OrganizationID = ? AND SemesterID = ?
+        `;
+      await DBHelper.runQuery(query, [organizationID, semesterID], connection);
+    } catch (error) {
+      console.error('Error updating isFinalized field', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = OrganizationSetting;

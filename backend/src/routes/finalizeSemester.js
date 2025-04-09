@@ -5,6 +5,7 @@ const Semester = require('../models/Semester');
 const EventInstance = require('../models/EventInstance');
 const UseAccountStatus = require('../services/useAccountStatus');
 const db = require('../config/db');
+const OrganizationSetting = require('../models/OrganizationSetting');
 
 if (process.env.NODE_ENV === "production") {
     const requireAuth = async (req, res, next) => {
@@ -73,9 +74,13 @@ const finalizeSemester = async (currentSemester, organizationID) => {
                 console.log(`Member ${member.MemberID} is ${newStatus}, skipping...`);
             }
         }
+        OrganizationSetting.finalizeSemester(organizationID, semesterID, connection);
+        console.log(`Finalizing semester ${semesterID} for organization ${organizationID}...`);
         const endTime = Date.now();
+        await connection.commit();
         console.log(`Finalize Semester completed in ${endTime - startTime} ms`);
     } catch (error) {
+        await connection.rollback();
         console.error('Error finalizing semester:', error);
         throw error;
     }

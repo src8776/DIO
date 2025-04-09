@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, CircularProgress } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 export default function FinalizeSemesterButton({ orgID, selectedSemester, buttonProps = {} }) {
     const [open, setOpen] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
 
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('success');
@@ -25,6 +26,7 @@ export default function FinalizeSemesterButton({ orgID, selectedSemester, button
     };
 
     const handleConfirm = () => {
+        setLoading(true);
         const finalizeCommand = {
             orgID: orgID,
             selectedSemester: selectedSemester,
@@ -49,6 +51,7 @@ export default function FinalizeSemesterButton({ orgID, selectedSemester, button
                 showAlert('Unrecoverable error occurred. Please contact administrator!', 'error');
             })
             .finally(() => {
+                setLoading(false);
                 setOpen(false);
             });
     };
@@ -86,8 +89,14 @@ export default function FinalizeSemesterButton({ orgID, selectedSemester, button
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} variant='outlined'>Cancel</Button>
-                    <Button onClick={handleConfirm} variant='contained' sx={{ backgroundColor: '#4CAF50', '&:hover': { backgroundColor: '#388E3C' } }}>
-                        Finalize
+                    <Button
+                        onClick={handleConfirm}
+                        variant='contained'
+                        sx={{ backgroundColor: '#4CAF50', '&:hover': { backgroundColor: '#388E3C' } }}
+                        disabled={loading}
+                        startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                    >
+                        {loading ? 'Processing...' : 'Finalize'}
                     </Button>
                 </DialogActions>
             </Dialog>

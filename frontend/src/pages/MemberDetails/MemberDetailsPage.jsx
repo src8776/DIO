@@ -46,7 +46,6 @@ export default function MemberDetailsPage({
   const effectiveStatus = memberInfo && memberInfo[0]?.status ? memberInfo[0].status : memberStatus;
   const theme = useTheme();
 
-  console.log('effective status:', effectiveStatus);
   const StatusChip = ({ memberStatus, ...props }) => {
     let displayedStatus = memberStatus;
     let backgroundColor, textColor;
@@ -86,7 +85,6 @@ export default function MemberDetailsPage({
 
     return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
   };
-  console.log('member status:', memberStatus);
 
   // Fetch semesters
   React.useEffect(() => {

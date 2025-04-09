@@ -687,4 +687,45 @@ router.get('/attendeesOfEvent', async (req, res) => {
 });
 
 
+router.get('/membersByStatusCategory', async (req, res) => {
+    const { organizationID, semesterID, category } = req.query;
+    console.log('Received request at /membersByStatusCategory');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID || !semesterID || !category) {
+        return res.status(400).json({ error: 'Missing required parameters: organizationID, semesterID, or category' });
+    }
+
+    let statusQuery;
+    if (category === 'Active') {
+        statusQuery = "om.Status IN ('Active', 'CarryoverActive')";
+    } else if (category === 'General') {
+        statusQuery = "om.Status = 'General'";
+    } else {
+        return res.status(400).json({ error: "Invalid category. Allowed values are 'Active' or 'General'" });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT m.*
+             FROM OrganizationMembers om
+             JOIN Members m ON om.MemberID = m.MemberID
+             WHERE om.OrganizationID = ?
+               AND om.SemesterID = ?
+               AND ${statusQuery}`,
+            [organizationID, semesterID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No members found for the given category and parameters' });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 module.exports = router;

@@ -177,8 +177,8 @@ function AdminDash() {
         </Box>
 
         {/* User Action Buttons */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
             <UploadFileModal onUploadSuccess={handleUploadSuccess} selectedSemester={selectedSemester} />
           </Box>
           {/* collapse these buttons to the right  */}
@@ -196,14 +196,51 @@ function AdminDash() {
           onClose={handleMenuClose}
         >
           <MenuItem>
-            <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
+            <GenerateReportButton
+              orgID={orgID}
+              selectedSemester={selectedSemester}
+              buttonProps={{
+                variant: 'text', // Removes background, making it look like text
+                fullWidth: true, // Ensures the button spans the MenuItem width
+                sx: {
+                  justifyContent: 'flex-start', // Aligns text and icon to the left
+                  textTransform: 'none', // Prevents uppercase text
+                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
+                },
+              }}
+            />
           </MenuItem>
           <MenuItem>
-            <AddMemberModal selectedSemester={selectedSemester} orgID={orgID} onUploadSuccess={handleUploadSuccess} />
+            <AddMemberModal
+              selectedSemester={selectedSemester}
+              orgID={orgID}
+              onUploadSuccess={handleUploadSuccess}
+              buttonProps={{
+                variant: 'text', // Removes background, making it look like text
+                fullWidth: true, // Ensures the button spans the MenuItem width
+                sx: {
+                  justifyContent: 'flex-start', // Aligns text and icon to the left
+                  textTransform: 'none', // Prevents uppercase text
+                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
+                },
+              }}
+            />
           </MenuItem>
           {/* {isWithinLastMonth() && ( */}
           <MenuItem>
-            <FinalizeSemesterButton orgID={orgID} selectedSemester={selectedSemester} />
+            <FinalizeSemesterButton
+              orgID={orgID}
+              selectedSemester={selectedSemester}
+              buttonProps={{
+                variant: 'text', // Removes background, making it look like text
+                fullWidth: true, // Ensures the button spans the MenuItem width
+                sx: {
+                  justifyContent: 'flex-start', // Aligns text and icon to the left
+                  textTransform: 'none', // Prevents uppercase text
+                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
+                },
+              }}
+            />
           </MenuItem>
           {/* )} */}
         </Menu>

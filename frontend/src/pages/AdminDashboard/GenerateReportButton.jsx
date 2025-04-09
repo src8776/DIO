@@ -4,7 +4,7 @@ import { Box, Button, Modal } from "@mui/material";
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import GenerateReportPage from '../GenerateReport/GenerateReportPage';
 
-export default function GenerateReport({orgID, selectedSemester}) {
+export default function GenerateReport({ orgID, selectedSemester, buttonProps = {} }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -38,26 +38,26 @@ export default function GenerateReport({orgID, selectedSemester}) {
     fetch(`/api/admin/report`, {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/pdf'
+        'Content-Type': 'application/json',
+        'Accept': 'application/pdf'
       },
       body: JSON.stringify(reportCommand),
     })
-    .then(response => response.blob())
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "report-" + dayjs().format("YYYY-MM-DD HH.mm.ss") + ".pdf"; 
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url); 
-    })
-    .catch(error => {
-      console.log(error);
-      showAlert('Unrecoverable error occured when generating report. Please contact administrator!', 'error');
-    });
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "report-" + dayjs().format("YYYY-MM-DD HH.mm.ss") + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.log(error);
+        showAlert('Unrecoverable error occured when generating report. Please contact administrator!', 'error');
+      });
 
     handleClose();
   };
@@ -66,9 +66,8 @@ export default function GenerateReport({orgID, selectedSemester}) {
     <>
       <Button
         onClick={handleOpen}
-        variant="contained"
         startIcon={<EditNoteIcon />}
-        sx={{maxWidth: '280px'}}
+        {...buttonProps}
       >
         Quick Report
 

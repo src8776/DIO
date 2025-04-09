@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AddMemberPage from '../pages/AddMember/AddMemberPage';
 
 
-export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess }) {
+export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess, buttonProps = {} }) {
   const [open, setOpen] = React.useState(false);
   const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
 
@@ -72,7 +72,11 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
 
   return (
     <>
-      <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />} sx={{ maxWidth: '280px' }}>
+      <Button
+        onClick={handleOpen}
+        startIcon={<AddIcon />}
+        {...buttonProps}
+      >
         Add Member
       </Button>
       <Modal open={open} onClose={handleClose}>
@@ -84,7 +88,7 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
           />
         </Box>
       </Modal>
-      <Snackbar open={snackbar.open} autoHideDuration={snackbar.severity === 'success' ? 6000 : undefined}  onClose={handleSnackbarClose}>
+      <Snackbar open={snackbar.open} autoHideDuration={snackbar.severity === 'success' ? 6000 : undefined} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>

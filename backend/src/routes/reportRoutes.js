@@ -5,6 +5,7 @@ const OrganizationMember = require('../models/OrganizationMember');
 const OrganizationSetting = require('../models/OrganizationSetting');
 const EventInstance = require('../models/EventInstance');
 const Member = require('../models/Member');
+const termCode = require('../utils/termCode');
 
 if (process.env.NODE_ENV === "production") {
     const requireAuth = async (req, res, next) => {
@@ -116,21 +117,24 @@ const generateReport = (res, filters, reportDetails) => {
     doc.addPage();
 
     const membersData = [
-        { width: 125, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
-        { width: 55, header: "Status", values: reportDetails.members.map(member => member.Status) },
+        { width: 100, header: "Full Name", values: reportDetails.members.map(member => member.FullName) },
+        { width: 55, header: "Status", values: reportDetails.members.map(member => (member.Status === "CarryoverActive" ? "Active*" : member.Status)) },
         { width: 100, header: "Email", values: reportDetails.members.map(member => member.Email) },
     ];
-    if (filters.includeGraduationYear) {
-        membersData.push({ width: 45, header: "Grad. Year", values: reportDetails.members.map(member => member.GraduationYear) });
+    if (filters.includePhoneNumber) {
+        membersData.push({ width: 75, header: "Phone Number", values: reportDetails.members.map(member => member.PhoneNumber) });
+    }
+    if (filters.includeGraduationSemester) {
+        membersData.push({ width: 60, header: "Graduation Semester", values: reportDetails.members.map(member => termCode.normalizeTermCode(member.GraduationSemester)) });
     }
     if (filters.includeAcademicYear) {
-        membersData.push({ width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });
+        membersData.push({ width: 80, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });
     }
     if (filters.includeClothingSize) {
         membersData.push({ width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)) });
     }
     if (filters.includeMajor) {
-        membersData.push({ width: 200, header: "Major", values: reportDetails.members.map(member => member.Major) });
+        membersData.push({ width: 150, header: "Major", values: reportDetails.members.map(member => member.Major) });
     }
 
     const totalWidth = membersData.reduce((sum, col) => sum + col.width, 0);

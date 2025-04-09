@@ -54,16 +54,26 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
               Personal Information
             </Typography>
             <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={filters.includeClothingSize}
-                      onChange={handleFilterChange}
-                      name="includeClothingSize"
-                    />
-                  }
-                  label="Clothing Sizes"
-                />
+            <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.includePhoneNumber}
+                    onChange={handleFilterChange}
+                    name="includePhoneNumber"
+                  />
+                }
+                label="Phone Number"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.includeClothingSize}
+                    onChange={handleFilterChange}
+                    name="includeClothingSize"
+                  />
+                }
+                label="Clothing Sizes"
+              />
             </FormGroup>
           </Box>
           <Box>
@@ -74,12 +84,12 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={filters.includeGraduationYear}
+                    checked={filters.includeGraduationSemester}
                     onChange={handleFilterChange}
-                    name="includeGraduationYear"
+                    name="includeGraduationSemester"
                   />
                 }
-                label="Graduation Year"
+                label="Graduation Semester"
               />
               <FormControlLabel
                 control={

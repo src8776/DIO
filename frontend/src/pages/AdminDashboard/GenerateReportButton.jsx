@@ -20,6 +20,7 @@ export default function GenerateReport({orgID, selectedSemester}) {
     includeGraduationYear: false,
     includeMajor: false,
     includeAcademicYear: false,
+    includePhoneNumber: false,
   });
 
   const handleFilterChange = (event) => {

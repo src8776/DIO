@@ -246,19 +246,19 @@ class Member {
       let statuses;
       switch (memberStatus) {
         case "both":
-          statuses = ["Active", "General", "Exempt"];
+          statuses = ["Active", "General", "Exempt", "CarryoverActive"];
           break;
         case "general":
           statuses = ["General"];
           break;
         case "active":
-          statuses = ["Active", "Exempt"];
+          statuses = ["Active", "Exempt", "CarryoverActive"];
           break;
         default:
-          statuses = ["Active", "General", "Exempt"];
+          statuses = ["Active", "General", "Exempt", "CarryoverActive"];
       }
       const [members] = await DBHelper.runQuery(
-        `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major
+        `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationSemester, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major, Members.PhoneNumber
         FROM Members
         LEFT JOIN Majors ON Members.MajorID = Majors.MajorID
         LEFT JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID

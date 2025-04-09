@@ -131,10 +131,10 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
     };
 
     // Filter members based on search input
-    const filteredMembers = membersList.filter(member => {
+    const filteredMembers = Array.isArray(membersList) ? membersList.filter(member => {
         const fullName = `${member.FirstName} ${member.LastName}`.toLowerCase();
         return fullName.includes(memberSearch.toLowerCase());
-    });
+    }) : [];
 
     return (
         <>

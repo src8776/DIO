@@ -78,8 +78,8 @@ export default function AnalyticsDash() {
           <Box>
             {tabValue === 0 && <SemesterOverviewTab organizationID={orgID} />}
             {tabValue === 1 && <SemesterVsSemesterTab organizationID={orgID} />}
-            {tabValue === 2 && <YearVsYearTab organizationID={orgID} />}
-            {tabValue === 3 && <DemographicsTab organizationID={orgID} />}
+            {/* {tabValue === 2 && <YearVsYearTab organizationID={orgID} />} */}
+            {tabValue === 2 && <DemographicsTab organizationID={orgID} />}
           </Box>
         )}
       </Box>

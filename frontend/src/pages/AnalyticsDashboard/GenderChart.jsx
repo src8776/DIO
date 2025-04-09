@@ -88,6 +88,7 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                         outerRadius={80}
                                         labelLine={false}
                                         label={renderCustomizedLabel}
+                                        minAngle={10}
                                     >
                                         {normalizedGenders.map((entry, index) => (
                                             <Cell key={`gender-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />
@@ -115,6 +116,7 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                         outerRadius={80}
                                         labelLine={false}
                                         label={renderCustomizedLabel}
+                                        minAngle={10}
                                     >
                                         {normalizedRaces.map((entry, index) => (
                                             <Cell key={`race-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />

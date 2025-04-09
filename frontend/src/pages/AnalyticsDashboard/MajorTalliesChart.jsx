@@ -105,6 +105,7 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
                                 outerRadius={80}
                                 labelLine={false}
                                 label={renderCustomizedLabel} // Added custom label to show percentages
+                                minAngle={10}
                             >
                                 {chartData.map((entry, index) => (
                                     <Cell

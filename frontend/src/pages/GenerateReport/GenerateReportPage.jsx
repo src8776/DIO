@@ -84,12 +84,12 @@ function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGe
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={filters.includeGraduationYear}
+                    checked={filters.includeGraduationSemester}
                     onChange={handleFilterChange}
-                    name="includeGraduationYear"
+                    name="includeGraduationSemester"
                   />
                 }
-                label="Graduation Year"
+                label="Graduation Semester"
               />
               <FormControlLabel
                 control={

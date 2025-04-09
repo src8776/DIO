@@ -124,8 +124,8 @@ const generateReport = (res, filters, reportDetails) => {
     if (filters.includePhoneNumber) {
         membersData.push({ width: 75, header: "Phone Number", values: reportDetails.members.map(member => member.PhoneNumber) });
     }
-    if (filters.includeGraduationYear) {
-        membersData.push({ width: 45, header: "Grad. Year", values: reportDetails.members.map(member => termCode.normalizeTermCode(member.GraduationSemester)) });
+    if (filters.includeGraduationSemester) {
+        membersData.push({ width: 45, header: "Grad. Sem.", values: reportDetails.members.map(member => termCode.normalizeTermCode(member.GraduationSemester)) });
     }
     if (filters.includeAcademicYear) {
         membersData.push({ width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });

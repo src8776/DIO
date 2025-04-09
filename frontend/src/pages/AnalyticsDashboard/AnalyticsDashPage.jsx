@@ -64,7 +64,7 @@ export default function AnalyticsDash() {
               value={tabValue} onChange={handleTabChange} aria-label="analytics tabs">
               <Tab label="Semester Overview" />
               <Tab label="Semester vs. Semester" />
-              <Tab label="Year vs. Year" />
+              {/* <Tab label="Year vs. Year" /> */}
               <Tab label="Demographics" />
             </Tabs>
           </Box>

@@ -51,7 +51,7 @@ export default function GraduatingMembersChart({ organizationID, semesterID }) {
             {totalMembers === 0 ? <Typography variant="body1" color="text.secondary" >No data to display</Typography>
                 :
                 <>
-                    <Typography>{gradCount} out of {totalMembers}</Typography>
+                    {/* <Typography>{gradCount} out of {totalMembers}</Typography> */}
                     <Box sx={{ width: '100%', height: 150 }}>
                         <ResponsiveContainer>
                             <PieChart>

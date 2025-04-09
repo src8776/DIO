@@ -52,6 +52,23 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
         return null;
     };
 
+    const minBarHeight = 15;
+
+    const CustomBarShape = (props) => {
+        const { x, y, width, height, fill } = props;
+        const adjustedHeight = Math.max(height, minBarHeight);
+        const adjustedY = height < minBarHeight ? y - (minBarHeight - height) : y;
+        return (
+            <rect
+                x={x}
+                y={adjustedY}
+                width={width}
+                height={adjustedHeight}
+                fill={fill}
+            />
+        );
+    };
+
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Total Members</Typography>
@@ -70,7 +87,7 @@ export default function TotalMembersChart({ organizationID, selectedSemester }) 
                     contentStyle={{ color: '#000' }}
                     labelStyle={{ color: '#000' }}
                 />
-                <Bar dataKey="members" label={renderBarLabel}>
+                <Bar dataKey="members" label={renderBarLabel} shape={<CustomBarShape />}>
                     {data.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                     ))}

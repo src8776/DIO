@@ -186,6 +186,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     };
 
+    const minBarHeight = 15;
+
     const AverageBarShape = (props) => {
         const eventTypeColors = {
             "General Meeting": "#4394E5",
@@ -196,12 +198,16 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         // Choose the color based on the event type; use default if undefined
         const fillColor = eventTypeColors[props.payload?.original?.EventType] || "#F76902";
         const { x, y, width, height } = props;
+        // Ensure bar height is at least the minimum value
+        const adjustedHeight = Math.max(height, minBarHeight);
+        // Adjust y so the bottom remains the same
+        const adjustedY = height < minBarHeight ? y - (minBarHeight - height) : y;
         return (
             <rect
                 x={x}
-                y={y}
+                y={adjustedY}
                 width={width}
-                height={height}
+                height={adjustedHeight}
                 fill={fillColor}
                 pointerEvents="none"
             />
@@ -216,16 +222,18 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             "Mentor Event": "#876FD4"
         };
         // Use the instance's event type if available (or fallback to the selectedEventType)
-        // Note: selectedEventType is available via closure in this component.
         const eventType = props.payload?.EventType || selectedEventType?.EventType;
         const fillColor = eventTypeColors[eventType] || "#F76902";
         const { x, y, width, height } = props;
+        // Ensure bar height is at least the minimum value
+        const adjustedHeight = Math.max(height, minBarHeight);
+        const adjustedY = height < minBarHeight ? y - (minBarHeight - height) : y;
         return (
             <rect
                 x={x}
-                y={y}
+                y={adjustedY}
                 width={width}
-                height={height}
+                height={adjustedHeight}
                 fill={fillColor}
                 pointerEvents="none"
             />

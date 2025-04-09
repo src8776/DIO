@@ -125,10 +125,10 @@ const generateReport = (res, filters, reportDetails) => {
         membersData.push({ width: 75, header: "Phone Number", values: reportDetails.members.map(member => member.PhoneNumber) });
     }
     if (filters.includeGraduationSemester) {
-        membersData.push({ width: 45, header: "Grad. Sem.", values: reportDetails.members.map(member => termCode.normalizeTermCode(member.GraduationSemester)) });
+        membersData.push({ width: 60, header: "Graduation Semester", values: reportDetails.members.map(member => termCode.normalizeTermCode(member.GraduationSemester)) });
     }
     if (filters.includeAcademicYear) {
-        membersData.push({ width: 95, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });
+        membersData.push({ width: 80, header: "Academic Year", values: reportDetails.members.map(member => member.AcademicYear) });
     }
     if (filters.includeClothingSize) {
         membersData.push({ width: 72, header: "Shirt / Pant Size", values: reportDetails.members.map(member => (!member.ShirtSize ? "–" : member.ShirtSize) + " / " + (!member.PantSize ? "–" : member.PantSize)) });

@@ -28,15 +28,15 @@ router.post('/hours', async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        const termCode = await Semester.getOrCreateTermCode(eventDate);
-        const semester = await Semester.getSemesterByTermCode(termCode);
-        const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID, eventTitle);
+        const termCode = await Semester.getOrCreateTermCode(eventDate, connection);
+        const semester = await Semester.getSemesterByTermCode(termCode, connection);
+        const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID, eventTitle, connection);
 
         for (const member of data.members) {
             try {
                 console.log("processing hours volunteers.js - Member: " + member.FullName + " MemberID: " + member.MemberID);
-                await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate);
-                await useAccountStatus.updateMemberStatus(member.MemberID, organizationID, semester);
+                await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate, connection);
+                await useAccountStatus.updateMemberStatus(member.MemberID, organizationID, semester, connection);
 
             } catch (error) {
                 console.error('Failed to insert volunteer hours into database', error);

@@ -74,8 +74,10 @@ const finalizeSemester = async (currentSemester, organizationID) => {
             }
         }
         const endTime = Date.now();
+        await connection.commit();
         console.log(`Finalize Semester completed in ${endTime - startTime} ms`);
     } catch (error) {
+        await connection.rollback();
         console.error('Error finalizing semester:', error);
         throw error;
     }

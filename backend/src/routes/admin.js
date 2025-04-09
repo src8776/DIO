@@ -6,7 +6,7 @@ const router = express.Router();
 if (process.env.NODE_ENV === "production") {
     const requireAuth = async (req, res, next) => {
         if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Not authenticated' });
+            return res.status(401).json({ message: 'Not authenticated' });
         }
         next();
     }
@@ -95,7 +95,8 @@ router.get('/datatableByTerm', async (req, res) => {
             WHERE
                 OrganizationMembers.OrganizationID = ?
                 AND Semesters.TermCode = ?
-                AND OrganizationMembers.Status NOT LIKE 'Alumni';
+                AND (OrganizationMembers.Status NOT LIKE 'Alumni'
+                OR OrganizationMembers.Status IS NULL);
         `;
         const [rows] = await db.query(query, [organizationID, termCode, organizationID, termCode, organizationID, termCode]);
         res.json(rows);
@@ -152,7 +153,7 @@ router.get('/getOfficersAndAdmin', async (req, res) => {
 });
 
 
-// PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
+
 router.post('/setOfficer', async (req, res) => {
     console.log('Received request at /admin/setOfficer');
     let organizationID = parseInt(req.query.organizationID, 10);
@@ -173,21 +174,70 @@ router.post('/setOfficer', async (req, res) => {
     }
 });
 
-// PROTECT THIS ENDPOINT WITH AUTHENTICATION MIDDLEWARE
+
 router.post('/setAdmin', async (req, res) => {
-    console.log('Received request at /admin/setAdmin');
-    let organizationID = parseInt(req.query.organizationID, 10);
-    let memberID = parseInt(req.query.memberID, 10);
+    console.log('Received request at /admin/setAdmin (multi-org update)');
+    const memberID = parseInt(req.query.memberID, 10);
 
     try {
-        const query = `
-            UPDATE OrganizationMembers
-            SET RoleID = 1
-            WHERE MemberID = ?
-            AND OrganizationID = ?;
+        // 1. Retrieve the active semester.
+        const activeSemQuery = `
+            SELECT SemesterID 
+            FROM Semesters 
+            WHERE isActive = 1 
+            LIMIT 1;
         `;
-        const [rows] = await db.query(query, [memberID, organizationID]);
-        res.json(rows);
+        const [activeSemesters] = await db.query(activeSemQuery);
+        if (!activeSemesters || activeSemesters.length === 0) {
+            return res.status(500).json({ error: 'No active semester found' });
+        }
+        const activeSemesterID = activeSemesters[0].SemesterID;
+
+        // 2. Retrieve all distinct organizations.
+        const orgsQuery = `
+            SELECT DISTINCT OrganizationID 
+            FROM OrganizationMembers;
+        `;
+        const [orgs] = await db.query(orgsQuery);
+        let results = [];
+
+        // 3. For each organization, update if record exists; otherwise, insert.
+        for (const org of orgs) {
+            const organizationID = org.OrganizationID;
+
+            // Check if the member is recorded for this organization in the active semester.
+            const checkQuery = `
+                SELECT * 
+                FROM OrganizationMembers 
+                WHERE MemberID = ? 
+                AND OrganizationID = ? 
+                AND SemesterID = ?;
+            `;
+            const [existingRecords] = await db.query(checkQuery, [memberID, organizationID, activeSemesterID]);
+
+            if (existingRecords && existingRecords.length > 0) {
+                // Update record to set RoleID = 1 (admin).
+                const updateQuery = `
+                    UPDATE OrganizationMembers
+                    SET RoleID = 1
+                    WHERE MemberID = ? 
+                    AND OrganizationID = ? 
+                    AND SemesterID = ?;
+                `;
+                const [updateResult] = await db.query(updateQuery, [memberID, organizationID, activeSemesterID]);
+                results.push({ organizationID, action: 'updated', detail: updateResult });
+            } else {
+                // Insert new record with RoleID = 1 for the current active semester.
+                const insertQuery = `
+                    INSERT INTO OrganizationMembers (MemberID, OrganizationID, SemesterID, RoleID)
+                    VALUES (?, ?, ?, 1);
+                `;
+                const [insertResult] = await db.query(insertQuery, [memberID, organizationID, activeSemesterID]);
+                results.push({ organizationID, action: 'inserted', detail: insertResult });
+            }
+        }
+
+        res.json({ message: 'Admin status updated in all organizations for the active semester', results });
     } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ error: 'Internal Server Error' });

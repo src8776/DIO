@@ -8,7 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
 function LandingPage() {
-    const [memberID, setMemberID] = useState(isProduction ? null : 2790);
+    const [memberID, setMemberID] = useState(isProduction ? null : 6075);
     const [organizationIDs, setOrganizationIDs] = useState([]);
     const [semesters, setSemesters] = React.useState([]);
     const [activeSemester, setActiveSemester] = React.useState(null);

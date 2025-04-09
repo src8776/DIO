@@ -6,7 +6,7 @@ const router = express.Router();
 if (process.env.NODE_ENV === "production") {
     const requireAuth = async (req, res, next) => {
         if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Not authenticated' });
+            return res.status(401).json({ message: 'Not authenticated' });
         }
         next();
     }
@@ -42,14 +42,35 @@ router.get('/organizationIDsByMemberID', async (req, res) => {
     }
 
     try {
-        const query = `
-            SELECT DISTINCT
-                OrganizationID
-            FROM 
-                OrganizationMembers
-            WHERE MemberID = ?
+        // Check if the member has RoleID of 1
+        const roleQuery = `
+            SELECT RoleID
+            FROM OrganizationMembers
+            WHERE MemberID = ? AND RoleID = 1
+            LIMIT 1
         `;
-        const [rows] = await db.query(query, [memberID]);
+        const [roleRows] = await db.query(roleQuery, [memberID]);
+
+        let resultQuery;
+        let params;
+        if (roleRows.length > 0) {
+            // Member is admin, return all distinct OrganizationIDs
+            resultQuery = `
+                SELECT DISTINCT OrganizationID
+                FROM OrganizationMembers
+            `;
+            params = [];
+        } else {
+            // Return OrganizationIDs for the member only
+            resultQuery = `
+                SELECT DISTINCT OrganizationID
+                FROM OrganizationMembers
+                WHERE MemberID = ?
+            `;
+            params = [memberID];
+        }
+
+        const [rows] = await db.query(resultQuery, params);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching OrganizationIDs by MemberID:', error);

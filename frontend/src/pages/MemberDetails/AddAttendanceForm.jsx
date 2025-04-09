@@ -14,13 +14,10 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     const handleDateChange = (date) => setFormData({ ...formData, eventDate: date });
 
-    const eventTitleRef = React.useRef(null);
-
+    console.log('formData in AddAttendanceForm:', formData);
     return (
-        <Box sx={{ mt: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
-            <Button onClick={() => eventTitleRef.current?.focus()}>
-                Focus Event Title
-            </Button>
+        <Box sx={{ mt: 2, p: 2, border: '1px solid #ccc', borderRadius: 1}}>
+            
             <Typography variant="h6" sx={{ mb: 2 }}>Add Attendance</Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <FormControl required fullWidth>
@@ -37,14 +34,14 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
                         ))}
                     </Select>
                 </FormControl>
+                {/* this event title textfield doesn't work outside of the admin dashboard context for some reason */}
                 <TextField
-                    inputRef={eventTitleRef}
                     label="Event Title (optional)"
                     name="eventTitle"
                     value={formData.eventTitle}
                     onChange={handleChange}
                     fullWidth
-                    sx={{ position: 'relative', zIndex: 10 }}
+                    onClick={(e) => console.log('TextField clicked', e)}
                 />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker

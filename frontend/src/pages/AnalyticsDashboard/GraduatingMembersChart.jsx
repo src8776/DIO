@@ -116,7 +116,8 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                                         setDrawerOpen(true);
                                     }}
                                 >
-                                    <Label value={`${totalMembers ? ((gradCount / totalMembers) * 100).toFixed(1) : 0}%`} position="center" />
+                                    <Label value={`${gradCount} / ${totalMembers}`} position="center" />
+                                    {/* <Label value={`${totalMembers ? ((gradCount / totalMembers) * 100).toFixed(1) : 0}%`} position="center" /> */}
                                     {data.map((entry, index) => (
                                         <Cell
                                             key={`cell-${index}`}

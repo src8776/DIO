@@ -27,10 +27,10 @@ const NestedDrawers = ({
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
-    const filteredMembers = membersList.filter((member) => {
+    const filteredMembers = Array.isArray(membersList) ? membersList.filter(member => {
         const fullName = `${member.FirstName} ${member.LastName}`.toLowerCase();
-        return fullName.includes(searchTerm.toLowerCase());
-    });
+        return fullName.includes(memberSearch.toLowerCase());
+    }) : [];
 
     const handleCopyEmails = () => {
         const emails = filteredMembers

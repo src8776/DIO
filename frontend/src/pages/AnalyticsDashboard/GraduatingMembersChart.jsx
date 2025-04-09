@@ -1,9 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Paper, Typography, Box } from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Text } from 'recharts';
+import { PieChart, Pie, Tooltip, ResponsiveContainer, Label, Cell } from 'recharts';
 
 export default function GraduatingMembersChart({ organizationID, semesterID }) {
     const [gradCount, setGradCount] = useState(0);
+    const [memberTallies, setMemberTallies] = React.useState(null);
+    const [gradMembers, setGradMembers] = useState([]);
+
+    React.useEffect(() => {
+        if (semesterID) {
+            fetch(`/api/analytics/memberTallies?organizationID=${organizationID}&semesterID=${semesterID}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setMemberTallies(data);
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }, [semesterID, organizationID]);
 
     useEffect(() => {
         if (!organizationID || !semesterID) return;
@@ -11,6 +26,7 @@ export default function GraduatingMembersChart({ organizationID, semesterID }) {
         fetch(`/api/analytics/membersByGraduation?organizationID=${organizationID}&semesterID=${semesterID}`)
             .then(response => response.json())
             .then(data => {
+                setGradMembers(data);
                 // Set the count using the length of the returned array
                 setGradCount(data.length);
             })
@@ -19,41 +35,51 @@ export default function GraduatingMembersChart({ organizationID, semesterID }) {
             });
     }, [organizationID, semesterID]);
 
-    // Data to display in the chart
-    const data = [
-        { name: 'Graduating', count: gradCount }
-    ];
+    // Assuming memberTallies returns an object with totalMembers, default to 0 if not available
+    const totalMembers = memberTallies && memberTallies.totalMembers ? memberTallies.totalMembers : 0;
+    const nonGraduating = totalMembers - gradCount;
 
-    const renderBarLabel = (props) => {
-        const { x, y, width, height, value } = props;
-        return (
-            <Text
-                x={x + width / 2}
-                y={y + height / 2}
-                fill="#fff"
-                textAnchor="middle"
-                dominantBaseline="middle"
-            >
-                {value}
-            </Text>
-        );
-    };
+    // Data for the donut chart: graduating vs non-graduating
+    const data = [
+        { name: 'Graduating', value: gradCount },
+        { name: 'Non-Graduating', value: nonGraduating }
+    ];
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography>Graduating Members: {gradCount}</Typography>
-            <Box sx={{ width: '100%', height: 183 }}>
-                <ResponsiveContainer>
-                    <BarChart data={data} margin={{ top: 20, right: 20, bottom: 0, left: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        {/* <YAxis allowDecimals={false} /> */}
-                        <Tooltip />
-                        <Bar dataKey="count" fill="#b5ddce" label={renderBarLabel} />
-                    </BarChart>
-                </ResponsiveContainer>
-
-            </Box>
+            <Typography>Graduating Members:</Typography>
+            {totalMembers === 0 ? <Typography variant="body1" color="text.secondary" >No data to display</Typography>
+                :
+                <>
+                    <Typography>{gradCount} out of {totalMembers}</Typography>
+                    <Box sx={{ width: '100%', height: 150 }}>
+                        <ResponsiveContainer>
+                            <PieChart>
+                                <Pie
+                                    data={data}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={40}
+                                    outerRadius={50}
+                                    fill="#8884d8"
+                                    labelLine={false}
+                                    minAngle={50}
+                                >
+                                    <Label value={`${gradCount} / ${totalMembers}`} position="center" />
+                                    {data.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={entry.name === 'Graduating' ? 'rgb(75, 153, 105)' : '#8884d8'}
+                                        />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </Box>
+                </>
+            }
         </Paper>
     );
 };

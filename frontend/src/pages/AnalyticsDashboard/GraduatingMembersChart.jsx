@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Box, Drawer, List, ListItem, ListItemText, TextField, IconButton } from '@mui/material';
+import {
+    Paper, Typography, Box, Drawer, List,
+    ListItem, ListItemText, TextField, IconButton, Tooltip as MuiTooltip
+} from '@mui/material';
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Label, Cell } from 'recharts';
 import CloseIcon from '@mui/icons-material/Close';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
 import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 export default function GraduatingMembersChart({ organizationID, semesterID: selectedSemester }) {
     const [gradCount, setGradCount] = useState(0);
@@ -14,6 +19,8 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
     const [selectedMemberID, setSelectedMemberID] = useState(null);
     const [memberDrawerOpen, setMemberDrawerOpen] = useState(false);
     const [memberSearch, setMemberSearch] = useState("");
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
     // Fetch member tallies (total members)
     React.useEffect(() => {
@@ -61,7 +68,6 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
         fetch(`/api/analytics/membersByGraduationStatus?status=${status}&organizationID=${organizationID}&semesterID=${selectedSemester.SemesterID}`)
             .then((response) => response.json())
             .then((data) => {
-                console.log('API Response:', data);
                 setMembersList(data);
             })
             .catch((error) => {
@@ -86,6 +92,28 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
         if (selectedCategory) {
             fetchMembersList(selectedCategory);
         }
+    };
+
+    const handleCopyEmails = () => {
+        const emails = filteredMembers
+            .filter(member => member.Email && member.Email.trim() !== '')
+            .map(member => member.Email);
+        if (emails.length === 0) {
+            setSnackbarMessage('No emails to copy');
+            setSnackbarOpen(true);
+            return;
+        }
+        const emailString = emails.join(', ');
+        navigator.clipboard.writeText(emailString)
+            .then(() => {
+                setSnackbarMessage(`${emails.length} email${emails.length === 1 ? '' : 's'} copied to your clipboard`);
+                setSnackbarOpen(true);
+            })
+            .catch(err => {
+                console.error('Failed to copy emails:', err);
+                setSnackbarMessage('Failed to copy emails');
+                setSnackbarOpen(true);
+            });
     };
 
     const filteredMembers = Array.isArray(membersList) ? membersList.filter(member => {
@@ -121,12 +149,12 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                                         setDrawerOpen(true);
                                     }}
                                 >
-                                    <Label value={`${gradCount} / ${totalMembers}`} position="center" />
+                                    <Label value={`${totalMembers ? ((gradCount / totalMembers) * 100).toFixed(1) : 0}%`} position="center" />
                                     {data.map((entry, index) => (
                                         <Cell
                                             key={`cell-${index}`}
                                             fill={entry.name === 'Graduating' ? 'rgb(75, 153, 105)' : '#8884d8'}
-                                            style={{ cursor: 'pointer' }} 
+                                            style={{ cursor: 'pointer' }}
                                         />
                                     ))}
                                 </Pie>
@@ -134,9 +162,6 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                             </PieChart>
                         </ResponsiveContainer>
                     </Box>
-                    <Typography variant="caption" color="textSecondary" align="center">
-                        Click on a section to view members
-                    </Typography>
                 </>
             )}
             {/* Members List Drawer */}
@@ -164,12 +189,21 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                             <CloseIcon />
                         </IconButton>
                     </Box>
-                    <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        {selectedCategory} Members
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-                        Members:
-                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', mb: 2 }}>
+                        <Typography variant="h6" fontWeight="bold">
+                            {selectedCategory} Members: {filteredMembers.length}
+                        </Typography>
+                        <MuiTooltip title="Copy emails to clipboard">
+                            <IconButton
+                                sx={{ alignSelf: 'flex-start' }}
+                                onClick={handleCopyEmails}
+                                disabled={filteredMembers.length === 0}
+                                color="primary"
+                            >
+                                <ContactMailIcon />
+                            </IconButton>
+                        </MuiTooltip>
+                    </Box>
                     <TextField
                         size="small"
                         variant="outlined"
@@ -232,6 +266,12 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                     )}
                 </Box>
             </Drawer>
+            <SnackbarAlert
+                message={snackbarMessage}
+                severity={snackbarMessage.includes('No emails') || snackbarMessage.includes('Failed') ? 'error' : 'success'}
+                open={snackbarOpen}
+                onClose={() => setSnackbarOpen(false)}
+            />
         </Paper>
     );
 }

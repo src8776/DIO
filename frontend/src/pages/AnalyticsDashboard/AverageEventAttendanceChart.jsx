@@ -1,16 +1,11 @@
 import * as React from 'react';
-import {
-    Paper, Typography, Button, Box,
-    Drawer, List, ListItem, ListItemText,
-    TextField, IconButton
-} from '@mui/material';
+import { Paper, Typography, Button, Box, } from '@mui/material';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts';
 import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
-import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
-import CloseIcon from '@mui/icons-material/Close';
+import NestedDrawers from './NestedDrawers';
 
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
@@ -276,12 +271,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         return null;
     };
 
-    // Filter attendees based on search query
-    const filteredAttendees = (Array.isArray(attendees) ? attendees : []).filter(attendee => {
-        const fullName = `${attendee.FirstName} ${attendee.LastName}`.toLowerCase();
-        return fullName.includes(attendeeSearch.toLowerCase());
-    });
-
     // mobile detection
     React.useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 740);
@@ -396,116 +385,28 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     </>
                 )}
             </Paper>
-            {/* attendees drawer */}
-            <Drawer
-                anchor="left"
+            <NestedDrawers
                 open={drawerOpen}
+                detailsOpen={memberDrawerOpen}
+                membersList={attendees}
+                selectedMemberID={selectedMemberID}
+                organizationID={organizationID}
+                selectedSemester={selectedSemester}
+                title="Event Attendees"
+                searchTerm={attendeeSearch}
+                onSearchChange={setAttendeeSearch}
                 onClose={() => {
                     setDrawerOpen(false);
-                    setMemberDrawerOpen(false); // Close both drawers when attendees drawer closes
+                    setMemberDrawerOpen(false);
                 }}
-                sx={{
-                    zIndex: 1200,
-                    '& .MuiDrawer-paper': {
-                        width: { xs: 300, sm: 400 },
-                        left: 0
-                    },
+                onDetailsClose={() => setMemberDrawerOpen(false)}
+                onItemSelect={(id) => {
+                    setSelectedMemberID(id);
+                    setMemberDrawerOpen(true);
                 }}
-            >
-                <Box sx={{ width: { xs: 300, sm: 400 }, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <IconButton
-                            onClick={() => {
-                                setDrawerOpen(false);
-                                setMemberDrawerOpen(false);
-                            }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-                    {selectedEventInstance && (
-                        <>
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                {selectedEventInstance.EventTitle}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {new Date(selectedEventInstance.EventDate).toLocaleDateString()}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Type: {selectedEventInstance.EventType}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Attendance: {selectedEventInstance.attendanceCount}
-                            </Typography>
-                            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-                                Attendees:
-                            </Typography>
-                            {/* Search Field */}
-                            <TextField
-                                size="small"
-                                variant="outlined"
-                                placeholder="Search attendees..."
-                                value={attendeeSearch}
-                                onChange={(e) => setAttendeeSearch(e.target.value)}
-                                sx={{ mb: 1 }}
-                            />
-                            <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
-                                {filteredAttendees.length > 0 ? (
-                                    <List dense>
-                                        {filteredAttendees.map((attendee) => (
-                                            <ListItem
-                                                key={attendee.MemberID}
-                                                button
-                                                onClick={() => {
-                                                    setSelectedMemberID(attendee.MemberID);
-                                                    setMemberDrawerOpen(true);
-                                                }}
-                                                divider
-                                                sx={{ py: 1, cursor: 'pointer' }}
-                                            >
-                                                <ListItemText primary={`${attendee.FirstName} ${attendee.LastName}`} />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                ) : (
-                                    <Typography variant="body2" color="textSecondary">
-                                        No attendees found
-                                    </Typography>
-                                )}
-                            </Box>
-                        </>
-                    )}
-                </Box>
-            </Drawer>
-            {/* member details drawer */}
-            <Drawer
-                anchor="left"
-                open={memberDrawerOpen}
-                onClose={() => setMemberDrawerOpen(false)}
-                variant="persistent"
-                sx={{
-                    zIndex: 1300,
-                    // Shift the member drawer right by the width of the attendees drawer
-                    '& .MuiDrawer-paper': {
-                        width: { xs: '100%', sm: 500, md: 700 },
-                        '@media (min-width:1102px)': {
-                            left: 400, // when viewport is 1102px or greater
-                        }
-                    }
-                }}
-            >
-                <Box sx={{ width: { xs: '100%', sm: 500, md: 700 }, height: '100%', overflowY: 'auto' }}>
-                    {selectedMemberID && (
-                        <MemberDetailsPage
-                            memberID={selectedMemberID}
-                            orgID={organizationID}
-                            selectedSemester={selectedSemester}
-                            onClose={() => setMemberDrawerOpen(false)}
-                            onAttendanceUpdate={refreshData} // Refresh data when attendance is updated
-                        />
-                    )}
-                </Box>
-            </Drawer>
+                onAttendanceUpdate={refreshData}
+                eventDetails={selectedEventInstance}
+            />
         </>
     );
 }

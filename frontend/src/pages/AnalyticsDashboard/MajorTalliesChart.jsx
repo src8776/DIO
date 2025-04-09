@@ -67,7 +67,6 @@ export default function MajorTalliesChart({ organizationID, selectedSemester }) 
         );
     };
 
-    console.log(theme.palette.memberPerMajorText.default);
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

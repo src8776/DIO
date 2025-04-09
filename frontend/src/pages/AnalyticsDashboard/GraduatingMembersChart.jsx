@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Paper, Typography, Box, Drawer, List,
-    ListItem, ListItemText, TextField, IconButton, Tooltip as MuiTooltip
+    Paper, Typography, Box,
 } from '@mui/material';
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Label, Cell } from 'recharts';
-import CloseIcon from '@mui/icons-material/Close';
-import ContactMailIcon from '@mui/icons-material/ContactMail';
-import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
-import SnackbarAlert from '../../components/SnackbarAlert';
+import NestedDrawers from './NestedDrawers';
 
 export default function GraduatingMembersChart({ organizationID, semesterID: selectedSemester }) {
     const [gradCount, setGradCount] = useState(0);
@@ -19,8 +15,6 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
     const [selectedMemberID, setSelectedMemberID] = useState(null);
     const [memberDrawerOpen, setMemberDrawerOpen] = useState(false);
     const [memberSearch, setMemberSearch] = useState("");
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
 
     // Fetch member tallies (total members)
     React.useEffect(() => {
@@ -94,33 +88,6 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
         }
     };
 
-    const handleCopyEmails = () => {
-        const emails = filteredMembers
-            .filter(member => member.Email && member.Email.trim() !== '')
-            .map(member => member.Email);
-        if (emails.length === 0) {
-            setSnackbarMessage('No emails to copy');
-            setSnackbarOpen(true);
-            return;
-        }
-        const emailString = emails.join(', ');
-        navigator.clipboard.writeText(emailString)
-            .then(() => {
-                setSnackbarMessage(`${emails.length} email${emails.length === 1 ? '' : 's'} copied to your clipboard`);
-                setSnackbarOpen(true);
-            })
-            .catch(err => {
-                console.error('Failed to copy emails:', err);
-                setSnackbarMessage('Failed to copy emails');
-                setSnackbarOpen(true);
-            });
-    };
-
-    const filteredMembers = Array.isArray(membersList) ? membersList.filter(member => {
-        const fullName = `${member.FirstName} ${member.LastName}`.toLowerCase();
-        return fullName.includes(memberSearch.toLowerCase());
-    }) : [];
-
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography>Graduating Members</Typography>
@@ -164,113 +131,26 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
                     </Box>
                 </>
             )}
-            {/* Members List Drawer */}
-            <Drawer
-                anchor="left"
+            <NestedDrawers
                 open={drawerOpen}
+                detailsOpen={memberDrawerOpen}
+                membersList={membersList}
+                selectedMemberID={selectedMemberID}
+                organizationID={organizationID}
+                selectedSemester={selectedSemester}
+                title={`${selectedCategory || 'Selected'} Members`}
+                searchTerm={memberSearch}
+                onSearchChange={setMemberSearch}
                 onClose={() => {
                     setDrawerOpen(false);
                     setMemberDrawerOpen(false);
                 }}
-                sx={{
-                    zIndex: 1200,
-                    '& .MuiDrawer-paper': {
-                        width: { xs: 300, sm: 400 },
-                        left: 0
-                    },
+                onDetailsClose={() => setMemberDrawerOpen(false)}
+                onItemSelect={(id) => {
+                    setSelectedMemberID(id);
+                    setMemberDrawerOpen(true);
                 }}
-            >
-                <Box sx={{ width: { xs: 300, sm: 400 }, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <IconButton onClick={() => {
-                            setDrawerOpen(false);
-                            setMemberDrawerOpen(false);
-                        }}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', mb: 2 }}>
-                        <Typography variant="h6" fontWeight="bold">
-                            {selectedCategory} Members: {filteredMembers.length}
-                        </Typography>
-                        <MuiTooltip title="Copy emails to clipboard">
-                            <IconButton
-                                sx={{ alignSelf: 'flex-start' }}
-                                onClick={handleCopyEmails}
-                                disabled={filteredMembers.length === 0}
-                                color="primary"
-                            >
-                                <ContactMailIcon />
-                            </IconButton>
-                        </MuiTooltip>
-                    </Box>
-                    <TextField
-                        size="small"
-                        variant="outlined"
-                        placeholder="Search members..."
-                        value={memberSearch}
-                        onChange={(e) => setMemberSearch(e.target.value)}
-                        sx={{ mb: 1 }}
-                    />
-                    <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
-                        {filteredMembers.length > 0 ? (
-                            <List dense>
-                                {filteredMembers.map((member) => (
-                                    <ListItem
-                                        key={member.MemberID}
-                                        button
-                                        onClick={() => {
-                                            setSelectedMemberID(member.MemberID);
-                                            setMemberDrawerOpen(true);
-                                        }}
-                                        divider
-                                        sx={{ py: 1, cursor: 'pointer' }}
-                                    >
-                                        <ListItemText primary={`${member.FirstName} ${member.LastName}`} />
-                                    </ListItem>
-                                ))}
-                            </List>
-                        ) : (
-                            <Typography variant="body2" color="textSecondary">
-                                No members found
-                            </Typography>
-                        )}
-                    </Box>
-                </Box>
-            </Drawer>
-            {/* Member Details Drawer */}
-            <Drawer
-                anchor="left"
-                open={memberDrawerOpen}
-                onClose={() => setMemberDrawerOpen(false)}
-                variant="persistent"
-                sx={{
-                    zIndex: 1300,
-                    '& .MuiDrawer-paper': {
-                        width: { xs: '100%', sm: 500, md: 700 },
-                        '@media (min-width:1102px)': {
-                            left: 400,
-                        }
-                    }
-                }}
-            >
-                <Box sx={{ width: { xs: '100%', sm: 500, md: 700 }, height: '100%', overflowY: 'auto' }}>
-                    {selectedMemberID && (
-                        <MemberDetailsPage
-                            memberID={selectedMemberID}
-                            orgID={organizationID}
-                            selectedSemester={selectedSemester}
-                            onClose={() => setMemberDrawerOpen(false)}
-                            onAttendanceUpdate={refreshData}
-                        />
-                    )}
-                </Box>
-            </Drawer>
-            <SnackbarAlert
-                message={snackbarMessage}
-                severity={snackbarMessage.includes('No emails') || snackbarMessage.includes('Failed') ? 'error' : 'success'}
-                open={snackbarOpen}
-                onClose={() => setSnackbarOpen(false)}
+                onAttendanceUpdate={refreshData}
             />
         </Paper>
     );

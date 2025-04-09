@@ -29,7 +29,7 @@ const NestedDrawers = ({
 
     const filteredMembers = Array.isArray(membersList) ? membersList.filter(member => {
         const fullName = `${member.FirstName} ${member.LastName}`.toLowerCase();
-        return fullName.includes(memberSearch.toLowerCase());
+        return fullName.includes(searchTerm.toLowerCase());
     }) : [];
 
     const handleCopyEmails = () => {

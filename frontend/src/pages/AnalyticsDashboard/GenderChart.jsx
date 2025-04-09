@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Paper, Typography, Box, Container, CircularProgress } from '@mui/material';
+import { useTheme, Paper, Typography, Box, Container, CircularProgress } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 export default function GenderChart({ organizationID, selectedSemester }) {
+    const theme = useTheme();
     const [demographicsData, setDemographicsData] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
 
@@ -34,18 +35,18 @@ export default function GenderChart({ organizationID, selectedSemester }) {
     const normalizedGenders =
         demographicsData && demographicsData.genders
             ? demographicsData.genders.map((item) => ({
-                  ...item,
-                  Gender: item.Gender ? capitalize(item.Gender) : 'Unknown',
-              }))
+                ...item,
+                Gender: item.Gender ? capitalize(item.Gender) : 'Unknown',
+            }))
             : [];
 
     // Normalize the races data similarly.
     const normalizedRaces =
         demographicsData && demographicsData.races
             ? demographicsData.races.map((item) => ({
-                  ...item,
-                  Race: item.Race ? capitalize(item.Race) : 'Unknown',
-              }))
+                ...item,
+                Race: item.Race ? capitalize(item.Race) : 'Unknown',
+            }))
             : [];
 
     // Custom label to display percentages if the slice is large enough
@@ -94,7 +95,15 @@ export default function GenderChart({ organizationID, selectedSemester }) {
                                             <Cell key={`gender-cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ outline: 'none' }} />
                                         ))}
                                     </Pie>
-                                    <Legend layout='vertical' align='right' verticalAlign='middle' />
+                                    <Legend
+                                        layout="vertical"
+                                        align="right"
+                                        verticalAlign="middle"
+                                        formatter={(value) => (
+                                            <span style={{ color: theme.palette.memberPerMajorText.default }}>
+                                                {value}
+                                            </span>
+                                        )} />
                                     <Tooltip />
                                 </PieChart>
                             </ResponsiveContainer>

@@ -38,7 +38,7 @@ export default function MemberMetrics({ memberStatus, statusObject, requirementT
                 <Box>
                     <Typography variant="h6">Status</Typography>
                     <Typography variant="h5" sx={{ color: statusColor }}>
-                        {memberStatus}
+                        {memberStatus ?? 'N/A'}
                     </Typography>
                     <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
                         {activeCount && activeCount.activeSemesters === '0'

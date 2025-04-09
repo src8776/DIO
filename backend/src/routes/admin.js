@@ -160,14 +160,35 @@ router.post('/setOfficer', async (req, res) => {
     let memberID = parseInt(req.query.memberID, 10);
 
     try {
-        const query = `
-            UPDATE OrganizationMembers
-            SET RoleID = 3
+        // Check if the member has an admin role in any organization
+        const checkAdminQuery = `
+            SELECT *
+            FROM OrganizationMembers
             WHERE MemberID = ?
-            AND OrganizationID = ?;
+            AND RoleID = 1;
         `;
-        const [rows] = await db.query(query, [memberID, organizationID]);
-        res.json(rows);
+        const [adminRecords] = await db.query(checkAdminQuery, [memberID]);
+
+        if (adminRecords && adminRecords.length > 0) {
+            // Update all organizations where the member is set as admin to officer (RoleID = 3)
+            const updateAdminQuery = `
+                UPDATE OrganizationMembers
+                SET RoleID = 3
+                WHERE MemberID = ?
+                AND RoleID = 1;
+            `;
+            await db.query(updateAdminQuery, [memberID]);
+        } else {
+            // Update only the specified organization's record to officer
+            const query = `
+                UPDATE OrganizationMembers
+                SET RoleID = 3
+                WHERE MemberID = ?
+                AND OrganizationID = ?;
+            `;
+            await db.query(query, [memberID, organizationID]);
+        }
+        res.json({ message: 'Member updated to Officer role.' });
     } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -251,14 +272,35 @@ router.post('/setMember', async (req, res) => {
     let memberID = parseInt(req.query.memberID, 10);
 
     try {
-        const query = `
-            UPDATE OrganizationMembers
-            SET RoleID = 2
+        // Check if the member has an admin role in any organization
+        const checkAdminQuery = `
+            SELECT *
+            FROM OrganizationMembers
             WHERE MemberID = ?
-            AND OrganizationID = ?;
+            AND RoleID = 1;
         `;
-        const [rows] = await db.query(query, [memberID, organizationID]);
-        res.json(rows);
+        const [adminRecords] = await db.query(checkAdminQuery, [memberID]);
+
+        if (adminRecords && adminRecords.length > 0) {
+            // Update all organizations where the member is set as admin to member (RoleID = 2)
+            const updateAdminQuery = `
+                UPDATE OrganizationMembers
+                SET RoleID = 2
+                WHERE MemberID = ?
+                AND RoleID = 1;
+            `;
+            await db.query(updateAdminQuery, [memberID]);
+        } else {
+            // Update only the specified organization's record to member
+            const query = `
+                UPDATE OrganizationMembers
+                SET RoleID = 2
+                WHERE MemberID = ?
+                AND OrganizationID = ?;
+            `;
+            await db.query(query, [memberID, organizationID]);
+        }
+        res.json({ message: 'Member updated to Member role.' });
     } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ error: 'Internal Server Error' });

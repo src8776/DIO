@@ -37,7 +37,11 @@ export default function EventTypeComparisonChart({ organizationID, firstSemester
                 const eventTypes = data.commonEventTypes || [];
                 setCommonEventTypes(eventTypes);
                 setIsLoading(false);
-                if (eventTypes.length > 0) {
+                // Find 'General Meeting' event type and set it as default
+                const generalMeeting = eventTypes.find(eventType => eventType.EventType === 'General Meeting');
+                if (generalMeeting) {
+                    setSelectedEventType(generalMeeting.secondSemesterEventTypeID);
+                } else if (eventTypes.length > 0) {
                     setSelectedEventType(eventTypes[0].secondSemesterEventTypeID);
                 } else {
                     setSelectedEventType(''); // Reset when no event types

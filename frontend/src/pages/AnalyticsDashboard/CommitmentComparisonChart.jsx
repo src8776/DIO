@@ -13,7 +13,7 @@ import {
     Legend
 } from 'recharts';
 
-export default function AttendanceComparisonChart({ organizationID, firstSemester, secondSemester }) {
+export default function CommitmentComparisonChart({ organizationID, firstSemester, secondSemester }) {
     const [comparisonData, setComparisonData] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
     const [chartLoading, setChartLoading] = React.useState(false);

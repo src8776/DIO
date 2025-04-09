@@ -36,6 +36,8 @@ router.get('/memberTallies', async (req, res) => {
 
 router.get('/memberTalliesBySemesters', async (req, res) => {
     const { organizationID, semesterIDs } = req.query;
+    console.log('Received request at /memberTalliesBySemesters');
+    console.log('Query Parameters:', req.query);
 
     if (!organizationID || !semesterIDs) {
         return res.status(400).json({ error: 'Missing organizationID or semesterIDs' });

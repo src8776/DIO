@@ -4,7 +4,7 @@ import {
     CircularProgress, Typography
 } from '@mui/material';
 import EventTypeComparisonChart from './EventTypeComparisonChart';
-import AttendanceComparisonChart from './AttendanceComparisonChart';
+import CommitmentComparisonChart from './CommitmentComparisonChart';
 import ActiveMemberComparison from './ActiveMemberComparison';
 
 export default function SemesterVsSemesterTab({ organizationID }) {
@@ -111,12 +111,12 @@ export default function SemesterVsSemesterTab({ organizationID }) {
                         firstSemester={firstSemester}
                         secondSemester={secondSemester}
                     />
-                    <AttendanceComparisonChart
+                    <CommitmentComparisonChart
                         organizationID={organizationID}
                         firstSemester={firstSemester}
                         secondSemester={secondSemester}
                     />
-                    <ActiveMemberComparison organizationID={organizationID} semesters={semesters} />
+                    <ActiveMemberComparison organizationID={organizationID} firstSemester={firstSemester} secondSemester={secondSemester} />
                 </Box>
             ) : (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

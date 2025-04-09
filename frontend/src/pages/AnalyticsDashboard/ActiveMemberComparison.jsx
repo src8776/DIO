@@ -9,7 +9,8 @@ import {
     Legend
 } from 'recharts';
 
-export default function ActiveMemberComparison({ organizationID, semesters }) {
+export default function ActiveMemberComparison({ organizationID, firstSemester, secondSemester }) {
+    const semesters = [firstSemester, secondSemester];
     const [comparisonData, setComparisonData] = React.useState(null);
 
     React.useEffect(() => {
@@ -34,7 +35,7 @@ export default function ActiveMemberComparison({ organizationID, semesters }) {
                     console.error('Error fetching member tallies:', error);
                 });
         }
-    }, [organizationID, semesters]);
+    }, [organizationID, firstSemester, secondSemester]);
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import wicLogo from '/public/wichacks-logo.png';
 import comsLogo from '/public/COMS.png';
 import {
@@ -284,9 +284,11 @@ const WelcomePage = () => {
         <Container maxWidth="lg">
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item>
-              <Typography variant="h6" color="primary" fontWeight="bold">
-                RIT DIO Membership Tracker
-              </Typography>
+              <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Typography variant="h6" color="primary" fontWeight="bold">
+                  RIT DIO Membership Tracker
+                </Typography>
+              </Link>
             </Grid>
             <Grid item>
               <Typography variant="body2" color="text.secondary">

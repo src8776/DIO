@@ -154,41 +154,39 @@ router.get('/getOfficersAndAdmin', async (req, res) => {
 
 
 
-router.post('/setOfficer', async (req, res) => {
-    console.log('Received request at /admin/setOfficer');
+router.post('/setEboard', async (req, res) => {
+    console.log('Received request at /admin/setEboard');
     let organizationID = parseInt(req.query.organizationID, 10);
     let memberID = parseInt(req.query.memberID, 10);
 
     try {
-        // Check if the member has an admin role in any organization
-        const checkAdminQuery = `
-            SELECT *
-            FROM OrganizationMembers
+        // Step 1: Remove admin status everywhere (set RoleID = 2 for all records with RoleID = 1)
+        const removeAdminQuery = `
+            UPDATE OrganizationMembers
+            SET RoleID = 2
             WHERE MemberID = ?
             AND RoleID = 1;
         `;
-        const [adminRecords] = await db.query(checkAdminQuery, [memberID]);
+        await db.query(removeAdminQuery, [memberID]);
 
-        if (adminRecords && adminRecords.length > 0) {
-            // Update all organizations where the member is set as admin to officer (RoleID = 3)
-            const updateAdminQuery = `
-                UPDATE OrganizationMembers
-                SET RoleID = 3
-                WHERE MemberID = ?
-                AND RoleID = 1;
-            `;
-            await db.query(updateAdminQuery, [memberID]);
-        } else {
-            // Update only the specified organization's record to officer
-            const query = `
-                UPDATE OrganizationMembers
-                SET RoleID = 3
-                WHERE MemberID = ?
-                AND OrganizationID = ?;
-            `;
-            await db.query(query, [memberID, organizationID]);
-        }
-        res.json({ message: 'Member updated to Officer role.' });
+        // Step 2: Set status to 2 everywhere for the member
+        const setMemberQuery = `
+            UPDATE OrganizationMembers
+            SET RoleID = 2
+            WHERE MemberID = ?;
+        `;
+        await db.query(setMemberQuery, [memberID]);
+
+        // Step 3: Set status to 3 for the specific organization
+        const setOfficerQuery = `
+            UPDATE OrganizationMembers
+            SET RoleID = 3
+            WHERE MemberID = ?
+            AND OrganizationID = ?;
+        `;
+        await db.query(setOfficerQuery, [memberID, organizationID]);
+
+        res.json({ message: 'Member updated to Officer role for the specified organization and Member role elsewhere.' });
     } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ error: 'Internal Server Error' });

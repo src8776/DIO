@@ -36,8 +36,6 @@ const modalStyle = {
 
 // Helper function to generate a readable description for a given rule
 function generateRuleDescription(rule, requirementType) {
-    console.log('Generating description for rule:', rule, 'with requirementType:', requirementType);
-
     const { criteria, criteriaValue, pointValue } = rule;
 
     // Use a switch-case (or if-else) to handle different rule types
@@ -118,7 +116,6 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             setLoading(true);
             const response = await fetch(`/api/organizationRules/eventRulesByType?eventTypeID=${eventTypeID}&semesterID=${semesterID}`);
             const data = await response.json();
-            console.log('Fetched event data:', data);
             if (data.rules) {
                 setEventData({
                     name: data.rules.name,
@@ -190,7 +187,6 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             });
             const reEvalData = await response.json();
             if (reEvalData.success) {
-                console.log('Successfully re-evaluated member statuses:', reEvalData);
                 const message = `Successfully re-evaluated ${reEvalData.totalMembers} members: 
                     ${reEvalData.updatedMembers} updated, ${reEvalData.exemptMembers} exempt 
                     (took ${Math.round(reEvalData.processingTimeMs / 1000 * 10) / 10}s)`;

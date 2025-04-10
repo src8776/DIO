@@ -410,7 +410,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                ruleID: selectedRule.ruleID,
+                ruleID: selectedRule?.ruleID,
             }),
         })
             .then((response) => response.json())
@@ -445,6 +445,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             })
             .finally(() => {
                 fetchUpdatedEventData();
+                handleEditRuleClose();
                 setLoading(false);
             });
     };
@@ -523,6 +524,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             })
             .finally(() => {
                 fetchUpdatedEventData();
+                setAddRuleOpen(false);
                 setLoading(false);
             });
     };
@@ -678,7 +680,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         <Divider />
                         <Box sx={{ pt: 2, pb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Typography variant="h6">
-                                Updating Rule: {selectedRule.ruleID}
+                                Updating Rule: {selectedRule?.ruleID}
                             </Typography>
                             <Button onClick={handleOpenDeleteDialog} startIcon={<DeleteIcon />} sx={{ color: '#d32f2f' }}>
                                 Delete Rule

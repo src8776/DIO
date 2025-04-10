@@ -7,7 +7,7 @@ const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {
     const theme = useTheme();
-    const memberStatus = row.Status || 'N/A';
+    const memberStatus = row.Status || 'General';
     const displayStatus = memberStatus === 'CarryoverActive' ? 'Active*' : memberStatus;
 
     const statusColor = (() => {
@@ -48,13 +48,13 @@ const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, select
             selected={isItemSelected}
             sx={{ cursor: 'pointer' }}
         >
-            <TableCell padding="checkbox">
+            {/* <TableCell padding="checkbox">
                 <Checkbox
                     color="primary"
                     checked={isItemSelected}
                     inputProps={{ 'aria-labelledby': labelId }}
                 />
-            </TableCell>
+            </TableCell> */}
             <TableCell align="left" sx={{ ...cellStyles }}>
                 {row.FullName}
             </TableCell>

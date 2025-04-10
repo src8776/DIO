@@ -21,6 +21,13 @@ function descendingComparator(a, b, orderBy) {
         const dateB = new Date(b[orderBy]);
         return dateB - dateA;
     }
+    if (orderBy === 'Status') {
+        // Define a custom order for statuses
+        const statusOrder = ['Active', 'CarryoverActive', 'Exempt', 'General', 'Alumni'];
+        const statusA = statusOrder.indexOf(a[orderBy]) !== -1 ? statusOrder.indexOf(a[orderBy]) : statusOrder.length;
+        const statusB = statusOrder.indexOf(b[orderBy]) !== -1 ? statusOrder.indexOf(b[orderBy]) : statusOrder.length;
+        return statusA - statusB;
+    }
     if (b[orderBy] < a[orderBy]) return -1;
     if (b[orderBy] > a[orderBy]) return 1;
     return 0;
@@ -78,7 +85,7 @@ function EnhancedTableHead(props) {
     return (
         <TableHead>
             <TableRow>
-                <TableCell padding="checkbox">
+                {/* <TableCell padding="checkbox">
                     <Checkbox
                         color="primary"
                         indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -86,7 +93,7 @@ function EnhancedTableHead(props) {
                         onChange={onSelectAllClick}
                         inputProps={{ 'aria-label': 'select all members' }}
                     />
-                </TableCell>
+                </TableCell> */}
                 {headCells.map((headCell) => (
                     <TableCell
                         sx={{ fontWeight: 'bold' }}

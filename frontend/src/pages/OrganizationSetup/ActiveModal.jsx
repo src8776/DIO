@@ -4,9 +4,11 @@ import {
     FormControl, IconButton,
     InputLabel, MenuItem, Paper,
     Select, Table, TableBody, TableCell,
-    TableHead, TableRow, TextField, Typography
+    TableHead, TableRow, TextField, Typography,
+    CircularProgress, Backdrop
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import SnackbarAlert from '../../components/SnackbarAlert';
 
 const modalStyle = {
     display: 'flex',
@@ -33,6 +35,12 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
     const [newRequirementType, setNewRequirementType] = React.useState('');
     const [error, setError] = React.useState(false);
     const [helperText, setHelperText] = React.useState('');
+    const [loading, setLoading] = React.useState(false);
+    const [snackbar, setSnackbar] = React.useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     // fetch current requirement info
     React.useEffect(() => {
@@ -57,6 +65,10 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
 
     const handleClose = () => setOpen(false);
 
+    const handleSnackbarClose = () => {
+        setSnackbar({ ...snackbar, open: false });
+    };
+
     const handleSave = () => {
         if (requirementType == 'criteria' & newActiveRequirement > numberOfRules) {
             setError(true);
@@ -69,6 +81,9 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
             setHelperText(`Value must be at least 1`);
             return;
         }
+
+        // Show loading indicator
+        setLoading(true);
 
         fetch('/api/organizationInfo/updateActiveRequirement', {
             method: 'POST',
@@ -85,10 +100,73 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
                 if (data.success) {
                     setActiveRequirement(newActiveRequirement);
                     setRequirementType(newRequirementType);
-                    handleClose();
+
+                    
+
+                    // Call reEvaluateStatus to update member statuses
+                    fetch('/api/reEvaluateStatus', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            orgID: orgID,
+                            selectedSemester: { SemesterID: semesterID }
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(reEvalData => {
+                            // Hide loading indicator
+                            setLoading(false);
+
+                            if (reEvalData.success) {
+                                console.log('Successfully re-evaluated member statuses:', reEvalData);
+
+                                // Display success message with the returned data
+                                const message = `Successfully re-evaluated ${reEvalData.totalMembers} members: 
+                                ${reEvalData.updatedMembers} updated, ${reEvalData.exemptMembers} exempt 
+                                (took ${Math.round(reEvalData.processingTimeMs / 1000 * 10) / 10}s)`;
+
+                                setSnackbar({
+                                    open: true,
+                                    message: message,
+                                    severity: 'success'
+                                });
+                            } else {
+                                console.error('Error re-evaluating member statuses:', reEvalData.error);
+
+                                setSnackbar({
+                                    open: true,
+                                    message: `Error: ${reEvalData.error || 'Failed to re-evaluate member statuses'}`,
+                                    severity: 'error'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            // Hide loading indicator
+                            setLoading(false);
+
+                            console.error('Error re-evaluating member statuses:', error);
+                            setSnackbar({
+                                open: true,
+                                message: 'Error: Failed to re-evaluate member statuses',
+                                severity: 'error'
+                            });
+                        });
+                } else {
+                    // Hide loading indicator
+                    setLoading(false);
                 }
             })
-            .catch(error => console.error('Error updating active requirement:', error));
+            .catch(error => {
+                // Hide loading indicator
+                setLoading(false);
+
+                console.error('Error updating active requirement:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Error: Failed to update active requirement',
+                    severity: 'error'
+                });
+            });
     };
 
     return (
@@ -171,16 +249,33 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
                             )}
                         </Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
-                            <Button variant="contained" color="primary" onClick={handleSave}>
-                                Save
+                            <Button
+                                startIcon={loading ? <CircularProgress size={24} /> : null}
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSave}
+                                disabled={loading}
+                            >
+                                {loading ? 'Saving...' : 'Save'}
                             </Button>
-                            <Button variant="outlined" onClick={handleClose}>
+                            <Button
+                                variant="outlined"
+                                onClick={handleClose}
+                                disabled={loading}
+                            >
                                 Cancel
                             </Button>
                         </Box>
                     </Box>
                 )}
             </Paper>
+
+            <SnackbarAlert
+                open={snackbar.open}
+                message={snackbar.message}
+                severity={snackbar.severity}
+                onClose={handleSnackbarClose}
+            />
         </Container>
     )
 };

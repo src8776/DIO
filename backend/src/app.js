@@ -148,5 +148,8 @@ app.use('/api/analytics', analyticsRoutes);
 const finalizeSemesterRoutes = require('./routes/finalizeSemester');
 app.use('/api/finalizeSemester', finalizeSemesterRoutes);
 
-// TODO: Add more REST endpoints here
+const reEvaluateStatusRoutes = require('./routes/reEvaluateStatus');
+app.use('/api/reEvaluateStatus', reEvaluateStatusRoutes);
+
+
 module.exports = app;

@@ -3,15 +3,18 @@ import { Box, ListItemButton, ListItemText, Modal } from '@mui/material';
 import EventItemRules from './EventItemRules';
 
 
-export default function EventItem({ name, rules, ruleType, requirementType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, refetchEventRules, isEditable }) {
-    const [open, setOpen] = React.useState(false);
-
+export default function EventItem({
+    name, rules, ruleType, requirementType,
+    maxPoints, orgID, occurrenceTotal,
+    eventTypeID, semesterID,
+    isEditable, open, onOpen, onClose
+}) {
     return (
         <>
-            <ListItemButton onClick={() => setOpen(true)}>
+            <ListItemButton onClick={onOpen}>
                 <ListItemText primary={name} secondary={rules.length + ` rule${rules.length !== 1 ? 's' : ''}`} />
             </ListItemButton>
-            <Modal open={open} onClose={() => setOpen(false)}>
+            <Modal open={open} onClose={onClose}>
                 <Box>
                     <EventItemRules
                         name={name}
@@ -23,11 +26,10 @@ export default function EventItem({ name, rules, ruleType, requirementType, maxP
                         occurrenceTotal={occurrenceTotal}
                         eventTypeID={eventTypeID}
                         semesterID={semesterID}
-                        refetchEventRules={refetchEventRules}
                         isEditable={isEditable}
                     />
                 </Box>
             </Modal>
         </>
-    )
-};
+    );
+}

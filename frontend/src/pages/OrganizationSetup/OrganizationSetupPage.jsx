@@ -27,12 +27,29 @@ export default function OrganizationSetup() {
     const [orgRules, setOrgRules] = React.useState(null);
     const [isFinalized, setIsFinalized] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
+    const [openEventID, setOpenEventID] = React.useState(null);
+    const MemoizedEventItem = React.memo(EventItem);
 
-    // Modal handlers
+    // Modal handlers for ActiveModal
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const handleFormOpen = () => setFormOpen(true);
     const handleFormClose = () => setFormOpen(false);
+
+    // Handlers for EventItem modals
+    const handleOpenModal = (eventTypeID) => {
+        setOpenEventID(eventTypeID);
+    };
+
+    const handleCloseModal = () => {
+        // First set the modal state to closed
+        setOpenEventID(null);
+        
+        // Then refresh event rules data
+        if (orgID && selectedSemester) {
+            fetchEventRules();
+        }
+    };
 
     // Validate org parameter
     if (!allowedTypes.includes(org)) {
@@ -153,7 +170,6 @@ export default function OrganizationSetup() {
             .catch((error) => console.error('Error copying rules:', error));
     };
 
-    console.log(orgRules);
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <Box component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
@@ -251,14 +267,16 @@ export default function OrganizationSetup() {
                         ) : orgRules && orgRules.eventTypes ? (
                             orgRules.eventTypes
                                 .sort((a, b) => b.rules.length - a.rules.length)
-                                .map((eventObj, index) => (
-                                    <EventItem
-                                        key={`rule-${index}`}
+                                .map((eventObj) => (
+                                    <MemoizedEventItem
+                                        key={eventObj.eventTypeID}
                                         {...eventObj}
                                         orgID={orgID}
                                         semesterID={selectedSemester?.SemesterID}
-                                        refetchEventRules={fetchEventRules}
                                         isEditable={isEditable}
+                                        open={openEventID === eventObj.eventTypeID}
+                                        onOpen={() => handleOpenModal(eventObj.eventTypeID)}
+                                        onClose={handleCloseModal}
                                     />
                                 ))
                         ) : (

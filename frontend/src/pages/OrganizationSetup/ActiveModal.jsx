@@ -5,7 +5,7 @@ import {
     InputLabel, MenuItem, Paper,
     Select, Table, TableBody, TableCell,
     TableHead, TableRow, TextField, Typography,
-    CircularProgress, Backdrop
+    CircularProgress,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SnackbarAlert from '../../components/SnackbarAlert';

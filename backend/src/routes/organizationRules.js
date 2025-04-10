@@ -6,7 +6,7 @@ const router = express.Router();
 if (process.env.NODE_ENV === "production") {
     const requireAuth = async (req, res, next) => {
         if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Not authenticated' });
+            return res.status(401).json({ message: 'Not authenticated' });
         }
         next();
     }
@@ -23,6 +23,21 @@ router.get('/eventRules', async (req, res) => {
         res.json({ eventTypes });
     } catch (error) {
         console.error('Error fetching event rules:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/eventRulesByType', async (req, res) => {
+    const { eventTypeID, semesterID } = req.query;
+    if (!eventTypeID || !semesterID) {
+        return res.status(400).json({ error: 'Missing eventTypeID or semesterID' });
+    }
+    try {
+        const rules = await EventRule.getEventRulesByEventTypeID(eventTypeID, semesterID);
+        res.json({ rules });
+    } catch (error) {
+        console.error('Error fetching event rules by type:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -398,11 +413,11 @@ router.post('/copyRules', async (req, res) => {
 
 router.get('/isFinalized', async (req, res) => {
     const { organizationID, semesterID } = req.query;
-    
+
     if (!organizationID || !semesterID) {
         return res.status(400).json({ error: 'Missing organizationID or semesterID parameter' });
     }
-    
+
     try {
         const query = `
             SELECT isFinalized 
@@ -410,11 +425,11 @@ router.get('/isFinalized', async (req, res) => {
             WHERE OrganizationID = ? AND SemesterID = ?
         `;
         const [results] = await db.query(query, [organizationID, semesterID]);
-        
+
         if (results.length === 0) {
             return res.status(404).json({ error: 'Organization settings not found' });
         }
-        
+
         res.json({ isFinalized: results[0].isFinalized });
     } catch (error) {
         console.error('Error fetching isFinalized:', error);

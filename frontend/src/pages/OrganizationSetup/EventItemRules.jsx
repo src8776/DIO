@@ -8,10 +8,10 @@ import {
     FormControl, InputLabel,
     Dialog, DialogActions,
     DialogContent, DialogContentText,
-    DialogTitle, Divider, Checkbox, FormControlLabel
+    DialogTitle, Divider, Checkbox, FormControlLabel,
+    CircularProgress
 } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+import SnackbarAlert from '../../components/SnackbarAlert';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -36,6 +36,8 @@ const modalStyle = {
 
 // Helper function to generate a readable description for a given rule
 function generateRuleDescription(rule, requirementType) {
+    console.log('Generating description for rule:', rule, 'with requirementType:', requirementType);
+
     const { criteria, criteriaValue, pointValue } = rule;
 
     // Use a switch-case (or if-else) to handle different rule types
@@ -75,7 +77,7 @@ function generateRuleDescription(rule, requirementType) {
     }
 }
 
-export default function EventItemRules({ name, rules, ruleType, requirementType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, refetchEventRules, isEditable }) {
+export default function EventItemRules({ name, rules, ruleType, requirementType, maxPoints, orgID, occurrenceTotal, eventTypeID, semesterID, isEditable }) {
     const [editRuleOpen, setEditRuleOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
     const [selectedRule, setSelectedRule] = React.useState(null);
@@ -102,6 +104,38 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
     const [deleteEventDialogOpen, setDeleteEventDialogOpen] = React.useState(false);
     const [attendanceCount, setAttendanceCount] = React.useState(0);
 
+    const [eventData, setEventData] = React.useState({ name, rules, ruleType, maxPoints, occurrenceTotal });
+    const [loading, setLoading] = React.useState(false);
+    const [snackbar, setSnackbar] = React.useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    // Function to fetch updated event data
+    const fetchUpdatedEventData = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`/api/organizationRules/eventRulesByType?eventTypeID=${eventTypeID}&semesterID=${semesterID}`);
+            const data = await response.json();
+            console.log('Fetched event data:', data);
+            if (data.rules) {
+                setEventData({
+                    name: data.rules.name,
+                    rules: data.rules.rules,
+                    ruleType: data.rules.ruleType,
+                    maxPoints: data.rules.maxPoints,
+                    occurrenceTotal: data.rules.occurrenceTotal,
+                });
+            } else {
+                console.error('Error fetching updated event data:', data.error);
+            }
+        } catch (error) {
+            console.error('Error fetching updated event data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     React.useEffect(() => {
         if (orgID && semesterID) {
@@ -144,13 +178,54 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
         setIsEditingEvent(true);
     };
 
+    const handleReEvaluateStatus = async () => {
+        try {
+            const response = await fetch('/api/reEvaluateStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orgID,
+                    selectedSemester: { SemesterID: semesterID }
+                })
+            });
+            const reEvalData = await response.json();
+            if (reEvalData.success) {
+                console.log('Successfully re-evaluated member statuses:', reEvalData);
+                const message = `Successfully re-evaluated ${reEvalData.totalMembers} members: 
+                    ${reEvalData.updatedMembers} updated, ${reEvalData.exemptMembers} exempt 
+                    (took ${Math.round(reEvalData.processingTimeMs / 1000 * 10) / 10}s)`;
+                setSnackbar({
+                    open: true,
+                    message,
+                    severity: 'success'
+                });
+            } else {
+                console.error('Error re-evaluating member statuses:', reEvalData.error);
+                setSnackbar({
+                    open: true,
+                    message: `Error: ${reEvalData.error || 'Failed to re-evaluate member statuses'}`,
+                    severity: 'error'
+                });
+            }
+        } catch (error) {
+            console.error('Error re-evaluating member statuses:', error);
+            setSnackbar({
+                open: true,
+                message: 'Error: Failed to re-evaluate member statuses',
+                severity: 'error'
+            });
+        }
+    };
+
     const handleSaveEvent = () => {
         setOccurrenceError('');
         setMaxPointsError('');
+        setLoading(true);
 
         const parsedOccurrences = parseInt(editedOccurrenceTotal, 10);
         if (isNaN(parsedOccurrences) || parsedOccurrences < 0) {
             setOccurrenceError('Total occurrences must be a non-negative integer');
+            setLoading(false);
             return;
         }
 
@@ -159,6 +234,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             parsedMaxPoints = parseInt(editedMaxPoints, 10);
             if (isNaN(parsedMaxPoints) || parsedMaxPoints < 1) {
                 setMaxPointsError('Max points must be a positive integer');
+                setLoading(false);
                 return;
             }
         }
@@ -193,15 +269,30 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                     setMaxPointsError('Failed to update max points');
                     throw new Error('Failed to update max points');
                 }
-                refetchEventRules();
-                setIsEditingEvent(false);
+                // refetchEventRules();
+                setSnackbar({
+                    open: true,
+                    message: 'Event updated successfully',
+                    severity: 'success',
+                });
+                return handleReEvaluateStatus();
             })
             .catch(error => {
                 console.error('Error updating event:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Error: Failed to update event',
+                    severity: 'error',
+                });
+            })
+            .finally(() => {
+                fetchUpdatedEventData();
+                setLoading(false);
             });
     };
 
     const handleDeleteEvent = () => {
+        setLoading(true);
         fetch('/api/organizationRules/deleteEventType', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -210,15 +301,28 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    refetchEventRules();
                     setDeleteEventDialogOpen(false);
                     setIsEditingEvent(false);
+                    return handleReEvaluateStatus();
                 } else {
                     console.error('Error deleting event type:', data.error);
+                    setSnackbar({
+                        open: true,
+                        message: 'Error: Failed to delete event type',
+                        severity: 'error'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error deleting event type:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Error: Failed to delete event type',
+                    severity: 'error'
+                });
+            })
+            .finally(() => {
+                setLoading(false);
             });
     };
 
@@ -252,6 +356,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             return;
         }
 
+        setLoading(true);
         fetch('/api/organizationRules/updateRule', {
             method: 'PUT',
             headers: {
@@ -267,18 +372,38 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    refetchEventRules();
-                    handleEditRuleClose();
+                    // refetchEventRules(); // Fetch updated rules
+                    setSnackbar({
+                        open: true,
+                        message: 'Rule updated successfully',
+                        severity: 'success',
+                    });
+                    return handleReEvaluateStatus();
                 } else {
                     console.error('Error updating rule:', data.error);
+                    setSnackbar({
+                        open: true,
+                        message: 'Error: Failed to update rule',
+                        severity: 'error',
+                    });
                 }
             })
             .catch((error) => {
                 console.error('Error updating rule:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Error: Failed to update rule',
+                    severity: 'error',
+                });
+            })
+            .finally(() => {
+                fetchUpdatedEventData();
+                setLoading(false);
             });
     };
 
     const handleDeleteRule = () => {
+        setLoading(true);
         fetch('/api/organizationRules/deleteRule', {
             method: 'DELETE',
             headers: {
@@ -291,16 +416,36 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    refetchEventRules();
+                    // refetchEventRules();
+                    setSnackbar({
+                        open: true,
+                        message: 'Rule deleted successfully',
+                        severity: 'success',
+                    });
+                    // Keep modal open: only reset selection
                     setSelectedRule(null);
-                    setEditRuleOpen(false);
                     setDeleteDialogOpen(false);
+                    return handleReEvaluateStatus();
                 } else {
                     console.error('Error deleting rule:', data.error);
+                    setSnackbar({
+                        open: true,
+                        message: 'Error: Failed to delete rule',
+                        severity: 'error',
+                    });
                 }
             })
             .catch((error) => {
                 console.error('Error deleting rule:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Error: Failed to delete rule',
+                    severity: 'error',
+                });
+            })
+            .finally(() => {
+                fetchUpdatedEventData();
+                setLoading(false);
             });
     };
 
@@ -308,18 +453,15 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
     const handleCloseDeleteDialog = () => setDeleteDialogOpen(false);
 
     const handleSaveNewRule = () => {
-        // Reset errors
         setAddPercentError('');
         setAddPointError('');
 
-        // Validate criteria type
         if (!newRuleCriteriaType) {
             setAddPercentError('Please select a criteria type');
             return;
         }
 
-        // Handle criteria value
-        let criteriaValue = 0.00; // Default to 0.00
+        let criteriaValue = 0.00;
         if (newRuleCriteriaType === 'minimum threshold percentage' || newRuleCriteriaType === 'minimum threshold hours') {
             criteriaValue = parseFloat(newRuleCriteriaValue);
             if (isNaN(criteriaValue) || criteriaValue <= 0) {
@@ -332,14 +474,13 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             }
         }
 
-        // Validate point value
         const pointValue = parseInt(newRulePointValue, 10);
         if (isNaN(pointValue) || pointValue < 1) {
             setAddPointError('Point value must be at least 1');
             return;
         }
 
-        // Add New Rule
+        setLoading(true);
         fetch('/api/organizationRules/addRule', {
             method: 'POST',
             headers: {
@@ -355,7 +496,39 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             }),
         })
             .then(response => response.json())
-            .then(data => data.message === 'Rule added successfully' && (setAddRuleOpen(false), refetchEventRules()));
+            .then(data => {
+                if (data.message === 'Rule added successfully') {
+                    // refetchEventRules();
+                    setSnackbar({
+                        open: true,
+                        message: 'Rule added successfully',
+                        severity: 'success',
+                    });
+                    return handleReEvaluateStatus();
+                } else {
+                    setSnackbar({
+                        open: true,
+                        message: 'Error: Failed to add rule',
+                        severity: 'error',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error adding rule:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Error: Failed to add rule',
+                    severity: 'error',
+                });
+            })
+            .finally(() => {
+                fetchUpdatedEventData();
+                setLoading(false);
+            });
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbar({ ...snackbar, open: false });
     };
 
     return (
@@ -363,7 +536,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
             <Paper elevation={1} sx={modalStyle}>
                 <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
                     <Typography variant="h5">
-                        {name}
+                        {eventData.name}
                     </Typography>
                     {isEditable && !isEditingEvent && (
                         <Button
@@ -385,7 +558,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             error={!!occurrenceError}
                             helperText={occurrenceError}
                         />
-                        {requirementType === 'points' && (
+                        {eventData.requirementType === 'points' && (
                             <>
                                 <FormControlLabel
                                     control={
@@ -417,8 +590,14 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                                 <Button variant="outlined" onClick={() => setIsEditingEvent(false)}>
                                     Cancel
                                 </Button>
-                                <Button variant="contained" color="primary" onClick={handleSaveEvent}>
-                                    Save
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleSaveEvent}
+                                    disabled={loading}
+                                    startIcon={loading ? <CircularProgress size={24} /> : null}
+                                >
+                                    {loading ? 'Saving...' : 'Save'}
                                 </Button>
                             </Box>
                         </Box>
@@ -426,9 +605,9 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                 ) : (
                     <Box sx={{ pb: 1 }}>
                         <Typography>
-                            Occurrences Per Semester: {occurrenceTotal}
+                            Occurrences Per Semester: {eventData.occurrenceTotal}
                         </Typography>
-                        {requirementType === 'points' && (
+                        {eventData.requirementType === 'points' && (
                             <Typography>
                                 Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
                             </Typography>
@@ -462,8 +641,8 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rules && rules.length > 0 ? (
-                                rules.map((rule, index) => (
+                            {eventData.rules && eventData.rules.length > 0 ? (
+                                eventData.rules.map((rule, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{rule.ruleID}</TableCell>
                                         <TableCell>{generateRuleDescription(rule, requirementType)}</TableCell>
@@ -546,7 +725,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         )}
                         <Typography>
                             Example:
-                            {requirementType == 'criteria' ? (
+                            {requirementType === 'criteria' ? (
                                 newCriteriaType === "one off" && <> "Attend at least one event"</> ||
                                 newCriteriaType === "minimum threshold percentage" && <> "Attend at least 50% of events"</> ||
                                 newCriteriaType === "minimum threshold hours" && <> "Attend event for at least 5 hours"</>
@@ -558,11 +737,17 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             )}
                         </Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
-                            <Button variant="outlined" onClick={handleEditRuleClose}>
+                            <Button variant="outlined" onClick={handleEditRuleClose} disabled={loading}>
                                 Cancel
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleSaveRule}>
-                                Save
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSaveRule}
+                                disabled={loading}
+                                startIcon={loading ? <CircularProgress size={24} /> : null}
+                            >
+                                {loading ? 'Saving...' : 'Save'}
                             </Button>
                         </Box>
                     </Box>
@@ -611,11 +796,17 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             helperText={addPointError}
                         />
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 2 }}>
-                            <Button variant="outlined" onClick={() => setAddRuleOpen(false)}>
+                            <Button variant="outlined" onClick={() => setAddRuleOpen(false)} disabled={loading}>
                                 Cancel
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleSaveNewRule}>
-                                Save
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSaveNewRule}
+                                disabled={loading}
+                                startIcon={loading ? <CircularProgress size={24} /> : null}
+                            >
+                                {loading ? 'Saving...' : 'Save'}
                             </Button>
                         </Box>
                     </Box>
@@ -632,11 +823,16 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleCloseDeleteDialog} color="primary">
+                        <Button onClick={handleCloseDeleteDialog} color="primary" disabled={loading}>
                             Cancel
                         </Button>
-                        <Button onClick={handleDeleteRule} color="secondary">
-                            Delete
+                        <Button
+                            onClick={handleDeleteRule}
+                            color="secondary"
+                            disabled={loading}
+                            startIcon={loading ? <CircularProgress size={24} /> : null}
+                        >
+                            {loading ? 'Deleting...' : 'Delete'}
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -651,7 +847,9 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         <DialogContentText>
                             {attendanceCount > 0 ? (
                                 <>
-                                    This event type cannot be deleted because it has <span style={{ fontWeight: 'bold', color: '#d32f2f' }}>{attendanceCount}</span> attendance record{attendanceCount > 1 ? 's' : ''} associated with it. <br />
+                                    This event type cannot be deleted because it has
+                                    <span style={{ fontWeight: 'bold', color: '#d32f2f' }}> {attendanceCount} </span>
+                                    attendance record{attendanceCount > 1 ? 's' : ''} associated with it. <br />
                                 </>
                             ) : (
                                 <>
@@ -668,16 +866,28 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             </Button>
                         ) : (
                             <>
-                                <Button onClick={() => setDeleteEventDialogOpen(false)} color="primary">
-                                    cancel
+                                <Button onClick={() => setDeleteEventDialogOpen(false)} color="primary" disabled={loading}>
+                                    Cancel
                                 </Button>
-                                <Button onClick={handleDeleteEvent} color="secondary">
-                                    Delete
+                                <Button
+                                    onClick={handleDeleteEvent}
+                                    color="secondary"
+                                    disabled={loading}
+                                    startIcon={loading ? <CircularProgress size={24} /> : null}
+                                >
+                                    {loading ? 'Deleting...' : 'Delete'}
                                 </Button>
                             </>
                         )}
                     </DialogActions>
                 </Dialog>
+
+                <SnackbarAlert
+                    open={snackbar.open}
+                    message={snackbar.message}
+                    severity={snackbar.severity}
+                    onClose={handleSnackbarClose}
+                />
             </Paper>
         </Container>
     );

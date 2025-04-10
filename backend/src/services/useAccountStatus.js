@@ -32,8 +32,8 @@ const updateMemberStatus = async (memberID, organizationID, semester, connection
         // Update if non-Exempt and status has changed (allows Active -> General update)
         if (currentStatus !== 'Exempt' && currentStatus !== statusObject.status) {
             await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID, connection);
-            if (statusObject.status === 'Active') {
-                await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disabled to prevent spamming
+            if (statusObject.status === 'Active' && memberEmail === 'lcs9244@rit.edu') {
+                await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disable to prevent spamming
                 console.log(`Would send email to ${memberEmail} (disabled)`);
             }
             return statusObject.status;

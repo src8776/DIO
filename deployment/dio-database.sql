@@ -369,20 +369,13 @@ SET FOREIGN_KEY_CHECKS = 1;
 SET GLOBAL event_scheduler = ON;
 
 -- Stored Procedure to load the semester dynamically generated based on the current date
-DELIMITER ;;
+DELIMITER $$
 
-DROP PROCEDURE IF EXISTS add_future_semesters;;
+DROP PROCEDURE IF EXISTS add_future_semesters$$
 
 CREATE PROCEDURE add_future_semesters()
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        -- Rollback on any error
-        ROLLBACK;
-    END;
-    -- Start the transaction
-    START TRANSACTION;
-
+    -- Variables must come first
     DECLARE lastTermCode CHAR(4);
     DECLARE lastAcademicYear CHAR(9);
     DECLARE nextTermCode CHAR(4);
@@ -398,21 +391,33 @@ BEGIN
     DECLARE baseEndDate DATE;
     DECLARE baseAcademicYear CHAR(9);
 
-    -- Case 1: Table is empty, dynamically seed first semester
-    IF (SELECT COUNT(*) FROM Semesters) = 0 THEN
-        DECLARE currentYear INT DEFAULT YEAR(CURDATE());
-        DECLARE currentMonth INT DEFAULT MONTH(CURDATE());
-        DECLARE nextYear INT DEFAULT currentYear + 1;
+    DECLARE currentYear INT DEFAULT YEAR(CURDATE());
+    DECLARE currentMonth INT DEFAULT MONTH(CURDATE());
+    DECLARE nextYear INT DEFAULT currentYear + 1;
 
+    DECLARE lastYearStart INT;
+    DECLARE lastYearEnd INT;
+    DECLARE nextYearStart INT;
+    DECLARE nextYearEnd INT;
+
+    -- Then comes the handler
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    -- Start transaction
+    START TRANSACTION;
+
+    -- Case 1: Table is empty
+    IF (SELECT COUNT(*) FROM Semesters) = 0 THEN
         IF currentMonth <= 6 THEN
-            -- Spring semester fallback
             SET baseTermCode = CONCAT('2', RIGHT(currentYear, 2), '5');
             SET baseTermName = CONCAT('Spring ', currentYear);
             SET baseStartDate = STR_TO_DATE(CONCAT(currentYear, '-01-15'), '%Y-%m-%d');
             SET baseEndDate = STR_TO_DATE(CONCAT(currentYear, '-06-15'), '%Y-%m-%d');
             SET baseAcademicYear = CONCAT(currentYear, '-', nextYear);
         ELSE
-            -- Fall semester fallback
             SET baseTermCode = CONCAT('2', RIGHT(currentYear, 2), '1');
             SET baseTermName = CONCAT('Fall ', currentYear);
             SET baseStartDate = STR_TO_DATE(CONCAT(currentYear, '-08-01'), '%Y-%m-%d');
@@ -424,36 +429,35 @@ BEGIN
         VALUES (baseTermCode, baseTermName, baseStartDate, baseEndDate, baseAcademicYear, 0);
     END IF;
 
-    -- Now continue with generating the next 4 semesters
+    -- Continue with generating next semesters
     SELECT TermCode, AcademicYear
     INTO lastTermCode, lastAcademicYear
     FROM Semesters
     ORDER BY SemesterID DESC
     LIMIT 1;
 
-    SET @lastYearStart = CAST(LEFT(lastAcademicYear, 4) AS UNSIGNED);
-    SET @lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
+    SET lastYearStart = CAST(LEFT(lastAcademicYear, 4) AS UNSIGNED);
+    SET lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
 
     WHILE i < 4 DO
         IF RIGHT(lastTermCode, 1) = '1' THEN
-            -- Next is Spring semester
+            -- Spring next
             SET nextTermCode = CONCAT(LEFT(lastTermCode, 3), '5');
-            SET nextTermName = CONCAT('Spring ', @lastYearEnd);
+            SET nextTermName = CONCAT('Spring ', lastYearEnd);
             SET nextStartDate = DATE_ADD((SELECT EndDate FROM Semesters WHERE TermCode = lastTermCode), INTERVAL 1 DAY);
             SET nextEndDate = DATE_ADD(nextStartDate, INTERVAL 5 MONTH);
-            SET nextAcademicYear = CONCAT(@lastYearStart, '-', @lastYearEnd);
+            SET nextAcademicYear = CONCAT(lastYearStart, '-', lastYearEnd);
         ELSE
-            -- Next is Fall semester
-            SET @nextYearStart = @lastYearEnd;
-            SET @nextYearEnd = @nextYearStart + 1;
-            SET nextTermCode = CONCAT('2', RIGHT(@nextYearStart, 2), '1');
-            SET nextTermName = CONCAT('Fall ', @nextYearStart);
+            -- Fall next
+            SET nextYearStart = lastYearEnd;
+            SET nextYearEnd = nextYearStart + 1;
+            SET nextTermCode = CONCAT('2', RIGHT(nextYearStart, 2), '1');
+            SET nextTermName = CONCAT('Fall ', nextYearStart);
             SET nextStartDate = DATE_ADD((SELECT EndDate FROM Semesters WHERE TermCode = lastTermCode), INTERVAL 2 MONTH);
             SET nextEndDate = DATE_ADD(nextStartDate, INTERVAL 5 MONTH);
-            SET nextAcademicYear = CONCAT(@nextYearStart, '-', @nextYearEnd);
+            SET nextAcademicYear = CONCAT(nextYearStart, '-', nextYearEnd);
         END IF;
 
-        -- Insert only if not already present
         IF NOT EXISTS (SELECT 1 FROM Semesters WHERE TermCode = nextTermCode) THEN
             INSERT INTO Semesters (TermCode, TermName, StartDate, EndDate, AcademicYear, IsActive)
             VALUES (nextTermCode, nextTermName, nextStartDate, nextEndDate, nextAcademicYear, 0);
@@ -461,24 +465,32 @@ BEGIN
 
         SET lastTermCode = nextTermCode;
         SET lastAcademicYear = nextAcademicYear;
-        SET @lastYearStart = CAST(LEFT(lastAcademicYear, 4) AS UNSIGNED);
-        SET @lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
+        SET lastYearStart = CAST(LEFT(lastAcademicYear, 4) AS UNSIGNED);
+        SET lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
         SET i = i + 1;
     END WHILE;
-    -- Commit the transaction if everything succeeds
+
     COMMIT;
-END ;;
+END$$
 
 DELIMITER ;
+
 
 --
 -- EVENT SCHEDULERS created for Stored Procedure Add_Future_Semesters()
 --
 
 -- Event: Daily update to mark current semester as active
+
+DELIMITER $$
+
+-- Event: Daily update to mark current semester as active
+DELIMITER $$
+
+-- Event: Daily update to mark current semester as active
 CREATE EVENT `update_active_semester`
 ON SCHEDULE EVERY 1 DAY
-STARTS '2025-03-28 10:42:52'
+STARTS CURRENT_TIMESTAMP  -- This uses the current timestamp
 ON COMPLETION NOT PRESERVE
 ENABLE
 DO
@@ -490,12 +502,12 @@ BEGIN
     UPDATE Semesters
     SET IsActive = 1
     WHERE CURDATE() BETWEEN StartDate AND EndDate;
-END;
+END$$
 
 -- Event: Monthly check to auto-add future semesters
 CREATE EVENT `auto_add_future_semesters`
 ON SCHEDULE EVERY 1 MONTH
-STARTS '2025-03-01 00:00:00'
+STARTS DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH)  -- Starts 1 month from today
 ON COMPLETION NOT PRESERVE
 ENABLE
 DO
@@ -508,4 +520,9 @@ BEGIN
     ) < 4 THEN
         CALL add_future_semesters();
     END IF;
-END;
+END$$
+
+DELIMITER ;
+
+-- Manually update the Semesters table once
+CALL add_future_semesters();

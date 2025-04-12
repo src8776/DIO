@@ -1,5 +1,6 @@
 -- MySQL SCHEMA for dio_db
 -- 
+START TRANSACTION;
 -- This script sets up the predefined database tables for the dio_db database.
 -- It includes the creation of necessary tables, insertion of some initial data
 -- and the definition of stored procedures and events for managing future semesters.
@@ -12,21 +13,16 @@
 -- 5. Inserts initial data into tables like Organizations, Colleges, EventRules, EventTypes, Majors, etc.
 -- 6. Defines stored procedures for adding future semesters.
 -- 7. Sets up scheduled events for updating active semesters and adding future semesters.
-
-
 --
 -- EVENT SCHEDULER enabled for database `dio`
 --
 SET GLOBAL event_scheduler = ON;
-
-
 --
 -- NEW DATABASE
 --
 -- Create database before granting privileges
 DROP DATABASE IF EXISTS `dio_db`;
 CREATE DATABASE `dio_db`;
-
 
 -- 
 -- USER SET UP created for `dio_db`
@@ -38,13 +34,92 @@ FLUSH PRIVILEGES;
 
 USE `dio_db`;
 
-
+--
+-- Disable foreign key checks to avoid issues during table creation
+-- 
+SET FOREIGN_KEY_CHECKS = 0;
 --
 -- Database created
 --
 DROP DATABASE IF EXISTS `dio_db`;
 CREATE Database `dio_db`;
 USE `dio_db`;
+
+--
+-- Table structure for table `Organizations`
+--
+
+DROP TABLE IF EXISTS `Organizations`;
+CREATE TABLE `Organizations` (
+  `OrganizationID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(150) NOT NULL,
+  `Description` text,
+  `Abbreviation` char(20) DEFAULT NULL,
+  `URL` text,
+  `ImagePath` varchar(255) DEFAULT NULL,
+  `Image` blob,
+  PRIMARY KEY (`OrganizationID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `Organizations`
+--
+
+LOCK TABLES `Organizations` WRITE;
+/*!40000 ALTER TABLE `Organizations` DISABLE KEYS */;
+INSERT INTO `Organizations` VALUES (1,'Women in Computing','Women in Computing is dedicated to promoting the success and advancement of women and all gender minorities in their academic and professional careers','wic',NULL,NULL,NULL),(2,'Computing Organization for Multicultural Students','The Computing Organization for Multicultural Students is committed to building a supportive community that celebrates the talent of underrepresented students in computing fields','coms',NULL,NULL,NULL);
+/*!40000 ALTER TABLE `Organizations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `Roles`
+--
+
+DROP TABLE IF EXISTS `Roles`;
+CREATE TABLE `Roles` (
+  `RoleID` int NOT NULL AUTO_INCREMENT,
+  `RoleName` enum('Eboard','Member','Admin') DEFAULT 'Member',
+  PRIMARY KEY (`RoleID`),
+  UNIQUE KEY `RoleName` (`RoleName`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `Roles`
+--
+
+LOCK TABLES `Roles` WRITE;
+/*!40000 ALTER TABLE `Roles` DISABLE KEYS */;
+INSERT INTO `Roles` VALUES (3,'Eboard'),(2,'Member'),(1,'Admin');
+/*!40000 ALTER TABLE `Roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `Semesters`
+--
+
+DROP TABLE IF EXISTS `Semesters`;
+CREATE TABLE `Semesters` (
+  `SemesterID` int NOT NULL AUTO_INCREMENT,
+  `TermCode` char(4) NOT NULL,
+  `TermName` varchar(20) NOT NULL,
+  `StartDate` date NOT NULL,
+  `EndDate` date NOT NULL,
+  `AcademicYear` char(9) NOT NULL,
+  `IsActive` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`SemesterID`),
+  UNIQUE KEY `TermCode` (`TermCode`),
+  KEY `AcademicYear` (`AcademicYear`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `Semesters`
+--
+
+LOCK TABLES `Semesters` WRITE;
+/*!40000 ALTER TABLE `Semesters` DISABLE KEYS */;
+INSERT INTO `Semesters` VALUES (1,'2231','Fall 2023','2023-08-01','2023-12-31','2023-2024',0),(2,'2235','Spring 2024','2024-01-01','2024-05-31','2023-2024',0),(3,'2241','Fall 2024','2024-08-01','2024-12-31','2024-2025',0),(4,'2245','Spring 2025','2025-01-01','2025-05-31','2024-2025',1);
+/*!40000 ALTER TABLE `Semesters` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 --
@@ -94,6 +169,35 @@ INSERT INTO `Colleges` VALUES (1,'College of Art and Design','CAD'),(2,'College 
 /*!40000 ALTER TABLE `Colleges` ENABLE KEYS */;
 UNLOCK TABLES;
 
+--
+-- Table structure for table `EventTypes`
+--
+DROP TABLE IF EXISTS `EventTypes`;
+CREATE TABLE `EventTypes` (
+  `EventTypeID` int NOT NULL AUTO_INCREMENT,
+  `EventType` varchar(50) DEFAULT 'General Meeting',
+  `RuleType` enum('Points','Threshold','Hours','Attendance') DEFAULT NULL,
+  `MaxPoints` int DEFAULT NULL,
+  `MinPoints` int DEFAULT NULL,
+  `OccurrenceTotal` int DEFAULT '0',
+  `OrganizationID` int NOT NULL,
+  `SemesterID` int NOT NULL,
+  PRIMARY KEY (`EventTypeID`),
+  KEY `fk_event_type_organizationID` (`OrganizationID`),
+  KEY `fk_EventTypes_Semesters` (`SemesterID`),
+  CONSTRAINT `fk_event_type_organizationID` FOREIGN KEY (`OrganizationID`) REFERENCES `Organizations` (`OrganizationID`),
+  CONSTRAINT `fk_EventTypes_Semesters` FOREIGN KEY (`SemesterID`) REFERENCES `Semesters` (`SemesterID`)
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `EventTypes`
+--
+
+LOCK TABLES `EventTypes` WRITE;
+/*!40000 ALTER TABLE `EventTypes` DISABLE KEYS */;
+INSERT INTO `EventTypes` VALUES (15,'General Meeting','Points',NULL,NULL,15,2,3),(16,'Community Engagement Committee','Points',NULL,NULL,10,2,3),(17,'Volunteer Event','Points',NULL,NULL,8,2,3),(18,'Mentor Event','Points',9,NULL,5,2,3),(19,'Workshop','Points',NULL,NULL,NULL,2,3),(20,'General Meeting','Threshold',NULL,NULL,15,1,3),(21,'Committee Meeting','Threshold',NULL,NULL,10,1,3),(22,'Social Event','Threshold',NULL,NULL,5,1,3),(23,'Volunteer Event','Threshold',NULL,NULL,8,1,3),(24,'Hackathon Committee','Attendance',NULL,NULL,8,2,3),(25,'Tech Projects Committee','Attendance',NULL,NULL,10,2,3),(33,'General Meeting','Points',NULL,NULL,15,2,4),(34,'Community Engagement Committee','Points',NULL,NULL,10,2,4),(35,'Volunteer Event','Points',NULL,NULL,8,2,4),(36,'Mentor Event','Points',9,NULL,5,2,4),(37,'Workshop','Points',NULL,NULL,NULL,2,4),(38,'Hackathon Committee','Attendance',NULL,NULL,8,2,4),(39,'Tech Projects Committee','Attendance',NULL,NULL,10,2,4),(45,'General Meeting','Threshold',NULL,NULL,15,1,4),(46,'Committee Meeting','Threshold',NULL,NULL,10,1,4),(47,'Social Event','Threshold',NULL,NULL,5,1,4),(48,'Volunteer Event','Threshold',NULL,NULL,8,1,4),(49,'General Meeting','Points',NULL,NULL,15,2,1),(50,'Community Engagement Committee','Points',NULL,NULL,10,2,1),(51,'Volunteer Event','Points',NULL,NULL,8,2,1),(52,'Mentor Event','Points',9,NULL,5,2,1),(53,'Workshop','Points',NULL,NULL,NULL,2,1),(54,'Hackathon Committee','Attendance',NULL,NULL,8,2,1),(55,'Tech Projects Committee','Attendance',NULL,NULL,10,2,1),(57,'General Meeting','Threshold',NULL,NULL,15,1,1),(58,'Committee Meeting','Threshold',NULL,NULL,10,1,1),(59,'Social Event','Threshold',NULL,NULL,5,1,1),(60,'Volunteer Event','Threshold',NULL,NULL,8,1,1);
+/*!40000 ALTER TABLE `EventTypes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `EventInstances`
@@ -149,36 +253,6 @@ LOCK TABLES `EventRules` WRITE;
 /*!40000 ALTER TABLE `EventRules` DISABLE KEYS */;
 INSERT INTO `EventRules` VALUES (94,2,15,'attendance',0.00,1,3),(95,2,15,'minimum threshold percentage',0.50,1,3),(96,2,15,'minimum threshold percentage',0.75,2,3),(97,2,15,'minimum threshold percentage',1.00,3,3),(98,2,16,'attendance',0.00,1,3),(99,2,16,'minimum threshold percentage',0.50,2,3),(100,2,16,'minimum threshold percentage',1.00,3,3),(101,2,17,'minimum threshold hours',1.00,1,3),(102,2,17,'minimum threshold hours',3.00,2,3),(103,2,17,'minimum threshold hours',6.00,3,3),(104,2,17,'minimum threshold hours',9.00,4,3),(105,2,18,'attendance',0.00,1,3),(106,2,18,'one off',0.00,3,3),(107,1,20,'minimum threshold percentage',0.50,1,3),(108,1,21,'minimum threshold percentage',0.50,1,3),(109,1,22,'one off',0.00,1,3),(110,1,23,'one off',0.00,1,3),(112,2,19,'attendance',0.00,1,3),(113,2,24,'attendance',0.00,1,3),(114,2,24,'minimum threshold percentage',0.50,2,3),(115,2,24,'minimum threshold percentage',1.00,3,3),(116,2,25,'attendance',0.00,1,3),(117,2,25,'minimum threshold percentage',0.50,2,3),(118,2,25,'minimum threshold percentage',1.00,3,3),(139,2,33,'attendance',0.00,1,4),(140,2,33,'minimum threshold percentage',0.50,1,4),(141,2,33,'minimum threshold percentage',0.75,2,4),(142,2,33,'minimum threshold percentage',1.00,3,4),(143,2,34,'attendance',0.00,1,4),(144,2,34,'minimum threshold percentage',0.50,2,4),(145,2,34,'minimum threshold percentage',1.00,3,4),(146,2,35,'minimum threshold hours',1.00,1,4),(147,2,35,'minimum threshold hours',3.00,2,4),(148,2,35,'minimum threshold hours',6.00,3,4),(149,2,35,'minimum threshold hours',9.00,4,4),(150,2,36,'attendance',0.00,1,4),(151,2,36,'one off',0.00,3,4),(152,2,37,'attendance',0.00,1,4),(153,2,38,'attendance',0.00,1,4),(154,2,38,'minimum threshold percentage',0.50,2,4),(155,2,38,'minimum threshold percentage',1.00,3,4),(156,2,39,'attendance',0.00,1,4),(157,2,39,'minimum threshold percentage',0.50,2,4),(158,2,39,'minimum threshold percentage',1.00,3,4),(164,1,45,'minimum threshold percentage',0.50,1,4),(165,1,46,'minimum threshold percentage',0.50,1,4),(166,1,47,'one off',0.00,1,4),(167,1,48,'one off',0.00,1,4),(168,2,49,'attendance',0.00,1,1),(169,2,49,'minimum threshold percentage',0.50,1,1),(170,2,49,'minimum threshold percentage',0.75,2,1),(171,2,49,'minimum threshold percentage',1.00,3,1),(172,2,50,'attendance',0.00,1,1),(173,2,50,'minimum threshold percentage',0.50,2,1),(174,2,50,'minimum threshold percentage',1.00,3,1),(175,2,51,'minimum threshold hours',1.00,1,1),(176,2,51,'minimum threshold hours',3.00,2,1),(177,2,51,'minimum threshold hours',6.00,3,1),(178,2,51,'minimum threshold hours',9.00,4,1),(179,2,52,'attendance',0.00,1,1),(180,2,52,'one off',0.00,3,1),(181,2,53,'attendance',0.00,1,1),(182,2,54,'attendance',0.00,1,1),(183,2,54,'minimum threshold percentage',0.50,2,1),(184,2,54,'minimum threshold percentage',1.00,3,1),(185,2,55,'attendance',0.00,1,1),(186,2,55,'minimum threshold percentage',0.50,2,1),(187,2,55,'minimum threshold percentage',1.00,3,1),(189,1,57,'minimum threshold percentage',0.50,1,1),(190,1,58,'minimum threshold percentage',0.50,1,1),(191,1,59,'one off',0.00,1,1),(192,1,60,'one off',0.00,1,1);
 /*!40000 ALTER TABLE `EventRules` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `EventTypes`
---
-DROP TABLE IF EXISTS `EventTypes`;
-CREATE TABLE `EventTypes` (
-  `EventTypeID` int NOT NULL AUTO_INCREMENT,
-  `EventType` varchar(50) DEFAULT 'General Meeting',
-  `RuleType` enum('Points','Threshold','Hours','Attendance') DEFAULT NULL,
-  `MaxPoints` int DEFAULT NULL,
-  `MinPoints` int DEFAULT NULL,
-  `OccurrenceTotal` int DEFAULT '0',
-  `OrganizationID` int NOT NULL,
-  `SemesterID` int NOT NULL,
-  PRIMARY KEY (`EventTypeID`),
-  KEY `fk_event_type_organizationID` (`OrganizationID`),
-  KEY `fk_EventTypes_Semesters` (`SemesterID`),
-  CONSTRAINT `fk_event_type_organizationID` FOREIGN KEY (`OrganizationID`) REFERENCES `Organizations` (`OrganizationID`),
-  CONSTRAINT `fk_EventTypes_Semesters` FOREIGN KEY (`SemesterID`) REFERENCES `Semesters` (`SemesterID`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `EventTypes`
---
-
-LOCK TABLES `EventTypes` WRITE;
-/*!40000 ALTER TABLE `EventTypes` DISABLE KEYS */;
-INSERT INTO `EventTypes` VALUES (15,'General Meeting','Points',NULL,NULL,15,2,3),(16,'Community Engagement Committee','Points',NULL,NULL,10,2,3),(17,'Volunteer Event','Points',NULL,NULL,8,2,3),(18,'Mentor Event','Points',9,NULL,5,2,3),(19,'Workshop','Points',NULL,NULL,NULL,2,3),(20,'General Meeting','Threshold',NULL,NULL,15,1,3),(21,'Committee Meeting','Threshold',NULL,NULL,10,1,3),(22,'Social Event','Threshold',NULL,NULL,5,1,3),(23,'Volunteer Event','Threshold',NULL,NULL,8,1,3),(24,'Hackathon Committee','Attendance',NULL,NULL,8,2,3),(25,'Tech Projects Committee','Attendance',NULL,NULL,10,2,3),(33,'General Meeting','Points',NULL,NULL,15,2,4),(34,'Community Engagement Committee','Points',NULL,NULL,10,2,4),(35,'Volunteer Event','Points',NULL,NULL,8,2,4),(36,'Mentor Event','Points',9,NULL,5,2,4),(37,'Workshop','Points',NULL,NULL,NULL,2,4),(38,'Hackathon Committee','Attendance',NULL,NULL,8,2,4),(39,'Tech Projects Committee','Attendance',NULL,NULL,10,2,4),(45,'General Meeting','Threshold',NULL,NULL,15,1,4),(46,'Committee Meeting','Threshold',NULL,NULL,10,1,4),(47,'Social Event','Threshold',NULL,NULL,5,1,4),(48,'Volunteer Event','Threshold',NULL,NULL,8,1,4),(49,'General Meeting','Points',NULL,NULL,15,2,1),(50,'Community Engagement Committee','Points',NULL,NULL,10,2,1),(51,'Volunteer Event','Points',NULL,NULL,8,2,1),(52,'Mentor Event','Points',9,NULL,5,2,1),(53,'Workshop','Points',NULL,NULL,NULL,2,1),(54,'Hackathon Committee','Attendance',NULL,NULL,8,2,1),(55,'Tech Projects Committee','Attendance',NULL,NULL,10,2,1),(57,'General Meeting','Threshold',NULL,NULL,15,1,1),(58,'Committee Meeting','Threshold',NULL,NULL,10,1,1),(59,'Social Event','Threshold',NULL,NULL,5,1,1),(60,'Volunteer Event','Threshold',NULL,NULL,8,1,1);
-/*!40000 ALTER TABLE `EventTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -292,82 +366,6 @@ INSERT INTO `OrganizationSettings` VALUES (1,1,4,'2025-02-20 16:05:07','2025-03-
 UNLOCK TABLES;
 
 --
--- Table structure for table `Organizations`
---
-
-DROP TABLE IF EXISTS `Organizations`;
-CREATE TABLE `Organizations` (
-  `OrganizationID` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(150) NOT NULL,
-  `Description` text,
-  `Abbreviation` char(20) DEFAULT NULL,
-  `URL` text,
-  `ImagePath` varchar(255) DEFAULT NULL,
-  `Image` blob,
-  PRIMARY KEY (`OrganizationID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `Organizations`
---
-
-LOCK TABLES `Organizations` WRITE;
-/*!40000 ALTER TABLE `Organizations` DISABLE KEYS */;
-INSERT INTO `Organizations` VALUES (1,'Women in Computing','Women in Computing is dedicated to promoting the success and advancement of women and all gender minorities in their academic and professional careers','wic',NULL,NULL,NULL),(2,'Computing Organization for Multicultural Students','The Computing Organization for Multicultural Students is committed to building a supportive community that celebrates the talent of underrepresented students in computing fields','coms',NULL,NULL,NULL);
-/*!40000 ALTER TABLE `Organizations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Roles`
---
-
-DROP TABLE IF EXISTS `Roles`;
-CREATE TABLE `Roles` (
-  `RoleID` int NOT NULL AUTO_INCREMENT,
-  `RoleName` enum('Eboard','Member','Admin') DEFAULT 'Member',
-  PRIMARY KEY (`RoleID`),
-  UNIQUE KEY `RoleName` (`RoleName`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `Roles`
---
-
-LOCK TABLES `Roles` WRITE;
-/*!40000 ALTER TABLE `Roles` DISABLE KEYS */;
-INSERT INTO `Roles` VALUES (3,'Eboard'),(2,'Member'),(1,'Admin');
-/*!40000 ALTER TABLE `Roles` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Semesters`
---
-
-DROP TABLE IF EXISTS `Semesters`;
-CREATE TABLE `Semesters` (
-  `SemesterID` int NOT NULL AUTO_INCREMENT,
-  `TermCode` char(4) NOT NULL,
-  `TermName` varchar(20) NOT NULL,
-  `StartDate` date NOT NULL,
-  `EndDate` date NOT NULL,
-  `AcademicYear` char(9) NOT NULL,
-  `IsActive` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`SemesterID`),
-  UNIQUE KEY `TermCode` (`TermCode`),
-  KEY `AcademicYear` (`AcademicYear`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `Semesters`
---
-
-LOCK TABLES `Semesters` WRITE;
-/*!40000 ALTER TABLE `Semesters` DISABLE KEYS */;
-INSERT INTO `Semesters` VALUES (1,'2231','Fall 2023','2023-08-01','2023-12-31','2023-2024',0),(2,'2235','Spring 2024','2024-01-01','2024-05-31','2023-2024',0),(3,'2241','Fall 2024','2024-08-01','2024-12-31','2024-2025',0),(4,'2245','Spring 2025','2025-01-01','2025-05-31','2024-2025',1);
-/*!40000 ALTER TABLE `Semesters` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `UploadedFilesHistory`
 --
 
@@ -382,6 +380,9 @@ CREATE TABLE `UploadedFilesHistory` (
   UNIQUE KEY `FileHash` (`FileHash`)
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+-- Enable Foreign Key Checks
+SET FOREIGN_KEY_CHECKS = 1;
 
 --
 -- STORED PROCEDURES for Table `Semesters`
@@ -515,3 +516,4 @@ BEGIN
     END IF;
 END;
 
+COMMIT;

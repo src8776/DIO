@@ -1,6 +1,4 @@
 -- MySQL SCHEMA for dio_db
--- 
-START TRANSACTION;
 -- This script sets up the predefined database tables for the dio_db database.
 -- It includes the creation of necessary tables, insertion of some initial data
 -- and the definition of stored procedures and events for managing future semesters.
@@ -13,37 +11,34 @@ START TRANSACTION;
 -- 5. Inserts initial data into tables like Organizations, Colleges, EventRules, EventTypes, Majors, etc.
 -- 6. Defines stored procedures for adding future semesters.
 -- 7. Sets up scheduled events for updating active semesters and adding future semesters.
---
--- EVENT SCHEDULER enabled for database `dio`
---
-SET GLOBAL event_scheduler = ON;
---
--- NEW DATABASE
---
--- Create database before granting privileges
-DROP DATABASE IF EXISTS `dio_db`;
-CREATE DATABASE `dio_db`;
+
+-- Start the transaction
+START TRANSACTION;
+
+-- Declare an error handler to roll back on any error
+DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+    -- Rollback the transaction
+    ROLLBACK;
+    -- Display a message
+    SELECT 'An error occurred. Transaction rolled back.';
+END;
 
 -- 
--- USER SET UP created for `dio_db`
--- 
 -- WARNING: Replace 'secure_password' with a strong, unique password.
+--
 CREATE USER 'dio_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'REPLACE_WITH_SECURE_PASSWORD';
 GRANT ALL PRIVILEGES ON dio.* TO 'dio_user'@'localhost';
 FLUSH PRIVILEGES;
 
-USE `dio_db`;
-
---
--- Disable foreign key checks to avoid issues during table creation
--- 
-SET FOREIGN_KEY_CHECKS = 0;
---
 -- Database created
 --
 DROP DATABASE IF EXISTS `dio_db`;
 CREATE Database `dio_db`;
 USE `dio_db`;
+
+-- Disable foreign key checks to avoid issues during table creation
+SET FOREIGN_KEY_CHECKS = 0;
 
 --
 -- Table structure for table `Organizations`
@@ -380,98 +375,105 @@ CREATE TABLE `UploadedFilesHistory` (
 -- Enable Foreign Key Checks
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- EVENT SCHEDULER enabled for database `dio`
+--
+SET GLOBAL event_scheduler = ON;
+
 --
 -- STORED PROCEDURES for Table `Semesters`
 --
 
--- Load the semester dynamically generated based on the current date
+-- Stored Procedure to load the semester dynamically generated based on the current date
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `add_future_semesters`()
+
+CREATE PROCEDURE add_future_semesters()
 BEGIN
     DECLARE lastTermCode CHAR(4);
-    DECLARE lastAcademicYear VARCHAR(9);
+    DECLARE lastAcademicYear CHAR(9);
     DECLARE nextTermCode CHAR(4);
-    DECLARE nextSemesterName VARCHAR(20);
+    DECLARE nextTermName VARCHAR(20);
     DECLARE nextStartDate DATE;
     DECLARE nextEndDate DATE;
-    DECLARE nextAcademicYear VARCHAR(9);
+    DECLARE nextAcademicYear CHAR(9);
     DECLARE i INT DEFAULT 0;
 
-    -- Check if Semesters table is empty
-    IF (SELECT COUNT(*) FROM Semesters) = 0 THEN
-        DECLARE currentYear INT;
-        DECLARE currentMonth INT;
-        DECLARE baseTermCode CHAR(4);
-        DECLARE baseTermName VARCHAR(20);
-        DECLARE baseStartDate DATE;
-        DECLARE baseEndDate DATE;
-        DECLARE baseAcademicYear VARCHAR(9);
-        DECLARE yearEnd INT;
+    DECLARE baseTermCode CHAR(4);
+    DECLARE baseTermName VARCHAR(20);
+    DECLARE baseStartDate DATE;
+    DECLARE baseEndDate DATE;
+    DECLARE baseAcademicYear CHAR(9);
 
-        SET currentYear = YEAR(CURDATE());
-        SET currentMonth = MONTH(CURDATE());
-        SET yearEnd = currentYear + 1;
+    -- Case 1: Table is empty, dynamically seed first semester
+    IF (SELECT COUNT(*) FROM Semesters) = 0 THEN
+        DECLARE currentYear INT DEFAULT YEAR(CURDATE());
+        DECLARE currentMonth INT DEFAULT MONTH(CURDATE());
+        DECLARE nextYear INT DEFAULT currentYear + 1;
 
         IF currentMonth <= 6 THEN
-            -- Spring Semester
+            -- Spring semester fallback
             SET baseTermCode = CONCAT('2', RIGHT(currentYear, 2), '5');
             SET baseTermName = CONCAT('Spring ', currentYear);
-            SET baseStartDate = DATE_FORMAT(CURDATE(), '%Y-01-20');
-            SET baseEndDate = DATE_ADD(baseStartDate, INTERVAL 5 MONTH);
-            SET baseAcademicYear = CONCAT(currentYear, '-', yearEnd);
+            SET baseStartDate = STR_TO_DATE(CONCAT(currentYear, '-01-15'), '%Y-%m-%d');
+            SET baseEndDate = STR_TO_DATE(CONCAT(currentYear, '-06-15'), '%Y-%m-%d');
+            SET baseAcademicYear = CONCAT(currentYear, '-', nextYear);
         ELSE
-            -- Fall Semester
+            -- Fall semester fallback
             SET baseTermCode = CONCAT('2', RIGHT(currentYear, 2), '1');
             SET baseTermName = CONCAT('Fall ', currentYear);
-            SET baseStartDate = DATE_FORMAT(CURDATE(), '%Y-08-25');
-            SET baseEndDate = DATE_ADD(baseStartDate, INTERVAL 5 MONTH);
-            SET baseAcademicYear = CONCAT(currentYear, '-', yearEnd);
+            SET baseStartDate = STR_TO_DATE(CONCAT(currentYear, '-08-01'), '%Y-%m-%d');
+            SET baseEndDate = STR_TO_DATE(CONCAT(currentYear, '-12-31'), '%Y-%m-%d');
+            SET baseAcademicYear = CONCAT(currentYear, '-', nextYear);
         END IF;
 
         INSERT INTO Semesters (TermCode, TermName, StartDate, EndDate, AcademicYear, IsActive)
         VALUES (baseTermCode, baseTermName, baseStartDate, baseEndDate, baseAcademicYear, 0);
     END IF;
 
-    -- Continue normal flow
-    SELECT TermCode, AcademicYear INTO lastTermCode, lastAcademicYear
+    -- Now continue with generating the next 4 semesters
+    SELECT TermCode, AcademicYear
+    INTO lastTermCode, lastAcademicYear
     FROM Semesters
     ORDER BY SemesterID DESC
     LIMIT 1;
 
-    SET @lastYearStart = LEFT(lastAcademicYear, 4);
-    SET @lastYearEnd = RIGHT(lastAcademicYear, 4);
+    SET @lastYearStart = CAST(LEFT(lastAcademicYear, 4) AS UNSIGNED);
+    SET @lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
 
     WHILE i < 4 DO
-        IF RIGHT(lastTermCode, 1) = '1' THEN 
-            SET nextSemesterName = CONCAT('Spring ', @lastYearEnd);
-            SET nextTermCode = CONCAT(LEFT(lastTermCode, 3), '5'); 
+        IF RIGHT(lastTermCode, 1) = '1' THEN
+            -- Next is Spring semester
+            SET nextTermCode = CONCAT(LEFT(lastTermCode, 3), '5');
+            SET nextTermName = CONCAT('Spring ', @lastYearEnd);
             SET nextStartDate = DATE_ADD((SELECT EndDate FROM Semesters WHERE TermCode = lastTermCode), INTERVAL 1 DAY);
             SET nextEndDate = DATE_ADD(nextStartDate, INTERVAL 5 MONTH);
             SET nextAcademicYear = CONCAT(@lastYearStart, '-', @lastYearEnd);
-        ELSE 
+        ELSE
+            -- Next is Fall semester
             SET @nextYearStart = @lastYearEnd;
-            SET @nextYearEnd = CAST(@lastYearEnd AS UNSIGNED) + 1;
-
-            SET nextSemesterName = CONCAT('Fall ', @nextYearStart);
-            SET nextTermCode = CONCAT('2', SUBSTRING(CAST(@nextYearStart AS CHAR), 3, 2), '1');
+            SET @nextYearEnd = @nextYearStart + 1;
+            SET nextTermCode = CONCAT('2', RIGHT(@nextYearStart, 2), '1');
+            SET nextTermName = CONCAT('Fall ', @nextYearStart);
             SET nextStartDate = DATE_ADD((SELECT EndDate FROM Semesters WHERE TermCode = lastTermCode), INTERVAL 2 MONTH);
             SET nextEndDate = DATE_ADD(nextStartDate, INTERVAL 5 MONTH);
             SET nextAcademicYear = CONCAT(@nextYearStart, '-', @nextYearEnd);
         END IF;
 
+        -- Insert only if not already present
         IF NOT EXISTS (SELECT 1 FROM Semesters WHERE TermCode = nextTermCode) THEN
             INSERT INTO Semesters (TermCode, TermName, StartDate, EndDate, AcademicYear, IsActive)
-            VALUES (nextTermCode, nextSemesterName, nextStartDate, nextEndDate, nextAcademicYear, 0);
+            VALUES (nextTermCode, nextTermName, nextStartDate, nextEndDate, nextAcademicYear, 0);
         END IF;
 
         SET lastTermCode = nextTermCode;
         SET lastAcademicYear = nextAcademicYear;
-        SET @lastYearStart = LEFT(lastAcademicYear, 4);
-        SET @lastYearEnd = RIGHT(lastAcademicYear, 4);
+        SET @lastYearStart = CAST(LEFT(lastAcademicYear, 4) AS UNSIGNED);
+        SET @lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
         SET i = i + 1;
     END WHILE;
 END ;;
+
 DELIMITER ;
+
 
 --
 -- EVENT SCHEDULERS created for Stored Procedure Add_Future_Semesters()
@@ -512,4 +514,5 @@ BEGIN
     END IF;
 END;
 
+-- Commit the transaction if everything succeeds
 COMMIT;

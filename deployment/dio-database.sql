@@ -157,7 +157,6 @@ CREATE TABLE `Colleges` (
   `Abbreviation` char(10) DEFAULT NULL,
   PRIMARY KEY (`CollegeID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Colleges`
@@ -267,7 +266,6 @@ CREATE TABLE `Majors` (
   KEY `FK_College_Majors` (`CollegeID`),
   CONSTRAINT `FK_College_Majors` FOREIGN KEY (`CollegeID`) REFERENCES `Colleges` (`CollegeID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Majors`
@@ -353,7 +351,6 @@ CREATE TABLE `OrganizationSettings` (
   CONSTRAINT `OrganizationSettings_ibfk_1` FOREIGN KEY (`SemesterID`) REFERENCES `Semesters` (`SemesterID`),
   CONSTRAINT `OrganizationSetup_fk_1` FOREIGN KEY (`OrganizationID`) REFERENCES `Organizations` (`OrganizationID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `OrganizationSettings`
@@ -379,7 +376,6 @@ CREATE TABLE `UploadedFilesHistory` (
   PRIMARY KEY (`FileID`),
   UNIQUE KEY `FileHash` (`FileHash`)
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 -- Enable Foreign Key Checks
 SET FOREIGN_KEY_CHECKS = 1;

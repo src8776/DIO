@@ -1,6 +1,6 @@
 DB_HOST = localhost
 DB_USER = root
 DB_PASSWORD = **YOUR PASSWORD HERE!!!**
-DB_NAME = dio_membership_test
+DB_NAME = dio_db
 
 PORT = 3001

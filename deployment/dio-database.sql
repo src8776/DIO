@@ -12,21 +12,10 @@
 -- 6. Defines stored procedures for adding future semesters.
 -- 7. Sets up scheduled events for updating active semesters and adding future semesters.
 
--- Start the transaction
-START TRANSACTION;
-
--- Declare an error handler to roll back on any error
-DECLARE EXIT HANDLER FOR SQLEXCEPTION
-BEGIN
-    -- Rollback the transaction
-    ROLLBACK;
-    -- Display a message
-    SELECT 'An error occurred. Transaction rolled back.';
-END;
-
--- 
+-- ** REPLACE WITH DATABASE PASSWORD **
 -- WARNING: Replace 'secure_password' with a strong, unique password.
 --
+DROP USER IF EXISTS 'dio_user'@'localhost';
 CREATE USER 'dio_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'REPLACE_WITH_SECURE_PASSWORD';
 GRANT ALL PRIVILEGES ON dio.* TO 'dio_user'@'localhost';
 FLUSH PRIVILEGES;
@@ -379,15 +368,21 @@ SET FOREIGN_KEY_CHECKS = 1;
 --
 SET GLOBAL event_scheduler = ON;
 
---
--- STORED PROCEDURES for Table `Semesters`
---
-
 -- Stored Procedure to load the semester dynamically generated based on the current date
 DELIMITER ;;
 
+DROP PROCEDURE IF EXISTS add_future_semesters;;
+
 CREATE PROCEDURE add_future_semesters()
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Rollback on any error
+        ROLLBACK;
+    END;
+    -- Start the transaction
+    START TRANSACTION;
+
     DECLARE lastTermCode CHAR(4);
     DECLARE lastAcademicYear CHAR(9);
     DECLARE nextTermCode CHAR(4);
@@ -470,10 +465,11 @@ BEGIN
         SET @lastYearEnd = CAST(RIGHT(lastAcademicYear, 4) AS UNSIGNED);
         SET i = i + 1;
     END WHILE;
+    -- Commit the transaction if everything succeeds
+    COMMIT;
 END ;;
 
 DELIMITER ;
-
 
 --
 -- EVENT SCHEDULERS created for Stored Procedure Add_Future_Semesters()
@@ -513,6 +509,3 @@ BEGIN
         CALL add_future_semesters();
     END IF;
 END;
-
--- Commit the transaction if everything succeeds
-COMMIT;

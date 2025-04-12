@@ -7,13 +7,13 @@
 -- 1. Enables the event scheduler globally.
 -- 2. Creates a user with specific privileges for the database.
 -- 3. Creates the dio_db database and switches to it.
--- 4. Defines the structure and relationships for various tables such as Attendance, Colleges, EventInstances, etc.
+-- 4. Defines the structure and relationships for tables such as Attendance, Colleges, EventInstances, etc.
 -- 5. Inserts initial data into tables like Organizations, Colleges, EventRules, EventTypes, Majors, etc.
 -- 6. Defines stored procedures for adding future semesters.
--- 7. Sets up scheduled events for updating active semesters and adding future semesters.
+-- 7. Sets up scheduled events to update active semesters and add future semesters.
 
--- ** REPLACE WITH DATABASE PASSWORD **
--- WARNING: Replace 'secure_password' with a strong, unique password.
+-- ** PASSWORD REQUIRED **
+-- WARNING: Replace 'REPLACE_WITH_SECURE_PASSWORD' with a strong, unique password.
 --
 DROP USER IF EXISTS 'dio_user'@'localhost';
 CREATE USER 'dio_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'REPLACE_WITH_SECURE_PASSWORD';

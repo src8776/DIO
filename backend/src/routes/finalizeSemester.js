@@ -48,6 +48,8 @@ const finalizeSemester = async (currentSemester, organizationID) => {
         console.log(`Found ${allMembers.length} members for organization ${organizationID} in semester ${semesterID}:\n`, allMembers);
         const nextSemesterID = await Semester.getNextSemester(semesterID);
         for (const member of allMembers) {
+            // @adam: this is where we should copy and user with roleID = 1 to the next semester
+            //        this way we can ensure there is always an admin user when the semester changes 
             console.log(`**Processing member ${member.MemberID} with pre-updateMemberStatus status ${member.Status}...`);
             console.log('Recalculating current member status...');
             let newStatus = member.Status;

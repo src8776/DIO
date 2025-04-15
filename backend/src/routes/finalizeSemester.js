@@ -49,7 +49,7 @@ const finalizeSemester = async (currentSemester, organizationID) => {
         const nextSemesterID = await Semester.getNextSemester(semesterID);
         for (const member of allMembers) {
             // @adam: this is where we should copy and user with roleID = 1 to the next semester
-            //        this way we can ensure there is always an admin user when the semester changes 
+            //        this way we can ensure there is always an admin user when the semester changes
             console.log(`**Processing member ${member.MemberID} with pre-updateMemberStatus status ${member.Status}...`);
             console.log('Recalculating current member status...');
             let newStatus = member.Status;
@@ -58,8 +58,11 @@ const finalizeSemester = async (currentSemester, organizationID) => {
                 console.log(`Processing member ${member.MemberID} with post-updateMemberStatus status ${newStatus}...`);
             }
             console.log(`Processing member ${member.MemberID} with post-updateMemberStatus status ${newStatus}...`);
-            // Graduation Case
-            if (member.GraduationSemester === termCode) {
+            //admin Case
+            if (member.RoleID === '1') {
+                console.log(`Member ${member.MemberID} is an admin, inserting row for next semester...`);
+                await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, member.Status);
+            } else if (member.GraduationSemester === termCode) {
                 console.log(`Member ${member.MemberID} is graduating this semester, updating status to Alumni...`);
                 await OrganizationMember.insertOrganizationMemberWithRoleStatus(organizationID, member.MemberID, nextSemesterID, member.RoleID, 'Alumni');
                 console.log('Cleaning out member from future semesters...');

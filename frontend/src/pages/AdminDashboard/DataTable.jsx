@@ -168,15 +168,12 @@ function EnhancedTableToolbar(props) {
                 sx={{ marginLeft: 'auto', m: 2 }}
             />
             {/* {numSelected > 0 ? (
-                // TODO: Implement report functionality
                 <Tooltip title="Generate Report on Selected">
                     <IconButton>
                         <EditNoteIcon />
                     </IconButton>
                 </Tooltip>
             ) : (
-
-                // TODO: Implement filter functionality
                 <Tooltip title="Filter Table">
                     <IconButton>
                         <FilterListIcon />

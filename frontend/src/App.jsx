@@ -46,8 +46,7 @@ const App = () => {
     };
   }, []);
 
-  // TODO: Protect all paths (except for "/").
-  // Only to be accessible by ADMIN / EBOARD? USERS 
+
   const wrapWithProtectedRoute = (element) => {
     return isProduction ? <ProtectedRoute element={element} /> : element;
   };

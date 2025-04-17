@@ -109,8 +109,6 @@ export default function CommitmentComparisonChart({ organizationID, firstSemeste
         return data;
     }, [comparisonData]);
 
-    console.log('Chart Data:', chartData);
-
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2, alignItems: 'center' }}>

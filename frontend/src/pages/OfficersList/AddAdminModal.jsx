@@ -22,7 +22,6 @@ export default function AddMemberModal({orgID}) {
           return response.json();
         })
         .then((data) => {
-          console.log(`Member added as ${user.role}:`, data);
           window.location.reload();
         })
         .catch((error) => {

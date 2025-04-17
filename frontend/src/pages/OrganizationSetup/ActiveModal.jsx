@@ -118,8 +118,6 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
                             setLoading(false);
 
                             if (reEvalData.success) {
-                                console.log('Successfully re-evaluated member statuses:', reEvalData);
-
                                 // Display success message with the returned data
                                 const message = `Successfully re-evaluated ${reEvalData.totalMembers} members: 
                                 ${reEvalData.updatedMembers} updated, ${reEvalData.exemptMembers} exempt 

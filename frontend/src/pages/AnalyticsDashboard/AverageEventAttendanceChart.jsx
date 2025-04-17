@@ -235,7 +235,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     };
 
-    // TODO: If container width is < 740px, hide labels 
     // Label renderer for Instance Chart
     const renderInstanceLabel = (maxAttendance) => (props) => {
         const { x, y, width, height, value } = props;

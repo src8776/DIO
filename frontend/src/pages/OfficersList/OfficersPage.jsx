@@ -42,7 +42,6 @@ function OfficersList() {
             fetch(`/api/admin/getOfficersAndAdmin?organizationID=${orgID}`)
                 .then((response) => response.json())
                 .then((data) => {
-                    // console.log(data);
                     setAdminData(data);
                 })
                 .catch((error) => {
@@ -62,7 +61,6 @@ function OfficersList() {
                 return response.json();
             })
             .then((data) => {
-                console.log('Officer deleted:', data);
                 setAdminData(adminData.filter(officer => officer.MemberID !== memberID));
             })
             .catch((error) => {

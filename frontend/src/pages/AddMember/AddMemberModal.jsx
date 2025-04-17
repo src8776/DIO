@@ -39,7 +39,6 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
 
 
   const handleSave = async () => {
-    console.log("Adding new member with info:", memberData);
     try {
       const response = await fetch('/api/admin/members/add', {
         method: 'POST',

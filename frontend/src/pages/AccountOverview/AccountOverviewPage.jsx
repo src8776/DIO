@@ -156,7 +156,6 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
             .then(response => response.json())
             .then(data => {
                 setMemberStatus(data.status);
-                console.log("status", data);
                 setLoading(false);
             })
             .catch(error => {

@@ -18,8 +18,6 @@ const style = {
   maxWidth: '100%',
 };
 
-// TODO: Update Permissions of selected member
-
 export default function AddAdminPage({ orgID, handleSave }) {
   const [allMembers, setAllMembers] = React.useState([]);
   const [selectedMembers, setSelectedMembers] = React.useState([]);

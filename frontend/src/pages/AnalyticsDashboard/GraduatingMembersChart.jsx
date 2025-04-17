@@ -51,7 +51,6 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
             .then(response => response.json())
             .then(data => {
                 setAlumniCount(data.length);
-                console.log('alumni data', data);
                 if (showAlumni) {
                     setMembersList(data); // Update membersList when alumni toggle is active
                 }
@@ -110,8 +109,6 @@ export default function GraduatingMembersChart({ organizationID, semesterID: sel
             fetchMembersList(selectedCategory);
         }
     };
-
-    console.log('alumniCount', alumniCount);
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>

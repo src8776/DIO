@@ -14,7 +14,6 @@ export default function AddAttendanceForm({ formData, setFormData, eventTypeItem
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     const handleDateChange = (date) => setFormData({ ...formData, eventDate: date });
 
-    console.log('formData in AddAttendanceForm:', formData);
     return (
         <Box sx={{ mt: 2, p: 2, border: '1px solid #ccc', borderRadius: 1}}>
             

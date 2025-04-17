@@ -45,7 +45,6 @@ export default function AnalyticsDash() {
 
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { md: 'column', lg: 'row' } }}>
-      {/* TODO: Need to figure out width and standardize across pages maxWidth: 832? */}
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, width: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Box sx={{}}>

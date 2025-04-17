@@ -27,8 +27,6 @@ export default function GenerateReport({ orgID, selectedSemester, buttonProps = 
   };
 
   const handleGenerateReport = () => {
-    console.log("Generating report with filters:", filters);
-
     const reportCommand = {
       orgID: orgID,
       selectedSemester: selectedSemester,
@@ -55,7 +53,6 @@ export default function GenerateReport({ orgID, selectedSemester, buttonProps = 
         window.URL.revokeObjectURL(url);
       })
       .catch(error => {
-        console.log(error);
         showAlert('Unrecoverable error occured when generating report. Please contact administrator!', 'error');
       });
 

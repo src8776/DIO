@@ -48,9 +48,6 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
             .catch(error => console.error('Error fetching data for MemberName:', error));
     }, [memberID, orgID]);
 
-
-
-    // TODO: Store image paths in database
     const comsInfo = {
         image: "/com_logo.png",
         title: "Computing Organization for Multicultural Students",

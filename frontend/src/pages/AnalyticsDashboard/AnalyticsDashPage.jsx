@@ -10,6 +10,39 @@ import SemesterVsSemesterTab from './SemesterVsSemesterTab';
 import YearVsYearTab from './YearVsYearTab';
 import DemographicsTab from './DemographicsTab';
 
+
+/**
+ * AnalyticsDashPage.jsx
+ * 
+ * This React component serves as the main dashboard for viewing analytics related to an organization.
+ * It provides multiple tabs for exploring different types of data, such as semester overviews, 
+ * semester comparisons, and demographic information. The dashboard dynamically fetches and displays 
+ * data based on the selected organization.
+ * 
+ * Key Features:
+ * - Validates the organization type and displays an error message if the organization is invalid.
+ * - Fetches the organization ID from the backend based on the organization abbreviation.
+ * - Provides a tabbed interface for navigating between different analytics views.
+ * - Displays a loading spinner while fetching data.
+ * - Dynamically renders content for each tab based on the selected tab value.
+ * 
+ * Props:
+ * - None (uses React Router's `useParams` to determine the organization).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and React Router.
+ * - Custom components: SemesterOverviewTab, SemesterVsSemesterTab, DemographicsTab.
+ * 
+ * Functions:
+ * - handleTabChange: Updates the selected tab value when a tab is clicked.
+ * - React.useEffect: Fetches the organization ID when the organization abbreviation changes.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization ID, loading state, and selected tab value.
+ * - React.useEffect: Triggers data fetching when the organization abbreviation changes.
+ * 
+ * @component
+ */
 export default function AnalyticsDash() {
   const { org } = useParams();
   const allowedTypes = ['wic', 'coms'];

@@ -2,9 +2,34 @@ import * as React from 'react';
 import { useTheme, Typography, Paper, Box, Divider } from "@mui/material";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
-
 /**
- * Displays member metrics such as status, points/requirements, and events attended.
+ * MemberMetrics.jsx
+ * 
+ * This React component displays key metrics related to a member's status, progress, and attendance.
+ * It provides an overview of the member's current status, points or criteria progress, and the number
+ * of events they have attended. The component dynamically updates based on the provided data.
+ * 
+ * Key Features:
+ * - Displays the member's status with a color-coded label based on their current state.
+ * - Shows progress toward meeting points or criteria requirements.
+ * - Displays the total number of events attended by the member.
+ * - Provides contextual messages based on the member's activity history.
+ * 
+ * Props:
+ * - memberStatus: String representing the member's current status (e.g., "Active", "Exempt").
+ * - statusObject: Object containing additional status details, such as total points or criteria met.
+ * - requirementType: String indicating the type of requirement (e.g., "points" or "criteria").
+ * - activeRequirement: Number representing the total points or criteria required to be active.
+ * - userAttendance: Array of attendance records for the member.
+ * - activeCount: Object containing details about the member's active semesters.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * 
+ * Functions:
+ * - statusColor: Determines the color of the status label based on the member's current status.
+ * 
+ * @component
  */
 export default function MemberMetrics({ memberStatus, statusObject, requirementType, activeRequirement, userAttendance, activeCount }) {
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];

@@ -4,6 +4,39 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import CheckIcon from '@mui/icons-material/Check';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
+/**
+ * FinalizeSemesterButton.jsx
+ * 
+ * This React component provides a button and dialog interface for finalizing a semester.
+ * It allows administrators to confirm the finalization process, which re-evaluates member statuses,
+ * propagates data into the next semester, and locks modifications for the finalized semester.
+ * 
+ * Key Features:
+ * - Displays a confirmation dialog with detailed instructions and warnings.
+ * - Sends a request to the backend to finalize the semester.
+ * - Provides feedback on success or failure using a SnackbarAlert component.
+ * - Includes a loading state to indicate processing during the finalization.
+ * 
+ * Props:
+ * - orgID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester.
+ * - buttonProps: Object containing additional props for the "Finalize Semester" button (optional).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - SnackbarAlert: A custom component for displaying alerts.
+ * 
+ * Functions:
+ * - showAlert: Displays a SnackbarAlert with a message and severity.
+ * - handleClickOpen: Opens the confirmation dialog.
+ * - handleClose: Closes the confirmation dialog.
+ * - handleConfirm: Sends a request to finalize the semester and handles the response.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for dialog visibility, loading, alert messages, and Snackbar visibility.
+ * 
+ * @component
+ */
 export default function FinalizeSemesterButton({ orgID, selectedSemester, buttonProps = {} }) {
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);

@@ -14,7 +14,50 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import SkeletonRow from './SkeletonRow';
 import DataTableRow from './DataTableRow';
 
-
+/**
+ * DataTable.jsx
+ * 
+ * This React component renders a dynamic and interactive table for displaying and managing member data.
+ * It supports sorting, filtering, pagination, and selection of rows, providing administrators with
+ * a comprehensive view of member information.
+ * 
+ * Key Features:
+ * - Displays member data with sortable columns and customizable headers.
+ * - Supports search functionality to filter rows based on user input.
+ * - Provides pagination for navigating large datasets.
+ * - Allows row selection for bulk actions or detailed operations.
+ * - Dynamically updates rows when member data changes.
+ * - Displays loading skeletons while data is being fetched.
+ * 
+ * Props:
+ * - orgID: String representing the organization ID.
+ * - memberData: Array of objects containing member information.
+ * - isLoading: Boolean indicating whether the data is still loading.
+ * - selectedSemester: Object representing the currently selected semester.
+ * - activeSemester: Object representing the active semester.
+ * - onMemberUpdate: Callback function triggered when member data is updated.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - Custom components: SkeletonRow, DataTableRow.
+ * 
+ * Functions:
+ * - descendingComparator: Custom comparator for sorting rows based on column data.
+ * - getComparator: Returns a comparator function based on the sort order and column.
+ * - handleRequestSort: Handles sorting when a column header is clicked.
+ * - handleSearchChange: Updates the search query for filtering rows.
+ * - handleSelectAllClick: Selects or deselects all rows in the table.
+ * - handleClick: Toggles the selection of a specific row.
+ * - handleChangePage: Updates the current page in the pagination.
+ * - handleChangeRowsPerPage: Updates the number of rows displayed per page.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for sorting, pagination, search query, and selected rows.
+ * - React.useEffect: Updates rows when member data changes.
+ * - React.useMemo: Optimizes visible rows calculation for performance.
+ * 
+ * @component
+ */
 function descendingComparator(a, b, orderBy) {
     if (orderBy === 'LastUpdated') {
         const dateA = new Date(a[orderBy]);

@@ -12,6 +12,40 @@ import AddMemberModal from '../AddMember/AddMemberModal';
 import UploadFileModal from './UploadFileModal';
 import DataTable from './DataTable';
 
+/**
+ * AdminDashPage.jsx
+ * 
+ * This React component serves as the main dashboard for administrators to manage an organization's data.
+ * It provides functionality for viewing and managing member data, uploading files, generating reports,
+ * and finalizing semesters. The dashboard dynamically updates based on the selected organization and semester.
+ * 
+ * Key Features:
+ * - Displays a data table of members with options to filter by semester.
+ * - Allows administrators to upload files, add members, generate reports, and finalize semesters.
+ * - Dynamically fetches and updates data from the backend based on user actions.
+ * - Provides a responsive layout for better usability across devices.
+ * 
+ * Props:
+ * - None (uses React Router's `useParams` to determine the organization).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, Material-UI icons, and React Router.
+ * - Custom components: FinalizeSemesterButton, GenerateReportButton, AddMemberModal, UploadFileModal, DataTable.
+ * 
+ * Functions:
+ * - handleSemesterChange: Updates the selected semester and fetches corresponding data.
+ * - handleUploadSuccess: Refreshes data after a successful file upload or member addition.
+ * - fetchData: Fetches member data based on the selected organization and semester.
+ * - updateMemberData: Updates the member data in the table after an edit.
+ * - isWithinLastMonth: Utility function to check if the current date is within the last month of the active semester.
+ * - handleMenuClick & handleMenuClose: Manage the state of the action menu.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization ID, semesters, selected semester, member data, loading state, and menu anchor.
+ * - React.useEffect: Fetches organization ID, semesters, and member data on component mount or state changes.
+ * 
+ * @component
+ */
 function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];

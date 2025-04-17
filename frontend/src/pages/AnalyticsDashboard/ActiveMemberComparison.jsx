@@ -9,6 +9,37 @@ import {
     Legend
 } from 'recharts';
 
+/**
+ * ActiveMemberComparison.jsx
+ * 
+ * This React component provides a visual comparison of active and general member counts across two semesters.
+ * It fetches member tally data from the backend and displays it in a bar chart using the Recharts library.
+ * 
+ * Key Features:
+ * - Fetches and maps member tally data for the selected semesters.
+ * - Displays a bar chart comparing active and general member counts across semesters.
+ * - Handles loading states with a circular progress indicator.
+ * - Provides error handling for failed data fetches.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - firstSemester: Object representing the first semester to compare (includes SemesterID and TermName).
+ * - secondSemester: Object representing the second semester to compare (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches member tally data when the organization ID or semesters change.
+ * - fetch: Sends a request to the backend API to retrieve member tally data.
+ * - setComparisonData: Maps and sets the fetched data for rendering in the chart.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for the fetched comparison data.
+ * - React.useEffect: Triggers data fetching when dependencies change.
+ * 
+ * @component
+ */
 export default function ActiveMemberComparison({ organizationID, firstSemester, secondSemester }) {
     const semesters = [firstSemester, secondSemester];
     const [comparisonData, setComparisonData] = React.useState(null);

@@ -3,6 +3,41 @@ import { useTheme, TableRow, TableCell, Checkbox } from '@mui/material';
 import MemberDetailsDrawer from '../MemberDetails/MemberDetailsDrawer';
 
 
+/**
+ * DataTableRow.jsx
+ * 
+ * This React component represents a single row in the DataTable component.
+ * It displays member information such as name, status, attendance record, and last updated date.
+ * The row is interactive, allowing selection and providing access to detailed member information
+ * through the MemberDetailsDrawer component.
+ * 
+ * Key Features:
+ * - Displays member details including name, status, attendance record, and last updated date.
+ * - Highlights the row when selected and allows toggling selection.
+ * - Dynamically styles the status text based on the member's current status.
+ * - Provides a drawer for viewing and editing detailed member information.
+ * 
+ * Props:
+ * - row: Object containing the member's data (e.g., FullName, Status, AttendanceRecord, LastUpdated).
+ * - isItemSelected: Boolean indicating whether the row is selected.
+ * - labelId: String used for accessibility labeling.
+ * - handleClick: Function to handle row selection.
+ * - orgID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester.
+ * - activeSemester: Object representing the active semester.
+ * - onMemberUpdate: Callback function triggered when member data is updated.
+ * 
+ * Dependencies:
+ * - React, Material-UI components.
+ * - MemberDetailsDrawer: A component for viewing and editing detailed member information.
+ * 
+ * Functions:
+ * - statusColor: Determines the color of the status text based on the member's current status.
+ * - formattedDate: Formats the "LastUpdated" date into a readable string.
+ * 
+ * @component
+ */
+
 const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {

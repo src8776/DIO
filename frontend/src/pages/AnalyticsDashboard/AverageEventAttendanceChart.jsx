@@ -7,6 +7,42 @@ import {
 import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
 import NestedDrawers from './NestedDrawers';
 
+/**
+ * AverageEventAttendanceChart.jsx
+ * 
+ * This React component provides a visual representation of average event attendance rates and individual event attendance counts.
+ * It fetches attendance data from the backend and displays it in a bar chart using the Recharts library.
+ * The component allows users to switch between viewing average attendance rates by event type and attendance counts for individual events.
+ * 
+ * Key Features:
+ * - Fetches and displays average attendance rates for different event types.
+ * - Allows users to drill down into individual event attendance counts.
+ * - Provides interactive charts with tooltips and clickable bars for navigation.
+ * - Handles loading states and displays appropriate messages when no data is available.
+ * - Supports mobile responsiveness for better usability on smaller screens.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * - NestedDrawers: A custom component for displaying event attendee details.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches average attendance data, event instance data, and attendee data based on user interactions.
+ * - refreshData: Refetches data to update charts and attendee lists.
+ * - renderAverageLabel: Custom label renderer for average attendance bars.
+ * - renderInstanceLabel: Custom label renderer for individual event attendance bars.
+ * - renderInstanceTooltip: Custom tooltip renderer for individual event attendance bars.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for attendance data, view modes, selected events, attendees, and UI interactions.
+ * - React.useEffect: Triggers data fetching and updates based on dependencies.
+ * - React.useCallback: Provides a memoized function for refreshing data.
+ * 
+ * @component
+ */
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
     const [viewMode, setViewMode] = React.useState('averages');

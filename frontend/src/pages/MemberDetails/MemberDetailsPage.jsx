@@ -346,6 +346,16 @@ export default function MemberDetailsPage({
     );
   }
 
+  function formatPhoneNumber(phoneNumber) {
+    if (!phoneNumber) return "N/A";
+    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return phoneNumber;
+  }
+
   const {
     MemberID: id,
     UserName,
@@ -358,7 +368,8 @@ export default function MemberDetailsPage({
     attendanceRecords,
     RoleName,
     ShirtSize,
-    PantSize
+    PantSize,
+    PhoneNumber
   } = memberInfo[0];
 
   const normalizedGraduationSemester = normalizeTermCode(GraduationSemester);
@@ -398,6 +409,7 @@ export default function MemberDetailsPage({
                 <Typography variant="h6" sx={{ mb: 1 }}>Personal Info</Typography>
                 <Typography variant="body2"><strong>Username:</strong> {UserName}</Typography>
                 <Typography variant="body2"><strong>Email:</strong> {Email}</Typography>
+                <Typography variant="body2"><strong>Phone Number:</strong> {formatPhoneNumber(PhoneNumber)}</Typography>
                 <Typography variant="body2"><strong>Shirt Size:</strong> {ShirtSize || "N/A"}</Typography>
                 <Typography variant="body2"><strong>Pant Size:</strong> {PantSize || "N/A"}</Typography>
               </Paper>

@@ -8,7 +8,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useParams } from 'react-router-dom';
 import FinalizeSemesterButton from './FinalizeSemesterButton';
 import GenerateReportButton from './GenerateReportButton';
-import AddMemberModal from '../../components/AddMemberModal';
+import AddMemberModal from '../AddMember/AddMemberModal';
 import UploadFileModal from './UploadFileModal';
 import DataTable from './DataTable';
 

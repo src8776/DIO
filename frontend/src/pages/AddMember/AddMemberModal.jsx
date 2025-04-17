@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Box, Button, Modal, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import AddMemberPage from '../pages/AddMember/AddMemberPage';
+import AddMemberPage from './AddMemberPage';
 
 
 export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess, buttonProps = {} }) {

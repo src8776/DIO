@@ -1,6 +1,30 @@
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
+/**
+ * SnackbarAlert.jsx
+ * 
+ * This React component renders a customizable Snackbar with an Alert for displaying feedback messages to the user.
+ * It supports different severity levels (e.g., "error", "success") and auto-hides after a specified duration unless
+ * the severity is "error".
+ * 
+ * Key Features:
+ * - Displays a Snackbar with a styled Alert message.
+ * - Supports different severity levels for messages (e.g., "error", "success").
+ * - Automatically hides after 4 seconds unless the severity is "error".
+ * - Allows manual closure of the Snackbar via the `onClose` callback.
+ * 
+ * Props:
+ * - message: String representing the message to display in the Snackbar.
+ * - severity: String representing the severity level of the message (e.g., "error", "success").
+ * - open: Boolean indicating whether the Snackbar is open.
+ * - onClose: Function to handle the closure of the Snackbar.
+ * 
+ * Dependencies:
+ * - Material-UI components: Snackbar, Alert.
+ * 
+ * @component
+ */
 export default function SnackbarAlert({ message, severity, open, onClose }) {
     // Only auto-hide if not an error message.
     const autoHideDuration = severity === 'error' ? null : 4000;

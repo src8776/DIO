@@ -16,6 +16,56 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+/**
+ * EventItemRules.jsx
+ * 
+ * This React component renders a detailed interface for managing the rules associated with a specific event type.
+ * It allows administrators to view, edit, add, and delete rules for an event, as well as update event settings such as
+ * occurrences per semester and maximum points. The component dynamically fetches and updates event data from the backend
+ * and provides feedback through a SnackbarAlert.
+ * 
+ * Key Features:
+ * - Displays a list of rules associated with the event type.
+ * - Allows administrators to add new rules, edit existing rules, or delete rules.
+ * - Provides options to edit event settings, such as occurrences per semester and maximum points.
+ * - Validates input for rules and event settings to ensure data integrity.
+ * - Handles re-evaluation of member statuses after rule or event updates.
+ * - Displays feedback on success or failure using a SnackbarAlert.
+ * 
+ * Props:
+ * - name: String representing the name of the event type.
+ * - rules: Array of rule objects associated with the event type.
+ * - ruleType: String representing the type of rules (e.g., "Attendance" or "Points").
+ * - requirementType: String representing the requirement type for the event (e.g., "criteria" or "points").
+ * - maxPoints: Number representing the maximum points for the event.
+ * - orgID: String or number representing the organization ID.
+ * - occurrenceTotal: Number representing the total occurrences of the event per semester.
+ * - eventTypeID: String or number representing the event type ID.
+ * - semesterID: String or number representing the semester ID.
+ * - isEditable: Boolean indicating whether the event rules and settings can be edited.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - SnackbarAlert: A custom component for displaying alerts.
+ * 
+ * Functions:
+ * - generateRuleDescription: Generates a human-readable description for a given rule.
+ * - fetchUpdatedEventData: Fetches the latest event data from the backend.
+ * - handleEditEvent: Enables editing mode for event settings.
+ * - handleSaveEvent: Validates and submits updated event settings to the backend.
+ * - handleDeleteEvent: Deletes the event type and its associated rules.
+ * - handleEditRuleOpen: Opens the form for editing a specific rule.
+ * - handleSaveRule: Validates and submits updates to a specific rule.
+ * - handleDeleteRule: Deletes a specific rule from the backend.
+ * - handleSaveNewRule: Validates and submits a new rule to the backend.
+ * - handleReEvaluateStatus: Re-evaluates member statuses after rule or event updates.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for event data, rules, editing modes, errors, and UI interactions.
+ * - React.useEffect: Fetches initial data for the event and active requirements when dependencies change.
+ * 
+ * @component
+ */
 
 const modalStyle = {
     display: 'flex',

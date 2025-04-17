@@ -7,6 +7,37 @@ import AddClubCard from "./AddClubCard";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
+/**
+ * LandingPage.jsx
+ * 
+ * This React component serves as the landing page for users, displaying a list of clubs the user is affiliated with.
+ * It dynamically fetches and displays data such as the user's member ID, organization IDs, and active semester details.
+ * The component also handles loading and error states and provides a login button for authentication.
+ * 
+ * Key Features:
+ * - Fetches the user's member ID and affiliated organization IDs from the backend.
+ * - Fetches and displays semester data, including the currently active semester.
+ * - Dynamically generates `ClubCard` components for each affiliated organization.
+ * - Displays a fallback message if the user is not affiliated with any organizations.
+ * - Handles loading and error states with appropriate feedback to the user.
+ * 
+ * Props:
+ * - None
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and React Router.
+ * - Custom components: ClubCard, AddClubCard.
+ * 
+ * Functions:
+ * - fetchData: Fetches member ID, organization IDs, and semester data from the backend.
+ * - handleLogin: Redirects the user to the backend for authentication.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for member ID, organization IDs, semesters, active semester, error, and loading state.
+ * - React.useEffect: Triggers data fetching when the component mounts or when the member ID changes.
+ * 
+ * @component
+ */
 function LandingPage() {
     const [memberID, setMemberID] = useState(isProduction ? null : 2790);
     const [organizationIDs, setOrganizationIDs] = useState([]);

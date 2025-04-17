@@ -10,23 +10,44 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-const modalStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 3,
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-    width: { xs: '90%', sm: '500px', md: '600px' },
-    maxWidth: '100%',
-};
 
-
+/**
+ * ActiveModal.jsx
+ * 
+ * This React component renders a modal interface for managing the "active" status requirements of an organization.
+ * It allows administrators to view, edit, and update the criteria or points required for members to achieve active status.
+ * The component dynamically fetches and updates the active requirement data from the backend and provides feedback
+ * through a SnackbarAlert.
+ * 
+ * Key Features:
+ * - Displays the current active status requirements (criteria or points).
+ * - Allows administrators to edit and update the active requirement and requirement type.
+ * - Validates input to ensure the active requirement is within acceptable limits.
+ * - Re-evaluates member statuses after updating the active requirement.
+ * - Provides feedback on success or failure using a SnackbarAlert.
+ * 
+ * Props:
+ * - orgID: String or number representing the organization ID.
+ * - semesterID: String or number representing the semester ID.
+ * - numberOfRules: Number representing the total number of criteria available.
+ * - isEditable: Boolean indicating whether the active requirement can be edited.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - SnackbarAlert: A custom component for displaying alerts.
+ * 
+ * Functions:
+ * - handleOpen: Opens the modal and initializes the form with the current active requirement.
+ * - handleClose: Closes the modal.
+ * - handleSave: Validates and submits the updated active requirement to the backend.
+ * - handleSnackbarClose: Closes the SnackbarAlert.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for modal visibility, active requirement, requirement type, errors, loading, and SnackbarAlert.
+ * - React.useEffect: Fetches the current active requirement data when `orgID` or `semesterID` changes.
+ * 
+ * @component
+ */
 export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditable }) {
     const [open, setOpen] = React.useState(false);
     const [activeRequirement, setActiveRequirement] = React.useState(null);
@@ -41,6 +62,22 @@ export default function ActiveModal({ orgID, semesterID, numberOfRules, isEditab
         message: '',
         severity: 'success'
     });
+
+    const modalStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 3,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        width: { xs: '90%', sm: '500px', md: '600px' },
+        maxWidth: '100%',
+    };
 
     // fetch current requirement info
     React.useEffect(() => {

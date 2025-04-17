@@ -1,6 +1,22 @@
 import React from 'react';
 import { Box, Button, Container, Paper, TextField, Typography } from '@mui/material';
 
+const style = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 3,
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+  width: { xs: '90%', sm: '500px', md: '600px' },
+  maxWidth: '100%',
+};
+
 /**
  * AddMemberPage.jsx
  * 
@@ -23,23 +39,6 @@ import { Box, Button, Container, Paper, TextField, Typography } from '@mui/mater
  * 
  * @component
  */
-
-const style = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: 3,
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  bgcolor: 'background.paper',
-  boxShadow: 24,
-  p: 4,
-  width: { xs: '90%', sm: '500px', md: '600px' },
-  maxWidth: '100%',
-};
-
 function AddMemberPage({ memberData, handleChange, handleSave }) {
 
   return (

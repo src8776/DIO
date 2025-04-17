@@ -13,7 +13,51 @@ import AttendanceHistoryAdmin from './AttendanceHistoryAdmin';
 import ExemptStatusToggle from './ExemptStatusToggle';
 
 
-
+/**
+ * MemberDetailsPage.jsx
+ * 
+ * This React component renders a detailed view of a specific member's information, including personal details,
+ * academic information, attendance history, and exempt status. It provides an admin interface for managing
+ * attendance records and exempt status, with options to add, edit, or delete attendance records.
+ * 
+ * Key Features:
+ * - Displays personal and academic information for the selected member.
+ * - Provides a table of attendance records with options to add, edit, or delete records.
+ * - Allows administrators to manage the member's exempt status, including setting start semesters and durations.
+ * - Handles dynamic updates based on user interactions and backend data.
+ * - Includes confirmation dialogs for deleting attendance records.
+ * - Displays feedback using a SnackbarAlert component.
+ * 
+ * Props:
+ * - memberID: String representing the ID of the member.
+ * - orgID: String or number representing the organization ID.
+ * - memberStatus: String representing the current status of the member.
+ * - selectedSemester: Object representing the currently selected semester.
+ * - onMemberUpdate: Function to handle updates to the member's details.
+ * - onClose: Function to close the member details page.
+ * - onAttendanceUpdate: Function to handle updates to attendance records.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and icons.
+ * - Custom components: AttendanceHistoryAdmin, ExemptStatusToggle, SnackbarAlert.
+ * - Utility functions: normalizeTermCode for formatting term codes.
+ * - Day.js for date handling.
+ * 
+ * Functions:
+ * - handleSubmit: Handles adding new attendance records.
+ * - handleDeleteClick: Opens the confirmation dialog for deleting an attendance record.
+ * - handleCancelDelete: Closes the confirmation dialog without deleting.
+ * - handleConfirmDelete: Deletes the selected attendance record.
+ * - handleExemptSubmit: Submits the exempt status for the member.
+ * - handleUndoExempt: Undoes the exempt status for the member.
+ * - formatPhoneNumber: Formats phone numbers for display.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for member details, attendance records, exempt status, and UI interactions.
+ * - React.useEffect: Fetches member details, attendance records, semesters, and event types when dependencies change.
+ * 
+ * @component
+ */
 export default function MemberDetailsPage({
   memberID, orgID, memberStatus, selectedSemester, onMemberUpdate, onClose, onAttendanceUpdate
 }) {

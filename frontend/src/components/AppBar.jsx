@@ -16,6 +16,40 @@ import { checkAuth } from '../ProtectedRoute';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
+/**
+ * AppBar.jsx
+ * 
+ * This React component renders a responsive application bar (AppBar) for the application. It provides navigation,
+ * theme toggling, and user account management options. The AppBar dynamically adjusts based on the user's
+ * authentication status and screen size.
+ * 
+ * Key Features:
+ * - Displays the application title with a responsive design for smaller screens.
+ * - Provides a theme toggle button to switch between light and dark modes.
+ * - Includes a user account menu with options for viewing the profile and logging out.
+ * - Handles user authentication status and adjusts the UI accordingly.
+ * 
+ * Props:
+ * - toggleTheme: Function to toggle between light and dark themes.
+ * - mode: String representing the current theme mode ("light" or "dark").
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and icons.
+ * - React Router for navigation.
+ * - Custom utility: `checkAuth` for verifying user authentication.
+ * 
+ * Functions:
+ * - handleAppBarMenu: Opens the user account menu.
+ * - handleAppBarClose: Closes the user account menu.
+ * - handleLogout: Logs the user out and redirects to the logout page.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for the AppBar menu and authentication status.
+ * - React.useEffect: Checks user authentication status on component mount.
+ * - Material-UI's `useMediaQuery`: Adjusts the title text based on screen size.
+ * 
+ * @component
+ */
 export default function DrawerAppBar({ toggleTheme, mode }) {
     const [appBarAnchorEl, setAppBarAnchorEl] = React.useState(null);
     const [isAuthenticated, setIsAuthenticated] = React.useState(null);

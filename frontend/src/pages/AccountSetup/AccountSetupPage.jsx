@@ -6,38 +6,6 @@ import {
 } from '@mui/material';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-/**
- * AccountSetupPage.jsx
- * 
- * This React component renders a user interface for setting up or updating account information.
- * It includes fields for personal details such as name, email, student year, major, graduation term/year,
- * clothing sizes, race, gender, and phone number. The component fetches data from APIs for user profile,
- * selectable majors, and genders, and allows users to save their profile data to the backend.
- * 
- * Key Features:
- * - Fetches and displays user profile data from the backend.
- * - Dynamically populates dropdowns for majors and genders.
- * - Validates required fields and phone number format before submission.
- * - Displays success or error messages using a SnackbarAlert component.
- * - Tracks form completion status and adjusts the submit button label accordingly.
- * 
- * Dependencies:
- * - React, Material-UI components, and a custom SnackbarAlert component.
- * 
- * Functions:
- * - fetchUserProfileData: Fetches user profile data from the backend.
- * - fetchMajorData: Fetches a list of selectable majors from the backend.
- * - fetchGenderData: Fetches a list of selectable genders from the backend.
- * - saveProfileData: Sends updated profile data to the backend.
- * - parseTermCode: Parses a term code into a readable term and year format.
- * - handleSubmit: Validates and submits the form data to the backend.
- * 
- * Hooks:
- * - useState: Manages state for form fields, dropdown options, and alerts.
- * - useEffect: Loads initial data and monitors form completion status.
- * 
- * @component
- */
 
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
@@ -108,6 +76,38 @@ const parseTermCode = (termCode) => {
   return { term: '', year: '' };
 };
 
+/**
+ * AccountSetupPage.jsx
+ * 
+ * This React component renders a user interface for setting up or updating account information.
+ * It includes fields for personal details such as name, email, student year, major, graduation term/year,
+ * clothing sizes, race, gender, and phone number. The component fetches data from APIs for user profile,
+ * selectable majors, and genders, and allows users to save their profile data to the backend.
+ * 
+ * Key Features:
+ * - Fetches and displays user profile data from the backend.
+ * - Dynamically populates dropdowns for majors and genders.
+ * - Validates required fields and phone number format before submission.
+ * - Displays success or error messages using a SnackbarAlert component.
+ * - Tracks form completion status and adjusts the submit button label accordingly.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and a custom SnackbarAlert component.
+ * 
+ * Functions:
+ * - fetchUserProfileData: Fetches user profile data from the backend.
+ * - fetchMajorData: Fetches a list of selectable majors from the backend.
+ * - fetchGenderData: Fetches a list of selectable genders from the backend.
+ * - saveProfileData: Sends updated profile data to the backend.
+ * - parseTermCode: Parses a term code into a readable term and year format.
+ * - handleSubmit: Validates and submits the form data to the backend.
+ * 
+ * Hooks:
+ * - useState: Manages state for form fields, dropdown options, and alerts.
+ * - useEffect: Loads initial data and monitors form completion status.
+ * 
+ * @component
+ */
 export default function AccountSetup() {
   const [studentYear, setStudentYear] = useState('');
   const [graduationTerm, setGraduationTerm] = useState('');

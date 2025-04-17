@@ -12,6 +12,43 @@ import ActiveModal from './ActiveModal';
 import EventItem from './EventItem';
 import AddEventModal from './AddEventModal';
 
+/**
+ * OrganizationSetupPage.jsx
+ * 
+ * This React component renders the organization setup page, allowing administrators to manage active requirements
+ * and event rules for a specific organization. It provides functionality to view, edit, and copy rules between semesters.
+ * The component dynamically fetches data from the backend and updates the UI based on user interactions.
+ * 
+ * Key Features:
+ * - Displays and manages active requirements for the organization.
+ * - Lists event rules and allows administrators to add, edit, or delete event types and their rules.
+ * - Provides functionality to copy rules from a previous semester to the current semester.
+ * - Handles loading states and displays feedback on success or failure using a Snackbar.
+ * - Dynamically updates the UI based on the selected semester and organization.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and React Router.
+ * - Custom components: ActiveModal, EventItem, AddEventModal.
+ * 
+ * Functions:
+ * - handleOpen: Opens the modal for managing active requirements.
+ * - handleClose: Closes the active requirements modal.
+ * - handleFormOpen: Opens the modal for adding a new event type.
+ * - handleFormClose: Closes the add event modal.
+ * - handleOpenModal: Opens the modal for managing rules of a specific event type.
+ * - handleCloseModal: Closes the event rules modal and refreshes event rules data.
+ * - fetchEventRules: Fetches the event rules for the selected semester and organization.
+ * - handleSemesterChange: Updates the selected semester and fetches related data.
+ * - handleCopyRules: Copies rules from a source semester to the selected semester.
+ * - handleCloseSnackbar: Closes the success message Snackbar.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization ID, semesters, selected semester, rules, modals, and UI interactions.
+ * - React.useEffect: Fetches organization ID, semesters, and rules when dependencies change.
+ * - React.useCallback: Memoizes the fetchEventRules function for dependency optimization.
+ * 
+ * @component
+ */
 export default function OrganizationSetup() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];

@@ -8,8 +8,42 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 
-
-
+/**
+ * AddAttendanceForm.jsx
+ * 
+ * This React component renders a form for adding attendance records for a specific event.
+ * It allows users to input details such as event type, event title, event date, attendance status,
+ * and volunteer hours (if applicable). The component validates inputs and ensures the event date
+ * falls within the selected semester's date range.
+ * 
+ * Key Features:
+ * - Provides dropdowns for selecting event type and attendance status.
+ * - Allows users to input an optional event title.
+ * - Includes a date picker for selecting the event date, restricted to the semester's date range.
+ * - Displays a volunteer hours dropdown for "Volunteer Event" types.
+ * - Handles form submission through a callback function.
+ * 
+ * Props:
+ * - formData: Object containing the current form values.
+ * - setFormData: Function to update the form values.
+ * - eventTypeItems: Array of event type objects to populate the event type dropdown.
+ * - semesterStart: String representing the start date of the semester.
+ * - semesterEnd: String representing the end date of the semester.
+ * - onSubmit: Function to handle form submission.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Day.js for date handling.
+ * - Material-UI DatePicker and LocalizationProvider for date selection.
+ * 
+ * Functions:
+ * - handleChange: Updates the form values when a dropdown or text field changes.
+ * - handleDateChange: Updates the event date in the form values.
+ * 
+ * Hooks:
+ * - None
+ * 
+ * @component
+ */
 export default function AddAttendanceForm({ formData, setFormData, eventTypeItems, semesterStart, semesterEnd, onSubmit }) {
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     const handleDateChange = (date) => setFormData({ ...formData, eventDate: date });

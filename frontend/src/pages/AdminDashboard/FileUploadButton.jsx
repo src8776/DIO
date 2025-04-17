@@ -13,6 +13,34 @@ import CloseIcon from '@mui/icons-material/Close';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
+
+const DropZone = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'isDragging' && prop !== 'hasFile',
+})(({ isDragging, hasFile }) => ({
+  border: `2px dashed ${isDragging ? '#1976d2' : '#ccc'}`,
+  borderRadius: '8px',
+  padding: '20px',
+  textAlign: 'center',
+  backgroundColor: isDragging ? '#e3f2fd' : 'background.paper',
+  transition: 'all 0.3s ease',
+  '&:hover': hasFile ? {} : {
+    borderColor: '#1976d2',
+    backgroundColor: '#e3f2fd',
+  },
+}));
+
 /**
  * FileUploadButton.jsx
  * 
@@ -50,41 +78,6 @@ import SnackbarAlert from '../../components/SnackbarAlert';
  * - React.useRef: References the file input element for resetting its value.
  * 
  * @component
- */
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
-
-const DropZone = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'isDragging' && prop !== 'hasFile',
-})(({ isDragging, hasFile }) => ({
-  border: `2px dashed ${isDragging ? '#1976d2' : '#ccc'}`,
-  borderRadius: '8px',
-  padding: '20px',
-  textAlign: 'center',
-  backgroundColor: isDragging ? '#e3f2fd' : 'background.paper',
-  transition: 'all 0.3s ease',
-  '&:hover': hasFile ? {} : {
-    borderColor: '#1976d2',
-    backgroundColor: '#e3f2fd',
-  },
-}));
-
-/**
- * Component for uploading CSV files with drag-and-drop and browse functionality.
- * @param {Object} props - Component props.
- * @param {string} props.orgID - Organization ID.
- * @param {string} props.eventType - Event type.
- * @param {Function} [props.onUploadSuccess] - Callback on successful upload.
- * @returns {JSX.Element}
  */
 export default function InputFileUpload({ orgID, eventType, onUploadSuccess, selectedSemester }) {
   const [file, setFile] = useState(null);

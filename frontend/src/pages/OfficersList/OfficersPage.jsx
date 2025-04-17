@@ -9,6 +9,37 @@ import { useParams } from 'react-router-dom';
 import AddAdminModal from './AddAdminModal';
 import MemberDetailsDrawer from "../MemberDetails/MemberDetailsDrawer";
 
+
+/**
+ * OfficersPage.jsx
+ * 
+ * This React component renders a page displaying a list of administrators and e-board members for a specific organization.
+ * It allows users to view, add, and remove administrators or e-board members. The component dynamically fetches data
+ * from the backend and updates the displayed list based on user interactions.
+ * 
+ * Key Features:
+ * - Fetches and displays a list of administrators and e-board members for the selected organization.
+ * - Allows users to add new administrators or e-board members using the `AddAdminModal` component.
+ * - Provides functionality to remove administrators or e-board members from the list.
+ * - Handles loading and error states during data fetching and updates.
+ * 
+ * Props:
+ * - None
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - React Router for extracting organization parameters.
+ * - Custom components: AddAdminModal, MemberDetailsDrawer.
+ * 
+ * Functions:
+ * - handleDelete: Sends a request to the backend to remove a member from the admin or e-board list.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization ID, admin data, and UI interactions.
+ * - React.useEffect: Fetches organization ID and admin data when dependencies change.
+ * 
+ * @component
+ */
 function OfficersList() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];

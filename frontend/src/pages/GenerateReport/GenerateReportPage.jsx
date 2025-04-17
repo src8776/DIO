@@ -23,7 +23,36 @@ const style = {
   maxWidth: '100%',
 };
 
-
+/**
+ * GenerateReportPage.jsx
+ * 
+ * This React component renders a form for generating a quick report based on selected filters.
+ * It allows administrators to customize the report by selecting member statuses and including
+ * specific personal and academic information fields. The component provides options to download
+ * the report as a PDF.
+ * 
+ * Key Features:
+ * - Allows users to select member statuses (active, general, or both) for the report.
+ * - Provides checkboxes to include additional personal and academic information fields.
+ * - Displays a styled form with clear sections for customization.
+ * - Includes buttons to cancel the operation or generate and download the report.
+ * 
+ * Props:
+ * - filters: Object containing the current filter values for the report.
+ * - handleFilterChange: Function to handle changes to the filter values.
+ * - handleClose: Function to close the report form.
+ * - handleGenerateReport: Function to generate and download the report.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * 
+ * Functions:
+ * - handleFilterChange: Updates the filter values based on user input.
+ * - handleClose: Closes the form without generating a report.
+ * - handleGenerateReport: Triggers the report generation and download process.
+ * 
+ * @component
+ */
 function GenerateReportPage({ filters, handleFilterChange, handleClose, handleGenerateReport }) {
 
   return (

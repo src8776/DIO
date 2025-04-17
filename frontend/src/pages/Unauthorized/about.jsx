@@ -1,6 +1,28 @@
 import React from 'react';
 import { Box, Container, Typography, Grid, List, ListItem } from '@mui/material';
 
+/**
+ * about.jsx
+ * 
+ * This React component renders the "About" page for the application. It provides information about the project,
+ * including the team members who contributed to its development and a footer with additional details.
+ * 
+ * Key Features:
+ * - Displays a title and description about the project and its contributors.
+ * - Lists the names of the team members who developed the project.
+ * - Includes a footer with the project name and copyright information.
+ * 
+ * Props:
+ * - None
+ * 
+ * Dependencies:
+ * - React, Material-UI components.
+ * 
+ * Functions:
+ * - None
+ * 
+ * @component
+ */
 const AboutPage = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>

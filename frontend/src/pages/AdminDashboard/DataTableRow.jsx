@@ -37,13 +37,11 @@ import MemberDetailsDrawer from '../MemberDetails/MemberDetailsDrawer';
  * 
  * @component
  */
-
-const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
-
 const DataTableRow = ({ row, isItemSelected, labelId, handleClick, orgID, selectedSemester, activeSemester, onMemberUpdate }) => {
     const theme = useTheme();
     const memberStatus = row.Status || 'General';
     const displayStatus = memberStatus === 'CarryoverActive' ? 'Active*' : memberStatus;
+    const cellStyles = { pl: '16px', pt: '0px', pb: '0px' };
 
     const statusColor = (() => {
         switch (memberStatus) {

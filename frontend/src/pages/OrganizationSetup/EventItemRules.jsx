@@ -556,7 +556,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             error={!!occurrenceError}
                             helperText={occurrenceError}
                         />
-                        {eventData.requirementType === 'points' && (
+                        {eventData.ruleType === 'Points' && (
                             <>
                                 <FormControlLabel
                                     control={
@@ -581,6 +581,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                             </>
                         )}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            
                             <Button variant="contained" color="error" onClick={handleOpenDeleteEventDialog}>
                                 Delete Event
                             </Button>
@@ -605,7 +606,7 @@ export default function EventItemRules({ name, rules, ruleType, requirementType,
                         <Typography>
                             Occurrences Per Semester: {eventData.occurrenceTotal}
                         </Typography>
-                        {eventData.requirementType === 'points' && (
+                        {eventData.ruleType === 'Points' && (
                             <Typography>
                                 Max Points: {maxPoints !== null ? maxPoints : 'no cap'}
                             </Typography>

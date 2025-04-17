@@ -104,8 +104,6 @@ LOCK TABLES `Semesters` WRITE;
 INSERT INTO `Semesters` VALUES (1,'2231','Fall 2023','2023-08-01','2023-12-31','2023-2024',0),(2,'2235','Spring 2024','2024-01-01','2024-05-31','2023-2024',0),(3,'2241','Fall 2024','2024-08-01','2024-12-31','2024-2025',0),(4,'2245','Spring 2025','2025-01-01','2025-05-31','2024-2025',1);
 /*!40000 ALTER TABLE `Semesters` ENABLE KEYS */;
 UNLOCK TABLES;
-
-
 --
 -- Table structure for table `Attendance`
 --
@@ -128,8 +126,6 @@ CREATE TABLE `Attendance` (
   CONSTRAINT `fk_attend_memberID` FOREIGN KEY (`MemberID`) REFERENCES `Members` (`MemberID`),
   CONSTRAINT `fk_attendance_organization` FOREIGN KEY (`OrganizationID`) REFERENCES `Organizations` (`OrganizationID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5160 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 
 --
 -- Table structure for table `Colleges`
@@ -176,11 +172,11 @@ CREATE TABLE `EventTypes` (
 -- Dumping data for table `EventTypes`
 --
 
--- LOCK TABLES `EventTypes` WRITE;
--- /*!40000 ALTER TABLE `EventTypes` DISABLE KEYS */;
--- INSERT INTO `EventTypes` VALUES (15,'General Meeting','Points',NULL,NULL,15,2,3),(16,'Community Engagement Committee','Points',NULL,NULL,10,2,3),(17,'Volunteer Event','Points',NULL,NULL,8,2,3),(18,'Mentor Event','Points',9,NULL,5,2,3),(19,'Workshop','Points',NULL,NULL,NULL,2,3),(20,'General Meeting','Threshold',NULL,NULL,15,1,3),(21,'Committee Meeting','Threshold',NULL,NULL,10,1,3),(22,'Social Event','Threshold',NULL,NULL,5,1,3),(23,'Volunteer Event','Threshold',NULL,NULL,8,1,3),(24,'Hackathon Committee','Attendance',NULL,NULL,8,2,3),(25,'Tech Projects Committee','Attendance',NULL,NULL,10,2,3),(33,'General Meeting','Points',NULL,NULL,15,2,4),(34,'Community Engagement Committee','Points',NULL,NULL,10,2,4),(35,'Volunteer Event','Points',NULL,NULL,8,2,4),(36,'Mentor Event','Points',9,NULL,5,2,4),(37,'Workshop','Points',NULL,NULL,NULL,2,4),(38,'Hackathon Committee','Attendance',NULL,NULL,8,2,4),(39,'Tech Projects Committee','Attendance',NULL,NULL,10,2,4),(45,'General Meeting','Threshold',NULL,NULL,15,1,4),(46,'Committee Meeting','Threshold',NULL,NULL,10,1,4),(47,'Social Event','Threshold',NULL,NULL,5,1,4),(48,'Volunteer Event','Threshold',NULL,NULL,8,1,4),(49,'General Meeting','Points',NULL,NULL,15,2,1),(50,'Community Engagement Committee','Points',NULL,NULL,10,2,1),(51,'Volunteer Event','Points',NULL,NULL,8,2,1),(52,'Mentor Event','Points',9,NULL,5,2,1),(53,'Workshop','Points',NULL,NULL,NULL,2,1),(54,'Hackathon Committee','Attendance',NULL,NULL,8,2,1),(55,'Tech Projects Committee','Attendance',NULL,NULL,10,2,1),(57,'General Meeting','Threshold',NULL,NULL,15,1,1),(58,'Committee Meeting','Threshold',NULL,NULL,10,1,1),(59,'Social Event','Threshold',NULL,NULL,5,1,1),(60,'Volunteer Event','Threshold',NULL,NULL,8,1,1);
--- /*!40000 ALTER TABLE `EventTypes` ENABLE KEYS */;
--- UNLOCK TABLES;
+LOCK TABLES `EventTypes` WRITE;
+/*!40000 ALTER TABLE `EventTypes` DISABLE KEYS */;
+INSERT INTO `EventTypes` VALUES (15,'General Meeting','Points',NULL,NULL,15,2,3),(16,'Community Engagement Committee','Points',NULL,NULL,10,2,3),(17,'Volunteer Event','Points',NULL,NULL,8,2,3),(18,'Mentor Event','Points',9,NULL,5,2,3),(19,'Workshop','Points',NULL,NULL,NULL,2,3),(20,'General Meeting','Threshold',NULL,NULL,15,1,3),(21,'Committee Meeting','Threshold',NULL,NULL,10,1,3),(22,'Social Event','Threshold',NULL,NULL,5,1,3),(23,'Volunteer Event','Threshold',NULL,NULL,8,1,3),(24,'Hackathon Committee','Attendance',NULL,NULL,8,2,3),(25,'Tech Projects Committee','Attendance',NULL,NULL,10,2,3),(33,'General Meeting','Points',NULL,NULL,15,2,4),(34,'Community Engagement Committee','Points',NULL,NULL,10,2,4),(35,'Volunteer Event','Points',NULL,NULL,8,2,4),(36,'Mentor Event','Points',9,NULL,5,2,4),(37,'Workshop','Points',NULL,NULL,NULL,2,4),(38,'Hackathon Committee','Attendance',NULL,NULL,8,2,4),(39,'Tech Projects Committee','Attendance',NULL,NULL,10,2,4),(45,'General Meeting','Threshold',NULL,NULL,15,1,4),(46,'Committee Meeting','Threshold',NULL,NULL,10,1,4),(47,'Social Event','Threshold',NULL,NULL,5,1,4),(48,'Volunteer Event','Threshold',NULL,NULL,8,1,4),(49,'General Meeting','Points',NULL,NULL,15,2,1),(50,'Community Engagement Committee','Points',NULL,NULL,10,2,1),(51,'Volunteer Event','Points',NULL,NULL,8,2,1),(52,'Mentor Event','Points',9,NULL,5,2,1),(53,'Workshop','Points',NULL,NULL,NULL,2,1),(54,'Hackathon Committee','Attendance',NULL,NULL,8,2,1),(55,'Tech Projects Committee','Attendance',NULL,NULL,10,2,1),(57,'General Meeting','Threshold',NULL,NULL,15,1,1),(58,'Committee Meeting','Threshold',NULL,NULL,10,1,1),(59,'Social Event','Threshold',NULL,NULL,5,1,1),(60,'Volunteer Event','Threshold',NULL,NULL,8,1,1);
+/*!40000 ALTER TABLE `EventTypes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `EventInstances`
@@ -232,11 +228,11 @@ CREATE TABLE `EventRules` (
 -- Dumping data for table `EventRules`
 --
 
--- LOCK TABLES `EventRules` WRITE;
--- /*!40000 ALTER TABLE `EventRules` DISABLE KEYS */;
--- INSERT INTO `EventRules` VALUES (94,2,15,'attendance',0.00,1,3),(95,2,15,'minimum threshold percentage',0.50,1,3),(96,2,15,'minimum threshold percentage',0.75,2,3),(97,2,15,'minimum threshold percentage',1.00,3,3),(98,2,16,'attendance',0.00,1,3),(99,2,16,'minimum threshold percentage',0.50,2,3),(100,2,16,'minimum threshold percentage',1.00,3,3),(101,2,17,'minimum threshold hours',1.00,1,3),(102,2,17,'minimum threshold hours',3.00,2,3),(103,2,17,'minimum threshold hours',6.00,3,3),(104,2,17,'minimum threshold hours',9.00,4,3),(105,2,18,'attendance',0.00,1,3),(106,2,18,'one off',0.00,3,3),(107,1,20,'minimum threshold percentage',0.50,1,3),(108,1,21,'minimum threshold percentage',0.50,1,3),(109,1,22,'one off',0.00,1,3),(110,1,23,'one off',0.00,1,3),(112,2,19,'attendance',0.00,1,3),(113,2,24,'attendance',0.00,1,3),(114,2,24,'minimum threshold percentage',0.50,2,3),(115,2,24,'minimum threshold percentage',1.00,3,3),(116,2,25,'attendance',0.00,1,3),(117,2,25,'minimum threshold percentage',0.50,2,3),(118,2,25,'minimum threshold percentage',1.00,3,3),(139,2,33,'attendance',0.00,1,4),(140,2,33,'minimum threshold percentage',0.50,1,4),(141,2,33,'minimum threshold percentage',0.75,2,4),(142,2,33,'minimum threshold percentage',1.00,3,4),(143,2,34,'attendance',0.00,1,4),(144,2,34,'minimum threshold percentage',0.50,2,4),(145,2,34,'minimum threshold percentage',1.00,3,4),(146,2,35,'minimum threshold hours',1.00,1,4),(147,2,35,'minimum threshold hours',3.00,2,4),(148,2,35,'minimum threshold hours',6.00,3,4),(149,2,35,'minimum threshold hours',9.00,4,4),(150,2,36,'attendance',0.00,1,4),(151,2,36,'one off',0.00,3,4),(152,2,37,'attendance',0.00,1,4),(153,2,38,'attendance',0.00,1,4),(154,2,38,'minimum threshold percentage',0.50,2,4),(155,2,38,'minimum threshold percentage',1.00,3,4),(156,2,39,'attendance',0.00,1,4),(157,2,39,'minimum threshold percentage',0.50,2,4),(158,2,39,'minimum threshold percentage',1.00,3,4),(164,1,45,'minimum threshold percentage',0.50,1,4),(165,1,46,'minimum threshold percentage',0.50,1,4),(166,1,47,'one off',0.00,1,4),(167,1,48,'one off',0.00,1,4),(168,2,49,'attendance',0.00,1,1),(169,2,49,'minimum threshold percentage',0.50,1,1),(170,2,49,'minimum threshold percentage',0.75,2,1),(171,2,49,'minimum threshold percentage',1.00,3,1),(172,2,50,'attendance',0.00,1,1),(173,2,50,'minimum threshold percentage',0.50,2,1),(174,2,50,'minimum threshold percentage',1.00,3,1),(175,2,51,'minimum threshold hours',1.00,1,1),(176,2,51,'minimum threshold hours',3.00,2,1),(177,2,51,'minimum threshold hours',6.00,3,1),(178,2,51,'minimum threshold hours',9.00,4,1),(179,2,52,'attendance',0.00,1,1),(180,2,52,'one off',0.00,3,1),(181,2,53,'attendance',0.00,1,1),(182,2,54,'attendance',0.00,1,1),(183,2,54,'minimum threshold percentage',0.50,2,1),(184,2,54,'minimum threshold percentage',1.00,3,1),(185,2,55,'attendance',0.00,1,1),(186,2,55,'minimum threshold percentage',0.50,2,1),(187,2,55,'minimum threshold percentage',1.00,3,1),(189,1,57,'minimum threshold percentage',0.50,1,1),(190,1,58,'minimum threshold percentage',0.50,1,1),(191,1,59,'one off',0.00,1,1),(192,1,60,'one off',0.00,1,1);
--- /*!40000 ALTER TABLE `EventRules` ENABLE KEYS */;
--- UNLOCK TABLES;
+LOCK TABLES `EventRules` WRITE;
+/*!40000 ALTER TABLE `EventRules` DISABLE KEYS */;
+INSERT INTO `EventRules` VALUES (94,2,15,'attendance',0.00,1,3),(95,2,15,'minimum threshold percentage',0.50,1,3),(96,2,15,'minimum threshold percentage',0.75,2,3),(97,2,15,'minimum threshold percentage',1.00,3,3),(98,2,16,'attendance',0.00,1,3),(99,2,16,'minimum threshold percentage',0.50,2,3),(100,2,16,'minimum threshold percentage',1.00,3,3),(101,2,17,'minimum threshold hours',1.00,1,3),(102,2,17,'minimum threshold hours',3.00,2,3),(103,2,17,'minimum threshold hours',6.00,3,3),(104,2,17,'minimum threshold hours',9.00,4,3),(105,2,18,'attendance',0.00,1,3),(106,2,18,'one off',0.00,3,3),(107,1,20,'minimum threshold percentage',0.50,1,3),(108,1,21,'minimum threshold percentage',0.50,1,3),(109,1,22,'one off',0.00,1,3),(110,1,23,'one off',0.00,1,3),(112,2,19,'attendance',0.00,1,3),(113,2,24,'attendance',0.00,1,3),(114,2,24,'minimum threshold percentage',0.50,2,3),(115,2,24,'minimum threshold percentage',1.00,3,3),(116,2,25,'attendance',0.00,1,3),(117,2,25,'minimum threshold percentage',0.50,2,3),(118,2,25,'minimum threshold percentage',1.00,3,3),(139,2,33,'attendance',0.00,1,4),(140,2,33,'minimum threshold percentage',0.50,1,4),(141,2,33,'minimum threshold percentage',0.75,2,4),(142,2,33,'minimum threshold percentage',1.00,3,4),(143,2,34,'attendance',0.00,1,4),(144,2,34,'minimum threshold percentage',0.50,2,4),(145,2,34,'minimum threshold percentage',1.00,3,4),(146,2,35,'minimum threshold hours',1.00,1,4),(147,2,35,'minimum threshold hours',3.00,2,4),(148,2,35,'minimum threshold hours',6.00,3,4),(149,2,35,'minimum threshold hours',9.00,4,4),(150,2,36,'attendance',0.00,1,4),(151,2,36,'one off',0.00,3,4),(152,2,37,'attendance',0.00,1,4),(153,2,38,'attendance',0.00,1,4),(154,2,38,'minimum threshold percentage',0.50,2,4),(155,2,38,'minimum threshold percentage',1.00,3,4),(156,2,39,'attendance',0.00,1,4),(157,2,39,'minimum threshold percentage',0.50,2,4),(158,2,39,'minimum threshold percentage',1.00,3,4),(164,1,45,'minimum threshold percentage',0.50,1,4),(165,1,46,'minimum threshold percentage',0.50,1,4),(166,1,47,'one off',0.00,1,4),(167,1,48,'one off',0.00,1,4),(168,2,49,'attendance',0.00,1,1),(169,2,49,'minimum threshold percentage',0.50,1,1),(170,2,49,'minimum threshold percentage',0.75,2,1),(171,2,49,'minimum threshold percentage',1.00,3,1),(172,2,50,'attendance',0.00,1,1),(173,2,50,'minimum threshold percentage',0.50,2,1),(174,2,50,'minimum threshold percentage',1.00,3,1),(175,2,51,'minimum threshold hours',1.00,1,1),(176,2,51,'minimum threshold hours',3.00,2,1),(177,2,51,'minimum threshold hours',6.00,3,1),(178,2,51,'minimum threshold hours',9.00,4,1),(179,2,52,'attendance',0.00,1,1),(180,2,52,'one off',0.00,3,1),(181,2,53,'attendance',0.00,1,1),(182,2,54,'attendance',0.00,1,1),(183,2,54,'minimum threshold percentage',0.50,2,1),(184,2,54,'minimum threshold percentage',1.00,3,1),(185,2,55,'attendance',0.00,1,1),(186,2,55,'minimum threshold percentage',0.50,2,1),(187,2,55,'minimum threshold percentage',1.00,3,1),(189,1,57,'minimum threshold percentage',0.50,1,1),(190,1,58,'minimum threshold percentage',0.50,1,1),(191,1,59,'one off',0.00,1,1),(192,1,60,'one off',0.00,1,1);
+/*!40000 ALTER TABLE `EventRules` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `Majors`
@@ -288,7 +284,11 @@ CREATE TABLE `Members` (
   CONSTRAINT `FK_Members_Majors` FOREIGN KEY (`MajorID`) REFERENCES `Majors` (`MajorID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6087 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
+LOCK TABLES `Members` WRITE;
+/*!40000 ALTER TABLE `Members` DISABLE KEYS */;
+INSERT INTO `Members` VALUES (1, 'ltvvse', 'Lana', 'Verschage', 'ltvvse@rit.edu', 'Lana Verschage', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+/*!40000 ALTER TABLE `Members` ENABLE KEYS */;
+UNLOCK TABLES;
 --
 -- Table structure for table `OrganizationMembers`
 --
@@ -314,6 +314,11 @@ CREATE TABLE `OrganizationMembers` (
   CONSTRAINT `fk_semester` FOREIGN KEY (`SemesterID`) REFERENCES `Semesters` (`SemesterID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2789 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+LOCK TABLES `OrganizationMembers` WRITE;
+/*!40000 ALTER TABLE `OrganizationMembers` DISABLE KEYS */;
+INSERT INTO `OrganizationMembers` VALUES (1, 1, 1, 4, NOW(), NULL, 1),(1, 2, 1, 4, NOW(), NULL, 1),(1, 1, 1, 3, NOW(), NULL, 1), (1, 2, 1, 3, NOW(), NULL, 1);
+/*!40000 ALTER TABLE `OrganizationMembers` ENABLE KEYS */;
+UNLOCK TABLES;
 --
 -- Table structure for table `OrganizationSettings`
 --

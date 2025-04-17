@@ -5,6 +5,39 @@ import {
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Label, Cell } from 'recharts';
 import NestedDrawers from './NestedDrawers';
 
+/**
+ * GraduatingMembersChart.jsx
+ * 
+ * This React component provides a visual representation of graduating and alumni members for a selected semester.
+ * It displays data in a pie chart and allows users to toggle between viewing graduating members and alumni.
+ * The component fetches data from the backend and provides interactive features for exploring member details.
+ * 
+ * Key Features:
+ * - Fetches and displays data for graduating members, non-graduating members, and alumni.
+ * - Provides a toggle button to switch between graduating members and alumni views.
+ * - Displays a pie chart with interactive slices for viewing member details.
+ * - Handles loading states and provides fallback messages when no data is available.
+ * - Includes a nested drawer for displaying detailed member information.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - semesterID: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * - NestedDrawers: A custom component for displaying detailed member information.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches member tallies, graduating members, and alumni data when dependencies change.
+ * - fetchMembersList: Fetches a list of members based on the selected category (graduating or alumni).
+ * - refreshData: Refetches data to update the chart and member details.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for member tallies, graduating members, alumni, selected category, and UI interactions.
+ * - React.useEffect: Triggers data fetching and updates based on dependencies.
+ * 
+ * @component
+ */
 export default function GraduatingMembersChart({ organizationID, semesterID: selectedSemester }) {
     const [gradCount, setGradCount] = useState(0);
     const [memberTallies, setMemberTallies] = React.useState(null);

@@ -3,7 +3,36 @@ import { Typography, Paper } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
-export default function TotalMembersChart({ organizationID, selectedSemester }) {
+/**
+ * OverallAttendanceChart.jsx
+ * 
+ * This React component displays the overall attendance rate for a selected semester.
+ * It fetches attendance data from the backend and calculates the attendance rate, 
+ * providing a visual indicator of whether the rate is trending up or down.
+ * 
+ * Key Features:
+ * - Fetches overall attendance data for the selected semester.
+ * - Displays the attendance rate as a percentage.
+ * - Provides visual feedback with an icon indicating whether the attendance rate is high or low.
+ * - Handles loading states and displays a fallback message while data is being fetched.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches overall attendance data when the selected semester changes.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for the overall attendance data.
+ * - React.useEffect: Triggers data fetching when dependencies change.
+ * 
+ * @component
+ */
+export default function OverallAttendanceChart({ organizationID, selectedSemester }) {
     const [overallAttendance, setOverallAttendance] = React.useState(null);
 
     React.useEffect(() => {

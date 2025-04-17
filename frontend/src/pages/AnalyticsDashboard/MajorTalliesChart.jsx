@@ -12,6 +12,38 @@ import {
     PieChart, Pie, Cell
 } from 'recharts';
 
+/**
+ * MajorTalliesChart.jsx
+ * 
+ * This React component provides a visual representation of the distribution of members across different majors
+ * for a selected semester. It allows users to toggle between a pie chart and a bar chart view to analyze the data.
+ * The component fetches data from the backend and dynamically updates the charts based on the selected semester.
+ * 
+ * Key Features:
+ * - Fetches and displays the number of members per major for the selected semester.
+ * - Allows users to toggle between pie chart and bar chart views.
+ * - Handles loading states and displays appropriate messages when no data is available.
+ * - Formats long major names to fit within the chart display.
+ * - Provides interactive tooltips and legends for better data visualization.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches member tallies by major when the selected semester changes.
+ * - formatMajorName: Formats long major names to fit within the chart display.
+ * - renderCustomizedLabel: Custom label renderer for displaying percentages on pie chart slices.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for major tallies, loading state, and chart type (pie or bar).
+ * - React.useEffect: Triggers data fetching when the selected semester changes.
+ * 
+ * @component
+ */
 export default function MajorTalliesChart({ organizationID, selectedSemester }) {
     const theme = useTheme();
     const [majorTallies, setMajorTallies] = React.useState(null);

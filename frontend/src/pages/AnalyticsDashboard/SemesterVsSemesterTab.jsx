@@ -7,6 +7,40 @@ import EventTypeComparisonChart from './EventTypeComparisonChart';
 import CommitmentComparisonChart from './CommitmentComparisonChart';
 import ActiveMemberComparison from './ActiveMemberComparison';
 
+/**
+ * SemesterVsSemesterTab.jsx
+ * 
+ * This React component renders the "Semester vs Semester" tab in the analytics dashboard.
+ * It allows users to compare data between two selected semesters, including event type attendance,
+ * member commitment, and active member counts. The component dynamically fetches semester data
+ * and updates the displayed charts based on the selected semesters.
+ * 
+ * Key Features:
+ * - Fetches and displays a list of semesters for selection.
+ * - Automatically selects the two most recent active semesters on initial load.
+ * - Provides dropdown menus for selecting two semesters to compare.
+ * - Displays multiple comparison charts for the selected semesters.
+ * - Handles loading states and displays a spinner while fetching data.
+ * - Provides fallback messages when semesters are not selected.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * 
+ * Dependencies:
+ * - React, Material-UI components.
+ * - Custom components: EventTypeComparisonChart, CommitmentComparisonChart, ActiveMemberComparison.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches semester data on component mount.
+ * - handleFirstSemesterChange: Updates the first selected semester based on user input.
+ * - handleSecondSemesterChange: Updates the second selected semester based on user input.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for semesters, selected semesters, and loading state.
+ * - React.useEffect: Triggers data fetching when the component mounts.
+ * 
+ * @component
+ */
 export default function SemesterVsSemesterTab({ organizationID }) {
     const [semesters, setSemesters] = React.useState([]);
     const [firstSemester, setFirstSemester] = React.useState(null);

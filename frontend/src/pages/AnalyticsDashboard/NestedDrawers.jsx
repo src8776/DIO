@@ -8,21 +8,56 @@ import ContactMailIcon from '@mui/icons-material/ContactMail';
 import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
+/**
+ * NestedDrawers.jsx
+ * 
+ * This React component provides a nested drawer interface for displaying and managing member details.
+ * It includes a primary drawer for listing members and a secondary drawer for viewing detailed information
+ * about a selected member. The component supports search functionality, email copying, and attendance updates.
+ * 
+ * Key Features:
+ * - Displays a list of members with search functionality.
+ * - Provides a nested drawer for viewing and editing detailed member information.
+ * - Allows users to copy member emails to the clipboard.
+ * - Handles attendance updates for selected members.
+ * - Displays event details when available, including title, date, type, and attendance count.
+ * - Provides feedback using a SnackbarAlert component.
+ * 
+ * Props:
+ * - open: Boolean indicating whether the primary drawer is open.
+ * - detailsOpen: Boolean indicating whether the secondary drawer is open.
+ * - membersList: Array of member objects to display in the list.
+ * - selectedMemberID: ID of the currently selected member.
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester.
+ * - title: String representing the title of the primary drawer.
+ * - searchTerm: String representing the current search term.
+ * - onSearchChange: Function to handle changes to the search term.
+ * - onClose: Function to close the primary drawer.
+ * - onDetailsClose: Function to close the secondary drawer.
+ * - onItemSelect: Function to handle member selection.
+ * - onAttendanceUpdate: Function to handle attendance updates.
+ * - eventDetails: Object containing details about the event (optional).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and icons.
+ * - MemberDetailsPage: A component for displaying detailed member information.
+ * - SnackbarAlert: A custom component for displaying alerts.
+ * 
+ * Functions:
+ * - handleCopyEmails: Copies the emails of filtered members to the clipboard.
+ * - filteredMembers: Filters the member list based on the search term.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for Snackbar visibility and messages.
+ * 
+ * @component
+ */
 const NestedDrawers = ({
-    open,
-    detailsOpen,
-    membersList = [],
-    selectedMemberID,
-    organizationID,
-    selectedSemester,
-    title,
-    searchTerm,
-    onSearchChange,
-    onClose,
-    onDetailsClose,
-    onItemSelect,
-    onAttendanceUpdate,
-    eventDetails = null,
+    open, detailsOpen, membersList = [], selectedMemberID,
+    organizationID, selectedSemester, title,
+    searchTerm, onSearchChange, onClose, onDetailsClose,
+    onItemSelect, onAttendanceUpdate, eventDetails = null,
 }) => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');

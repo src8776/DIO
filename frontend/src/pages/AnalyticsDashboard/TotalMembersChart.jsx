@@ -3,7 +3,43 @@ import { Paper, Typography } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, Text } from 'recharts';
 import NestedDrawers from './NestedDrawers';
 
-
+/**
+ * TotalMembersChart.jsx
+ * 
+ * This React component provides a visual representation of the total members in an organization for a selected semester.
+ * It displays the number of active and general members in a bar chart and allows users to interact with the chart
+ * to view detailed member lists for each category. The component fetches data from the backend and dynamically updates
+ * based on the selected semester.
+ * 
+ * Key Features:
+ * - Fetches and displays the total number of members, including active and general members.
+ * - Displays a bar chart with clickable bars to view detailed member lists for each category.
+ * - Handles loading states and displays appropriate messages while data is being fetched.
+ * - Provides a nested drawer interface for viewing and managing member details.
+ * - Supports refreshing data when attendance is updated.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * - NestedDrawers: A custom component for displaying and managing member details.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches member tallies and updates the chart when the selected semester changes.
+ * - fetchMembersList: Fetches a list of members for a given category (active or general).
+ * - refreshData: Refetches member tallies and member lists to update the chart and drawers.
+ * - renderBarLabel: Custom label renderer for displaying values on the bars.
+ * - CustomBarShape: Custom shape for the bars to ensure a minimum height.
+ * - CustomBackground: Custom background for making bars clickable.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for member tallies, selected category, member lists, drawer visibility, and search term.
+ * - React.useEffect: Triggers data fetching and updates based on dependencies.
+ * 
+ * @component
+ */
 export default function TotalMembersChart({ organizationID, selectedSemester }) {
     const [memberTallies, setMemberTallies] = React.useState(null);
     const [selectedCategory, setSelectedCategory] = React.useState(null);

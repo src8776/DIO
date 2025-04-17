@@ -4,6 +4,41 @@ import {
     CircularProgress, Typography
 } from '@mui/material';
 
+
+/**
+ * YearVsYearTab.jsx
+ * 
+ * This React component renders the "Year vs Year" tab in the analytics dashboard.
+ * It allows users to compare data between two selected academic years. The component dynamically fetches
+ * semester data from the backend, processes the academic years, and updates the displayed content based
+ * on the selected years.
+ * 
+ * Key Features:
+ * - Fetches and processes semester data to extract unique academic years.
+ * - Automatically selects the two most recent academic years on initial load.
+ * - Provides dropdown menus for selecting two academic years to compare.
+ * - Handles loading states and displays a spinner while data is being fetched.
+ * - Prevents users from selecting the same year for both dropdowns.
+ * - Provides a placeholder for year vs year comparison charts.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * 
+ * Dependencies:
+ * - React, Material-UI components.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches semester data on component mount and processes academic years.
+ * - handleFirstYearChange: Updates the first selected year based on user input.
+ * - handleSecondYearChange: Updates the second selected year based on user input.
+ * - getYearSemesters: Filters and retrieves semesters for a specific academic year.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for semesters, academic years, selected years, and loading state.
+ * - React.useEffect: Triggers data fetching and processing when the component mounts.
+ * 
+ * @component
+ */
 export default function YearVsYearTab({ organizationID }) {
     const [semesters, setSemesters] = React.useState([]);
     const [years, setYears] = React.useState([]);

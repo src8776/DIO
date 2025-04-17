@@ -12,6 +12,40 @@ import {
     Tooltip, Legend
 } from 'recharts';
 
+/**
+ * EventTypeComparisonChart.jsx
+ * 
+ * This React component provides a visual comparison of attendance counts for specific event types across two semesters.
+ * It fetches event type data and attendance comparison data from the backend and displays it in either an area chart
+ * or a bar chart, allowing users to toggle between the two views.
+ * 
+ * Key Features:
+ * - Fetches and displays common event types for the selected semesters.
+ * - Allows users to select an event type for comparison.
+ * - Provides toggle functionality to switch between area and bar chart views.
+ * - Handles loading states and displays appropriate messages when no data is available.
+ * - Dynamically updates charts based on user interactions and selected filters.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - firstSemester: Object representing the first semester (includes SemesterID and TermName).
+ * - secondSemester: Object representing the second semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches common event types and attendance comparison data based on selected semesters and filters.
+ * - handleEventTypeChange: Updates the selected event type based on user input.
+ * - chartData: Computes chart data for the selected event type using attendance comparison data.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for event types, attendance data, loading states, chart type, and selected filters.
+ * - React.useEffect: Triggers data fetching and updates based on dependencies.
+ * - React.useMemo: Optimizes computation of chart data.
+ * 
+ * @component
+ */
 export default function EventTypeComparisonChart({ organizationID, firstSemester, secondSemester }) {
     const [selectedEventType, setSelectedEventType] = React.useState('');
     const [comparisonData, setComparisonData] = React.useState(null);

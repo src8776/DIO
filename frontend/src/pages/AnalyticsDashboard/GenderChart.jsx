@@ -2,6 +2,38 @@ import * as React from 'react';
 import { useTheme, Paper, Typography, Box, Container, CircularProgress } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
+/**
+ * GenderChart.jsx
+ * 
+ * This React component renders pie charts to display gender and race distributions for a selected semester.
+ * It fetches demographic data from the backend and visualizes it using the Recharts library.
+ * The component handles loading states and provides fallback messages when no data is available.
+ * 
+ * Key Features:
+ * - Fetches gender and race demographic data for the selected semester.
+ * - Displays gender and race distributions as separate pie charts.
+ * - Handles loading states with a spinner while data is being fetched.
+ * - Provides fallback messages when no demographic data is available.
+ * - Normalizes and capitalizes gender and race data for consistent display.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches demographic data when the selected semester or organization ID changes.
+ * - capitalize: Helper function to capitalize strings for consistent formatting.
+ * - renderCustomizedLabel: Custom label renderer for displaying percentages on pie chart slices.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for demographic data and loading state.
+ * - React.useEffect: Triggers data fetching when dependencies change.
+ * 
+ * @component
+ */
 export default function GenderChart({ organizationID, selectedSemester }) {
     const theme = useTheme();
     const [demographicsData, setDemographicsData] = React.useState(null);

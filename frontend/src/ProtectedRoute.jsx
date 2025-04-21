@@ -108,10 +108,10 @@ const ProtectedRoute = ({ element }) => {
       if (authStatus) {
         const InWic = await checkWicRole();
         const InComs = await checkComsRole();
-        const profileStatus = await checkProfileCompletion();
+        //const profileStatus = await checkProfileCompletion();
         setInWic(InWic);
         setInComs(InComs);
-        setIsProfileComplete(profileStatus);
+        //setIsProfileComplete(profileStatus);
       }
       setIsLoading(false);
     };

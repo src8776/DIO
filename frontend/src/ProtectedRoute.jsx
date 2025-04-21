@@ -74,7 +74,6 @@ export const checkComsRole = async () => {
  * Returns true if the profile is complete, false otherwise.
  */
 
-/*
 const checkProfileCompletion = async () => {
   try {
     const response = await fetch('/api/user/profileCompletion', {
@@ -91,7 +90,7 @@ const checkProfileCompletion = async () => {
     return null;
   }
 };
-*/
+
 
 /**
  * ProtectedRoute component to handle route protection based on user authentication and roles.
@@ -100,7 +99,7 @@ const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [inWic, setInWic] = useState(null);
   const [inComs, setInComs] = useState(null);
-  //const [isProfileComplete, setIsProfileComplete] = useState(null);
+  const [isProfileComplete, setIsProfileComplete] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
@@ -111,10 +110,10 @@ const ProtectedRoute = ({ element }) => {
       if (authStatus) {
         const InWic = await checkWicRole();
         const InComs = await checkComsRole();
-        //const profileStatus = await checkProfileCompletion();
+        const profileStatus = await checkProfileCompletion();
         setInWic(InWic);
         setInComs(InComs);
-        //setIsProfileComplete(profileStatus);
+        setIsProfileComplete(profileStatus);
       }
       setIsLoading(false);
     };
@@ -132,7 +131,7 @@ const ProtectedRoute = ({ element }) => {
 
   // If the user is authenticated but the profile is not complete, redirect to the account setup page
   // add && !isProfileComplete to if statement for checking profile completion
-  if (isAuthenticated && location.pathname !== '/acctSetup') {
+  if (isAuthenticated && !isProfileComplete && location.pathname !== '/acctSetup') {
     return <Navigate to="/acctSetup" replace />;
   }
 

@@ -12,9 +12,43 @@ import ActiveModal from './ActiveModal';
 import EventItem from './EventItem';
 import AddEventModal from './AddEventModal';
 
-// TODO: Form validation
-// TODO: user feedback "changes saved successfully"
-
+/**
+ * OrganizationSetupPage.jsx
+ * 
+ * This React component renders the organization setup page, allowing administrators to manage active requirements
+ * and event rules for a specific organization. It provides functionality to view, edit, and copy rules between semesters.
+ * The component dynamically fetches data from the backend and updates the UI based on user interactions.
+ * 
+ * Key Features:
+ * - Displays and manages active requirements for the organization.
+ * - Lists event rules and allows administrators to add, edit, or delete event types and their rules.
+ * - Provides functionality to copy rules from a previous semester to the current semester.
+ * - Handles loading states and displays feedback on success or failure using a Snackbar.
+ * - Dynamically updates the UI based on the selected semester and organization.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and React Router.
+ * - Custom components: ActiveModal, EventItem, AddEventModal.
+ * 
+ * Functions:
+ * - handleOpen: Opens the modal for managing active requirements.
+ * - handleClose: Closes the active requirements modal.
+ * - handleFormOpen: Opens the modal for adding a new event type.
+ * - handleFormClose: Closes the add event modal.
+ * - handleOpenModal: Opens the modal for managing rules of a specific event type.
+ * - handleCloseModal: Closes the event rules modal and refreshes event rules data.
+ * - fetchEventRules: Fetches the event rules for the selected semester and organization.
+ * - handleSemesterChange: Updates the selected semester and fetches related data.
+ * - handleCopyRules: Copies rules from a source semester to the selected semester.
+ * - handleCloseSnackbar: Closes the success message Snackbar.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization ID, semesters, selected semester, rules, modals, and UI interactions.
+ * - React.useEffect: Fetches organization ID, semesters, and rules when dependencies change.
+ * - React.useCallback: Memoizes the fetchEventRules function for dependency optimization.
+ * 
+ * @component
+ */
 export default function OrganizationSetup() {
     const { org } = useParams(); //"wic" or "coms"
     const allowedTypes = ['wic', 'coms'];
@@ -28,13 +62,33 @@ export default function OrganizationSetup() {
     const [formOpen, setFormOpen] = React.useState(false);
     const [successMessage, setSuccessMessage] = React.useState(null);
     const [orgRules, setOrgRules] = React.useState(null);
+    const [isFinalized, setIsFinalized] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
+    const [openEventID, setOpenEventID] = React.useState(null);
+    const MemoizedEventItem = React.memo(EventItem);
 
+    // Modal handlers for ActiveModal
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const handleFormOpen = () => setFormOpen(true);
     const handleFormClose = () => setFormOpen(false);
 
+    // Handlers for EventItem modals
+    const handleOpenModal = (eventTypeID) => {
+        setOpenEventID(eventTypeID);
+    };
+
+    const handleCloseModal = () => {
+        // First set the modal state to closed
+        setOpenEventID(null);
+        
+        // Then refresh event rules data
+        if (orgID && selectedSemester) {
+            fetchEventRules();
+        }
+    };
+
+    // Validate org parameter
     if (!allowedTypes.includes(org)) {
         return (
             <Typography component={Paper} variant='h1' sx={{ alignContent: 'center', p: 6, m: 'auto' }}>
@@ -43,13 +97,14 @@ export default function OrganizationSetup() {
         );
     }
 
+    // Fetch orgID when org changes
     React.useEffect(() => {
         setLoading(true); // Reset loading state when org changes
         fetch(`/api/organizationInfo/organizationIDByAbbreviation?abbreviation=${org}`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.length > 0) {
-                    setOrgID(data[0].OrganizationID); // Assuming API returns array like [1]
+                    setOrgID(data[0].OrganizationID);
                 }
             })
             .catch((error) => {
@@ -73,29 +128,40 @@ export default function OrganizationSetup() {
             });
     }, []);
 
-    // Uncomment this once the clients have confirmed past semester rules are correct
-    // determine if a semester is editable
-    // React.useEffect(() => {
-    //     if (selectedSemester) {
-    //         const today = new Date();
-    //         const semesterStart = new Date(selectedSemester.StartDate);
-    //         setIsEditable(semesterStart >= today || selectedSemester.IsActive === 1);
-    //     } else {
-    //         setIsEditable(false);
-    //     }
-    // }, [selectedSemester]);
+    // Fetch isFinalized and set isEditable
+    React.useEffect(() => {
+        if (orgID && selectedSemester) {
+            setLoading(true); // Start loading when fetching critical data
+            fetch(`/api/organizationRules/isFinalized?organizationID=${orgID}&semesterID=${selectedSemester.SemesterID}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setIsFinalized(data.isFinalized);
+                    setIsEditable(!data.isFinalized); // Editable if not finalized
+                    setLoading(false); // Done loading critical data
+                })
+                .catch((error) => {
+                    console.error('Error fetching isFinalized status:', error);
+                    setIsEditable(false); // Safe default on error
+                    setLoading(false);
+                });
+        } else {
+            setIsEditable(false); // Not editable if no semester selected
+        }
+    }, [orgID, selectedSemester]);
 
+    // Fetch event rules
     const fetchEventRules = React.useCallback(() => {
         if (orgID && selectedSemester) {
             setLoading(true);
             fetch(`/api/organizationRules/eventRules?organizationID=${orgID}&semesterID=${selectedSemester.SemesterID}`)
-                .then(response => response.json())
-                .then(data => {
+                .then((response) => response.json())
+                .then((data) => {
                     setOrgRules(data);
                     setLoading(false);
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.error('Error fetching event rules:', error);
+                    setOrgRules(null); // Reset on error
                     setLoading(false);
                 });
         }
@@ -107,17 +173,19 @@ export default function OrganizationSetup() {
 
     const handleCloseSnackbar = () => setSuccessMessage(null);
 
-    // Handle semester selection change
+    // Handle semester change
     const handleSemesterChange = (event) => {
         const value = event.target.value;
-        const newSemester = semesters.find(sem => sem.SemesterID === value);
+        const newSemester = semesters.find((sem) => sem.SemesterID === value);
         setSelectedSemester(newSemester);
-
     };
 
-    // Extract the number of rules
-    const numberOfRules = orgRules ? orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0) : 0;
+    // Calculate number of rules safely
+    const numberOfRules = orgRules && orgRules.eventTypes
+        ? orgRules.eventTypes.reduce((acc, eventType) => acc + eventType.rules.length, 0)
+        : 0;
 
+    // Handle copying rules
     const handleCopyRules = () => {
         fetch('/api/organizationRules/copyRules', {
             method: 'POST',
@@ -128,22 +196,21 @@ export default function OrganizationSetup() {
                 targetSemesterID: selectedSemester.SemesterID,
             }),
         })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 if (data.success) {
                     setSuccessMessage('Rules copied successfully!');
-                    fetchEventRules();  // Refresh rules
+                    fetchEventRules();
                     setOpenCopyDialog(false);
                 }
             })
-            .catch(error => console.error('Error copying rules:', error));
+            .catch((error) => console.error('Error copying rules:', error));
     };
-
 
     return (
         <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
             <Box component="form" sx={{ display: 'flex', flexGrow: 1, flexDirection: 'column', p: 2, gap: 2 }}>
-                {/* Header box */}
+                {/* Header */}
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-between' }}>
                     <Box>
                         <Typography variant="h5" sx={{ textAlign: 'left', display: 'inline' }}>
@@ -167,8 +234,9 @@ export default function OrganizationSetup() {
                         onChange={handleSemesterChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Select Semester' }}
-                        size='small'
+                        size="small"
                         sx={{ width: 150 }}
+                        renderValue={(value) => (value ? semesters.find((sem) => sem.SemesterID === value)?.TermName : 'Select Semester')}
                     >
                         {semesters.map((sem) => (
                             <MenuItem key={sem.SemesterID} value={sem.SemesterID}>
@@ -186,7 +254,7 @@ export default function OrganizationSetup() {
                 )}
 
                 {!isEditable && selectedSemester && (
-                    <Typography color="red">Rules for past semesters are read-only.</Typography>
+                    <Typography>Rules for closed semesters cannot be modified.</Typography>
                 )}
                 {/* Organization Rules Table */}
                 <Paper>
@@ -228,26 +296,28 @@ export default function OrganizationSetup() {
                             </>
                         )}
                     </Box>
-                    <List
-                        component="nav"
-                        aria-labelledby="event-types-list">
+                    <List component="nav" aria-labelledby="event-types-list">
                         {loading ? (
                             [...Array(3)].map((_, index) => (
                                 <Skeleton key={index} variant="rectangular" height={50} sx={{ mb: 1 }} />
                             ))
-                        ) : (
+                        ) : orgRules && orgRules.eventTypes ? (
                             orgRules.eventTypes
                                 .sort((a, b) => b.rules.length - a.rules.length)
-                                .map((eventObj, index) => (
-                                    <EventItem
-                                        key={`rule-${index}`}
+                                .map((eventObj) => (
+                                    <MemoizedEventItem
+                                        key={eventObj.eventTypeID}
                                         {...eventObj}
                                         orgID={orgID}
                                         semesterID={selectedSemester?.SemesterID}
-                                        refetchEventRules={fetchEventRules}
                                         isEditable={isEditable}
+                                        open={openEventID === eventObj.eventTypeID}
+                                        onOpen={() => handleOpenModal(eventObj.eventTypeID)}
+                                        onClose={handleCloseModal}
                                     />
                                 ))
+                        ) : (
+                            <Typography>No event rules available.</Typography>
                         )}
                     </List>
                 </Paper>

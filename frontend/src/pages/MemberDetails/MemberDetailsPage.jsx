@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  Container, Typography, Paper, Box,
+  useTheme, Container, Typography, Paper, Box,
   Chip, Button, Dialog, DialogActions,
   DialogContent, DialogContentText,
   DialogTitle, IconButton
@@ -12,36 +12,52 @@ import SnackbarAlert from '../../components/SnackbarAlert';
 import AttendanceHistoryAdmin from './AttendanceHistoryAdmin';
 import ExemptStatusToggle from './ExemptStatusToggle';
 
-const StatusChip = ({ memberStatus, ...props }) => {
-  let displayedStatus = memberStatus;
-  let backgroundColor, textColor;
 
-  if (memberStatus === 'Active') {
-    displayedStatus = 'Active';
-    backgroundColor = '#e6ffe6';
-    textColor = '#2e7d32';
-  } else if (memberStatus === 'Exempt') {
-    displayedStatus = 'Exempt';
-    backgroundColor = '#e1bee7';  // light purple background for Exempt
-    textColor = '#6a1b9a';         // purple text for Exempt
-  } else if (memberStatus === 'CarryoverActive') {
-    displayedStatus = 'Active*';
-    backgroundColor = '#FFEB3B';  // yellow background
-    textColor = '#000000';        // black text for contrast
-  } else if (memberStatus === 'N/A') {
-    displayedStatus = 'N/A';
-    backgroundColor = '#ffe6e6';
-    textColor = '#c62828';
-  }
-  else {
-    displayedStatus = 'General';
-    backgroundColor = '#ffe6e6';
-    textColor = '#c62828';
-  }
-
-  return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
-};
-
+/**
+ * MemberDetailsPage.jsx
+ * 
+ * This React component renders a detailed view of a specific member's information, including personal details,
+ * academic information, attendance history, and exempt status. It provides an admin interface for managing
+ * attendance records and exempt status, with options to add, edit, or delete attendance records.
+ * 
+ * Key Features:
+ * - Displays personal and academic information for the selected member.
+ * - Provides a table of attendance records with options to add, edit, or delete records.
+ * - Allows administrators to manage the member's exempt status, including setting start semesters and durations.
+ * - Handles dynamic updates based on user interactions and backend data.
+ * - Includes confirmation dialogs for deleting attendance records.
+ * - Displays feedback using a SnackbarAlert component.
+ * 
+ * Props:
+ * - memberID: String representing the ID of the member.
+ * - orgID: String or number representing the organization ID.
+ * - memberStatus: String representing the current status of the member.
+ * - selectedSemester: Object representing the currently selected semester.
+ * - onMemberUpdate: Function to handle updates to the member's details.
+ * - onClose: Function to close the member details page.
+ * - onAttendanceUpdate: Function to handle updates to attendance records.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and icons.
+ * - Custom components: AttendanceHistoryAdmin, ExemptStatusToggle, SnackbarAlert.
+ * - Utility functions: normalizeTermCode for formatting term codes.
+ * - Day.js for date handling.
+ * 
+ * Functions:
+ * - handleSubmit: Handles adding new attendance records.
+ * - handleDeleteClick: Opens the confirmation dialog for deleting an attendance record.
+ * - handleCancelDelete: Closes the confirmation dialog without deleting.
+ * - handleConfirmDelete: Deletes the selected attendance record.
+ * - handleExemptSubmit: Submits the exempt status for the member.
+ * - handleUndoExempt: Undoes the exempt status for the member.
+ * - formatPhoneNumber: Formats phone numbers for display.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for member details, attendance records, exempt status, and UI interactions.
+ * - React.useEffect: Fetches member details, attendance records, semesters, and event types when dependencies change.
+ * 
+ * @component
+ */
 export default function MemberDetailsPage({
   memberID, orgID, memberStatus, selectedSemester, onMemberUpdate, onClose, onAttendanceUpdate
 }) {
@@ -72,6 +88,47 @@ export default function MemberDetailsPage({
   const [exemptSemesters, setExemptSemesters] = React.useState([]);
   const [snackbar, setSnackbar] = React.useState({ open: false, severity: 'success', message: '' });
   const effectiveStatus = memberInfo && memberInfo[0]?.status ? memberInfo[0].status : memberStatus;
+  const theme = useTheme();
+
+  const StatusChip = ({ memberStatus, ...props }) => {
+    let displayedStatus = memberStatus;
+    let backgroundColor, textColor;
+
+    switch (memberStatus) {
+      case 'Active':
+        displayedStatus = 'Active';
+        backgroundColor = ' #e6ffe6';
+        textColor = theme.palette.activeStatus.default;
+        break;
+      case 'CarryoverActive':
+        displayedStatus = 'Active*';
+        backgroundColor = ' #e6ffe6';
+        textColor = theme.palette.activeStatus.default;
+        break;
+      case 'Exempt':
+        displayedStatus = 'Exempt';
+        backgroundColor = '#e1bee7';
+        textColor = theme.palette.exemptStatus.default;
+        break;
+      case 'N/A':
+        displayedStatus = 'N/A';
+        backgroundColor = '#ffe6e6';
+        textColor = theme.palette.generalStatus.default;
+        break;
+      case 'Alumni':
+        displayedStatus = 'Alumni';
+        backgroundColor = '#eecc0e';
+        textColor = '#000000';
+        break;
+      default:
+        displayedStatus = 'General';
+        backgroundColor = '#fffff';
+        textColor = theme.palette.generalStatus.default;
+        break;
+    }
+
+    return <Chip label={displayedStatus} sx={{ backgroundColor, color: textColor }} {...props} />;
+  };
 
   // Fetch semesters
   React.useEffect(() => {
@@ -93,7 +150,6 @@ export default function MemberDetailsPage({
         .then(resp => resp.json())
         .then(data => {
           setExemptSemesters(data);
-          console.log('Exempt Semesters:', data); // For debugging purposes
           if (Array.isArray(data) && data.length > 0) {
             setExemptEnabled(true);
           } else {
@@ -334,6 +390,16 @@ export default function MemberDetailsPage({
     );
   }
 
+  function formatPhoneNumber(phoneNumber) {
+    if (!phoneNumber) return "N/A";
+    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return phoneNumber;
+  }
+
   const {
     MemberID: id,
     UserName,
@@ -346,7 +412,8 @@ export default function MemberDetailsPage({
     attendanceRecords,
     RoleName,
     ShirtSize,
-    PantSize
+    PantSize,
+    PhoneNumber
   } = memberInfo[0];
 
   const normalizedGraduationSemester = normalizeTermCode(GraduationSemester);
@@ -386,6 +453,7 @@ export default function MemberDetailsPage({
                 <Typography variant="h6" sx={{ mb: 1 }}>Personal Info</Typography>
                 <Typography variant="body2"><strong>Username:</strong> {UserName}</Typography>
                 <Typography variant="body2"><strong>Email:</strong> {Email}</Typography>
+                <Typography variant="body2"><strong>Phone Number:</strong> {formatPhoneNumber(PhoneNumber)}</Typography>
                 <Typography variant="body2"><strong>Shirt Size:</strong> {ShirtSize || "N/A"}</Typography>
                 <Typography variant="body2"><strong>Pant Size:</strong> {PantSize || "N/A"}</Typography>
               </Paper>

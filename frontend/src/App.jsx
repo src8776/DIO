@@ -18,6 +18,7 @@ import Login from './pages/LoginPage/login';
 import UnauthorizedPage from './pages/Unauthorized/unauthorized.jsx';
 import WelcomePage from './pages/Unauthorized/welcome.jsx';
 import CloseBrowserPage from './pages/LogoutCloseBrowser/LogoutCloseBrowser.jsx';
+import AboutPage from './pages/Unauthorized/about.jsx';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
@@ -45,8 +46,7 @@ const App = () => {
     };
   }, []);
 
-  // TODO: Protect all paths (except for "/").
-  // Only to be accessible by ADMIN / EBOARD? USERS 
+
   const wrapWithProtectedRoute = (element) => {
     return isProduction ? <ProtectedRoute element={element} /> : element;
   };
@@ -57,6 +57,7 @@ const App = () => {
       <AppBar toggleTheme={toggleTheme} mode={mode} />
       <Routes>
         <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/" element={wrapWithProtectedRoute(<LandingPage />)} />
         <Route path="/admin/:org" element={wrapWithProtectedRoute(<AdminLayout />)}>
           <Route index element={wrapWithProtectedRoute(<AnalyticsDash />)} />

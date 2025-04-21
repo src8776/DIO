@@ -1,17 +1,48 @@
 import * as React from 'react';
-import {
-    useTheme, Paper, Typography, Button, Box,
-    Drawer, List, ListItem, ListItemText,
-    TextField, IconButton
-} from '@mui/material';
+import { Paper, Typography, Button, Box, } from '@mui/material';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts';
 import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
-import MemberDetailsPage from '../MemberDetails/MemberDetailsPage';
-import CloseIcon from '@mui/icons-material/Close';
+import NestedDrawers from './NestedDrawers';
 
+/**
+ * AverageEventAttendanceChart.jsx
+ * 
+ * This React component provides a visual representation of average event attendance rates and individual event attendance counts.
+ * It fetches attendance data from the backend and displays it in a bar chart using the Recharts library.
+ * The component allows users to switch between viewing average attendance rates by event type and attendance counts for individual events.
+ * 
+ * Key Features:
+ * - Fetches and displays average attendance rates for different event types.
+ * - Allows users to drill down into individual event attendance counts.
+ * - Provides interactive charts with tooltips and clickable bars for navigation.
+ * - Handles loading states and displays appropriate messages when no data is available.
+ * - Supports mobile responsiveness for better usability on smaller screens.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * - NestedDrawers: A custom component for displaying event attendee details.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches average attendance data, event instance data, and attendee data based on user interactions.
+ * - refreshData: Refetches data to update charts and attendee lists.
+ * - renderAverageLabel: Custom label renderer for average attendance bars.
+ * - renderInstanceLabel: Custom label renderer for individual event attendance bars.
+ * - renderInstanceTooltip: Custom tooltip renderer for individual event attendance bars.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for attendance data, view modes, selected events, attendees, and UI interactions.
+ * - React.useEffect: Triggers data fetching and updates based on dependencies.
+ * - React.useCallback: Provides a memoized function for refreshing data.
+ * 
+ * @component
+ */
 export default function AverageEventAttendanceChart({ organizationID, selectedSemester }) {
     const [averages, setAverages] = React.useState(null);
     const [viewMode, setViewMode] = React.useState('averages');
@@ -186,6 +217,8 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         );
     };
 
+    const minBarHeight = 15;
+
     const AverageBarShape = (props) => {
         const eventTypeColors = {
             "General Meeting": "#4394E5",
@@ -196,12 +229,16 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         // Choose the color based on the event type; use default if undefined
         const fillColor = eventTypeColors[props.payload?.original?.EventType] || "#F76902";
         const { x, y, width, height } = props;
+        // Ensure bar height is at least the minimum value
+        const adjustedHeight = Math.max(height, minBarHeight);
+        // Adjust y so the bottom remains the same
+        const adjustedY = height < minBarHeight ? y - (minBarHeight - height) : y;
         return (
             <rect
                 x={x}
-                y={y}
+                y={adjustedY}
                 width={width}
-                height={height}
+                height={adjustedHeight}
                 fill={fillColor}
                 pointerEvents="none"
             />
@@ -216,23 +253,24 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
             "Mentor Event": "#876FD4"
         };
         // Use the instance's event type if available (or fallback to the selectedEventType)
-        // Note: selectedEventType is available via closure in this component.
         const eventType = props.payload?.EventType || selectedEventType?.EventType;
         const fillColor = eventTypeColors[eventType] || "#F76902";
         const { x, y, width, height } = props;
+        // Ensure bar height is at least the minimum value
+        const adjustedHeight = Math.max(height, minBarHeight);
+        const adjustedY = height < minBarHeight ? y - (minBarHeight - height) : y;
         return (
             <rect
                 x={x}
-                y={y}
+                y={adjustedY}
                 width={width}
-                height={height}
+                height={adjustedHeight}
                 fill={fillColor}
                 pointerEvents="none"
             />
         );
     };
 
-    // TODO: If container width is < 740px, hide labels 
     // Label renderer for Instance Chart
     const renderInstanceLabel = (maxAttendance) => (props) => {
         const { x, y, width, height, value } = props;
@@ -267,12 +305,6 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
         }
         return null;
     };
-
-    // Filter attendees based on search query
-    const filteredAttendees = (Array.isArray(attendees) ? attendees : []).filter(attendee => {
-        const fullName = `${attendee.FirstName} ${attendee.LastName}`.toLowerCase();
-        return fullName.includes(attendeeSearch.toLowerCase());
-    });
 
     // mobile detection
     React.useEffect(() => {
@@ -388,116 +420,28 @@ export default function AverageEventAttendanceChart({ organizationID, selectedSe
                     </>
                 )}
             </Paper>
-            {/* attendees drawer */}
-            <Drawer
-                anchor="left"
+            <NestedDrawers
                 open={drawerOpen}
+                detailsOpen={memberDrawerOpen}
+                membersList={attendees}
+                selectedMemberID={selectedMemberID}
+                organizationID={organizationID}
+                selectedSemester={selectedSemester}
+                title="Event Attendees"
+                searchTerm={attendeeSearch}
+                onSearchChange={setAttendeeSearch}
                 onClose={() => {
                     setDrawerOpen(false);
-                    setMemberDrawerOpen(false); // Close both drawers when attendees drawer closes
+                    setMemberDrawerOpen(false);
                 }}
-                sx={{
-                    zIndex: 1200,
-                    '& .MuiDrawer-paper': {
-                        width: { xs: 300, sm: 400 },
-                        left: 0
-                    },
+                onDetailsClose={() => setMemberDrawerOpen(false)}
+                onItemSelect={(id) => {
+                    setSelectedMemberID(id);
+                    setMemberDrawerOpen(true);
                 }}
-            >
-                <Box sx={{ width: { xs: 300, sm: 400 }, p: 2, bgcolor: 'background.paper', height: '100%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ccc' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <IconButton
-                            onClick={() => {
-                                setDrawerOpen(false);
-                                setMemberDrawerOpen(false);
-                            }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-                    {selectedEventInstance && (
-                        <>
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                {selectedEventInstance.EventTitle}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {new Date(selectedEventInstance.EventDate).toLocaleDateString()}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Type: {selectedEventInstance.EventType}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                Attendance: {selectedEventInstance.attendanceCount}
-                            </Typography>
-                            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-                                Attendees:
-                            </Typography>
-                            {/* Search Field */}
-                            <TextField
-                                size="small"
-                                variant="outlined"
-                                placeholder="Search attendees..."
-                                value={attendeeSearch}
-                                onChange={(e) => setAttendeeSearch(e.target.value)}
-                                sx={{ mb: 1 }}
-                            />
-                            <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
-                                {filteredAttendees.length > 0 ? (
-                                    <List dense>
-                                        {filteredAttendees.map((attendee) => (
-                                            <ListItem
-                                                key={attendee.MemberID}
-                                                button
-                                                onClick={() => {
-                                                    setSelectedMemberID(attendee.MemberID);
-                                                    setMemberDrawerOpen(true);
-                                                }}
-                                                divider
-                                                sx={{ py: 1, cursor: 'pointer' }}
-                                            >
-                                                <ListItemText primary={`${attendee.FirstName} ${attendee.LastName}`} />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                ) : (
-                                    <Typography variant="body2" color="textSecondary">
-                                        No attendees found
-                                    </Typography>
-                                )}
-                            </Box>
-                        </>
-                    )}
-                </Box>
-            </Drawer>
-            {/* member details drawer */}
-            <Drawer
-                anchor="left"
-                open={memberDrawerOpen}
-                onClose={() => setMemberDrawerOpen(false)}
-                variant="persistent"
-                sx={{
-                    zIndex: 1300,
-                    // Shift the member drawer right by the width of the attendees drawer
-                    '& .MuiDrawer-paper': {
-                        width: { xs: '100%', sm: 500, md: 700 },
-                        '@media (min-width:1102px)': {
-                            left: 400, // when viewport is 1102px or greater
-                        }
-                    }
-                }}
-            >
-                <Box sx={{ width: { xs: '100%', sm: 500, md: 700 }, height: '100%', overflowY: 'auto' }}>
-                    {selectedMemberID && (
-                        <MemberDetailsPage
-                            memberID={selectedMemberID}
-                            orgID={organizationID}
-                            selectedSemester={selectedSemester}
-                            onClose={() => setMemberDrawerOpen(false)}
-                            onAttendanceUpdate={refreshData} // Refresh data when attendance is updated
-                        />
-                    )}
-                </Box>
-            </Drawer>
+                onAttendanceUpdate={refreshData}
+                eventDetails={selectedEventInstance}
+            />
         </>
     );
 }

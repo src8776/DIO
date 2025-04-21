@@ -1,7 +1,8 @@
 const db = require("../config/db");
+const DBHelper = require('../utils/DBHelper');
 
 class EventRule {
-    static async getEventRulesByOrgAndSemester(organizationID, semesterID) {
+    static async getEventRulesByOrgAndSemester(organizationID, semesterID, connection = null) {
         try {
             const query = `
                 SELECT 
@@ -27,7 +28,7 @@ class EventRule {
                 AND et.SemesterID = ? 
                 AND (er.SemesterID = ? OR er.SemesterID IS NULL);
             `;
-            const [rows] = await db.query(query, [semesterID, semesterID, organizationID, semesterID, semesterID]);
+            const [rows] = await DBHelper.runQuery(query, [semesterID, semesterID, organizationID, semesterID, semesterID], connection);
 
             // Transform the flat array into a nested structure
             const eventTypesMap = {};
@@ -63,6 +64,65 @@ class EventRule {
             return formattedResponse;
         } catch (error) {
             console.error('Error fetching data for Organization Setup Page:', error);
+            throw error;
+        }
+    }
+
+    static async getEventRulesByEventTypeID(eventTypeID, semesterID, connection = null) {
+        try {
+            const query = `
+                SELECT 
+                    et.EventTypeID,
+                    et.EventType,
+                    et.RuleType,
+                    et.MaxPoints,
+                    et.MinPoints,
+                    et.OccurrenceTotal,
+                    er.RuleID,
+                    er.Criteria,
+                    er.CriteriaValue,
+                    er.PointValue
+                FROM EventTypes et
+                LEFT JOIN EventRules er 
+                    ON et.EventTypeID = er.EventTypeID 
+                    AND er.SemesterID = ?
+                WHERE et.EventTypeID = ?
+                AND (er.SemesterID = ? OR er.SemesterID IS NULL);
+            `;
+
+            const [rows] = await DBHelper.runQuery(query, [semesterID, eventTypeID, semesterID], connection);
+
+            // Transform the flat array into a nested structure
+            const eventType = {
+                eventTypeID: eventTypeID,
+                name: null,
+                ruleType: null,
+                maxPoints: null,
+                occurrenceTotal: null,
+                rules: []
+            };
+
+            rows.forEach(row => {
+                if (!eventType.name) {
+                    eventType.name = row.EventType;
+                    eventType.ruleType = row.RuleType;
+                    eventType.maxPoints = row.MaxPoints;
+                    eventType.occurrenceTotal = row.OccurrenceTotal;
+                }
+
+                if (row.RuleID) { // Only add rules if they exist
+                    eventType.rules.push({
+                        criteria: row.Criteria,
+                        criteriaValue: parseFloat(row.CriteriaValue),
+                        pointValue: parseFloat(row.PointValue),
+                        ruleID: row.RuleID
+                    });
+                }
+            });
+
+            return eventType;
+        } catch (error) {
+            console.error('Error fetching event rules by event type ID:', error);
             throw error;
         }
     }

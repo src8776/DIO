@@ -6,13 +6,15 @@ const useAccountStatus = require('../services/useAccountStatus');
 const db = require('../config/db'); // Add this line to import the database connection
 const router = express.Router();
 
-const requireAuth = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Not authenticated' });
+if (process.env.NODE_ENV === "production") {
+    const requireAuth = async (req, res, next) => {
+        if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: 'Not authenticated' });
+        }
+        next();
     }
-    next();
+    router.use(requireAuth);
 }
-router.use(requireAuth);
 
 router.post('/hours', async (req, res) => {
     console.log('Received request at /api/admin/volunteers/hours');
@@ -26,15 +28,15 @@ router.post('/hours', async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        const termCode = await Semester.getOrCreateTermCode(eventDate);
-        const semester = await Semester.getSemesterByTermCode(termCode);
-        const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID, eventTitle);
+        const termCode = await Semester.getOrCreateTermCode(eventDate, connection);
+        const semester = await Semester.getSemesterByTermCode(termCode, connection);
+        const eventID = await EventInstance.getEventID(eventType, eventDate, organizationID, eventTitle, connection);
 
         for (const member of data.members) {
             try {
                 console.log("processing hours volunteers.js - Member: " + member.FullName + " MemberID: " + member.MemberID);
-                await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate);
-                await useAccountStatus.updateMemberStatus(member.MemberID, organizationID, semester);
+                await Attendance.insertVolunteerHours(member.MemberID, eventID, organizationID, member.hours, eventDate, connection);
+                await useAccountStatus.updateMemberStatus(member.MemberID, organizationID, semester, connection);
 
             } catch (error) {
                 console.error('Failed to insert volunteer hours into database', error);

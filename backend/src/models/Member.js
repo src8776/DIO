@@ -1,7 +1,7 @@
-const db = require('../config/db');
+const DBHelper = require('../utils/DBHelper');
 
 class Member {
-  static async insertMember(member) {
+  static async insertMember(member, connection = null) {
     try {
       const email = member.email;
       if (!email) {
@@ -9,9 +9,9 @@ class Member {
       }
 
       // Check if member exists
-      const [[existingMember]] = await db.query(
+      const [[existingMember]] = await DBHelper.runQuery(
         'SELECT MemberID FROM Members WHERE Email = ?',
-        [email]
+        [email], connection
       );
 
       if (existingMember) {
@@ -24,10 +24,10 @@ class Member {
       const lastName = member.lastName ? member.lastName.replace(/'/g, "''") : null;
       const fullName = member.fullName ? member.fullName.replace(/'/g, "''") : null;
 
-      const [result] = await db.query(
+      const [result] = await DBHelper.runQuery(
         `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName)
          VALUES (?, ?, ?, ?, ?)`,
-        [username, firstName, lastName, email, fullName]
+        [username, firstName, lastName, email, fullName], connection
       );
 
       return result.insertId;
@@ -37,9 +37,7 @@ class Member {
     }
   }
 
-
-
-  static async updateMemberProfile(member) {
+  static async updateMemberProfile(member, connection = null) {
     try {
       const username = member.email ? member.email.split('@')[0] : null;
       if (!username) {
@@ -52,9 +50,9 @@ class Member {
       const fullName = member.fullName ? member.fullName.replace(/'/g, "''") : null;
 
       // Insert the member
-      const [result] = await db.query(
-        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationSemester, AcademicYear, ShirtSize, PantSize, Race, Gender)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      const [result] = await DBHelper.runQuery(
+        `INSERT INTO Members (UserName, FirstName, LastName, Email, FullName, MajorID, GraduationSemester, AcademicYear, ShirtSize, PantSize, Race, Gender, PhoneNumber)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE 
            UserName = VALUES(UserName),
            FirstName = VALUES(FirstName),
@@ -66,7 +64,8 @@ class Member {
            ShirtSize = VALUES(ShirtSize),
            PantSize = VALUES(PantSize),
            Race = VALUES(Race),
-           Gender = VALUES(Gender)`,
+           Gender = VALUES(Gender),
+           PhoneNumber = VALUES(PhoneNumber)`,
         [
           username,
           firstName,
@@ -79,17 +78,18 @@ class Member {
           member.shirtSize || null,
           member.pantSize || null,
           member.race || null,
-          member.gender || null
-        ]
+          member.gender || null,
+          member.phoneNumber || null
+        ], connection
       );
 
       // If inserted, return new MemberID
       if (result.insertId) return result.insertId;
 
       // If already exists, fetch MemberID
-      const [[existingMember]] = await db.query(
+      const [[existingMember]] = await DBHelper.runQuery(
         'SELECT MemberID FROM Members WHERE Email = ?',
-        [member.email]
+        [member.email], connection
       );
       return existingMember?.MemberID;
     } catch (err) {
@@ -97,8 +97,6 @@ class Member {
       throw err;
     }
   }
-
-
 
   // This doesn't appear to be used anywhere? Should we remove it?
   static async lastUpdatedMemberAttendance() {
@@ -125,11 +123,11 @@ class Member {
         `;
   }
 
-  static async getMemberEmailById(memberId) {
+  static async getMemberEmailById(memberId, connection = null) {
     try {
-      const [[member]] = await db.query(
+      const [[member]] = await DBHelper.runQuery(
         'SELECT Email FROM Members WHERE MemberID = ?',
-        [memberId]
+        [memberId], connection
       );
       return member?.Email || null;
     } catch (err) {
@@ -138,11 +136,11 @@ class Member {
     }
   }
 
-  static async getMemberNameById(memberId) {
+  static async getMemberNameById(memberId, connection = null) {
     try {
-      const [[member]] = await db.query(
+      const [[member]] = await DBHelper.runQuery(
         'SELECT FirstName FROM Members WHERE MemberID = ?',
-        [memberId]
+        [memberId], connection
       );
       return member?.FirstName || null;
     } catch (err) {
@@ -151,11 +149,11 @@ class Member {
     }
   }
 
-  static async getMemberByEmail(email) {
+  static async getMemberByEmail(email, connection = null) {
     try {
-      const [[member]] = await db.query(
+      const [[member]] = await DBHelper.runQuery(
         'SELECT * FROM Members WHERE Email = ?',
-        [email]
+        [email], connection
       );
       return member || null;
     } catch (err) {
@@ -164,11 +162,11 @@ class Member {
     }
   }
 
-  static async getMajorById(majorID) {
+  static async getMajorById(majorID, connection = null) {
     try {
-      const [[major]] = await db.query(
+      const [[major]] = await DBHelper.runQuery(
         'SELECT Title FROM Majors WHERE MajorID = ?',
-        [majorID],
+        [majorID], connection
       );
       return major ? major.Title : null;
     } catch (err) {
@@ -177,11 +175,11 @@ class Member {
     }
   }
 
-  static async getMajorIdByTitle(majorTitle) {
+  static async getMajorIdByTitle(majorTitle, connection = null) {
     try {
-      const [[major]] = await db.query(
+      const [[major]] = await DBHelper.runQuery(
         'SELECT MajorID FROM Majors WHERE Title = ?',
-        [majorTitle],
+        [majorTitle], connection
       );
       return major ? major.MajorID : null;
     } catch (err) {
@@ -190,10 +188,11 @@ class Member {
     }
   }
 
-  static async getMajors() {
+  static async getMajors(connection = null) {
     try {
-      const [majors] = await db.query(
-        'SELECT Title FROM Majors');
+      const [majors] = await DBHelper.runQuery(
+        'SELECT Title FROM Majors', [], connection
+      );
       return majors || null;
     } catch (err) {
       console.error('Error fetching major:', err);
@@ -201,15 +200,15 @@ class Member {
     }
   }
 
-  static async getShirtSizeCount(orgID, selectedSemester) {
+  static async getShirtSizeCount(orgID, selectedSemester, connection = null) {
     try {
-      const [sizes] = await db.query(
+      const [sizes] = await DBHelper.runQuery(
         `SELECT ShirtSize, COUNT(*) as count 
          FROM Members 
          JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
          WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?
          GROUP BY ShirtSize`,
-        [orgID, selectedSemester]
+        [orgID, selectedSemester], connection
       );
       const defaultSizes = { XS: 0, S: 0, M: 0, L: 0, XL: 0, '2XL': 0, '3XL': 0, null: 0 };
       return sizes.reduce((acc, size) => {
@@ -222,15 +221,15 @@ class Member {
     }
   }
 
-  static async getPantSizeCount(orgID, selectedSemester) {
+  static async getPantSizeCount(orgID, selectedSemester, connection = null) {
     try {
-      const [sizes] = await db.query(
+      const [sizes] = await DBHelper.runQuery(
         `SELECT PantSize, COUNT(*) as count 
          FROM Members 
          JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
          WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ?
          GROUP BY PantSize`,
-        [orgID, selectedSemester]
+        [orgID, selectedSemester], connection
       );
       return sizes.reduce((acc, size) => {
         acc[size.PantSize] = size.count;
@@ -242,30 +241,30 @@ class Member {
     }
   }
 
-  static async getMemberReportData(orgID, selectedSemester, memberStatus) {
+  static async getMemberReportData(orgID, selectedSemester, memberStatus, connection = null) {
     try {
       let statuses;
       switch (memberStatus) {
         case "both":
-          statuses = ["Active", "General", "Exempt"];
+          statuses = ["Active", "General", "Exempt", "CarryoverActive"];
           break;
         case "general":
           statuses = ["General"];
           break;
         case "active":
-          statuses = ["Active", "Exempt"];
+          statuses = ["Active", "Exempt", "CarryoverActive"];
           break;
         default:
-          statuses = ["Active", "General", "Exempt"];
+          statuses = ["Active", "General", "Exempt", "CarryoverActive"];
       }
-      const [members] = await db.query(
-        `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationYear, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major
+      const [members] = await DBHelper.runQuery(
+        `SELECT Members.FullName, OrganizationMembers.Status, Members.Email, Members.GraduationSemester, Members.AcademicYear, Members.ShirtSize, Members.PantSize, Members.Gender, Members.Race, Majors.Title as Major, Members.PhoneNumber
         FROM Members
         LEFT JOIN Majors ON Members.MajorID = Majors.MajorID
-		    LEFT JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
+        LEFT JOIN OrganizationMembers ON Members.MemberID = OrganizationMembers.MemberID
         WHERE OrganizationMembers.OrganizationID = ? AND OrganizationMembers.SemesterID = ? AND OrganizationMembers.Status in (?)
         ORDER BY Members.LastName, Members.FirstName`,
-        [orgID, selectedSemester, statuses]
+        [orgID, selectedSemester, statuses], connection
       );
       return members || null;
     } catch (err) {
@@ -273,28 +272,6 @@ class Member {
       throw err;
     }
   }
-
-  /*
-  static async getEnumValues(columnName) {
-    try {
-      const [result] = await db.query(`SHOW COLUMNS FROM Members LIKE ?`, [columnName]);
-      if (!result.length) {
-        throw new Error(`Column ${columnName} not found in Members table`);
-      }
-  
-      // Extract ENUM values from the result
-      const enumValues = result[0].Type.match(/enum\((.*)\)/)[1]
-        .split(',')
-        .map(value => value.replace(/'/g, '')); // Remove quotes
-  
-      return enumValues;
-    } catch (err) {
-      console.error(`Error fetching ENUM values for ${columnName}:`, err);
-      throw err;
-    }
-  }
-  */
-
 }
 
 module.exports = Member;

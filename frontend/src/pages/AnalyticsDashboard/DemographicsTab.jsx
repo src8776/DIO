@@ -5,6 +5,38 @@ import {
 } from '@mui/material';
 import GenderChart from './GenderChart';
 
+/**
+ * DemographicsTab.jsx
+ * 
+ * This React component renders the demographics tab in the analytics dashboard.
+ * It allows users to view demographic data, such as gender distribution, for a selected semester.
+ * The component fetches semester data from the backend and dynamically updates the displayed charts
+ * based on the selected semester.
+ * 
+ * Key Features:
+ * - Fetches and displays a list of semesters for selection.
+ * - Automatically selects the active semester on initial load.
+ * - Displays a gender distribution chart for the selected semester.
+ * - Handles loading states and displays a spinner while fetching data.
+ * - Provides a dropdown menu for selecting different semesters.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * 
+ * Dependencies:
+ * - React, Material-UI components.
+ * - GenderChart: A custom component for rendering gender distribution charts.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches semester data on component mount.
+ * - handleSemesterChange: Updates the selected semester based on user input.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for semesters, selected semester, active semester, and loading state.
+ * - React.useEffect: Triggers data fetching when the component mounts.
+ * 
+ * @component
+ */
 export default function DemographicsTab({ organizationID }) {
     const [semesters, setSemesters] = React.useState([]);
     const [selectedSemester, setSelectedSemester] = React.useState(null);

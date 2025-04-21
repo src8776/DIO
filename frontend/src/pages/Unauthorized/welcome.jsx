@@ -1,24 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import wicLogo from '/public/wichacks-logo.png';
 import comsLogo from '/public/COMS.png';
 import {
-  Box,
-  Button,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  Paper,
-  useTheme
+  Box, Button, Container,
+  Typography, Grid, Card,
+  CardContent, CardMedia,
+  Paper, useTheme
 } from '@mui/material';
 import { checkAuth } from '../../ProtectedRoute';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const isProduction = API_BASE_URL.includes("https://dio.gccis.rit.edu");
 
+
+/**
+ * welcome.jsx
+ * 
+ * This React component renders the welcome page for the application. It serves as an entry point for users,
+ * providing information about the app, its features, and the clubs it supports. The page includes options
+ * for users to log in, explore clubs, and learn more about the app's functionality.
+ * 
+ * Key Features:
+ * - Displays a hero section with a call-to-action for logging in or navigating to the home page.
+ * - Lists supported clubs with descriptions, logos, and links to their respective websites.
+ * - Highlights key features of the app, such as tracking attendance and monitoring membership progress.
+ * - Includes a footer with navigation to the "About" page and copyright information.
+ * - Dynamically adjusts the theme and content based on the user's authentication status and theme mode.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and React Router.
+ * - Custom utilities: `checkAuth` for verifying user authentication.
+ * - Assets: Club logos and images.
+ * 
+ * Functions:
+ * - handleLogin: Redirects the user to the SAML login route.
+ * - handleHome: Navigates the user to the home page.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for authentication status.
+ * - React.useEffect: Checks user authentication status on component mount.
+ * - React Router's `useNavigate`: Used to programmatically navigate between pages.
+ * - Material-UI's `useTheme`: Retrieves the current theme mode for dynamic styling.
+ * 
+ * @component
+ */
 const WelcomePage = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -284,9 +310,11 @@ const WelcomePage = () => {
         <Container maxWidth="lg">
           <Grid container justifyContent="space-between" alignItems="center">
             <Grid item>
-              <Typography variant="h6" color="primary" fontWeight="bold">
-                RIT DIO Membership Tracker
-              </Typography>
+              <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Typography variant="h6" color="primary" fontWeight="bold">
+                  RIT DIO Membership Tracker
+                </Typography>
+              </Link>
             </Grid>
             <Grid item>
               <Typography variant="body2" color="text.secondary">

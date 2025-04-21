@@ -3,6 +3,36 @@ import { Box, Button, Modal } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AddAdminPage from './AddAdminPage';
 
+/**
+ * AddAdminModal.jsx
+ * 
+ * This React component renders a modal interface for adding new administrators or e-board members to an organization.
+ * It provides a button to open the modal, where users can select members and assign them roles as either "Admin" or "Eboard."
+ * The component handles the submission of role assignments and updates the backend accordingly.
+ * 
+ * Key Features:
+ * - Displays a button to open the modal for adding new administrators or e-board members.
+ * - Renders the `AddAdminPage` component inside the modal for selecting and assigning roles.
+ * - Sends role assignment data to the backend and reloads the page upon successful submission.
+ * - Handles errors during the role assignment process and provides feedback in the console.
+ * 
+ * Props:
+ * - orgID: String or number representing the organization ID.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - AddAdminPage: A custom component for selecting members and assigning roles.
+ * 
+ * Functions:
+ * - handleOpen: Opens the modal when the button is clicked.
+ * - handleClose: Closes the modal.
+ * - handleSave: Processes the selected members, assigns roles, and sends data to the backend.
+ * 
+ * Hooks:
+ * - React.useState: Manages the open state of the modal.
+ * 
+ * @component
+ */
 export default function AddMemberModal({orgID}) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -22,7 +52,6 @@ export default function AddMemberModal({orgID}) {
           return response.json();
         })
         .then((data) => {
-          console.log(`Member added as ${user.role}:`, data);
           window.location.reload();
         })
         .catch((error) => {

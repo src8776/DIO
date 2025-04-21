@@ -2,13 +2,15 @@ const express = require('express');
 const db = require('../config/db');
 const router = express.Router();
 
-const requireAuth = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Not authenticated' });
+if (process.env.NODE_ENV === "production") {
+    const requireAuth = async (req, res, next) => {
+        if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: 'Not authenticated' });
+        }
+        next();
     }
-    next();
+    router.use(requireAuth);
 }
-router.use(requireAuth);
 
 router.get('/memberTallies', async (req, res) => {
     const { organizationID, semesterID } = req.query;
@@ -20,7 +22,9 @@ router.get('/memberTallies', async (req, res) => {
                 SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) AS activeMembers,
                 SUM(CASE WHEN Status = 'General' THEN 1 ELSE 0 END) AS generalMembers
             FROM OrganizationMembers
-            WHERE OrganizationID = ? AND SemesterID = ?`,
+            WHERE OrganizationID = ? 
+              AND SemesterID = ? 
+              AND Status NOT LIKE 'Alumni'`,
             [organizationID, semesterID]
         );
         res.json(rows[0]);
@@ -32,6 +36,8 @@ router.get('/memberTallies', async (req, res) => {
 
 router.get('/memberTalliesBySemesters', async (req, res) => {
     const { organizationID, semesterIDs } = req.query;
+    console.log('Received request at /memberTalliesBySemesters');
+    console.log('Query Parameters:', req.query);
 
     if (!organizationID || !semesterIDs) {
         return res.status(400).json({ error: 'Missing organizationID or semesterIDs' });
@@ -197,7 +203,9 @@ router.get('/membersByMajor', async (req, res) => {
             JOIN Members mem ON om.MemberID = mem.MemberID
             LEFT JOIN Majors m ON mem.MajorID = m.MajorID
             LEFT JOIN Colleges c ON m.CollegeID = c.CollegeID
-            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            WHERE om.OrganizationID = ? 
+                AND om.SemesterID = ? 
+                AND om.Status NOT LIKE 'Alumni'
             GROUP BY m.Title, c.Name
             ORDER BY memberCount DESC`,
             [organizationID, semesterID]
@@ -575,7 +583,9 @@ router.get('/genderRaceTallies', async (req, res) => {
                 COUNT(DISTINCT m.MemberID) AS count
             FROM OrganizationMembers om
             JOIN Members m ON om.MemberID = m.MemberID
-            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            WHERE om.OrganizationID = ? 
+                AND om.SemesterID = ?
+                AND om.Status NOT LIKE 'Alumni'
             GROUP BY m.Gender`,
             [organizationID, semesterID]
         );
@@ -587,7 +597,9 @@ router.get('/genderRaceTallies', async (req, res) => {
                 COUNT(DISTINCT m.MemberID) AS count
             FROM OrganizationMembers om
             JOIN Members m ON om.MemberID = m.MemberID
-            WHERE om.OrganizationID = ? AND om.SemesterID = ?
+            WHERE om.OrganizationID = ? 
+                AND om.SemesterID = ?
+                AND om.Status NOT LIKE 'Alumni'
             GROUP BY m.Race`,
             [organizationID, semesterID]
         );
@@ -665,6 +677,147 @@ router.get('/attendeesOfEvent', async (req, res) => {
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'No attendees found for the given event' });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/membersByStatusCategory', async (req, res) => {
+    const { organizationID, semesterID, category } = req.query;
+    console.log('Received request at /membersByStatusCategory');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID || !semesterID || !category) {
+        return res.status(400).json({ error: 'Missing required parameters: organizationID, semesterID, or category' });
+    }
+
+    let statusQuery;
+    if (category === 'Active') {
+        statusQuery = "om.Status IN ('Active', 'CarryoverActive')";
+    } else if (category === 'General') {
+        statusQuery = "om.Status = 'General'";
+    } else {
+        return res.status(400).json({ error: "Invalid category. Allowed values are 'Active' or 'General'" });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT m.*
+             FROM OrganizationMembers om
+             JOIN Members m ON om.MemberID = m.MemberID
+             WHERE om.OrganizationID = ?
+               AND om.SemesterID = ?
+               AND ${statusQuery}`,
+            [organizationID, semesterID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No members found for the given category and parameters' });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Query Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+router.get('/membersByGraduationStatus', async (req, res) => {
+    const { organizationID, semesterID, status } = req.query;
+    console.log('Received request at /membersByGraduationStatus');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID || !semesterID || !status) {
+        return res.status(400).json({ error: 'Missing required parameters: organizationID, semesterID, or status' });
+    }
+
+    if (status !== 'Graduating' && status !== 'Not Graduating') {
+        return res.status(400).json({ error: "Invalid status. Allowed values are 'Graduating' or 'Not Graduating'" });
+    }
+
+    try {
+        // Get the TermCode for the given semesterID
+        const [semesterRows] = await db.query(
+            `SELECT TermCode FROM Semesters WHERE SemesterID = ?`,
+            [semesterID]
+        );
+
+        if (semesterRows.length === 0) {
+            return res.status(404).json({ error: 'Semester not found' });
+        }
+
+        const termCode = semesterRows[0].TermCode;
+        console.log(`Resolved SemesterID ${semesterID} to TermCode: ${termCode}`);
+
+        // Prepare the query based on status
+        let query;
+        let queryParams;
+
+        if (status === 'Graduating') {
+            query = `
+                SELECT m.*
+                FROM OrganizationMembers om
+                JOIN Members m ON om.MemberID = m.MemberID
+                WHERE om.OrganizationID = ?
+                  AND om.SemesterID = ?
+                  AND m.GraduationSemester = ?
+            `;
+            queryParams = [organizationID, semesterID, termCode];
+        } else {
+            // For 'Not Graduating', include members where GraduationSemester is different or null
+            query = `
+                SELECT m.*
+                FROM OrganizationMembers om
+                JOIN Members m ON om.MemberID = m.MemberID
+                WHERE om.OrganizationID = ?
+                  AND om.SemesterID = ?
+                  AND (m.GraduationSemester <> ? OR m.GraduationSemester IS NULL)
+            `;
+            queryParams = [organizationID, semesterID, termCode];
+        }
+
+        const [rows] = await db.query(query, queryParams);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'No members found for the given graduation status and parameters' });
+        }
+
+        console.log(`Returning ${rows.length} members`);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error in /membersByGraduationStatus:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+router.get('/alumniMembers', async (req, res) => {
+    const { organizationID } = req.query;
+    console.log('Received request at /alumniMembers');
+    console.log('Query Parameters:', req.query);
+
+    if (!organizationID) {
+        return res.status(400).json({ error: 'Missing required parameter: organizationID' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            `SELECT m.*
+             FROM OrganizationMembers om
+             JOIN Members m ON om.MemberID = m.MemberID
+             WHERE om.OrganizationID = ?
+               AND om.Status = 'Alumni'`,
+            [organizationID]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No alumni members found for the given organizationID' });
         }
 
         res.json(rows);

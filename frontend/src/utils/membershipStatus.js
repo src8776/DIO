@@ -73,7 +73,6 @@ export function processEventType(events, eventConfig) {
         points = Math.min(points, eventConfig.maxPoints);
     }
     
-    // console.log(points + " points");
     return points;
 }
 

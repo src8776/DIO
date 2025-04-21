@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, InputLabel, MenuItem, FormControl, Paper, Select, Typography, Button } from '@mui/material';
+import {
+  Box, Container, InputLabel, MenuItem,
+  FormControl, Paper, Select,
+  Typography, Button, TextField, Chip
+} from '@mui/material';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
-
-// TODO: Set this up so that the user sees this page upon first login, and cannot access other pages until this page is completed
-// TODO: Add form validation
-// TODO: Add Race & Gender fields (text fields or select?)
 
 //Fetch profile data from the profile api defined in userRoutes
 const fetchUserProfileData = async () => {
@@ -76,6 +76,38 @@ const parseTermCode = (termCode) => {
   return { term: '', year: '' };
 };
 
+/**
+ * AccountSetupPage.jsx
+ * 
+ * This React component renders a user interface for setting up or updating account information.
+ * It includes fields for personal details such as name, email, student year, major, graduation term/year,
+ * clothing sizes, race, gender, and phone number. The component fetches data from APIs for user profile,
+ * selectable majors, and genders, and allows users to save their profile data to the backend.
+ * 
+ * Key Features:
+ * - Fetches and displays user profile data from the backend.
+ * - Dynamically populates dropdowns for majors and genders.
+ * - Validates required fields and phone number format before submission.
+ * - Displays success or error messages using a SnackbarAlert component.
+ * - Tracks form completion status and adjusts the submit button label accordingly.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and a custom SnackbarAlert component.
+ * 
+ * Functions:
+ * - fetchUserProfileData: Fetches user profile data from the backend.
+ * - fetchMajorData: Fetches a list of selectable majors from the backend.
+ * - fetchGenderData: Fetches a list of selectable genders from the backend.
+ * - saveProfileData: Sends updated profile data to the backend.
+ * - parseTermCode: Parses a term code into a readable term and year format.
+ * - handleSubmit: Validates and submits the form data to the backend.
+ * 
+ * Hooks:
+ * - useState: Manages state for form fields, dropdown options, and alerts.
+ * - useEffect: Loads initial data and monitors form completion status.
+ * 
+ * @component
+ */
 export default function AccountSetup() {
   const [studentYear, setStudentYear] = useState('');
   const [graduationTerm, setGraduationTerm] = useState('');
@@ -90,6 +122,7 @@ export default function AccountSetup() {
   const [race, setRace] = useState('');
   const [gender, setGender] = useState('');
   const [genders, setGenders] = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const [alertMessage, setAlertMessage] = useState('');
@@ -106,7 +139,6 @@ export default function AccountSetup() {
     const loadUserData = async () => {
       const profileData = await fetchUserProfileData();
       if (profileData) {
-        console.log("Profile Data:", profileData);
         const { term, year } = parseTermCode(profileData.graduationSemester);
         setGraduationTerm(term);
         setGraduationYear(year);
@@ -119,6 +151,7 @@ export default function AccountSetup() {
         setPantSize(profileData.pantSize);
         setRace(profileData.race);
         setGender(profileData.gender);
+        setPhoneNumber(profileData.phoneNumber);
       }
     };
 
@@ -153,6 +186,12 @@ export default function AccountSetup() {
       return;
     }
 
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      showAlert('Please enter a valid 10-digit phone number', 'error');
+      return;
+    }
+
     // Compute academicYear based on term and selected year
     const academicYear = graduationTerm === 'Spring' ? Number(graduationYear) - 1 : Number(graduationYear);
     const termCode = `2${String(academicYear).slice(-2)}${graduationTerm === 'Fall' ? '1' : '5'}`;
@@ -164,7 +203,8 @@ export default function AccountSetup() {
       shirtSize,
       pantSize,
       race,
-      gender
+      gender,
+      phoneNumber
     });
 
     if (result.success) {
@@ -181,9 +221,17 @@ export default function AccountSetup() {
       </Typography>
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="h6">Name: {fullName}</Typography>
-            <Typography variant="h6">Email: {email}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+            <Chip
+              label={fullName}
+              variant="filled"
+              sx={{ fontSize: '1.25rem', height: 'auto', padding: .5 }}
+            />
+            <Chip
+              label={email}
+              variant="filled"
+              sx={{ fontSize: '1.25rem', height: 'auto', padding: .5 }}
+            />
           </Box>
 
           {/* Student Year and Major */}
@@ -334,6 +382,24 @@ export default function AccountSetup() {
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+          </Paper>
+
+          {/* Phone Number */}
+          <Paper sx={{ p: 2 }}>
+            <FormControl fullWidth margin="normal">
+              <TextField
+                required
+                id="phoneNumber-input"
+                label="Phone Number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                type="tel"
+                inputProps={{
+                  pattern: "[0-9]{10}",
+                  maxLength: 10,
+                }}
+              />
             </FormControl>
           </Paper>
 

@@ -1,15 +1,51 @@
 import * as React from 'react';
 import {
   Box, Container, Paper,
-  Typography, Select, MenuItem
+  Typography, Select, MenuItem,
+  IconButton, Menu
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useParams } from 'react-router-dom';
 import FinalizeSemesterButton from './FinalizeSemesterButton';
 import GenerateReportButton from './GenerateReportButton';
-import AddMemberModal from '../../components/AddMemberModal';
+import AddMemberModal from '../AddMember/AddMemberModal';
 import UploadFileModal from './UploadFileModal';
 import DataTable from './DataTable';
 
+/**
+ * AdminDashPage.jsx
+ * 
+ * This React component serves as the main dashboard for administrators to manage an organization's data.
+ * It provides functionality for viewing and managing member data, uploading files, generating reports,
+ * and finalizing semesters. The dashboard dynamically updates based on the selected organization and semester.
+ * 
+ * Key Features:
+ * - Displays a data table of members with options to filter by semester.
+ * - Allows administrators to upload files, add members, generate reports, and finalize semesters.
+ * - Dynamically fetches and updates data from the backend based on user actions.
+ * - Provides a responsive layout for better usability across devices.
+ * 
+ * Props:
+ * - None (uses React Router's `useParams` to determine the organization).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, Material-UI icons, and React Router.
+ * - Custom components: FinalizeSemesterButton, GenerateReportButton, AddMemberModal, UploadFileModal, DataTable.
+ * 
+ * Functions:
+ * - handleSemesterChange: Updates the selected semester and fetches corresponding data.
+ * - handleUploadSuccess: Refreshes data after a successful file upload or member addition.
+ * - fetchData: Fetches member data based on the selected organization and semester.
+ * - updateMemberData: Updates the member data in the table after an edit.
+ * - isWithinLastMonth: Utility function to check if the current date is within the last month of the active semester.
+ * - handleMenuClick & handleMenuClose: Manage the state of the action menu.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization ID, semesters, selected semester, member data, loading state, and menu anchor.
+ * - React.useEffect: Fetches organization ID, semesters, and member data on component mount or state changes.
+ * 
+ * @component
+ */
 function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
   const allowedTypes = ['wic', 'coms'];
@@ -19,6 +55,7 @@ function AdminDash() {
   const [activeSemester, setActiveSemester] = React.useState(null);
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   if (!allowedTypes.includes(org)) {
     return (
@@ -135,6 +172,14 @@ function AdminDash() {
     return semesterEnd > now && (semesterEnd - now) <= msInMonth;
   };
 
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -166,16 +211,73 @@ function AdminDash() {
         </Box>
 
         {/* User Action Buttons */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
             <UploadFileModal onUploadSuccess={handleUploadSuccess} selectedSemester={selectedSemester} />
-            <GenerateReportButton orgID={orgID} selectedSemester={selectedSemester} />
-            {/* {isWithinLastMonth() && ( */}
-              <FinalizeSemesterButton orgID={orgID} selectedSemester={selectedSemester} />
-            {/* )} */}
           </Box>
-          <AddMemberModal selectedSemester={selectedSemester} orgID={orgID} onUploadSuccess={handleUploadSuccess} />
+          {/* collapse these buttons to the right  */}
+
+          <IconButton onClick={handleMenuClick}>
+            <MoreVertIcon />
+          </IconButton>
+
+
         </Box>
+
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem>
+            <GenerateReportButton
+              orgID={orgID}
+              selectedSemester={selectedSemester}
+              buttonProps={{
+                variant: 'text', // Removes background, making it look like text
+                fullWidth: true, // Ensures the button spans the MenuItem width
+                sx: {
+                  justifyContent: 'flex-start', // Aligns text and icon to the left
+                  textTransform: 'none', // Prevents uppercase text
+                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
+                },
+              }}
+            />
+          </MenuItem>
+          <MenuItem>
+            <AddMemberModal
+              selectedSemester={selectedSemester}
+              orgID={orgID}
+              onUploadSuccess={handleUploadSuccess}
+              buttonProps={{
+                variant: 'text', // Removes background, making it look like text
+                fullWidth: true, // Ensures the button spans the MenuItem width
+                sx: {
+                  justifyContent: 'flex-start', // Aligns text and icon to the left
+                  textTransform: 'none', // Prevents uppercase text
+                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
+                },
+              }}
+            />
+          </MenuItem>
+          {/* {isWithinLastMonth() && ( */}
+          <MenuItem>
+            <FinalizeSemesterButton
+              orgID={orgID}
+              selectedSemester={selectedSemester}
+              buttonProps={{
+                variant: 'text', // Removes background, making it look like text
+                fullWidth: true, // Ensures the button spans the MenuItem width
+                sx: {
+                  justifyContent: 'flex-start', // Aligns text and icon to the left
+                  textTransform: 'none', // Prevents uppercase text
+                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
+                },
+              }}
+            />
+          </MenuItem>
+          {/* )} */}
+        </Menu>
 
         {/* Data Table */}
         <Paper elevation={0}>

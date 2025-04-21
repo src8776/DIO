@@ -1,38 +1,54 @@
 import * as React from 'react';
-import { Typography, Paper, Box, Divider } from "@mui/material";
+import { useTheme, Typography, Paper, Box, Divider } from "@mui/material";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
-
 /**
- * Displays member metrics such as status, points/requirements, and events attended.
+ * MemberMetrics.jsx
+ * 
+ * This React component displays key metrics related to a member's status, progress, and attendance.
+ * It provides an overview of the member's current status, points or criteria progress, and the number
+ * of events they have attended. The component dynamically updates based on the provided data.
+ * 
+ * Key Features:
+ * - Displays the member's status with a color-coded label based on their current state.
+ * - Shows progress toward meeting points or criteria requirements.
+ * - Displays the total number of events attended by the member.
+ * - Provides contextual messages based on the member's activity history.
+ * 
+ * Props:
+ * - memberStatus: String representing the member's current status (e.g., "Active", "Exempt").
+ * - statusObject: Object containing additional status details, such as total points or criteria met.
+ * - requirementType: String indicating the type of requirement (e.g., "points" or "criteria").
+ * - activeRequirement: Number representing the total points or criteria required to be active.
+ * - userAttendance: Array of attendance records for the member.
+ * - activeCount: Object containing details about the member's active semesters.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * 
+ * Functions:
+ * - statusColor: Determines the color of the status label based on the member's current status.
+ * 
+ * @component
  */
-export default function MemberMetrics({ statusObject, requirementType, activeRequirement, userAttendance, memberName, activeCount }) {
+export default function MemberMetrics({ memberStatus, statusObject, requirementType, activeRequirement, userAttendance, activeCount }) {
     const safeUserAttendance = Array.isArray(userAttendance) ? userAttendance : [];
-
-    const displayStatus = (() => {
-        switch (statusObject.status?.toLowerCase()) {
-            case 'active':
-                return 'Active';
-            case 'inactive':
-                return 'Inactive';
-            default:
-                return 'General';
-        }
-    })();
+    const theme = useTheme();
 
     const statusColor = (() => {
-        switch (displayStatus) {
+        switch (memberStatus) {
             case 'Active':
-                return '#2DD4BF';
-            case 'Inactive':
-                return '#5C6773'; // slightly darker gray than General
+                return `${theme.palette.activeStatus.default}`;
+            case 'CarryoverActive':
+                return `${theme.palette.activeStatus.default}`;
+            case 'Exempt':
+                return `${theme.palette.exemptStatus.default}`;
             case 'General':
+                return `${theme.palette.generalStatus.default}`;
             default:
-                return '#7C8796';
+                return `${theme.palette.generalStatus.default}`;
         }
     })();
-
-    console.log("active count", activeCount);
 
     return (
         <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
@@ -47,7 +63,7 @@ export default function MemberMetrics({ statusObject, requirementType, activeReq
                 <Box>
                     <Typography variant="h6">Status</Typography>
                     <Typography variant="h5" sx={{ color: statusColor }}>
-                        {displayStatus}
+                        {memberStatus ?? 'N/A'}
                     </Typography>
                     <Typography variant="subtitle1" sx={{ color: 'text.secondary' }}>
                         {activeCount && activeCount.activeSemesters === '0'

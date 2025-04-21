@@ -35,6 +35,46 @@ const style = {
     maxWidth: '100%',
 };
 
+/**
+ * ImportDataPage.jsx
+ * 
+ * This React component provides a form for importing event data and volunteer hours for a selected semester.
+ * It allows administrators to upload data files or manually input volunteer hours for selected members.
+ * The component dynamically fetches data from the backend and updates the form based on the selected semester.
+ * 
+ * Key Features:
+ * - Fetches and displays event types and member lists for the selected organization and semester.
+ * - Allows administrators to input volunteer hours and event details for selected members.
+ * - Provides a file upload option for importing data for non-volunteer events.
+ * - Displays a table of selected members with options to adjust hours and remove members.
+ * - Handles loading states and provides feedback using a SnackbarAlert component.
+ * 
+ * Props:
+ * - onUploadSuccess: Callback function triggered after a successful data upload.
+ * - onClose: Function to close the form.
+ * - selectedSemester: Object representing the currently selected semester (includes SemesterID, StartDate, EndDate, and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, Material-UI icons, and Day.js for date handling.
+ * - FileUploadButton: A custom component for uploading files.
+ * - SnackbarAlert: A custom component for displaying alerts.
+ * 
+ * Functions:
+ * - handleEventTypeChange: Updates the selected event type based on user input.
+ * - handleDateChange: Updates the event date based on user input.
+ * - handleVolunteerHoursChange: Updates the volunteer hours input.
+ * - addMemberToList: Adds a selected member to the list with associated hours and date.
+ * - removeMemberFromList: Removes a member from the selected members list.
+ * - uploadVolunteerHours: Sends volunteer hours data to the backend for processing.
+ * - handleMemberHoursChange: Updates the hours for a specific member in the table.
+ * - showAlert: Displays a SnackbarAlert with a message and severity.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for event types, members, selected members, volunteer hours, and UI interactions.
+ * - React.useEffect: Fetches event types and member lists when dependencies change.
+ * 
+ * @component
+ */
 export default function ImportDataPage({ onUploadSuccess, onClose, selectedSemester }) {
     const { org } = useParams(); //"wic" or "coms"
     const orgID = org === 'wic' ? 1 : 2;

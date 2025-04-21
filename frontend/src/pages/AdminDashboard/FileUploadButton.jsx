@@ -12,6 +12,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
+
+
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -40,12 +42,42 @@ const DropZone = styled(Box, {
 }));
 
 /**
- * Component for uploading CSV files with drag-and-drop and browse functionality.
- * @param {Object} props - Component props.
- * @param {string} props.orgID - Organization ID.
- * @param {string} props.eventType - Event type.
- * @param {Function} [props.onUploadSuccess] - Callback on successful upload.
- * @returns {JSX.Element}
+ * FileUploadButton.jsx
+ * 
+ * This React component provides functionality for uploading CSV files with drag-and-drop and browse options.
+ * It allows users to upload files, validate them, and handle missing data scenarios through dialogs.
+ * The component supports dynamic feedback with alerts and loading states.
+ * 
+ * Key Features:
+ * - Drag-and-drop area for uploading CSV files.
+ * - File validation for type, size, and format.
+ * - Optional event title input for uploaded files.
+ * - Handles missing data scenarios with dialogs for user confirmation.
+ * - Displays success or error messages using a SnackbarAlert component.
+ * 
+ * Props:
+ * - orgID: String representing the organization ID.
+ * - eventType: String representing the type of event.
+ * - onUploadSuccess: Callback function triggered after a successful file upload.
+ * - selectedSemester: Object containing details about the selected semester (e.g., start date, end date, term name).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - SnackbarAlert: A custom component for displaying alerts.
+ * 
+ * Functions:
+ * - validateFile: Validates the selected file for type, size, and format.
+ * - handleFileChange: Handles file selection from the file input.
+ * - handleDragOver, handleDragLeave, handleDrop: Manage drag-and-drop events.
+ * - uploadFile: Uploads the file to the backend with additional parameters.
+ * - handleUpload: Handles the initial upload attempt and manages backend responses.
+ * - showAlert: Displays alerts with a message and severity.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for file, loading, alerts, dialogs, and drag-and-drop interactions.
+ * - React.useRef: References the file input element for resetting its value.
+ * 
+ * @component
  */
 export default function InputFileUpload({ orgID, eventType, onUploadSuccess, selectedSemester }) {
   const [file, setFile] = useState(null);

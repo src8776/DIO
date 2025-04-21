@@ -13,7 +13,40 @@ import {
     Legend
 } from 'recharts';
 
-export default function AttendanceComparisonChart({ organizationID, firstSemester, secondSemester }) {
+/**
+ * CommitmentComparisonChart.jsx
+ * 
+ * This React component provides a visual comparison of member attendance commitment across two semesters.
+ * It displays attendance data in either an area chart or a bar chart, allowing users to toggle between the two views.
+ * The component fetches attendance data from the backend and supports filtering by event type.
+ * 
+ * Key Features:
+ * - Fetches and displays attendance data for two semesters.
+ * - Allows filtering by overall attendance or specific event types.
+ * - Provides toggle functionality to switch between area and bar chart views.
+ * - Handles loading states and displays appropriate messages when no data is available.
+ * - Dynamically updates charts based on user interactions and selected filters.
+ * 
+ * Props:
+ * - organizationID: String representing the organization ID.
+ * - firstSemester: Object representing the first semester (includes SemesterID and TermName).
+ * - secondSemester: Object representing the second semester (includes SemesterID and TermName).
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Recharts library.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches common event types and attendance data based on selected semesters and filters.
+ * - chartData: Computes histogram data for the charts based on fetched attendance data.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for attendance data, loading states, chart type, selected filters, and event types.
+ * - React.useEffect: Triggers data fetching and updates based on dependencies.
+ * - React.useMemo: Optimizes computation of chart data.
+ * 
+ * @component
+ */
+export default function CommitmentComparisonChart({ organizationID, firstSemester, secondSemester }) {
     const [comparisonData, setComparisonData] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
     const [chartLoading, setChartLoading] = React.useState(false);
@@ -108,8 +141,6 @@ export default function AttendanceComparisonChart({ organizationID, firstSemeste
         }
         return data;
     }, [comparisonData]);
-
-    console.log('Chart Data:', chartData);
 
     return (
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>

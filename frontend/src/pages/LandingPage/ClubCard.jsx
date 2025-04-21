@@ -8,7 +8,42 @@ import { Link } from 'react-router-dom';
 import AccountOverview from '../AccountOverview/AccountOverviewPage';
 import useAccountStatus from "../../hooks/useAccountStatus";
 
-
+/**
+ * ClubCard.jsx
+ * 
+ * This React component renders a card displaying information about a club and the user's role and status within it.
+ * It dynamically fetches and displays data such as the user's role, status, and club details. The component also
+ * provides navigation options to the admin dashboard for users with appropriate roles and an expandable account
+ * overview section.
+ * 
+ * Key Features:
+ * - Fetches and displays the user's role and status within the club.
+ * - Dynamically displays club-specific information such as the logo and title.
+ * - Provides a button to toggle the account overview section.
+ * - Displays a link to the admin dashboard for users with "Admin" or "Eboard" roles.
+ * - Handles loading states and errors during data fetching.
+ * 
+ * Props:
+ * - memberID: String representing the ID of the current user.
+ * - orgID: String or number representing the organization ID.
+ * - semesters: Array of semester objects available for the user.
+ * - activeSemester: Object representing the currently active semester.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and React Router.
+ * - Custom components: AccountOverview.
+ * - Custom hooks: useAccountStatus.
+ * 
+ * Functions:
+ * - React.useEffect: Fetches the organization abbreviation, member status, and member role when dependencies change.
+ * - setIsExpanded: Toggles the visibility of the account overview section.
+ * 
+ * Hooks:
+ * - React.useState: Manages state for organization abbreviation, member status, member role, and account overview visibility.
+ * - React.useEffect: Triggers data fetching when dependencies change.
+ * 
+ * @component
+ */
 export default function ClubCard({ memberID, orgID, semesters, activeSemester }) {
     const { activeRequirement, requirementType, userAttendance, statusObject } = useAccountStatus(orgID, memberID, activeSemester);
     const [orgAbbreviation, setOrgAbbreviation] = React.useState('');
@@ -48,9 +83,6 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
             .catch(error => console.error('Error fetching data for MemberName:', error));
     }, [memberID, orgID]);
 
-
-
-    // TODO: Store image paths in database
     const comsInfo = {
         image: "/com_logo.png",
         title: "Computing Organization for Multicultural Students",
@@ -78,17 +110,23 @@ export default function ClubCard({ memberID, orgID, semesters, activeSemester })
                 alignItems: { xs: 'center', sm: 'stretch' },
                 borderBottom: '1px solid #ccc',
             }}>
-                <CardMedia
-                    component="img"
-                    sx={{
-                        width: { xs: 80, sm: 118 },
-                        height: { xs: 80, sm: 118 },
-                        alignSelf: 'center',
-                        m: { xs: 1, sm: 2 },
-                    }}
-                    image={clubInfo.image}
-                    title={clubInfo.title}
-                />
+                <Box sx={{
+                    width: { xs: 80, sm: 118 },
+                    height: { xs: 80, sm: 118 },
+                    alignSelf: 'center',
+                    m: { xs: 1, sm: 2 },
+                    backgroundColor: 'white',
+                }}>
+                    <CardMedia
+                        component="img"
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                        }}
+                        image={clubInfo.image}
+                        title={clubInfo.title}
+                    />
+                </Box>
                 <CardContent sx={{
                     flexGrow: 1,
                     display: 'flex',

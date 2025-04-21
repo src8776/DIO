@@ -7,21 +7,21 @@ const OrganizationMember = require('../models/OrganizationMember');
 const { sendActiveStatusEmail } = require('../utils/email');
 
 
-const updateMemberStatus = async (memberID, organizationID, semester) => {
+const updateMemberStatus = async (memberID, organizationID, semester, connection) => {
     try {
         // Fetch requirement, rules, and attendance concurrently.
         const [activeReqData, orgRulesData, attendanceData] = await Promise.all([
-            OrganizationSetting.getActiveRequirementByOrg(organizationID, semester.SemesterID),
-            EventRule.getEventRulesByOrgAndSemester(organizationID, semester.SemesterID),
-            Attendance.getAttendanceByMemberAndOrg(memberID, organizationID, semester.TermCode)
+            OrganizationSetting.getActiveRequirementByOrg(organizationID, semester.SemesterID, connection),
+            EventRule.getEventRulesByOrgAndSemester(organizationID, semester.SemesterID, connection),
+            Attendance.getAttendanceByMemberAndOrg(memberID, organizationID, semester.TermCode, connection)
         ]);
         console.log('Attendance Data:', attendanceData);
 
         // Retrieve currentStatus, memberName, memberEmail concurrently.
         const [currentStatus, memberName, memberEmail] = await Promise.all([
-            OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID),
-            Member.getMemberNameById(memberID),
-            Member.getMemberEmailById(memberID)
+            OrganizationMember.getMemberStatus(memberID, organizationID, semester.SemesterID, connection),
+            Member.getMemberNameById(memberID, connection),
+            Member.getMemberEmailById(memberID, connection)
         ]);
         console.log('Member ID @ useAccountStatus:', memberID);
         console.log('Member Name @ useAccountStatus:', memberName);
@@ -31,11 +31,14 @@ const updateMemberStatus = async (memberID, organizationID, semester) => {
 
         // Update if non-Exempt and status has changed (allows Active -> General update)
         if (currentStatus !== 'Exempt' && currentStatus !== statusObject.status) {
-            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID);
-            if (statusObject.status === 'Active') {
-                // await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disabled to prevent spamming
+            await OrganizationMember.updateMemberStatus(memberID, organizationID, statusObject.status, semester.SemesterID, connection);
+            if (statusObject.status === 'Active' && memberEmail === 'lcs9244@rit.edu') {
+                await sendActiveStatusEmail(organizationID, memberName, memberEmail); // disable to prevent spamming
                 console.log(`Would send email to ${memberEmail} (disabled)`);
             }
+            return statusObject.status;
+        } else {
+            return currentStatus;
         }
     } catch (error) {
         console.error(`Error updating status for member ${memberID}:`, error);
@@ -60,7 +63,7 @@ const useAccountStatus = (activeReqData, orgRulesData, attendanceData, currentSt
     const attendanceRecords = attendanceData.length > 0 ? attendanceData[0].attendanceRecord : [];
     console.log('Attendance Records Used to Determine Status:', attendanceRecords);
     // Once all data is available, call the algorithm.
-    if (orgRulesData && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
+    if (orgRulesData && attendanceRecords && attendanceRecords.length > 0 && activeReqData[0]?.ActiveRequirement) {
         statusObject = membershipStatus.determineMembershipStatusModular(
             attendanceRecords,
             { eventTypes: orgRulesData },

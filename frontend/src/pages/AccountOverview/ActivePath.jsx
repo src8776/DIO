@@ -11,7 +11,35 @@ import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 /**
- * Displays the active path with progress for each event type and its rules.
+ * ActivePath.jsx
+ * 
+ * This React component displays the "Active Path" section, which provides an overview of progress
+ * toward meeting specific requirements or earning points by attending events. It organizes event
+ * types and their associated rules, showing progress details and allowing users to track their achievements.
+ * 
+ * Key Features:
+ * - Dynamically sorts and displays event types based on the number of rules.
+ * - Displays progress details for each event type, including rules and their statuses.
+ * - Supports loading states with skeleton placeholders.
+ * - Uses Material-UI components for styling and layout.
+ * 
+ * Props:
+ * - progressByType: Array of event types with progress details.
+ * - loading: Boolean indicating whether data is still loading.
+ * - requirementType: String indicating the type of requirement (e.g., "points" or "criteria").
+ * - activeRequirement: Number or string representing the active requirement to meet.
+ * - statusObject: Object containing additional status details, such as point breakdowns.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * 
+ * Functions:
+ * - sortedProgressByType: Memoized function to sort event types by the number of rules.
+ * 
+ * Hooks:
+ * - React.useMemo: Optimizes sorting of event types to avoid unnecessary recalculations.
+ * 
+ * @component
  */
 export default function ActivePath({ progressByType, loading, requirementType, activeRequirement, statusObject }) {
 
@@ -138,7 +166,7 @@ export default function ActivePath({ progressByType, loading, requirementType, a
                                         )}
                                     </ListItem>
                                 ))}
-                                <ListItem sx={{ justifyContent: 'flex-end', py: 0.5 }}>
+                                <ListItem sx={{ justifyContent: 'flex-end', py: 0.5, pb: 1 }}>
                                     <Typography
                                         variant="body2"
                                         color={eventType.progress.uncappedPoints > eventType.progress.points ? 'error.main' : 'success.main'}

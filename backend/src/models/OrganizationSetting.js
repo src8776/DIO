@@ -1,7 +1,8 @@
 const db = require("../config/db");
+const DBHelper = require('../utils/DBHelper');
 
 class OrganizationSetting {
-  static async getActiveRequirementByOrg(organizationID, semesterID) {
+  static async getActiveRequirementByOrg(organizationID, semesterID, connection = null) {
     try {
       const query = `
             SELECT 
@@ -11,7 +12,7 @@ class OrganizationSetting {
                 OrganizationSettings
             WHERE OrganizationID = ? AND SemesterID = ?
         `;
-      const [rows] = await db.query(query, [organizationID, semesterID]);
+      const [rows] = await DBHelper.runQuery(query, [organizationID, semesterID], connection);
       return rows;
     } catch (error) {
       console.error('Error fetching Organization Info data:', error);
@@ -19,7 +20,7 @@ class OrganizationSetting {
     }
   }
 
-  static async getOrganizationName(organizationID) {
+  static async getOrganizationName(organizationID, connection = null) {
     try {
       const query = `
             SELECT 
@@ -28,10 +29,27 @@ class OrganizationSetting {
                 Organizations
             WHERE OrganizationID = ?
         `;
-      const [rows] = await db.query(query, [organizationID]);
+      const [rows] = await DBHelper.runQuery(query, [organizationID], connection);
       return rows.length > 0 ? rows[0].Name : null;
     } catch (error) {
       console.error('Error fetching Organization Name:', error);
+      throw error;
+    }
+  }
+
+  static async finalizeSemester(organizationID, semesterID, connection = null) {
+    try {
+      const query = `
+            UPDATE 
+                OrganizationSettings
+            SET 
+                isFinalized = true
+            WHERE 
+                OrganizationID = ? AND SemesterID = ?
+        `;
+      await DBHelper.runQuery(query, [organizationID, semesterID], connection);
+    } catch (error) {
+      console.error('Error updating isFinalized field', error);
       throw error;
     }
   }

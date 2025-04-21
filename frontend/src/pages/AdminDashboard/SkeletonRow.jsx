@@ -2,6 +2,10 @@ import * as React from 'react';
 import { TableRow, TableCell } from '@mui/material';
 import Skeleton from '@mui/material/Skeleton';
 
+/**
+ * A simple skeleton row component for displaying loading state in a table.
+ * It uses Material-UI's Skeleton component to create a placeholder for table data while loading.
+ */
 function SkeletonTableRow({ index }) {
 
     const cellStyles = {

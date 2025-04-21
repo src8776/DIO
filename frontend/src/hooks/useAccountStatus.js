@@ -1,6 +1,37 @@
 import { useState, useEffect } from 'react';
 import { determineMembershipStatusModular } from '../utils/membershipStatus';
 
+/**
+ * useAccountStatus.js
+ * 
+ * This custom React hook fetches and processes data related to a member's account status within an organization.
+ * It retrieves active requirements, event rules, and attendance records, and calculates the membership status
+ * using a modular algorithm.
+ * 
+ * Key Features:
+ * - Fetches active requirements, event rules, and attendance records concurrently from the backend.
+ * - Processes and stores active requirements and their descriptions.
+ * - Stores the user's attendance records for the current semester.
+ * - Calculates the membership status using the `determineMembershipStatusModular` utility function.
+ * - Handles errors and provides default values when data is insufficient.
+ * 
+ * Parameters:
+ * - orgID: String or number representing the organization ID.
+ * - memberID: String representing the member's ID.
+ * - semester: Object containing details about the current semester (e.g., `SemesterID`, `TermCode`).
+ * 
+ * Returns:
+ * - activeRequirement: The active requirement value for the organization.
+ * - requirementType: The description of the active requirement.
+ * - userAttendance: Array of attendance records for the member.
+ * - statusObject: Object representing the calculated membership status.
+ * 
+ * Dependencies:
+ * - React's `useState` and `useEffect` hooks.
+ * - Utility function: `determineMembershipStatusModular` for calculating membership status.
+ * 
+ * @hook
+ */
 const useAccountStatus = (orgID, memberID, semester) => {
     const [activeRequirement, setActiveRequirement] = useState('');
     const [requirementType, setRequirementType] = useState('');

@@ -10,8 +10,8 @@ const darkTheme = createTheme({
           main: '#90caf9', // Default secondary for contrast
         },
         background: {
-          default: '#121212',
-          paper: '#1e1e1e',
+          default: ' #121212',
+          paper: ' #1e1e1e',
         },
         text: {
           primary: '#ffffff',
@@ -24,17 +24,17 @@ const darkTheme = createTheme({
           default: '#3ab13e'
         },
         generalStatus: {
-          default: '#ff3c3c'
+          default: '#d3d3d3'
         },
-        generalMeetingBar: {
-          default: '#4394E5'
+        exemptStatus: {
+          default: '#f09efd'
         }
       },
       components: {
         MuiAppBar: {
           styleOverrides: {
             root: {
-              backgroundColor: '#F76902',
+              backgroundColor: ' #F76902',
               color: '#ffffff',
             },
           },

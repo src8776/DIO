@@ -1,10 +1,41 @@
 import * as React from 'react';
 import { Box, Button, Modal, Snackbar, Alert } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import AddMemberPage from '../pages/AddMember/AddMemberPage';
+import AddMemberPage from './AddMemberPage';
 
-
-export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess }) {
+/**
+ * AddMemberModal.jsx
+ * 
+ * This React component provides a modal interface for adding a new member to an organization.
+ * It allows users to input member details such as first name, last name, email, and semester ID.
+ * The component handles form submission, updates the backend, and displays success or error messages.
+ * 
+ * Key Features:
+ * - Opens a modal to display the AddMemberPage component for member input.
+ * - Dynamically updates the semester ID when the selected semester changes.
+ * - Sends member data to the backend API for saving.
+ * - Displays success or error messages using a Snackbar component.
+ * 
+ * Props:
+ * - selectedSemester: Object representing the currently selected semester.
+ * - orgID: String representing the organization ID.
+ * - onUploadSuccess: Callback function triggered after a successful member addition.
+ * - buttonProps: Object containing additional props for the "Add Member" button.
+ * 
+ * Dependencies:
+ * - React, Material-UI components, and Material-UI icons.
+ * - AddMemberPage: A child component for rendering the member input form.
+ * 
+ * Functions:
+ * - handleOpen: Opens the modal.
+ * - handleClose: Closes the modal.
+ * - handleChange: Updates member data based on user input.
+ * - handleSave: Sends the member data to the backend API and handles the response.
+ * - handleSnackbarClose: Closes the Snackbar notification.
+ * 
+ * @component
+ */
+export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess, buttonProps = {} }) {
   const [open, setOpen] = React.useState(false);
   const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
 
@@ -39,7 +70,6 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
 
 
   const handleSave = async () => {
-    console.log("Adding new member with info:", memberData);
     try {
       const response = await fetch('/api/admin/members/add', {
         method: 'POST',
@@ -72,7 +102,11 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
 
   return (
     <>
-      <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />} sx={{ maxWidth: '280px' }}>
+      <Button
+        onClick={handleOpen}
+        startIcon={<AddIcon />}
+        {...buttonProps}
+      >
         Add Member
       </Button>
       <Modal open={open} onClose={handleClose}>
@@ -84,7 +118,7 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
           />
         </Box>
       </Modal>
-      <Snackbar open={snackbar.open} autoHideDuration={snackbar.severity === 'success' ? 6000 : undefined}  onClose={handleSnackbarClose}>
+      <Snackbar open={snackbar.open} autoHideDuration={snackbar.severity === 'success' ? 6000 : undefined} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>

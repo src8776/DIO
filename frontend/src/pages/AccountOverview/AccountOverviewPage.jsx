@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-    Container, Typography, Paper,
+    Container, Typography,
     Box, Skeleton,
 } from "@mui/material";
 import MemberMetrics from './MemberMetrics';
@@ -125,6 +125,7 @@ function calculateProgress(eventType, rules, occurrenceTotal, userAttendance, re
  */
 const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, userAttendance, statusObject, semesters, activeSemester }) => {
     const [memberName, setMemberName] = React.useState('');
+    const [memberStatus, setMemberStatus] = React.useState('');
     const [orgRules, setOrgRules] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
@@ -138,6 +139,23 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
             .then(response => response.json())
             .then(data => {
                 setMemberName(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching member name:', error);
+                setError('Failed to load member details');
+                setLoading(false);
+            });
+    }, [memberID]);
+
+    // Fetch member status
+    React.useEffect(() => {
+        if (!memberID) return;
+        setLoading(true);
+        fetch(`/api/memberDetails/status?memberID=${memberID}&organizationID=${orgID}&semesterID=${activeSemester.SemesterID}`)
+            .then(response => response.json())
+            .then(data => {
+                setMemberStatus(data.status);
                 setLoading(false);
             })
             .catch(error => {
@@ -212,6 +230,7 @@ const AccountOverview = ({ orgID, memberID, activeRequirement, requirementType, 
             {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
             <MemberMetrics
                 memberName={memberName}
+                memberStatus={memberStatus}
                 statusObject={statusObject}
                 requirementType={requirementType}
                 activeRequirement={activeRequirement}

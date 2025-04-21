@@ -161,6 +161,8 @@ router.get('/inComs', attachMemberData, async (req, res) => {
 /**
  * Route to check if the user's profile is complete.
  */
+
+/*
 router.get('/profileCompletion', attachMemberData, async (req, res) => {
   const member = req.member;
   let isCompleted = true;
@@ -181,5 +183,6 @@ router.get('/profileCompletion', attachMemberData, async (req, res) => {
   console.log("Profile Completion Status:", isCompleted);
   res.json({ isCompleted });
 });
+*/
 
 module.exports = router;

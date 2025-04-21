@@ -45,7 +45,8 @@ const defaultSamlStrategy = new SamlStrategy(
                 "msn2136@rit.edu",
                 "src8776@rit.edu",
                 "ltvvse@rit.edu",
-                "vahcoms@rit.edu"
+                "vahcoms@rit.edu",
+                "eac2138@rit.edu"
             ];
 
             if (bypassEmails.includes(userEmail)) {

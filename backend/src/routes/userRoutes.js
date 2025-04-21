@@ -115,7 +115,7 @@ router.post('/profile', attachMemberData, async (req, res) => {
 /**
  * Route to get the list of genders.
  */
-router.get('/genders', attachMemberData, (req, res) => {
+router.get('/genders', (req, res) => {
   res.json(genders);
 });
 
@@ -130,7 +130,7 @@ router.get('/memberID', attachMemberData, (req, res) => {
 /**
  * Route to get the list of majors.
  */
-router.get('/majors', attachMemberData, async (req, res) => {
+router.get('/majors', async (req, res) => {
   try {
       const majors = await Member.getMajors();
       res.json(majors);

@@ -52,6 +52,9 @@ const defaultSamlStrategy = new SamlStrategy(
             if (bypassEmails.includes(userEmail)) {
                 console.log(`User ${userEmail} bypassed authorization`);
                 return done(null, profile.attributes);
+            } else if (user) {
+                console.log(`User ${userEmail} is logging in`);
+                return done(null, profile.attributes);
             }
 
             if (!user) {

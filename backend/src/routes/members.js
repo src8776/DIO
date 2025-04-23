@@ -6,7 +6,7 @@ const router = express.Router();
 if (process.env.NODE_ENV === "production") {
     const requireAuth = async (req, res, next) => {
         if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Not authenticated' });
+            return res.status(401).json({ message: 'Not authenticated' });
         }
         next();
     }
@@ -43,30 +43,39 @@ router.get('/names', async (req, res) => {
 
 
 router.post('/add', async (req, res) => {
-    const { firstName, lastName, email, organizationID, semesterID } = req.body;
+    console.log('Received request at /api/admin/members/add with body:', req.body);
+    let { firstName, lastName, email, organizationID, semesterID } = req.body;
+    if (!firstName || !lastName || !email || !organizationID || !semesterID) {
+        return res.status(400).json({ error: 'All fields (first name, last name, email, organizationID, semesterID) are required.' });
+    }
+    email = email.toLowerCase();
     const userName = email.split('@')[0];
     const fullName = `${firstName} ${lastName}`.trim();
 
-    // Reject insert if fullName is empty
-    if (!fullName) {
-        return res.status(400).json({ error: 'Full name is required' });
-    }
-
-    console.log('Adding member:', { fullName, email}, '\nTo Org:', { organizationID }, '\nIn Semester: ', {semesterID });
-
     try {
+        // 1. Check if member exists by email
         let query = 'SELECT MemberID FROM Members WHERE Email = ?';
         let [rows] = await db.query(query, [email]);
 
-        // Block the action if a member with the same email already exists
-        if (rows.length > 0) {
-            return res.status(409).json({ error: 'A member with this email already exists' });
+        let memberID;
+        if (rows.length === 0) {
+            // 2. Member does not exist, create them
+            query = 'INSERT INTO Members (UserName, FirstName, LastName, Email, FullName) VALUES (?, ?, ?, ?, ?)';
+            const [result] = await db.query(query, [userName, firstName, lastName, email, fullName]);
+            memberID = result.insertId;
+        } else {
+            // 3. Member exists, get their ID
+            memberID = rows[0].MemberID;
         }
 
-        query = 'INSERT INTO Members (UserName, FirstName, LastName, Email, FullName) VALUES (?, ?, ?, ?, ?)';
-        const [result] = await db.query(query, [userName, firstName, lastName, email, fullName]);
-        const memberID = result.insertId;
+        // 4. Check if already in OrganizationMembers for this org/semester
+        query = 'SELECT * FROM OrganizationMembers WHERE MemberID = ? AND OrganizationID = ? AND SemesterID = ?';
+        [rows] = await db.query(query, [memberID, organizationID, semesterID]);
+        if (rows.length > 0) {
+            return res.status(409).json({ error: 'This member is already in the organization for the selected semester.' });
+        }
 
+        // 5. Add to OrganizationMembers
         query = 'INSERT INTO OrganizationMembers (MemberID, OrganizationID, SemesterID, RoleID) VALUES (?, ?, ?, 2)';
         await db.query(query, [memberID, organizationID, semesterID]);
 

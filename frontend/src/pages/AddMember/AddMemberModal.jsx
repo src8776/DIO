@@ -34,7 +34,7 @@ import AddMemberPage from './AddMemberPage';
  * 
  * @component
  */
-export default function AddMemberModal({ open, onClose, selectedSemester, orgID, onUploadSuccess, buttonProps = {} }) {
+export default function AddMemberModal({ open, onClose, selectedSemester, orgID, onUploadSuccess }) {
   const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
 
   const initialMemberData = {
@@ -80,6 +80,7 @@ export default function AddMemberModal({ open, onClose, selectedSemester, orgID,
       if (response.ok) {
         setSnackbar({ open: true, message: 'Member added successfully!', severity: 'success' });
         onUploadSuccess?.();
+        onClose(); // Close the modal after successful addition
       } else {
         const errorRes = await response.json();
         setSnackbar({ open: true, message: errorRes.error || 'Failed to add member.', severity: 'error' });
@@ -88,7 +89,6 @@ export default function AddMemberModal({ open, onClose, selectedSemester, orgID,
       console.error('Error adding member:', error);
       setSnackbar({ open: true, message: 'Failed to add member.', severity: 'error' });
     }
-    handleClose();
   };
 
   const handleSnackbarClose = () => {

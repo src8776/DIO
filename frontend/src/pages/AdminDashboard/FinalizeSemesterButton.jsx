@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, CircularProgress } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
 import SnackbarAlert from '../../components/SnackbarAlert';
 
 /**
@@ -37,8 +36,8 @@ import SnackbarAlert from '../../components/SnackbarAlert';
  * 
  * @component
  */
-export default function FinalizeSemesterButton({ orgID, selectedSemester, buttonProps = {} }) {
-    const [open, setOpen] = React.useState(false);
+export default function FinalizeSemesterButton({ orgID, selectedSemester, open, onClose, buttonProps = {} }) {
+    const [dialogOpen, setDialogOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 
     const [alertMessage, setAlertMessage] = useState('');
@@ -50,12 +49,17 @@ export default function FinalizeSemesterButton({ orgID, selectedSemester, button
         setOpenSnackbar(true);
     };
 
+    React.useEffect(() => {
+        if (open) setDialogOpen(true);
+    }, [open]);
+
     const handleClickOpen = () => {
-        setOpen(true);
+        setDialogOpen(true);
     };
 
     const handleClose = () => {
-        setOpen(false);
+        setDialogOpen(false);
+        onClose?.();
     };
 
     const handleConfirm = () => {
@@ -85,21 +89,13 @@ export default function FinalizeSemesterButton({ orgID, selectedSemester, button
             })
             .finally(() => {
                 setLoading(false);
-                setOpen(false);
+                setDialogOpen(false);
+                onClose?.();
             });
     };
 
     return (
         <>
-            <Button
-                color="error"
-                onClick={handleClickOpen}
-                disabled={!selectedSemester}
-                startIcon={<CheckIcon />}
-                {...buttonProps}
-            >
-                Finalize Semester
-            </Button>
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Finalize Semester</DialogTitle>
                 <DialogContent>

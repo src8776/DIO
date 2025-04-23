@@ -1,7 +1,6 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import { Box, Button, Modal } from "@mui/material";
-import EditNoteIcon from '@mui/icons-material/EditNote';
+import { Box, Modal } from "@mui/material";
 import GenerateReportPage from '../GenerateReport/GenerateReportPage';
 
 /**
@@ -39,10 +38,7 @@ import GenerateReportPage from '../GenerateReport/GenerateReportPage';
  * 
  * @component
  */
-export default function GenerateReport({ orgID, selectedSemester, buttonProps = {} }) {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+export default function GenerateReport({ orgID, selectedSemester, open, onClose, buttonProps = {} }) {
 
   const [filters, setFilters] = React.useState({
     memberStatus: 'both', // Default to 'both'
@@ -96,19 +92,11 @@ export default function GenerateReport({ orgID, selectedSemester, buttonProps = 
 
   return (
     <>
-      <Button
-        onClick={handleOpen}
-        startIcon={<EditNoteIcon />}
-        {...buttonProps}
-      >
-        Quick Report
-
-      </Button>
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={open} onClose={onClose}>
         <Box>
           <GenerateReportPage
             filters={filters}
-            handleClose={handleClose}
+            handleClose={onClose}
             handleFilterChange={handleFilterChange}
             handleGenerateReport={handleGenerateReport}
           />

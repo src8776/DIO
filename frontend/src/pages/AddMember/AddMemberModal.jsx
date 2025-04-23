@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Modal, Snackbar, Alert } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { Box, Modal, Snackbar, Alert } from '@mui/material';
 import AddMemberPage from './AddMemberPage';
 
 /**
@@ -35,8 +34,7 @@ import AddMemberPage from './AddMemberPage';
  * 
  * @component
  */
-export default function AddMemberModal({ selectedSemester, orgID, onUploadSuccess, buttonProps = {} }) {
-  const [open, setOpen] = React.useState(false);
+export default function AddMemberModal({ open, onClose, selectedSemester, orgID, onUploadSuccess, buttonProps = {} }) {
   const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
 
   const initialMemberData = {
@@ -55,9 +53,6 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
       semesterID: selectedSemester ? selectedSemester.SemesterID : null,
     }));
   }, [selectedSemester]);
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   // Handle input changes
   const handleChange = (event) => {
@@ -102,14 +97,8 @@ export default function AddMemberModal({ selectedSemester, orgID, onUploadSucces
 
   return (
     <>
-      <Button
-        onClick={handleOpen}
-        startIcon={<AddIcon />}
-        {...buttonProps}
-      >
-        Add Member
-      </Button>
-      <Modal open={open} onClose={handleClose}>
+      {/* Remove the Button, since menu triggers modal */}
+      <Modal open={open} onClose={onClose}>
         <Box>
           <AddMemberPage
             memberData={memberData}

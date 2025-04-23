@@ -254,7 +254,7 @@ export default function OrganizationSetup() {
                 )}
 
                 {!isEditable && selectedSemester && (
-                    <Typography>Rules for closed semesters cannot be modified.</Typography>
+                    <Typography>Rules for finalized semesters cannot be modified.</Typography>
                 )}
                 {/* Organization Rules Table */}
                 <Paper>

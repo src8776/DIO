@@ -2,15 +2,20 @@ import * as React from 'react';
 import {
   Box, Container, Paper,
   Typography, Select, MenuItem,
-  IconButton, Menu
+  IconButton, Menu, ListItemIcon, 
+  ListItemText, useTheme
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import AddIcon from '@mui/icons-material/Add';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import CheckIcon from '@mui/icons-material/Check';
 import { useParams } from 'react-router-dom';
 import FinalizeSemesterButton from './FinalizeSemesterButton';
 import GenerateReportButton from './GenerateReportButton';
 import AddMemberModal from '../AddMember/AddMemberModal';
 import UploadFileModal from './UploadFileModal';
 import DataTable from './DataTable';
+import { Edit, EditNote } from '@mui/icons-material';
 
 /**
  * AdminDashPage.jsx
@@ -48,6 +53,7 @@ import DataTable from './DataTable';
  */
 function AdminDash() {
   const { org } = useParams(); //"wic" or "coms"
+  const theme = useTheme();
   const allowedTypes = ['wic', 'coms'];
   const [orgID, setOrgID] = React.useState(null);
   const [semesters, setSemesters] = React.useState([]);
@@ -56,6 +62,10 @@ function AdminDash() {
   const [memberData, setMemberData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [openAddMember, setOpenAddMember] = React.useState(false);
+  const [openGenerateReport, setOpenGenerateReport] = React.useState(false);
+  const [openFinalizeSemester, setOpenFinalizeSemester] = React.useState(false);
+
 
   if (!allowedTypes.includes(org)) {
     return (
@@ -229,55 +239,74 @@ function AdminDash() {
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem>
-            <GenerateReportButton
-              orgID={orgID}
-              selectedSemester={selectedSemester}
-              buttonProps={{
-                variant: 'text', // Removes background, making it look like text
-                fullWidth: true, // Ensures the button spans the MenuItem width
-                sx: {
-                  justifyContent: 'flex-start', // Aligns text and icon to the left
-                  textTransform: 'none', // Prevents uppercase text
-                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
-                },
-              }}
-            />
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              setOpenGenerateReport(true);
+            }}
+            sx={{ color: 'primary.main', fontWeight: 'bold' }}
+          >
+            <ListItemIcon>
+              <EditNoteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Quick Report" />
           </MenuItem>
-          <MenuItem>
-            <AddMemberModal
-              selectedSemester={selectedSemester}
-              orgID={orgID}
-              onUploadSuccess={handleUploadSuccess}
-              buttonProps={{
-                variant: 'text', // Removes background, making it look like text
-                fullWidth: true, // Ensures the button spans the MenuItem width
-                sx: {
-                  justifyContent: 'flex-start', // Aligns text and icon to the left
-                  textTransform: 'none', // Prevents uppercase text
-                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
-                },
-              }}
-            />
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              setOpenAddMember(true);
+            }}
+            sx={{ color: 'primary.main', fontWeight: 'bold' }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Add Member" />
           </MenuItem>
           {/* {isWithinLastMonth() && ( */}
-          <MenuItem>
-            <FinalizeSemesterButton
-              orgID={orgID}
-              selectedSemester={selectedSemester}
-              buttonProps={{
-                variant: 'text', // Removes background, making it look like text
-                fullWidth: true, // Ensures the button spans the MenuItem width
-                sx: {
-                  justifyContent: 'flex-start', // Aligns text and icon to the left
-                  textTransform: 'none', // Prevents uppercase text
-                  '&:hover': { backgroundColor: 'transparent' }, // Optional: lets MenuItem handle hover
-                },
-              }}
-            />
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              setOpenFinalizeSemester(true);
+            }}
+            sx={{ color: 'error.main', fontWeight: 'bold' }}
+            disabled={!selectedSemester}
+          >
+            <ListItemIcon>
+              <CheckIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Finalize Semester" />
           </MenuItem>
           {/* )} */}
         </Menu>
+
+        <GenerateReportButton
+          orgID={orgID}
+          selectedSemester={selectedSemester}
+          open={openGenerateReport}
+          onClose={() => setOpenGenerateReport(false)}
+          buttonProps={{ style: { display: 'none' } }} // Hide the default button
+        />
+
+        <AddMemberModal
+          open={openAddMember}
+          onClose={() => setOpenAddMember(false)}
+          selectedSemester={selectedSemester}
+          orgID={orgID}
+          onUploadSuccess={() => {
+            handleUploadSuccess();
+            setOpenAddMember(false);
+          }}
+          buttonProps={{ style: { display: 'none' } }} // Hide the default button
+        />
+
+        <FinalizeSemesterButton
+          orgID={orgID}
+          selectedSemester={selectedSemester}
+          open={openFinalizeSemester}
+          onClose={() => setOpenFinalizeSemester(false)}
+          buttonProps={{ style: { display: 'none' } }}
+        />
 
         {/* Data Table */}
         <Paper elevation={0}>

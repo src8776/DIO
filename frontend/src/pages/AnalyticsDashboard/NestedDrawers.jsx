@@ -91,11 +91,34 @@ const NestedDrawers = ({
 
     return (
         <>
+            {/* Custom Backdrop for Drawer(s) */}
+            {(open || detailsOpen) && (
+                <Box
+                    onClick={() => {
+                        if (detailsOpen) {
+                            onDetailsClose();
+                        } else if (open) {
+                            onClose();
+                        }
+                    }}
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        zIndex: 1199, // just below the left drawer
+                        bgcolor: 'rgba(0,0,0,0.15)',
+                        transition: 'background 0.2s',
+                    }}
+                />
+            )}
             {/* Members List Drawer */}
             <Drawer
                 anchor="left"
                 open={open}
                 onClose={onClose}
+                variant='persistent'
                 sx={{
                     zIndex: 1200,
                     '& .MuiDrawer-paper': {
@@ -196,14 +219,16 @@ const NestedDrawers = ({
                 </Box>
             </Drawer>
             <Drawer
-                anchor="left"
+                anchor="right"
                 open={detailsOpen}
                 onClose={onDetailsClose}
                 variant="persistent"
+                hideBackdrop
                 sx={{
                     zIndex: 1300,
                     '& .MuiDrawer-paper': {
                         width: { xs: '100%', sm: 500, md: 700 },
+                        boxShadow: 'none',
                         '@media (min-width:1102px)': {
                             left: 400,
                         },

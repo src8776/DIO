@@ -2,14 +2,15 @@ import * as React from 'react';
 import {
   Box, Container, Paper,
   Typography, Select, MenuItem,
-  IconButton, Menu, ListItemIcon, 
-  ListItemText, useTheme
+  IconButton, Menu, ListItemIcon,
+  ListItemText, useTheme, Divider
 } from '@mui/material';
+import { useParams } from 'react-router-dom';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import CheckIcon from '@mui/icons-material/Check';
-import { useParams } from 'react-router-dom';
+import DownloadIcon from '@mui/icons-material/Download';
 import FinalizeSemesterButton from './FinalizeSemesterButton';
 import GenerateReportButton from './GenerateReportButton';
 import AddMemberModal from '../AddMember/AddMemberModal';
@@ -190,6 +191,43 @@ function AdminDash() {
     setAnchorEl(null);
   };
 
+  // CSV export handler
+  const handleExportCSV = () => {
+    if (!memberData || memberData.length === 0) {
+      alert('No data to export.');
+      return;
+    }
+    // Exclude 'LastUpdated' from header and rows
+    let header = Object.keys(memberData[0]).filter(key => key !== 'LastUpdated');
+    // If not filtering by semester, also exclude 'Status'
+    if (!selectedSemester) {
+      header = header.filter(key => key !== 'Status');
+    }
+    // Sort by MemberID
+    const sortedData = [...memberData].sort((a, b) => {
+      if (a.MemberID < b.MemberID) return -1;
+      if (a.MemberID > b.MemberID) return 1;
+      return 0;
+    });
+    const replacer = (key, value) => (value === null ? '' : value);
+    const csv = [
+      header.join(','),
+      ...sortedData.map(row =>
+        header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(',')
+      ),
+    ].join('\r\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `members_${selectedSemester ? selectedSemester.TermName.replace(/\s+/g, '_') : 'all'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <Container sx={{ p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -242,6 +280,19 @@ function AdminDash() {
           <MenuItem
             onClick={() => {
               handleMenuClose();
+              setOpenAddMember(true);
+            }}
+            sx={{ color: 'primary.main', fontWeight: 'bold' }}
+          >
+            <ListItemIcon>
+              <AddIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Add Member" />
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
               setOpenGenerateReport(true);
             }}
             sx={{ color: 'primary.main', fontWeight: 'bold' }}
@@ -254,15 +305,16 @@ function AdminDash() {
           <MenuItem
             onClick={() => {
               handleMenuClose();
-              setOpenAddMember(true);
+              handleExportCSV();
             }}
             sx={{ color: 'primary.main', fontWeight: 'bold' }}
           >
             <ListItemIcon>
-              <AddIcon fontSize="small" />
+              <DownloadIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText primary="Add Member" />
+            <ListItemText primary="Export CSV" />
           </MenuItem>
+          <Divider />
           {/* {isWithinLastMonth() && ( */}
           <MenuItem
             onClick={() => {

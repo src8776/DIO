@@ -251,7 +251,10 @@ export default function DataTable({ orgID, memberData, isLoading, selectedSemest
         setOrderBy(property);
     };
 
-    const handleSearchChange = (event) => setSearchQuery(event.target.value);
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+        setPage(0); // Reset to first page on search
+    };
 
     const filteredRows = rows.filter((row) =>
         (row.FullName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||

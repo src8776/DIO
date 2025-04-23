@@ -38,7 +38,7 @@ import GenerateReportPage from '../GenerateReport/GenerateReportPage';
  * 
  * @component
  */
-export default function GenerateReport({ orgID, selectedSemester, open, onClose, buttonProps = {} }) {
+export default function GenerateReport({ orgID, selectedSemester, open, onClose }) {
 
   const [filters, setFilters] = React.useState({
     memberStatus: 'both', // Default to 'both'

@@ -283,6 +283,7 @@ function AdminDash() {
               setOpenAddMember(true);
             }}
             sx={{ color: 'primary.main', fontWeight: 'bold' }}
+            disabled={!selectedSemester}
           >
             <ListItemIcon>
               <AddIcon fontSize="small" />
@@ -315,6 +316,11 @@ function AdminDash() {
             <ListItemText primary="Export CSV" />
           </MenuItem>
           <Divider />
+          {/* 
+              If you want to disable the finalize semester button until the final month of the semester:
+              uncomment the isWithinLastMonth() check below 
+          */}
+
           {/* {isWithinLastMonth() && ( */}
           <MenuItem
             onClick={() => {
@@ -337,7 +343,6 @@ function AdminDash() {
           selectedSemester={selectedSemester}
           open={openGenerateReport}
           onClose={() => setOpenGenerateReport(false)}
-          buttonProps={{ style: { display: 'none' } }} // Hide the default button
         />
 
         <AddMemberModal
@@ -349,7 +354,6 @@ function AdminDash() {
             handleUploadSuccess();
             setOpenAddMember(false);
           }}
-          buttonProps={{ style: { display: 'none' } }} // Hide the default button
         />
 
         <FinalizeSemesterButton
@@ -357,7 +361,7 @@ function AdminDash() {
           selectedSemester={selectedSemester}
           open={openFinalizeSemester}
           onClose={() => setOpenFinalizeSemester(false)}
-          buttonProps={{ style: { display: 'none' } }}
+
         />
 
         {/* Data Table */}

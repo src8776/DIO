@@ -36,7 +36,7 @@ import SnackbarAlert from '../../components/SnackbarAlert';
  * 
  * @component
  */
-export default function FinalizeSemesterButton({ orgID, selectedSemester, open, onClose, buttonProps = {} }) {
+export default function FinalizeSemesterButton({ orgID, selectedSemester, open, onClose }) {
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 
